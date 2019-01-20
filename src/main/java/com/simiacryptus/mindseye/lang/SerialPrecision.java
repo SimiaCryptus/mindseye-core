@@ -19,8 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import jcuda.Sizeof;
-
 import javax.annotation.Nonnull;
 import java.nio.*;
 import java.nio.DoubleBuffer;
@@ -34,7 +32,7 @@ public enum SerialPrecision implements DataSerializer {
   /**
    * Double floating-point precision.
    */
-  Double(Sizeof.DOUBLE) {
+  Double(8) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       @Nonnull DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
@@ -56,7 +54,7 @@ public enum SerialPrecision implements DataSerializer {
   /**
    * Float floating-point precision.
    */
-  Float(Sizeof.FLOAT) {
+  Float(4) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       @Nonnull DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
