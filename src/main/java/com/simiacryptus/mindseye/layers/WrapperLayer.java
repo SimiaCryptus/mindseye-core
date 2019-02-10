@@ -78,6 +78,12 @@ public abstract class WrapperLayer extends LayerBase {
     return inner.eval(array);
   }
 
+  @Nullable
+  @Override
+  public Result evalAndFree(final Result... array) {
+    return inner.evalAndFree(array);
+  }
+
   /**
    * The Inner.
    */
@@ -98,7 +104,9 @@ public abstract class WrapperLayer extends LayerBase {
    * @return the inner
    */
   public WrapperLayer setInner(@Nullable Layer inner) {
+    if (this.getInner() != null) this.getInner().freeRef();
     this.inner = inner;
+    this.getInner().addRef();
     return this;
   }
 

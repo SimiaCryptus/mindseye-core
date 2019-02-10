@@ -58,6 +58,7 @@ public class SimpleLossNetwork extends SupervisedNetwork {
 
   @Override
   public DAGNode getHead() {
+    lossNode.addRef();
     return lossNode;
   }
 }

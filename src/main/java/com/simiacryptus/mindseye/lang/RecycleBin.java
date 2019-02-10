@@ -43,9 +43,6 @@ import static com.simiacryptus.mindseye.lang.PersistanceMode.WEAK;
  */
 public abstract class RecycleBin<T> {
 
-  /**
-   * The constant DOUBLES.
-   */
   public static final RecycleBin<double[]> DOUBLES = new RecycleBin<double[]>() {
     @Override
     protected void free(double[] obj) {
@@ -58,6 +55,22 @@ public abstract class RecycleBin<T> {
 
     @Override
     public void reset(@Nonnull final double[] data, long size) {
+      assert data.length == size;
+      Arrays.fill(data, 0);
+    }
+  }.setPersistanceMode(CoreSettings.INSTANCE().getDoubleCacheMode());
+  public static final RecycleBin<float[]> FLOATS = new RecycleBin<float[]>() {
+    @Override
+    protected void free(float[] obj) {
+    }
+
+    @Override
+    public float[] create(final long length) {
+      return new float[(int) length];
+    }
+
+    @Override
+    public void reset(@Nonnull final float[] data, long size) {
       assert data.length == size;
       Arrays.fill(data, 0);
     }

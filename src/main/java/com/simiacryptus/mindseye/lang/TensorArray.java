@@ -66,9 +66,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   @Nonnull
   public static TensorArray wrap(@Nonnull final Tensor... data) {
     @Nonnull TensorArray tensorArray = TensorArray.create(data);
-    for (@Nonnull Tensor tensor : data) {
-      tensor.freeRef();
-    }
+    Arrays.stream(data).forEach(ReferenceCounting::freeRef);
     return tensorArray;
   }
 

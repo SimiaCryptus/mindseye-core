@@ -66,8 +66,8 @@ public final class ConstantResult extends Result {
    */
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
     if (null == input) throw new IllegalArgumentException();
-    return IntStream.range(0, input[0].length).mapToObj(index -> IntStream.range(0, input.length)
-        .mapToObj(id -> input[id][index])
+    return IntStream.range(0, input[0].length).mapToObj(x -> IntStream.range(0, input.length)
+        .mapToObj(y -> input[y][x])
         .toArray(i -> new Tensor[i]))
         .map(tensors -> TensorArray.create(tensors))
         .map(tensorArray -> new ConstantResult(tensorArray))

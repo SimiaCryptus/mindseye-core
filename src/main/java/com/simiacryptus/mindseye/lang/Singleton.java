@@ -19,9 +19,12 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.notebook.NanoHTTPD;
+
 import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
@@ -36,6 +39,11 @@ public class Singleton<T> implements Supplier<T> {
    * Instantiates a new Singleton.
    */
   public Singleton() {
+  }
+
+  public T getOrInit(Supplier<T> fn) {
+    if(deque.isEmpty()) set(fn.get());
+    return get();
   }
 
   @Override
@@ -60,5 +68,17 @@ public class Singleton<T> implements Supplier<T> {
     assert deque.isEmpty();
     deque.add(obj);
     return this;
+  }
+
+  public boolean isDefined() {
+    return !deque.isEmpty();
+  }
+
+  public T remove() {
+    try {
+      return deque.poll(1,TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

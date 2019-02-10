@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
- * This type handles the data selection part of stochastic gradient descent training. Between each epoch, a "reset"
+ * This type handles the data selection part of stochastic gradient descent training. Between each epoch, a "remove"
  * method is called to re-sample the training data and pass it to the heapCopy Trainable implementation.
  */
 public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> implements SampledTrainable, TrainableDataMask {
@@ -91,6 +91,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
    */
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(network, batchSize));
+    getInner().freeRef();
     if (0 == trainingData.length) throw new IllegalArgumentException();
     this.trainingData = Arrays.stream(trainingData).map(obj -> new WeakCachedSupplier<>(() -> obj)).collect(Collectors.toList());
     this.trainingSize = trainingSize;

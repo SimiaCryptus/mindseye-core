@@ -248,7 +248,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
   /**
    * Measure point sample.
    *
-   * @param reset the reset
+   * @param reset the remove
    * @return the point sample
    */
   @Nullable
@@ -265,7 +265,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
           });
         }
         if (!subject.reseed(System.nanoTime())) {
-          if (retries > 0) throw new IterativeStopException("Failed to reset training subject");
+          if (retries > 0) throw new IterativeStopException("Failed to remove training subject");
         } else {
           monitor.log(String.format("Reset training subject"));
         }
@@ -311,6 +311,7 @@ mainLoop:
           break;
         }
         currentPoint.freeRef();
+        currentPoint = null;
         currentPoint = measure(true);
         assert 0 < currentPoint.delta.getMap().size() : "Nothing to optimize";
 subiterationLoop:
@@ -322,6 +323,7 @@ subiterationLoop:
             break mainLoop;
           }
           currentPoint.freeRef();
+          currentPoint = null;
           currentPoint = measure(true);
           @Nullable final PointSample _currentPoint = currentPoint;
           @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult.time(() -> orientation.orient(subject, _currentPoint, monitor));
@@ -332,6 +334,7 @@ subiterationLoop:
           try {
             @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult.time(() -> step(direction, directionType, previous));
             currentPoint.freeRef();
+            currentPoint = null;
             currentPoint = timedLineSearch.result;
             final long now = System.nanoTime();
             final CharSequence perfString = String.format("Total: %.4f; Orientation: %.4f; Line Search: %.4f",
@@ -342,6 +345,7 @@ subiterationLoop:
               if (previous.getMean() < currentPoint.getMean()) {
                 monitor.log(String.format("Resetting Iteration %s", perfString));
                 currentPoint.freeRef();
+                currentPoint = null;
                 currentPoint = direction.step(0, monitor).point;
               } else {
                 monitor.log(String.format("Static Iteration %s", perfString));
@@ -377,7 +381,7 @@ subiterationLoop:
       }
       return null == currentPoint ? Double.NaN : currentPoint.getMean();
     } finally {
-      currentPoint.freeRef();
+      if(null != currentPoint) currentPoint.freeRef();
     }
   }
 

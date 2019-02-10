@@ -67,7 +67,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
   @Override
   public UUID getId() {
     T key = this.getKey();
-    return key==null?UUID.randomUUID():UUID.fromString(key.toString());
+    return key==null?UUID.randomUUID():UUID.nameUUIDFromBytes(key.toString().getBytes());
   }
 
   @Nonnull
