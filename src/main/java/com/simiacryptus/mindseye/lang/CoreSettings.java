@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.notebook.MarkdownNotebookOutput;
 import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,6 @@ public class CoreSettings implements Settings {
     this.lifecycleDebug = Settings.get("DEBUG_LIFECYCLE", false);
     this.doubleCacheMode = Settings.get("DOUBLE_CACHE_MODE", PersistanceMode.WEAK);
     this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 2);
-    MarkdownNotebookOutput.MAX_OUTPUT = Settings.get("MAX_OUTPUT", 2 * 1024);
   }
 
   /**

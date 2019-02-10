@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.DeltaSet;
-import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 

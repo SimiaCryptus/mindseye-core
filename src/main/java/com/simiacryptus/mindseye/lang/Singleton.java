@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.notebook.NanoHTTPD;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingDeque;

@@ -23,7 +23,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import org.apache.commons.lang3.ArrayUtils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -432,10 +431,24 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   @Nonnull
   public static int[] reverse(@Nonnull int[] dimensions) {
     @Nonnull int[] copy = Arrays.copyOf(dimensions, dimensions.length);
-    ArrayUtils.reverse(copy);
+    reverse(copy, 0, copy.length);
     return copy;
   }
-
+  public static void reverse(final int[] array, final int startIndexInclusive, final int endIndexExclusive) {
+    if (array == null) {
+      return;
+    }
+    int i = startIndexInclusive < 0 ? 0 : startIndexInclusive;
+    int j = Math.min(array.length, endIndexExclusive) - 1;
+    int tmp;
+    while (j > i) {
+      tmp = array[j];
+      array[j] = array[i];
+      array[i] = tmp;
+      j--;
+      i++;
+    }
+  }
   /**
    * Pretty print string.
    *
