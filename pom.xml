@@ -30,6 +30,7 @@
 
     <artifactId>mindseye-core</artifactId>
     <description>Core Neural Networks Framework</description>
+    <url>https://simiacryptus.github.io/${github.project}/${github.path}</url>
     <scm>
         <url>https://github.com/SimiaCryptus/mindseye-core/</url>
         <connection>scm:git:git@github.com:SimiaCryptus/mindseye-core.git</connection>
