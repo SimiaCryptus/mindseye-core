@@ -1,0 +1,7 @@
+com.simiacryptus.mindseye.eval
+com.simiacryptus.mindseye.lang
+com.simiacryptus.mindseye.layers
+com.simiacryptus.mindseye.network
+com.simiacryptus.mindseye.opt
+com.simiacryptus.mindseye.opt.line
+com.simiacryptus.mindseye.opt.orient
