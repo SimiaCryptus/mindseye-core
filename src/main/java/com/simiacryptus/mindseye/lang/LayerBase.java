@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,6 +35,10 @@ import java.util.UUID;
  */
 @SuppressWarnings("serial")
 public abstract class LayerBase extends RegisteredObjectBase implements Layer {
+  @Override
+  public LayerBase addRef() {
+    return (LayerBase) super.addRef();
+  }
 
   private final UUID id;
   /**

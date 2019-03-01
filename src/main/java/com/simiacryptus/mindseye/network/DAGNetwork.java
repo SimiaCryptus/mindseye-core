@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.network;
 
 import com.google.gson.*;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
 import com.simiacryptus.util.MonitoredItem;
@@ -31,7 +32,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
@@ -128,9 +128,9 @@ public abstract class DAGNetwork extends LayerBase {
     }
     @Nonnull final UUID head = UUID.fromString(json.getAsJsonPrimitive("head").getAsString());
     initLinks(deserializedLinks, source_layersByNodeId, head);
-    source_layersByLayerId.values().forEach(x -> x.freeRef());
     this.labels.putAll(labels);
     assertConsistent();
+    source_layersByLayerId.values().forEach(ReferenceCounting::freeRef);
   }
 
   /**
@@ -220,7 +220,6 @@ public abstract class DAGNetwork extends LayerBase {
     assertConsistent();
     assert null != inputHandles;
     @Nonnull final InnerNode node = new InnerNode(this, layer, head);
-    Arrays.stream(head).distinct().forEach(ReferenceCounting::freeRef);
     DAGNode replaced = internalNodes.put(node.getId(), node);
     if (null != replaced) replaced.freeRef();
     node.addRef();
@@ -325,44 +324,14 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets by label.
-   *
-   * @param key the key
-   * @return the by label
-   */
-  public DAGNode getByLabel(final CharSequence key) {
-    UUID k = labels.get(key);
-    return getNodeById(k);
-  }
-
-  /**
    * Gets node by id.
    *
    * @param k the k
    * @return the node by id
    */
   public DAGNode getNodeById(final UUID k) {
-    return internalNodes.get(k);
-  }
-
-  /**
-   * Gets by name.
-   *
-   * @param <T>  the type parameter
-   * @param name the name
-   * @return the by name
-   */
-  @Nullable
-  @SuppressWarnings("unchecked")
-  public <T extends Layer> T getByName(@Nullable final CharSequence name) {
-    if (null == name) return null;
-    @Nonnull final AtomicReference<Layer> result = new AtomicReference<>();
-    visitLayers(n -> {
-      if (name.equals(n.getName())) {
-        result.set(n);
-      }
-    });
-    return (T) result.get();
+    DAGNode dagNode = internalNodes.get(k);
+    return null == dagNode ? null : dagNode.addRef();
   }
 
   /**
@@ -460,7 +429,7 @@ public abstract class DAGNetwork extends LayerBase {
   private DAGNode getNode(final UUID id) {
     DAGNode returnValue = getNodeById(id);
     if (null == returnValue) {
-      returnValue = inputNodes.get(id);
+      returnValue = inputNodes.get(id).addRef();
     }
     return returnValue;
   }
@@ -492,8 +461,7 @@ public abstract class DAGNetwork extends LayerBase {
       }
     }
     assertConsistent();
-    final DAGNode[] dependencies = getDependencies(nodeLinks, newNodeId);
-    @Nonnull final InnerNode node = new InnerNode(this, layer, newNodeId, dependencies);
+    @Nonnull final InnerNode node = new InnerNode(this, layer, newNodeId, getDependencies(nodeLinks, newNodeId));
     DAGNode replaced = internalNodes.put(node.getId(), node);
     if (null != replaced) replaced.freeRef();
     assertConsistent();

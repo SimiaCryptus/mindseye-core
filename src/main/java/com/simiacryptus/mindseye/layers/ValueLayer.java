@@ -21,7 +21,9 @@ package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.network.DAGNode;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,6 +40,12 @@ import java.util.stream.IntStream;
  */
 @SuppressWarnings("serial")
 public class ValueLayer extends LayerBase {
+
+  public static Layer wrap(Tensor tensor) {
+    ValueLayer valueLayer = new ValueLayer(tensor);
+    tensor.freeRef();
+    return valueLayer;
+  }
 
   public static class RefWrapper<T> {
     public final T obj;
@@ -120,6 +128,7 @@ public class ValueLayer extends LayerBase {
           delta.freeRef();
         }
       }
+      data.freeRef();
     }) {
 
       @Override

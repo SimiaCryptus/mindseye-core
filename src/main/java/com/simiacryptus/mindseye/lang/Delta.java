@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.RecycleBin;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;

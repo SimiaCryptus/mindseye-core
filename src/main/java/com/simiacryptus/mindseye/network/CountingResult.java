@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,14 +140,18 @@ public class CountingResult extends Result {
       assertAlive();
       data.assertAlive();
       if (1 >= references.get()) {
-        data.addRef();
+        //data.addRef();
+        int prevRefs = data.currentRefCount();
         inner.accumulate(buffer, data);
+        int refDeltas = prevRefs - data.currentRefCount();
+        if (refDeltas != 1 && !(inner instanceof CountingResult)) {
+          throw new IllegalStateException(String.format("%s backprop finished with %s refs", inner.getClass().toString(), refDeltas));
+        }
       } else {
         @Nonnull TensorList reduced = null;
         synchronized (passbackBuffers) {
           assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           passbackBuffers.add(data);
-          data.addRef();
           if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
             Stream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded()) stream = stream.parallel();
@@ -176,7 +181,12 @@ public class CountingResult extends Result {
           assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
         }
         if (null != reduced) {
+          int prevRefs = reduced.currentRefCount();
           inner.accumulate(buffer, reduced);
+          int refDeltas = prevRefs - reduced.currentRefCount();
+          if (refDeltas != 1 && !inner.getClass().equals(CountingResult.class)) {
+            throw new IllegalStateException(String.format("%s backprop finished with %s refs", inner.getClass().toString(), refDeltas));
+          }
           accumulations.set(0);
         }
       }

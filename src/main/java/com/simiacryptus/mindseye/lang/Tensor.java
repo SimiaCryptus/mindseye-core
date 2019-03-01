@@ -23,6 +23,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.simiacryptus.lang.ref.RecycleBin;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -38,6 +40,10 @@ import java.util.stream.*;
  */
 @SuppressWarnings("serial")
 public final class Tensor extends ReferenceCountingBase implements Serializable {
+  @Override
+  public Tensor addRef() {
+    return (Tensor) super.addRef();
+  }
 
   /**
    * The constant json_precision.
@@ -991,10 +997,24 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   @Nullable
   public Tensor map(@Nonnull final DoubleUnaryOperator f) {
+    return map(f, true);
+  }
+
+  /**
+   * Map tensor.
+   *
+   * @param f the f
+   * @param parallel
+   * @return the tensor
+   */
+  @Nullable
+  public Tensor map(@Nonnull final DoubleUnaryOperator f, boolean parallel) {
     @Nullable final double[] data = getData();
     Tensor tensor = new Tensor(dimensions);
     @Nonnull final double[] cpy = tensor.getData();
-    IntStream.range(0, data.length).parallel().forEach(i -> cpy[i] = f.applyAsDouble(data[i]));
+    IntStream stream = IntStream.range(0, data.length);
+    if(parallel) stream = stream.parallel();
+    stream.forEach(i -> cpy[i] = f.applyAsDouble(data[i]));
     return tensor;
   }
 

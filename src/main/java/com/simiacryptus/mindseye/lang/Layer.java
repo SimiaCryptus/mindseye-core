@@ -23,6 +23,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
+import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.mindseye.network.DAGNode;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import org.apache.commons.io.IOUtils;
 
@@ -40,6 +42,8 @@ import java.util.zip.ZipOutputStream;
  * The interface Layer.
  */
 public interface Layer extends ReferenceCounting, Serializable {
+  @Override
+  Layer addRef();
 
   /**
    * From json nn key.

@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.ReferenceCounting;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.stream.IntStream;
@@ -30,6 +32,8 @@ import java.util.stream.Stream;
  * can operate apply minimal CPU-GPU data transfer.
  */
 public interface TensorList extends ReferenceCounting {
+  @Override
+  TensorList addRef();
 
   /**
    * Add tensor list.

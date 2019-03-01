@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.util.Util;
 
@@ -75,9 +75,7 @@ public final class InnerNode extends LazyResult {
     setLayer(layer);
     this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
     assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
-    for (@Nonnull DAGNode node : this.inputNodes) {
-      node.addRef();
-    }
+    //Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
   }
 
   /**

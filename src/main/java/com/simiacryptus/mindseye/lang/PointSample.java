@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
+
 import javax.annotation.Nonnull;
 import java.util.UUID;
 

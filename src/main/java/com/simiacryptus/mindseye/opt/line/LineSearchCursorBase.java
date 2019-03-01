@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.DeltaSet;
-import com.simiacryptus.mindseye.lang.ReferenceCountingBase;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import java.util.UUID;

@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
+
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
@@ -103,11 +105,7 @@ public class Result extends ReferenceCountingBase {
    * @param delta  the evalInputDelta
    */
   public void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
-    try {
-      getAccumulator().accept(buffer, delta);
-    } finally {
-      delta.freeRef();
-    }
+    getAccumulator().accept(buffer, delta);
   }
 
   /**

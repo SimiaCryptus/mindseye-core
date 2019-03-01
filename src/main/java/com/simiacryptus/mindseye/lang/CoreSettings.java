@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.Settings;
+import com.simiacryptus.lang.ref.RefSettings;
 import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,23 +28,16 @@ import org.slf4j.LoggerFactory;
 /**
  * The type Cuda settings.
  */
-public class CoreSettings implements Settings {
+public class CoreSettings extends RefSettings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
   private static transient CoreSettings INSTANCE = null;
-  /**
-   * The Backprop aggregation size.
-   */
   public final int backpropAggregationSize;
-  private final boolean lifecycleDebug;
   private final boolean singleThreaded;
-  private final PersistanceMode doubleCacheMode;
 
   private CoreSettings() {
     System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", Integer.toString(Settings.get("THREADS", 64)));
     this.singleThreaded = Settings.get("SINGLE_THREADED", false);
-    this.lifecycleDebug = Settings.get("DEBUG_LIFECYCLE", false);
-    this.doubleCacheMode = Settings.get("DOUBLE_CACHE_MODE", PersistanceMode.WEAK);
     this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 2);
   }
 
@@ -64,30 +59,12 @@ public class CoreSettings implements Settings {
   }
 
   /**
-   * Is lifecycle debug boolean.
-   *
-   * @return the boolean
-   */
-  public boolean isLifecycleDebug() {
-    return lifecycleDebug;
-  }
-
-  /**
    * Is conservative boolean.
    *
    * @return the boolean
    */
   public boolean isSingleThreaded() {
     return singleThreaded;
-  }
-
-  /**
-   * Gets double cacheLocal mode.
-   *
-   * @return the double cacheLocal mode
-   */
-  public PersistanceMode getDoubleCacheMode() {
-    return doubleCacheMode;
   }
 
 }

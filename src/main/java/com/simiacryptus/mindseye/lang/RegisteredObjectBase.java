@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.opt.orient;
 
-import com.simiacryptus.mindseye.lang.ReferenceCountingBase;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 
 /**

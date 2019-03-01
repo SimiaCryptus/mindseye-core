@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.simiacryptus.mindseye.lang.ReferenceCountingBase;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 
 /**
  * Base class for an object which can be evaluated using differential weights. This represents a function without inputs

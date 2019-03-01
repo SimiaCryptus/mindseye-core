@@ -19,8 +19,9 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.Result;
 
 import javax.annotation.Nonnull;
@@ -34,6 +35,8 @@ import java.util.UUID;
  * node can be updated, which can be useful for adding/removing instrumentation wrappers.
  */
 public interface DAGNode extends Serializable, ReferenceCounting {
+  @Override
+  DAGNode addRef();
 
   /**
    * Get nn result.

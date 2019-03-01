@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -29,6 +31,10 @@ import java.util.stream.Stream;
  * tensor to/from a rank-1 array.
  */
 public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
+  @Override
+  public ReshapedTensorList addRef() {
+    return (ReshapedTensorList) super.addRef();
+  }
   @Nonnull
   private final TensorList inner;
   private final int[] dims;

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.PlaceholderLayer;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;

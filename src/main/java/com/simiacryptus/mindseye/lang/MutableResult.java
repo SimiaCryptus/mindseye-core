@@ -50,6 +50,7 @@ public class MutableResult extends Result {
         dt.freeRef();
         layer.freeRef();
       }
+      delta.freeRef();
     };
   }
 

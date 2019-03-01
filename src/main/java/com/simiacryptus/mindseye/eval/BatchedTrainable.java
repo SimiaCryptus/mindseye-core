@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -78,6 +79,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
   public PointSample measure(final TrainingMonitor monitor) {
     @Nonnull final List<Tensor[]> tensors = Arrays.asList(getData());
     TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+      DataTrainable inner = getInner();
       if (batchSize < tensors.size()) {
         final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
         final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
@@ -86,12 +88,21 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
           if (batchSize < trainingData.size()) {
             throw new RuntimeException();
           }
-          getInner().setData(trainingData);
-          return super.measure(monitor);
-        }).reduce((a, b) -> a.add(b)).get();
+          inner.setData(trainingData);
+          PointSample measure = super.measure(monitor);
+          inner.setData(new ArrayList<>());
+          return measure;
+        }).reduce((a, b) -> {
+          PointSample r = a.add(b);
+          a.freeRef();
+          b.freeRef();
+          return r;
+        }).get();
       } else {
-        getInner().setData(tensors);
-        return super.measure(monitor);
+        inner.setData(tensors);
+        PointSample measure = super.measure(monitor);
+        inner.setData(new ArrayList<>());
+        return measure;
       }
     });
     if (null != monitor && isVerbose()) {

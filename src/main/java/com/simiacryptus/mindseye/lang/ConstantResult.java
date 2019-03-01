@@ -44,7 +44,8 @@ public final class ConstantResult extends Result {
    * @param tensorArray
    */
   public ConstantResult(TensorArray tensorArray) {
-    super(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList tensorList) -> {
+    super(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
+      data.freeRef();
     });
   }
 
@@ -55,6 +56,7 @@ public final class ConstantResult extends Result {
    */
   public ConstantResult(final TensorList tensorList) {
     super(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
+      data.freeRef();
     });
   }
 

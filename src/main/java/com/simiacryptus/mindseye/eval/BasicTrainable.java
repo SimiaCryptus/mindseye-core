@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
@@ -108,11 +109,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   protected PointSample eval(@Nonnull final List<Tensor[]> list, @Nullable final TrainingMonitor monitor) {
     @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = BasicTrainable.getNNContext(list, mask);
-      final Result result = network.eval(nnContext);
-      for (@Nonnull Result nnResult : nnContext) {
-        nnResult.getData().freeRef();
-        nnResult.freeRef();
-      }
+      final Result result = network.evalAndFree(nnContext);
       final TensorList resultData = result.getData();
       @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
       @Nonnull StateSet<UUID> stateSet = null;
@@ -181,8 +178,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   @Nonnull
   @Override
   public synchronized Trainable setData(@Nonnull final List<Tensor[]> data) {
-    assert !data.isEmpty();
-    data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
+    if(null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
     if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
     this.data = data;
     return this;

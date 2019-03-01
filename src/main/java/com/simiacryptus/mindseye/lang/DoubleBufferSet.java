@@ -19,11 +19,14 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +76,10 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
    * @param collect the collect
    */
   public DoubleBufferSet(@Nonnull final Map<K, ? extends T> collect) {
+    collect.forEach((k,v)->{
+      assert null != k;
+      assert null != v;
+    });
     map.putAll(collect);
     map.forEach((k, v) -> {
       if(k instanceof ReferenceCounting) ((ReferenceCounting)k).addRef(this);
@@ -129,6 +136,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
       T v = map.computeIfAbsent(layer, l -> {
         if(l instanceof ReferenceCounting) ((ReferenceCounting)l).addRef(this);
         T delta = factory.get();
+        assert null != delta;
         if (log.isDebugEnabled())
           log.debug(String.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));
         return delta;
@@ -156,7 +164,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
    */
   @Nonnull
   public Map<K, T> getMap() {
-    return map;
+    return Collections.unmodifiableMap(map);
   }
 
   /**

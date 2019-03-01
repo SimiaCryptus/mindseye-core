@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
-import com.simiacryptus.mindseye.lang.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 /**

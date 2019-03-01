@@ -17,8 +17,10 @@
  * under the License.
  */
 
-package com.simiacryptus.mindseye.lang;
+package com.simiacryptus.lang.ref;
 
+import com.simiacryptus.mindseye.lang.DataSerializer;
+import com.simiacryptus.mindseye.lang.SerialPrecision;
 import com.simiacryptus.util.test.TestCategories;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;

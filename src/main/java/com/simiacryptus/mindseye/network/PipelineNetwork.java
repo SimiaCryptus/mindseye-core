@@ -72,7 +72,9 @@ public class PipelineNetwork extends DAGNetwork {
     @Nonnull final UUID headId = UUID.fromString(json.get("head").getAsString());
     if (!inputHandles.contains(headId)) {
       assert null != headId;
-      setHead(getNodeById(headId));
+      DAGNode node = getNodeById(headId);
+      setHead(node);
+      node.freeRef();
     }
   }
 

@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.lang.ref.RecycleBin;
+
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
@@ -60,7 +62,7 @@ public class State<K> extends DoubleBuffer<K> {
    * @return the boolean
    */
   public boolean areEqual() {
-    return DoubleBuffer.areEqual(getDelta(), target);
+    return areEqual(getDelta(), target);
   }
 
   /**
