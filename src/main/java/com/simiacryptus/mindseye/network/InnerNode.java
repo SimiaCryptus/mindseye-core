@@ -122,9 +122,9 @@ public final class InnerNode extends LazyResult {
     newLayer.assertAlive();
     Layer prevLayer = this.layer;
     if (newLayer != prevLayer) {
+      if (null != newLayer) newLayer.addRef();
       if (null != prevLayer) prevLayer.freeRef();
       this.layer = newLayer;
-      if (null != newLayer) newLayer.addRef();
       dagNetwork.assertConsistent();
     }
   }

@@ -518,12 +518,11 @@ public abstract class DAGNetwork extends LayerBase {
       if (unwrapped instanceof DAGNetwork) {
         ((DAGNetwork) unwrapped).visitLayers(visitor);
       }
-      visitor.accept(layer);
       while (layer instanceof WrapperLayer) {
-        Layer inner = ((WrapperLayer) layer).getInner();
-        visitor.accept(inner);
-        layer = inner;
+        visitor.accept(layer);
+        layer = ((WrapperLayer) layer).getInner();
       }
+      visitor.accept(layer);
     });
   }
 

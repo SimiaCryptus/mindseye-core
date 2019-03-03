@@ -124,12 +124,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
     final Result[] wrappedInput = Arrays.stream(inObj).map(result -> {
       return new Result(result.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-        int prevRefs = data.currentRefCount();
         passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
-        int refDeltas = prevRefs - data.currentRefCount();
-        if (refDeltas != 1 && !(result instanceof CountingResult)) {
-          throw new IllegalStateException(String.format("%s backprop finished with %s refs", result.getClass().toString(), refDeltas));
-        }
       }) {
 
         @Override
@@ -165,12 +160,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
           t.freeRef();
         });
       }
-      int prevRefs = data.currentRefCount();
       backwardPerformance.add((TimedResult.time(() -> output.accumulate(buffer, data)).timeNanos - passbackNanos.getAndSet(0)) / (items * 1e9));
-      int refDeltas = prevRefs - data.currentRefCount();
-      if (refDeltas != 1) {
-        throw new IllegalStateException(String.format("%s backprop finished with %s refs", output.getClass().toString(), refDeltas));
-      }
     }) {
 
       @Override
