@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.lang.ref.*;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.layers.MonitoringWrapperLayer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +145,7 @@ public class CountingResult extends Result {
         int prevRefs = data.currentRefCount();
         inner.accumulate(buffer, data);
         int refDeltas = prevRefs - data.currentRefCount();
-        if (refDeltas != 1 && !(inner instanceof CountingResult)) {
+        if (refDeltas != 1 && !(inner instanceof CountingResult || inner.getClass().getDeclaringClass().equals(MonitoringWrapperLayer.class))) {
           throw new IllegalStateException(String.format("%s backprop finished with %s refs", inner.getClass().toString(), refDeltas));
         }
       } else {

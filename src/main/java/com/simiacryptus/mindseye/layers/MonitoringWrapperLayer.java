@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.layers;
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.network.CountingResult;
 import com.simiacryptus.util.MonitoredItem;
 import com.simiacryptus.util.MonitoredObject;
 import com.simiacryptus.util.data.PercentileStatistics;
@@ -126,7 +127,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
         int prevRefs = data.currentRefCount();
         passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
         int refDeltas = prevRefs - data.currentRefCount();
-        if (refDeltas != 1) {
+        if (refDeltas != 1 && !(result instanceof CountingResult)) {
           throw new IllegalStateException(String.format("%s backprop finished with %s refs", result.getClass().toString(), refDeltas));
         }
       }) {

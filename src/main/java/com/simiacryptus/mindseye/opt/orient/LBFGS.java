@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.opt.orient;
 
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.Delta;
 import com.simiacryptus.mindseye.lang.DeltaSet;
@@ -40,10 +41,8 @@ import java.util.stream.Collectors;
  */
 public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
-  /**
-   * The History.
-   */
-  public final TreeSet<PointSample> history = new TreeSet<>(Comparator.comparing(x -> -x.getMean()));
+  private final TreeSet<PointSample> history = new TreeSet<>(Comparator.comparing(x -> -x.getMean()));
+
   /**
    * The Verbose.
    */
@@ -71,13 +70,15 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         monitor.log("Corrupt weights measurement");
       }
     } else {
-      boolean isFound = history.stream().filter(x -> x.sum <= measurement.sum).findAny().isPresent();
+      boolean isFound = history.stream().filter(x -> x.getMean() <= measurement.getMean()).findAny().isPresent();
       if (!isFound) {
         @Nonnull final PointSample copyFull = measurement.copyFull();
         if (verbose) {
           monitor.log(String.format("Adding measurement %s to history. Total: %s", Long.toHexString(System.identityHashCode(copyFull)), history.size()));
         }
-        history.add(copyFull);
+        if(!history.add(copyFull)) {
+          copyFull.freeRef();
+        }
       } else if (verbose) {
         monitor.log(String.format("Non-optimal measurement %s < %s. Total: %s", measurement.sum, history.stream().mapToDouble(x -> x.sum).min().orElse(Double.POSITIVE_INFINITY), history.size()));
       }
@@ -172,8 +173,8 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       monitor.log(String.format("Overwriting history with %s points", history.size()));
     }
     synchronized (this.history) {
-      history.forEach(x -> x.addRef());
-      this.history.forEach(x -> x.freeRef());
+      history.forEach(ReferenceCountingBase::addRef);
+      this.history.forEach(ReferenceCountingBase::freeRef);
       this.history.clear();
       this.history.addAll(history);
     }
@@ -280,15 +281,14 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Override
   public synchronized void reset() {
-    history.forEach(x -> x.freeRef());
+    history.forEach(ReferenceCountingBase::freeRef);
     history.clear();
   }
 
   @Override
   protected void _free() {
-    for (@Nonnull PointSample pointSample : history) {
-      pointSample.freeRef();
-    }
+    history.forEach(ReferenceCountingBase::freeRef);
+    history.clear();
   }
 
   private class Stats {
