@@ -196,7 +196,10 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
    */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final DeltaSet<K> right) {
-    return this.add(new DeltaSet<K>(right).scale(-1));
+    DeltaSet<K> scale = right.scale(-1);
+    DeltaSet<K> add = this.add(scale);
+    scale.freeRef();
+    return add;
   }
 
   /**

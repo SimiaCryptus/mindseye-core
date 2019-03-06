@@ -248,28 +248,13 @@ public class IterativeTrainer extends ReferenceCountingBase {
   /**
    * Measure point sample.
    *
-   * @param reset the remove
    * @return the point sample
    */
   @Nullable
-  public PointSample measure(boolean reset) {
+  public PointSample measure() {
     @Nullable PointSample currentPoint = null;
     int retries = 0;
     do {
-      if (reset) {
-        orientation.reset();
-        if (subject.getLayer() instanceof DAGNetwork) {
-          ((DAGNetwork) subject.getLayer()).visitLayers(layer -> {
-            if (layer instanceof StochasticComponent)
-              ((StochasticComponent) layer).shuffle(StochasticComponent.random.get().nextLong());
-          });
-        }
-        if (!subject.reseed(System.nanoTime())) {
-          if (retries > 0) throw new IterativeStopException("Failed to remove training subject");
-        } else {
-          monitor.log(String.format("Reset training subject"));
-        }
-      }
       if (null != currentPoint) {
         currentPoint.freeRef();
       }
@@ -280,6 +265,19 @@ public class IterativeTrainer extends ReferenceCountingBase {
       throw new IterativeStopException();
     }
     return currentPoint;
+  }
+
+  public void shuffle() {
+    long seed = System.nanoTime();
+    monitor.log(String.format("Reset training subject: " + seed));
+    orientation.reset();
+    subject.reseed(seed);
+    if (subject.getLayer() instanceof DAGNetwork) {
+      ((DAGNetwork) subject.getLayer()).visitLayers(layer -> {
+        if (layer instanceof StochasticComponent)
+          ((StochasticComponent) layer).shuffle(seed);
+      });
+    }
   }
 
   /**
@@ -303,7 +301,8 @@ public class IterativeTrainer extends ReferenceCountingBase {
   public double run() {
     final long timeoutMs = System.currentTimeMillis() + timeout.toMillis();
     long lastIterationTime = System.nanoTime();
-    @Nullable PointSample currentPoint = measure(true);
+    shuffle();
+    @Nullable PointSample currentPoint = measure();
     try {
 mainLoop:
       while (timeoutMs > System.currentTimeMillis() && currentPoint.getMean() > terminateThreshold) {
@@ -312,7 +311,8 @@ mainLoop:
         }
         currentPoint.freeRef();
         currentPoint = null;
-        currentPoint = measure(true);
+        shuffle();
+        currentPoint = measure();
         assert 0 < currentPoint.delta.getMap().size() : "Nothing to optimize";
 subiterationLoop:
         for (int subiteration = 0; subiteration < iterationsPerSample || iterationsPerSample <= 0; subiteration++) {
@@ -324,7 +324,7 @@ subiterationLoop:
           }
           currentPoint.freeRef();
           currentPoint = null;
-          currentPoint = measure(true);
+          currentPoint = measure();
           @Nullable final PointSample _currentPoint = currentPoint;
           @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult.time(() -> orientation.orient(subject, _currentPoint, monitor));
           final LineSearchCursor direction = timedOrientation.result;

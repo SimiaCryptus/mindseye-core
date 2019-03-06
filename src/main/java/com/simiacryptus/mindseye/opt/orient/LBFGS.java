@@ -76,7 +76,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         if (verbose) {
           monitor.log(String.format("Adding measurement %s to history. Total: %s", Long.toHexString(System.identityHashCode(copyFull)), history.size()));
         }
-        if(!history.add(copyFull)) {
+        if (!history.add(copyFull)) {
           copyFull.freeRef();
         }
       } else if (verbose) {
@@ -182,8 +182,9 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   private boolean lbfgs(@Nonnull PointSample measurement, @Nonnull TrainingMonitor monitor, @Nonnull List<PointSample> history, @Nonnull DeltaSet<UUID> direction) {
+    @Nonnull DeltaSet<UUID> p = null;
     try {
-      @Nonnull DeltaSet<UUID> p = measurement.delta.copy();
+      p = measurement.delta.copy();
       if (!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
         throw new IllegalStateException("Non-finite value");
       }
@@ -193,17 +194,35 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         @Nonnull final DeltaSet<UUID> yd = history.get(i + 1).delta.subtract(history.get(i).delta);
         final double denominator = sd.dot(yd);
         if (0 == denominator) {
+          sd.freeRef();
+          yd.freeRef();
           throw new IllegalStateException("Orientation vanished.");
         }
         alphas[i] = p.dot(sd) / denominator;
-        p = p.subtract(yd.scale(alphas[i]));
+        sd.freeRef();
+        DeltaSet<UUID> scale = yd.scale(alphas[i]);
+        yd.freeRef();
+        {
+          DeltaSet<UUID> subtract = p.subtract(scale);
+          p.freeRef();
+          scale.freeRef();
+          p = subtract;
+        }
         if ((!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d))))) {
           throw new IllegalStateException("Non-finite value");
         }
       }
       @Nonnull final DeltaSet<UUID> sk = history.get(history.size() - 1).weights.subtract(history.get(history.size() - 2).weights);
       @Nonnull final DeltaSet<UUID> yk = history.get(history.size() - 1).delta.subtract(history.get(history.size() - 2).delta);
-      p = p.scale(sk.dot(yk) / yk.dot(yk));
+      {
+        double dot = sk.dot(yk);
+        sk.freeRef();
+        double f = dot / yk.dot(yk);
+        yk.freeRef();
+        DeltaSet<UUID> scale = p.scale(f);
+        p.freeRef();
+        p = scale;
+      }
       if (!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
         throw new IllegalStateException("Non-finite value");
       }
@@ -211,7 +230,15 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         @Nonnull final DeltaSet<UUID> sd = history.get(i + 1).weights.subtract(history.get(i).weights);
         @Nonnull final DeltaSet<UUID> yd = history.get(i + 1).delta.subtract(history.get(i).delta);
         final double beta = p.dot(yd) / sd.dot(yd);
-        p = p.add(sd.scale(alphas[i] - beta));
+        yd.freeRef();
+        {
+          DeltaSet<UUID> scale = sd.scale(alphas[i] - beta);
+          DeltaSet<UUID> add = p.add(scale);
+          scale.freeRef();
+          p.freeRef();
+          p = add;
+        }
+        sd.freeRef();
         if (!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
           throw new IllegalStateException("Non-finite value");
         }
@@ -227,6 +254,8 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     } catch (Throwable e) {
       monitor.log(String.format("LBFGS Orientation Error: %s", e.getMessage()));
       return false;
+    } finally {
+      if (null != p) p.freeRef();
     }
   }
 

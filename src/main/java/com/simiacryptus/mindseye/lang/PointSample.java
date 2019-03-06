@@ -82,11 +82,16 @@ public final class PointSample extends ReferenceCountingBase {
     assert left.delta.getMap().size() == left.weights.getMap().size();
     assert right.delta.getMap().size() == right.weights.getMap().size();
     assert left.rate == right.rate;
-    return new PointSample(left.delta.add(right.delta),
-        StateSet.union(left.weights, right.weights),
+    DeltaSet<UUID> delta = left.delta.add(right.delta);
+    StateSet<UUID> stateSet = StateSet.union(left.weights, right.weights);
+    PointSample pointSample = new PointSample(delta,
+        stateSet,
         left.sum + right.sum,
         left.rate,
         left.count + right.count);
+    stateSet.freeRef();
+    delta.freeRef();
+    return pointSample;
   }
 
   /**
