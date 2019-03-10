@@ -205,7 +205,8 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   public DoubleBuffer<K> set(@Nonnull final double[] data) {
     assert Arrays.stream(data).allMatch(Double::isFinite);
-    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
+    System.arraycopy(data, 0, this.getDelta(), 0, data.length);
+//    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
     assert Arrays.stream(getDelta()).allMatch(Double::isFinite);
     return this;
   }

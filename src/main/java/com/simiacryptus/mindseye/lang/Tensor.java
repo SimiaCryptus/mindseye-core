@@ -25,6 +25,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.simiacryptus.lang.ref.RecycleBin;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.util.FastRandom;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -214,7 +215,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
       }
       assert tensor.isValid();
       JsonElement id = jsonObject.get("id");
-      if(null != id) {
+      if (null != id) {
         tensor.setId(UUID.fromString(id.getAsString()));
       }
       return tensor;
@@ -246,7 +247,10 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   public static int length(@Nonnull int... dims) {
     long total = 1;
     for (final int dim : dims) {
+      assert 0 < dim : Arrays.toString(dims);
       total *= dim;
+      assert 0 < total : Arrays.toString(dims);
+      assert total < Integer.MAX_VALUE : Arrays.toString(dims);
     }
     return (int) total;
   }
@@ -440,6 +444,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
     reverse(copy, 0, copy.length);
     return copy;
   }
+
   public static void reverse(final int[] array, final int startIndexInclusive, final int endIndexExclusive) {
     if (array == null) {
       return;
@@ -455,6 +460,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
       i++;
     }
   }
+
   /**
    * Pretty print string.
    *
@@ -580,7 +586,17 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   public void addInPlace(@Nonnull final Tensor tensor) {
     assert Arrays.equals(getDimensions(), tensor.getDimensions()) : Arrays.toString(getDimensions()) + " != " + Arrays.toString(tensor.getDimensions());
-    setParallelByIndex(c -> get(c) + tensor.get(c));
+    double[] toAdd = tensor.getData();
+    double[] data = getData();
+    int length = length();
+    int shards = Math.max(1, Math.min(8, length / 64));
+    double shardSize = (double) length / shards;
+    DoubleStream.iterate(0, x -> x + shardSize).limit(shards).parallel().forEach(start -> {
+      int end = (int) Math.min(length, Math.floor(start + shardSize));
+      for (int i = (int) Math.floor(start); i < end; i++) {
+        data[i] += toAdd[i];
+      }
+    });
   }
 
   /**
@@ -1003,7 +1019,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   /**
    * Map tensor.
    *
-   * @param f the f
+   * @param f        the f
    * @param parallel
    * @return the tensor
    */
@@ -1013,7 +1029,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
     Tensor tensor = new Tensor(dimensions);
     @Nonnull final double[] cpy = tensor.getData();
     IntStream stream = IntStream.range(0, data.length);
-    if(parallel) stream = stream.parallel();
+    if (parallel) stream = stream.parallel();
     stream.forEach(i -> cpy[i] = f.applyAsDouble(data[i]));
     return tensor;
   }
@@ -1552,7 +1568,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
       @Nonnull JsonObject obj = new JsonObject();
       @Nonnull int[] dimensions = getDimensions();
       obj.add("length", toJsonArray(dimensions));
-      if(null != id) obj.addProperty("id", id.toString());
+      if (null != id) obj.addProperty("id", id.toString());
       @Nonnull byte[] bytes = getBytes(dataSerializer);
       obj.addProperty("precision", ((SerialPrecision) dataSerializer).name());
       if (null != resources) {
@@ -1880,9 +1896,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
 
   @Nullable
   public UUID getId() {
-    if(id == null) {
+    if (id == null) {
       synchronized (this) {
-        if(id == null) {
+        if (id == null) {
           id = UUID.randomUUID();
         }
       }
@@ -1892,6 +1908,14 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
 
   public Tensor setId(@Nullable UUID id) {
     this.id = id;
+    return this;
+  }
+
+  public Tensor randomize(double amplitude) {
+    double[] data = getData();
+    for (int i = 0; i < data.length; i++) {
+      data[i] = (FastRandom.INSTANCE.random() - 0.5) * 2 * amplitude;
+    }
     return this;
   }
 
