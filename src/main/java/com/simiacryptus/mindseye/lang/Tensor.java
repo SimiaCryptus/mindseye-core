@@ -404,7 +404,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    * @return the tensor
    */
   @Nonnull
-  public static Tensor reverseDimensions(@Nonnull Tensor tensor) {
+  public static Tensor invertDimensions(@Nonnull Tensor tensor) {
     return tensor.rearrange(Tensor::reverse);
   }
 
@@ -440,25 +440,29 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   @Nonnull
   public static int[] reverse(@Nonnull int[] dimensions) {
-    @Nonnull int[] copy = Arrays.copyOf(dimensions, dimensions.length);
-    reverse(copy, 0, copy.length);
-    return copy;
+    return reverseInPlace(Arrays.copyOf(dimensions, dimensions.length));
   }
 
-  public static void reverse(final int[] array, final int startIndexInclusive, final int endIndexExclusive) {
+  @Nonnull
+  public static int[] reverse(@Nonnull long[] dimensions) {
+    return reverseInPlace(Arrays.stream(dimensions).mapToInt(x -> (int) x).toArray());
+  }
+
+  public static int[] reverseInPlace(final int[] array) {
     if (array == null) {
-      return;
+      return array;
     }
-    int i = startIndexInclusive < 0 ? 0 : startIndexInclusive;
-    int j = Math.min(array.length, endIndexExclusive) - 1;
+    int i = 0;
+    int j = array.length-1;
     int tmp;
-    while (j > i) {
+    while (i<j) {
       tmp = array[j];
       array[j] = array[i];
       array[i] = tmp;
       j--;
       i++;
     }
+    return array;
   }
 
   /**
@@ -1343,6 +1347,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   public void set(final int coord1, final int coord2, final int coord3, final int coord4, final double value) {
     assert Double.isFinite(value);
+
     set(index(coord1, coord2, coord3, coord4), value);
   }
 
@@ -1356,6 +1361,8 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   @Nonnull
   public Tensor set(final int index, final double value) {
     // assert Double.isFinite(value);
+    assert index >= 0 : index;
+    assert index < length() : String.format("%d>%d (%s)", index, length(), Arrays.toString(dimensions));
     getData()[index] = value;
     return this;
   }
@@ -1391,9 +1398,10 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   public Tensor set(@Nonnull final Tensor right) {
     assertAlive();
-    assert length() == right.length();
-    @Nullable final double[] rightData = right.getData();
-    Arrays.parallelSetAll(getData(), i -> rightData[i]);
+    @Nullable final double[] src = right.getData();
+    double[] dst = getData();
+    if (dst.length != src.length) throw new IllegalArgumentException(dst.length + " != " + src.length);
+    System.arraycopy(src, 0, dst, 0, src.length);
     return this;
   }
 
@@ -1744,8 +1752,15 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    * @return the tensor
    */
   @Nonnull
-  public Tensor reverseDimensions() {
-    return reverseDimensions(this);
+  public Tensor invertDimensions() {
+    return invertDimensions(this);
+  }
+
+  @Nonnull
+  public Tensor invertDimensionsAndFree() {
+    Tensor tensor = invertDimensions(this);
+    freeRef();
+    return tensor;
   }
 
   /**
