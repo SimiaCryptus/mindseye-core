@@ -74,7 +74,7 @@ public abstract class L12Normalizer extends TrainableBase {
   protected abstract double getL2(Layer layer);
 
   public Layer toLayer(UUID id) {
-    return ((DAGNetwork)inner.getLayer()).getLayersById().get(id);
+    return ((DAGNetwork) inner.getLayer()).getLayersById().get(id);
   }
 
   /**

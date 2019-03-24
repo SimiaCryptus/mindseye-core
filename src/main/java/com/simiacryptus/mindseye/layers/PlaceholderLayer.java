@@ -20,9 +20,9 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
-import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.Result;
 
 import javax.annotation.Nonnull;
@@ -66,7 +66,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
   @Override
   public UUID getId() {
     T key = this.getKey();
-    return key==null?UUID.randomUUID():UUID.nameUUIDFromBytes(key.toString().getBytes());
+    return key == null ? UUID.randomUUID() : UUID.nameUUIDFromBytes(key.toString().getBytes());
   }
 
   @Nonnull

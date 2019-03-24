@@ -20,10 +20,10 @@
 package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.IterativeStopException;
 import com.simiacryptus.mindseye.lang.PointSample;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.layers.StochasticComponent;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.opt.line.ArmijoWolfeSearch;
@@ -381,7 +381,7 @@ subiterationLoop:
       }
       return null == currentPoint ? Double.NaN : currentPoint.getMean();
     } finally {
-      if(null != currentPoint) currentPoint.freeRef();
+      if (null != currentPoint) currentPoint.freeRef();
     }
   }
 

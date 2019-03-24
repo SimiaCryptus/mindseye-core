@@ -41,7 +41,7 @@ public class Singleton<T> implements Supplier<T> {
   }
 
   public T getOrInit(Supplier<T> fn) {
-    if(deque.isEmpty()) set(fn.get());
+    if (deque.isEmpty()) set(fn.get());
     return get();
   }
 
@@ -75,7 +75,7 @@ public class Singleton<T> implements Supplier<T> {
 
   public T remove() {
     try {
-      return deque.poll(1,TimeUnit.SECONDS);
+      return deque.poll(1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }

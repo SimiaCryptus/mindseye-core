@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
-import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
 import org.slf4j.Logger;
@@ -37,18 +36,11 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("serial")
 abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
-  @Override
-  public LazyResult addRef() {
-    return (LazyResult) super.addRef();
-  }
-
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
-
   /**
    * The Id.
    */
   public final UUID id;
-
 
   /**
    * Instantiates a new Lazy result.
@@ -56,6 +48,7 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   public LazyResult() {
     this(UUID.randomUUID());
   }
+
 
   /**
    * Instantiates a new Lazy result.
@@ -65,6 +58,11 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   protected LazyResult(final UUID id) {
     super();
     this.id = id;
+  }
+
+  @Override
+  public LazyResult addRef() {
+    return (LazyResult) super.addRef();
   }
 
   /**

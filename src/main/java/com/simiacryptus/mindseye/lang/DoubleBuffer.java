@@ -57,12 +57,12 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   /**
    * Instantiates a new Double buffer.
    *
-   * @param key  the key
+   * @param key    the key
    * @param target the target
    */
   public DoubleBuffer(@Nonnull final K key, final double[] target) {
     this.key = key;
-    if(key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
+    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
     this.target = target;
     this.delta = null;
   }
@@ -70,13 +70,13 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   /**
    * Instantiates a new Double buffer.
    *
-   * @param key  the key
+   * @param key    the key
    * @param target the target
    * @param delta  the evalInputDelta
    */
   public DoubleBuffer(@Nonnull final K key, final double[] target, final double[] delta) {
     this.key = key;
-    if(key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
+    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
     this.target = target;
     this.delta = delta;
   }
@@ -233,7 +233,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   @Override
   protected void _free() {
-    if(key instanceof ReferenceCounting) ((ReferenceCounting) key).freeRef();
+    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).freeRef();
     @Nullable double[] delta = this.delta;
     if (null != delta) {
       if (RecycleBin.DOUBLES.want(delta.length)) {

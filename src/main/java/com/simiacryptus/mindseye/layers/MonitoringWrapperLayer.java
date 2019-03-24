@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers;
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.network.CountingResult;
 import com.simiacryptus.util.MonitoredItem;
 import com.simiacryptus.util.MonitoredObject;
 import com.simiacryptus.util.data.PercentileStatistics;

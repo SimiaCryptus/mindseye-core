@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.lang.ref.ReferenceCounting;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -31,11 +30,6 @@ import java.util.stream.Stream;
  * An on-heap implementation of the TensorList data container.
  */
 public class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
-  @Override
-  public TensorArray addRef() {
-    return (TensorArray) super.addRef();
-  }
-
   @Nonnull
   private final Tensor[] data;
 
@@ -88,6 +82,11 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
    */
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
     return (data.length < limit) ? Arrays.toString(data) : "[" + Arrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b).get() + ", ...]";
+  }
+
+  @Override
+  public TensorArray addRef() {
+    return (TensorArray) super.addRef();
   }
 
   @Override

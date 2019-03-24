@@ -19,9 +19,8 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
-import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
 
 import javax.annotation.Nonnull;

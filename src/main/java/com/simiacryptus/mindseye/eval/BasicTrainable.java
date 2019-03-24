@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
-import com.simiacryptus.lang.ref.*;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
@@ -178,7 +178,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   @Nonnull
   @Override
   public synchronized Trainable setData(@Nonnull final List<Tensor[]> data) {
-    if(null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
+    if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
     if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
     this.data = data;
     return this;

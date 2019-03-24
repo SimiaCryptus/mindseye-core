@@ -19,9 +19,11 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.lang.ref.*;
-import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.layers.MonitoringWrapperLayer;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.mindseye.lang.CoreSettings;
+import com.simiacryptus.mindseye.lang.DeltaSet;
+import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.mindseye.lang.TensorList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

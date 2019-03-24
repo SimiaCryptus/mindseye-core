@@ -41,11 +41,6 @@ import java.util.stream.*;
  */
 @SuppressWarnings("serial")
 public final class Tensor extends ReferenceCountingBase implements Serializable {
-  @Override
-  public Tensor addRef() {
-    return (Tensor) super.addRef();
-  }
-
   /**
    * The constant json_precision.
    */
@@ -66,7 +61,6 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   @Nullable
   protected volatile double[] data;
-
   @Nullable
   protected volatile UUID id;
 
@@ -453,9 +447,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
       return array;
     }
     int i = 0;
-    int j = array.length-1;
+    int j = array.length - 1;
     int tmp;
-    while (i<j) {
+    while (i < j) {
       tmp = array[j];
       array[j] = array[i];
       array[i] = tmp;
@@ -489,6 +483,11 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   public static double[] getPixel(final Tensor tensor, final int x, final int y, final int bands) {
     return IntStream.range(0, bands).mapToDouble(band -> tensor.get(x, y, band)).toArray();
+  }
+
+  @Override
+  public Tensor addRef() {
+    return (Tensor) super.addRef();
   }
 
   /**

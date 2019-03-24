@@ -31,10 +31,6 @@ import java.util.stream.Stream;
  * tensor to/from a rank-1 array.
  */
 public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
-  @Override
-  public ReshapedTensorList addRef() {
-    return (ReshapedTensorList) super.addRef();
-  }
   @Nonnull
   private final TensorList inner;
   private final int[] dims;
@@ -51,6 +47,11 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     this.inner = inner;
     this.inner.addRef(this);
     this.dims = toDim;
+  }
+
+  @Override
+  public ReshapedTensorList addRef() {
+    return (ReshapedTensorList) super.addRef();
   }
 
   @Nonnull

@@ -76,13 +76,13 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
    * @param collect the collect
    */
   public DoubleBufferSet(@Nonnull final Map<K, ? extends T> collect) {
-    collect.forEach((k,v)->{
+    collect.forEach((k, v) -> {
       assert null != k;
       assert null != v;
     });
     map.putAll(collect);
     map.forEach((k, v) -> {
-      if(k instanceof ReferenceCounting) ((ReferenceCounting)k).addRef(this);
+      if (k instanceof ReferenceCounting) ((ReferenceCounting) k).addRef(this);
       v.addRef(this);
     });
   }
@@ -134,7 +134,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     if (null == layer) throw new IllegalArgumentException();
     synchronized (map) {
       T v = map.computeIfAbsent(layer, l -> {
-        if(l instanceof ReferenceCounting) ((ReferenceCounting)l).addRef(this);
+        if (l instanceof ReferenceCounting) ((ReferenceCounting) l).addRef(this);
         T delta = factory.get();
         assert null != delta;
         if (log.isDebugEnabled())
@@ -198,7 +198,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   @Override
   protected void _free() {
     map.forEach((k, v) -> {
-      if(k instanceof ReferenceCounting) ((ReferenceCounting)k).freeRef();
+      if (k instanceof ReferenceCounting) ((ReferenceCounting) k).freeRef();
       v.freeRef();
     });
     map.clear();

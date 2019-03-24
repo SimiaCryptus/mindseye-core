@@ -19,9 +19,8 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
-import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.mindseye.lang.PointSample;
 
 import javax.annotation.Nonnull;
 
@@ -30,11 +29,6 @@ import javax.annotation.Nonnull;
  * the simplified one-dimensional positiion and derivative.
  */
 public class LineSearchPoint extends ReferenceCountingBase {
-
-  @Override
-  public LineSearchPoint addRef() {
-    return (LineSearchPoint) super.addRef();
-  }
 
   /**
    * The Derivative.
@@ -55,6 +49,11 @@ public class LineSearchPoint extends ReferenceCountingBase {
     this.point = point;
     this.point.addRef();
     this.derivative = derivative;
+  }
+
+  @Override
+  public LineSearchPoint addRef() {
+    return (LineSearchPoint) super.addRef();
   }
 
   @Nonnull

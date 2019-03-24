@@ -19,9 +19,9 @@
 
 package com.simiacryptus.mindseye.eval;
 
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;

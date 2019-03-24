@@ -35,11 +35,13 @@ public class Result extends ReferenceCountingBase {
   /**
    * The Data.
    */
-  @Nonnull protected final TensorList data;
+  @Nonnull
+  protected final TensorList data;
   /**
    * The Accumulator.
    */
-  @Nonnull protected final BiConsumer<DeltaSet<UUID>, TensorList> accumulator;
+  @Nonnull
+  protected final BiConsumer<DeltaSet<UUID>, TensorList> accumulator;
 
   /**
    * Instantiates a new Nn result.

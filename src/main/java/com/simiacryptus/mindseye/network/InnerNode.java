@@ -19,9 +19,9 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.util.Util;
 

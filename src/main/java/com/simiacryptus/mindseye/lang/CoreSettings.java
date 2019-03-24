@@ -33,8 +33,8 @@ public class CoreSettings extends RefSettings {
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
   private static transient CoreSettings INSTANCE = null;
   public final int backpropAggregationSize;
-  private final boolean singleThreaded;
   public final int jvmThreads;
+  private final boolean singleThreaded;
 
   private CoreSettings() {
     this.jvmThreads = Settings.get("THREADS", 64);
@@ -49,9 +49,9 @@ public class CoreSettings extends RefSettings {
    * @return the core settings
    */
   public static CoreSettings INSTANCE() {
-    if(null==INSTANCE) {
+    if (null == INSTANCE) {
       synchronized (CoreSettings.class) {
-        if(null==INSTANCE) {
+        if (null == INSTANCE) {
           INSTANCE = new CoreSettings();
           logger.info(String.format("Initialized %s = %s", INSTANCE.getClass().getSimpleName(), JsonUtil.toJson(INSTANCE)));
         }
