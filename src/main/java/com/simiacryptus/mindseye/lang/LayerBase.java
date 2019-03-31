@@ -47,7 +47,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
    */
   protected LayerBase() {
     id = UUID.randomUUID();
-    name = getClass().getSimpleName() + "/" + getId();
+    name = getClass().getSimpleName();// + "/" + getId();
   }
 
   /**
