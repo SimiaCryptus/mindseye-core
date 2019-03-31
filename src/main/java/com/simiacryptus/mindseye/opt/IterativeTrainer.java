@@ -299,16 +299,17 @@ public class IterativeTrainer extends ReferenceCountingBase {
    * @return the double
    */
   public double run() {
-    final long timeoutMs = System.currentTimeMillis() + timeout.toMillis();
+    long startTime = System.currentTimeMillis();
+    final long timeoutMs = startTime + timeout.toMillis();
     long lastIterationTime = System.nanoTime();
     shuffle();
     @Nullable PointSample currentPoint = measure();
     try {
 mainLoop:
-      while (timeoutMs > System.currentTimeMillis() && currentPoint.getMean() > terminateThreshold) {
-        if (currentIteration.get() > maxIterations) {
-          break;
-        }
+      while (timeoutMs > System.currentTimeMillis()
+          && terminateThreshold < currentPoint.getMean()
+          && maxIterations > currentIteration.get()
+          ) {
         currentPoint.freeRef();
         currentPoint = null;
         shuffle();
@@ -380,7 +381,17 @@ subiterationLoop:
         });
       }
       return null == currentPoint ? Double.NaN : currentPoint.getMean();
+    } catch (Throwable e) {
+      monitor.log(String.format("Error %s", Util.toString(e)));
+      throw new RuntimeException(e);
     } finally {
+      monitor.log(String.format("Final threshold in iteration %s: %s (> %s) after %.3fs (< %.3fs)",
+          currentIteration.get(),
+          currentPoint.getMean(),
+          terminateThreshold,
+          (System.currentTimeMillis() - startTime) / 1000.0,
+          timeout.toMillis() / 1000.0
+      ));
       if (null != currentPoint) currentPoint.freeRef();
     }
   }
