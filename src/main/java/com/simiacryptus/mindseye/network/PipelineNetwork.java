@@ -304,4 +304,12 @@ public class PipelineNetwork extends DAGNetwork {
     return json;
   }
 
+  @Override
+  public PipelineNetwork andThenWrap(Layer append) {
+    assert append.assertAlive();
+    assert assertAlive();
+    wrap(append).freeRef();
+    return this;
+  }
+
 }

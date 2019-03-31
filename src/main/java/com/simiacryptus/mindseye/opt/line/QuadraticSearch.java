@@ -38,6 +38,7 @@ public class QuadraticSearch implements LineSearchStrategy {
   private double absoluteTolerance = 1e-12;
   private double currentRate = 0.0;
   private double minRate = 1e-10;
+  private double maxRate = 1e10;
   private double relativeTolerance = 1e-2;
   private double stepSize = 1.0;
 
@@ -82,6 +83,8 @@ public class QuadraticSearch implements LineSearchStrategy {
         if (!isBracketed && thisX < 0) {
           thisX = rightX * 2;
         }
+        if(thisX < getMinRate()) thisX = getMinRate();
+        if(thisX > getMaxRate()) thisX = getMaxRate();
         if (isSame(leftX, thisX, 1.0)) {
           monitor.log(String.format("Converged to left"));
           return filter(cursor, leftPoint.point, monitor);
@@ -255,8 +258,9 @@ public class QuadraticSearch implements LineSearchStrategy {
    *
    * @param minRate the min rate
    */
-  public void setMinRate(final double minRate) {
+  public QuadraticSearch setMinRate(final double minRate) {
     this.minRate = minRate;
+    return this;
   }
 
   /**
@@ -342,9 +346,21 @@ public class QuadraticSearch implements LineSearchStrategy {
     if (currentRate < getMinRate()) {
       currentRate = getMinRate();
     }
+    if (currentRate > getMaxRate()) {
+      currentRate = getMaxRate();
+    }
     final PointSample pointSample = _step(cursor, monitor);
     setCurrentRate(pointSample.rate);
     return pointSample;
+  }
+
+  public double getMaxRate() {
+    return maxRate;
+  }
+
+  public QuadraticSearch setMaxRate(double maxRate) {
+    this.maxRate = maxRate;
+    return this;
   }
 
   private class LocateInitialRightPoint extends ReferenceCountingBase {
@@ -393,9 +409,9 @@ public class QuadraticSearch implements LineSearchStrategy {
           if (isSame(cursor, monitor, initialPoint, thisPoint)) {
             monitor.log(String.format("%s ~= %s", initialPoint.point.rate, thisX));
             return this;
-          } else if (thisPoint.point.getMean() > initialPoint.point.getMean()) {
+          } else if (thisPoint.point.getMean() > initialPoint.point.getMean() && thisX > minRate) {
             thisX = thisX / 13;
-          } else if (thisPoint.derivative < initialDerivFactor * thisPoint.derivative) {
+          } else if (thisPoint.derivative < initialDerivFactor * thisPoint.derivative && thisX < maxRate) {
             thisX = thisX * 7;
           } else {
             monitor.log(String.format("%s <= %s", thisPoint.point.getMean(), initialPoint.point.getMean()));

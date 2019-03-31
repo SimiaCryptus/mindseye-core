@@ -118,6 +118,7 @@ public class BisectionSearch implements LineSearchStrategy {
       }
       if ((rightRight - leftX) * 2.0 / (leftX + rightRight) < spanTol) {
         monitor.log(String.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
+//        return getPointAndFree(iterate(cursor, monitor, leftX, rightX));
         return cursor.step(leftX, monitor).point;
       }
       if (rightValue > leftValue) {
@@ -183,7 +184,7 @@ public class BisectionSearch implements LineSearchStrategy {
         }
         rightX = thisX;
       } else {
-        monitor.log(String.format("End (at zero) at %s", thisX));
+        monitor.log(String.format("End (at min) at %s", thisX));
         currentRate = thisX;
         return searchPoint;
       }

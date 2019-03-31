@@ -1276,12 +1276,12 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
 
   /**
    * Set.
-   *
-   * @param coords the coords
+   *  @param coords the coords
    * @param value  the value
    */
-  public void set(@Nonnull final Coordinate coords, final double value) {
+  public Tensor set(@Nonnull final Coordinate coords, final double value) {
     if (Double.isFinite(value)) set(coords.getIndex(), value);
+    return this;
   }
 
   /**
