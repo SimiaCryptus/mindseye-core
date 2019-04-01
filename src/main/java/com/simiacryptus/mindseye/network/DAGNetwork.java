@@ -378,8 +378,12 @@ public abstract class DAGNetwork extends LayerBase {
    * @return the input
    */
   public DAGNode getInput(final int index) {
-    final DAGNode input = inputNodes.get(inputHandles.get(index));
-    assert null != input;
+    assertAlive();
+    UUID key = inputHandles.get(index);
+    final DAGNode input = inputNodes.get(key);
+    if (null == input) {
+      throw new IllegalStateException(String.format("No Input: %d: %s", index, key));
+    }
     input.addRef();
     return input;
   }
@@ -465,20 +469,6 @@ public abstract class DAGNetwork extends LayerBase {
     DAGNode replaced = internalNodes.put(node.getId(), node);
     if (null != replaced) replaced.freeRef();
     assertConsistent();
-  }
-
-  /**
-   * Remove last input nn key.
-   *
-   * @return the nn key
-   */
-  @Nonnull
-  public Layer removeLastInput() {
-    final int index = inputHandles.size() - 1;
-    final UUID key = inputHandles.remove(index);
-    InputNode remove = inputNodes.remove(key);
-    if (null != remove) remove.freeRef();
-    return this;
   }
 
   /**

@@ -20,10 +20,7 @@
 package com.simiacryptus.mindseye.network;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.mindseye.lang.DataSerializer;
-import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.SerialPrecision;
-import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 
 import javax.annotation.Nonnull;
@@ -272,6 +269,7 @@ public class PipelineNetwork extends DAGNetwork {
   @Nullable
   @Override
   public DAGNode getHead() {
+    assertAlive();
     if (null == head) {
       return getInput(0);
     } else {
@@ -312,4 +310,8 @@ public class PipelineNetwork extends DAGNetwork {
     return this;
   }
 
+  @Override
+  public PipelineNetwork addRef() {
+    return (PipelineNetwork) super.addRef();
+  }
 }
