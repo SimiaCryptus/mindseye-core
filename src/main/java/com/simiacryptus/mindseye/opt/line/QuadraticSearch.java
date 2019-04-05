@@ -83,8 +83,8 @@ public class QuadraticSearch implements LineSearchStrategy {
         if (!isBracketed && thisX < 0) {
           thisX = rightX * 2;
         }
-        if(thisX < getMinRate()) thisX = getMinRate();
-        if(thisX > getMaxRate()) thisX = getMaxRate();
+        if (thisX < getMinRate()) thisX = getMinRate();
+        if (thisX > getMaxRate()) thisX = getMaxRate();
         if (isSame(leftX, thisX, 1.0)) {
           monitor.log(String.format("Converged to left"));
           return filter(cursor, leftPoint.point, monitor);

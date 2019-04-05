@@ -108,10 +108,10 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
     @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
-    map.forEach(100, (@Nonnull final K layer, @Nonnull final State<K> buffer) -> {
+    map.forEach((@Nonnull final K layer, @Nonnull final State<K> buffer) -> {
       deltas.get(layer, buffer.target).set(buffer.getDelta()).freeRef();
     });
-    right.map.forEach(100, (@Nonnull final K layer, @Nonnull final Delta<K> buffer) -> {
+    right.map.forEach((@Nonnull final K layer, @Nonnull final Delta<K> buffer) -> {
       deltas.get(layer, buffer.target).addInPlace(buffer.getDelta()).freeRef();
     });
     @Nonnull StateSet<K> kStateSet = deltas.asState();

@@ -30,7 +30,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -53,7 +52,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
    * The Map.
    */
   @Nonnull
-  protected final ConcurrentHashMap<K, T> map = new ConcurrentHashMap<>();
+  protected final HashMap<K, T> map = new HashMap<>();
 
   /**
    * Instantiates a new Delta setByCoord.
@@ -80,11 +79,13 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
       assert null != k;
       assert null != v;
     });
-    map.putAll(collect);
-    map.forEach((k, v) -> {
-      if (k instanceof ReferenceCounting) ((ReferenceCounting) k).addRef(this);
-      v.addRef(this);
-    });
+    synchronized (collect) {
+      map.putAll(collect);
+      map.forEach((k, v) -> {
+        if (k instanceof ReferenceCounting) ((ReferenceCounting) k).addRef(this);
+        v.addRef(this);
+      });
+    }
   }
 
   /**
@@ -201,7 +202,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
       if (k instanceof ReferenceCounting) ((ReferenceCounting) k).freeRef();
       v.freeRef();
     });
-    map.clear();
+//    map.clear();
   }
 
   /**

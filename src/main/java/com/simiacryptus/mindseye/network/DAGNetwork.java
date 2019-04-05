@@ -188,7 +188,6 @@ public abstract class DAGNetwork extends LayerBase {
    */
   @Nullable
   public InnerNode add(@Nonnull final Layer nextHead, final DAGNode... head) {
-    assert nextHead.assertAlive();
     return add(null, nextHead, head);
   }
 
@@ -215,6 +214,11 @@ public abstract class DAGNetwork extends LayerBase {
    * @return the dag node
    */
   public InnerNode add(@Nullable final CharSequence label, @Nonnull final Layer layer, final DAGNode... head) {
+    if (null == layer && head.length > 0) throw new IllegalArgumentException();
+    if (null == layer) return null;
+    assert Arrays.stream(head).allMatch(x -> x == null || internalNodes.containsKey(x.getId()) || inputNodes.containsKey(x.getId()));
+    assert layer.assertAlive();
+    if (null == layer) throw new IllegalArgumentException();
     assert layer.assertAlive();
     assertAlive();
     assertConsistent();

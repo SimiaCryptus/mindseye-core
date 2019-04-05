@@ -310,9 +310,9 @@ mainLoop:
           && terminateThreshold < currentPoint.getMean()
           && maxIterations > currentIteration.get()
           ) {
+        shuffle();
         currentPoint.freeRef();
         currentPoint = null;
-        shuffle();
         currentPoint = measure();
         assert 0 < currentPoint.delta.getMap().size() : "Nothing to optimize";
 subiterationLoop:

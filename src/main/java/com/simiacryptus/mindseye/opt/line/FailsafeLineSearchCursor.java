@@ -34,6 +34,7 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   private final TrainingMonitor monitor;
   private PointSample best;
 
+
   /**
    * Instantiates a new Failsafe line search cursor.
    *
@@ -53,7 +54,10 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
    *
    * @param step the runStep
    */
-  public synchronized void accumulate(@Nonnull final PointSample step) {
+  @Override
+  public synchronized PointSample afterStep(@Nonnull final PointSample step) {
+    super.afterStep(step);
+    direction.afterStep(step);
     if (null == best || best.getMean() > step.getMean()) {
       @Nonnull PointSample newValue = step.copyFull();
       if (null != this.best) {
@@ -62,6 +66,7 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
       }
       this.best = newValue;
     }
+    return step;
   }
 
 
@@ -97,7 +102,7 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Override
   public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
     final LineSearchPoint step = direction.step(alpha, monitor);
-    accumulate(step.point);
+    afterStep(step.point);
     return step;
   }
 

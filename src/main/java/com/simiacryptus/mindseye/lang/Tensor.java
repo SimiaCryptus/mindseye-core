@@ -1153,7 +1153,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
     @Nonnull final Tensor copy = new Tensor(getDimensions());
     @Nullable final double[] thisData = getData();
     @Nullable final double[] rightData = right.getData();
-    Arrays.parallelSetAll(copy.getData(), i -> thisData[i] - rightData[i]);
+    Arrays.parallelSetAll(copy.getData(), i -> (thisData[i] == rightData[i]) ? 0 : (thisData[i] - rightData[i]));
     return copy;
   }
 
@@ -1276,7 +1276,8 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
 
   /**
    * Set.
-   *  @param coords the coords
+   *
+   * @param coords the coords
    * @param value  the value
    */
   public Tensor set(@Nonnull final Coordinate coords, final double value) {

@@ -173,7 +173,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
           }
           layerDelta.freeRef();
         });
-        @Nonnull final PointSample measure = subject.measure(monitor).setRate(alpha);
+        @Nonnull final PointSample measure = afterStep(subject.measure(monitor).setRate(alpha));
         double dot = currentDirection.dot(measure.delta);
         currentDirection.freeRef();
         LineSearchPoint lineSearchPoint = new LineSearchPoint(measure, dot);

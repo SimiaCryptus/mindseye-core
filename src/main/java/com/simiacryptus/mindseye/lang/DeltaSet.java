@@ -92,7 +92,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
    */
   @Nonnull
   public DeltaSet<K> addInPlace(@Nonnull final DeltaSet<K> right) {
-    right.map.forEach(100, (layer, buffer) -> {
+    right.map.forEach((layer, buffer) -> {
       get(layer, buffer.target).addInPlace(buffer).freeRef();
     });
     return this;

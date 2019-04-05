@@ -180,7 +180,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
 
   @Nullable
   @Override
-  public final String toString() {
+  public String toString() {
     return getName();
   }
 

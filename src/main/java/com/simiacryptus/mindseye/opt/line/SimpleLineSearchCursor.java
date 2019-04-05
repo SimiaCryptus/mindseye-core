@@ -96,7 +96,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     if (0.0 != alpha) {
       direction.accumulate(alpha);
     }
-    @Nonnull final PointSample sample = subject.measure(monitor).setRate(alpha);
+    @Nonnull final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
     final double dot = direction.dot(sample.delta);
     @Nonnull LineSearchPoint lineSearchPoint = new LineSearchPoint(sample, dot);
     sample.freeRef();

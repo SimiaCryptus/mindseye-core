@@ -19,10 +19,9 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.mindseye.layers.PlaceholderLayer;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -37,22 +36,31 @@ public class MutableResult extends Result {
    * @param tensors the tensors
    */
   public MutableResult(final Tensor... tensors) {
-    super(TensorArray.create(tensors), handler(tensors));
+    this(Arrays.stream(tensors).map(x -> UUID.randomUUID()).toArray(i -> new UUID[i]), tensors);
   }
 
-  private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors) {
+  /**
+   * Instantiates a new Mutable result.
+   *
+   * @param objectId
+   * @param tensors  the tensors
+   */
+  public MutableResult(UUID[] objectId, final Tensor... tensors) {
+    super(TensorArray.create(tensors), handler(tensors, objectId));
+  }
+
+  private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors, UUID[] objectId) {
     return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       for (int index = 0; index < delta.length(); index++) {
         final Tensor dt = delta.get(index);
         @Nullable final double[] p = tensors[index].getData();
-        @Nonnull PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
-        buffer.get(layer.getId(), p).addInPlace(dt.getData()).freeRef();
+        buffer.get(objectId[index], p).addInPlace(dt.getData()).freeRef();
         dt.freeRef();
-        layer.freeRef();
       }
       delta.freeRef();
     };
   }
+
 
   @Override
   public boolean isAlive() {

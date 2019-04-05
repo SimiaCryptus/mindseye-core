@@ -75,7 +75,10 @@ public final class InnerNode extends LazyResult {
     setLayer(layer);
     this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
     assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
-    //Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
+    assert Arrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
+    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
+//    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
+//    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
   }
 
   /**
@@ -137,7 +140,10 @@ public final class InnerNode extends LazyResult {
   @Override
   protected void _free() {
     super._free();
-    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
+    if (null != this.inputNodes) {
+      Arrays.stream(this.inputNodes).filter(x -> x != null).forEach(ReferenceCounting::freeRef);
+      Arrays.setAll(this.inputNodes, x -> null);
+    }
     this.layer.freeRef();
     this.layer = null;
   }

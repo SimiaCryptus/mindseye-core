@@ -30,6 +30,7 @@ import javax.annotation.Nonnull;
  */
 public class BisectionSearch implements LineSearchStrategy {
 
+  private double maxRate = 1e20;
   private double currentRate = 1.0;
   private double zeroTol = 1e-20;
   private double spanTol = 1e-3;
@@ -98,8 +99,9 @@ public class BisectionSearch implements LineSearchStrategy {
     final LineSearchPoint searchPoint = cursor.step(leftX, monitor);
     monitor.log(String.format("F(%s) = %s", leftX, searchPoint));
     leftValue = searchPoint.point.sum;
+    searchPoint.freeRef();
 
-    double rightRight = Double.POSITIVE_INFINITY;
+    double rightRight = getMaxRate();
     double rightX;
     double rightLineDeriv;
     double rightValue;
@@ -114,11 +116,13 @@ public class BisectionSearch implements LineSearchStrategy {
       rightLineDeriv = rightPoint.derivative;
       rightValue = rightPoint.point.sum;
       if (loopCount++ > 100) {
+        monitor.log(String.format("Loop overflow"));
         break;
       }
       if ((rightRight - leftX) * 2.0 / (leftX + rightRight) < spanTol) {
         monitor.log(String.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
-//        return getPointAndFree(iterate(cursor, monitor, leftX, rightX));
+//        return getPointAndFree(iterate(cursor, monitor, leftX, rightRight));
+        currentRate = leftX;
         return cursor.step(leftX, monitor).point;
       }
       if (rightValue > leftValue) {
@@ -133,19 +137,20 @@ public class BisectionSearch implements LineSearchStrategy {
         break;
       }
     }
-    if (currentRate < rightX) {
-      currentRate = rightX;
-      if (null != rightPoint) {
-        PointSample point = rightPoint.point;
-        if (null != point) {
-          point.addRef();
-          rightPoint.freeRef();
-          return point;
-        }
-      }
-    }
+//    if (currentRate < rightX) {
+//      currentRate = rightX;
+//      if (null != rightPoint) {
+//        PointSample point = rightPoint.point;
+//        if (null != point) {
+//          point.addRef();
+//          rightPoint.freeRef();
+//          return point;
+//        }
+//      }
+//    }
     if (null != rightPoint) rightPoint.freeRef();
 
+    monitor.log(String.format("Starting bisection search from %s to %s", leftX, rightX));
     return getPointAndFree(iterate(cursor, monitor, leftX, rightX));
   }
 
@@ -213,6 +218,15 @@ public class BisectionSearch implements LineSearchStrategy {
    */
   public BisectionSearch setSpanTol(double spanTol) {
     this.spanTol = spanTol;
+    return this;
+  }
+
+  public double getMaxRate() {
+    return maxRate;
+  }
+
+  public BisectionSearch setMaxRate(double maxRate) {
+    this.maxRate = maxRate;
     return this;
   }
 }

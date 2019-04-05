@@ -21,14 +21,22 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.DeltaSet;
+import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
+import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
  * A mutable cursor which represents a 1-d optimization problem.
  */
 public interface LineSearchCursor extends ReferenceCounting {
+
+  default PointSample afterStep(@Nonnull PointSample step) {
+    return step;
+  }
+
+  ;
 
   /**
    * Gets direction type.

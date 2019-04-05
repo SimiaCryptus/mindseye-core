@@ -228,4 +228,9 @@ public final class PointSample extends ReferenceCountingBase {
     this.weights.freeRef();
     this.delta.freeRef();
   }
+
+  @Override
+  public PointSample addRef() {
+    return (PointSample) super.addRef();
+  }
 }

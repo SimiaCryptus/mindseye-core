@@ -79,6 +79,12 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     @Override
+    public PointSample afterStep(@Nonnull PointSample step) {
+      super.afterStep(step);
+      return cursor.afterStep(step);
+    }
+
+    @Override
     public CharSequence getDirectionType() {
       return cursor.getDirectionType();
     }

@@ -150,4 +150,9 @@ public class Result extends ReferenceCountingBase {
     freeRef();
     return data;
   }
+
+  @Override
+  public Result addRef() {
+    return (Result) super.addRef();
+  }
 }

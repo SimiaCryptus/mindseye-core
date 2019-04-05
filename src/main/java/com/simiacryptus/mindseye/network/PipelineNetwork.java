@@ -20,12 +20,14 @@
 package com.simiacryptus.mindseye.network;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.lang.DataSerializer;
+import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.mindseye.lang.SerialPrecision;
+import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -189,11 +191,7 @@ public class PipelineNetwork extends DAGNetwork {
   @Nullable
   @Override
   public InnerNode add(@Nullable final Layer nextHead, @Nonnull final DAGNode... head) {
-    if (null == nextHead && head.length > 0) throw new IllegalArgumentException();
-    if (null == nextHead) return null;
-    assert Arrays.stream(head).allMatch(x -> x == null || internalNodes.containsKey(x.getId()) || inputNodes.containsKey(x.getId()));
     @Nullable final InnerNode node = super.add(nextHead, head);
-    assert null != inputHandles;
     setHead(node);
     return node;
   }
@@ -201,10 +199,7 @@ public class PipelineNetwork extends DAGNetwork {
   @SafeVarargs
   @Override
   public final InnerNode add(final CharSequence label, @Nullable final Layer layer, final DAGNode... head) {
-    if (null == layer) throw new IllegalArgumentException();
     final InnerNode node = super.add(label, layer, head);
-    //assert Arrays.stream(head).allMatch(x -> x != null);
-    assert null != inputHandles;
     setHead(node);
     return node;
   }
