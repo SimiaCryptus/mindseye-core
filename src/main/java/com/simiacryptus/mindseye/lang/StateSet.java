@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.lang.ref.RecycleBin;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -247,4 +248,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 //  public DoubleBufferSet<K, State<K>> union(@Nonnull final DoubleBufferSet<K, State<K>> right) {
 //    return StateSet.union(this, right);
 //  }
+
+  @Override
+  public StateSet<K> addRef() {
+    return (StateSet<K>) super.addRef();
+  }
 }

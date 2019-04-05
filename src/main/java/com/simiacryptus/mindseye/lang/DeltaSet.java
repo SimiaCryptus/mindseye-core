@@ -212,5 +212,10 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return scale(1.0 / getMagnitude());
   }
 
+  @Override
+  public DeltaSet<K> addRef() {
+    return (DeltaSet<K>) super.addRef();
+  }
+
 }
 
