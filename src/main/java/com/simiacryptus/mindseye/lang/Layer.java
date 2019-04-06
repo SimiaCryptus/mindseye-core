@@ -216,6 +216,7 @@ public interface Layer extends ReferenceCounting, Serializable {
    */
   @Nullable
   default Result eval(Result... array) {
+    assertAlive();
     Arrays.stream(array).forEach(ReferenceCounting::addRef);
     Arrays.stream(array).map(Result::getData).forEach(ReferenceCounting::addRef);
     return evalAndFree(array);
@@ -229,6 +230,7 @@ public interface Layer extends ReferenceCounting, Serializable {
    */
   @Nullable
   default Result evalAndFree(Result... array) {
+    assertAlive();
     Result result = eval(array);
     Arrays.stream(array).map(Result::getData).forEach(ReferenceCounting::freeRef);
     Arrays.stream(array).forEach(ReferenceCounting::freeRef);

@@ -1199,6 +1199,12 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    *
    * @return the double
    */
+  public double rmsAndFree() {
+    double rms = rms();
+    freeRef();
+    return rms;
+  }
+
   public double rms() {
     return Math.sqrt(sumSq() / length());
   }

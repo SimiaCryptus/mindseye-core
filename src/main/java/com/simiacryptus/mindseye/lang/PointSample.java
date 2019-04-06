@@ -62,13 +62,21 @@ public final class PointSample extends ReferenceCountingBase {
    * @param count   the count
    */
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum, final double rate, final int count) {
-    assert delta.getMap().size() == weights.getMap().size();
-    this.delta = new DeltaSet<>(delta);
-    this.weights = new StateSet<>(weights);
-    assert delta.getMap().keySet().stream().allMatch(x -> weights.getMap().containsKey(x));
-    this.sum = sum;
-    this.count = count;
-    setRate(rate);
+    try {
+      assert delta.getMap().size() == weights.getMap().size();
+      this.delta = new DeltaSet<>(delta);
+      this.weights = new StateSet<>(weights);
+      assert delta.getMap().keySet().stream().allMatch(x -> weights.getMap().containsKey(x));
+      this.sum = sum;
+      this.count = count;
+      setRate(rate);
+    } catch (RuntimeException e) {
+      freeRef();
+      throw e;
+    } catch (Throwable e) {
+      freeRef();
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -225,8 +233,8 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Override
   protected void _free() {
-    this.weights.freeRef();
-    this.delta.freeRef();
+    if(null != this.weights) this.weights.freeRef();
+    if(null != this.delta) this.delta.freeRef();
   }
 
   @Override

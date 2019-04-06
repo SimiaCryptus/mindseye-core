@@ -139,7 +139,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
       @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
       @Nonnull PointSample pointSample;
       try {
-        result.accumulate(deltaSet, 1.0);
+        result.accumulate(deltaSet);
         //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
         @Nonnull StateSet<UUID> stateSet = new StateSet<>(deltaSet);
         pointSample = new PointSample(deltaSet, stateSet, sum, 0.0, items);

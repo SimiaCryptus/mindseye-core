@@ -451,4 +451,10 @@ subiterationLoop:
     this.subject.freeRef();
     this.orientation.freeRef();
   }
+
+  public static IterativeTrainer wrap(Trainable trainable) {
+    IterativeTrainer trainer = new IterativeTrainer(trainable);
+    trainable.freeRef();
+    return trainer;
+  }
 }

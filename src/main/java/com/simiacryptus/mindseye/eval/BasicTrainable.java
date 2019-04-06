@@ -26,10 +26,7 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -82,20 +79,9 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
       if (null == mask || col >= mask.length || !mask[col]) {
         return new ConstantResult(TensorArray.create(tensors));
       } else {
-        return getFeedbackResult(tensors);
+        return new MutableResult(tensors);
       }
     }).toArray(x1 -> new Result[x1]);
-  }
-
-  /**
-   * Gets feedback result.
-   *
-   * @param tensors the tensors
-   * @return the feedback result
-   */
-  @Nonnull
-  public static Result getFeedbackResult(final Tensor[] tensors) {
-    return new MutableResult(tensors);
   }
 
   /**
@@ -121,12 +107,19 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
               return Arrays.stream(array);
             }).summaryStatistics();
         final double sum = statistics.getSum();
-        result.accumulate(deltaSet, 1.0);
+        result.accumulate(deltaSet);
         stateSet = new StateSet<>(deltaSet);
+        Map<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
+        for (Tensor[] tensors : list) {
+          for (Tensor tensor : tensors) {
+            if(deltaSetMap.containsKey(tensor.getId()))
+              stateSet.get(tensor.getId(), tensor.getData()).freeRef();
+          }
+        }
         //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
         return new PointSample(deltaSet, stateSet, sum, 0.0, list.size());
       } finally {
-        if (null != stateSet) stateSet.freeRef();
+        if (null != stateSet) stateSet.freeRefAsync();
         resultData.freeRefAsync();
         result.freeRefAsync();
         deltaSet.freeRefAsync();
@@ -135,9 +128,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     if (null != monitor && verbosity() > 0) {
       monitor.log(String.format("Device completed %s items in %.3f sec", list.size(), timedResult.timeNanos / 1e9));
     }
-    @Nonnull PointSample normalize = timedResult.result.normalize();
-    timedResult.result.freeRef();
-    return normalize;
+    try {
+      return timedResult.result.normalize();
+    } finally {
+      timedResult.result.freeRef();
+    }
   }
 
   @Nonnull
@@ -177,7 +172,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   @Nonnull
   @Override
-  public synchronized Trainable setData(@Nonnull final List<Tensor[]> data) {
+  public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
     if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
     if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
     this.data = data;
@@ -186,7 +181,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   @Nonnull
   @Override
-  public TrainableDataMask setMask(final boolean... mask) {
+  public BasicTrainable setMask(final boolean... mask) {
     this.mask = mask;
     return this;
   }

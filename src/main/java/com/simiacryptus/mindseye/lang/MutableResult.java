@@ -36,7 +36,7 @@ public class MutableResult extends Result {
    * @param tensors the tensors
    */
   public MutableResult(final Tensor... tensors) {
-    this(Arrays.stream(tensors).map(x -> UUID.randomUUID()).toArray(i -> new UUID[i]), tensors);
+    this(Arrays.stream(tensors).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
   }
 
   /**
@@ -52,10 +52,8 @@ public class MutableResult extends Result {
   private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors, UUID[] objectId) {
     return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       for (int index = 0; index < delta.length(); index++) {
-        final Tensor dt = delta.get(index);
-        @Nullable final double[] p = tensors[index].getData();
-        buffer.get(objectId[index], p).addInPlace(dt.getData()).freeRef();
-        dt.freeRef();
+        buffer.get(objectId[index], tensors[index].getData())
+            .addInPlaceAndFree(delta.get(index)).freeRef();
       }
       delta.freeRef();
     };

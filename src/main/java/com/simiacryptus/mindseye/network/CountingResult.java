@@ -71,7 +71,7 @@ public class CountingResult extends Result {
    */
   public CountingResult(final Result r, final int samples) {
     this(r);
-    getAccumulator().references.set(samples);
+    getAccumulator().fwdLinks.set(samples);
   }
 
   @Nonnull
@@ -96,9 +96,7 @@ public class CountingResult extends Result {
    */
   static class CountingAccumulator extends ReferenceCountingBase implements BiConsumer<DeltaSet<UUID>, TensorList> {
     @Nonnull
-    private final AtomicInteger references;
-    @Nonnull
-    private final AtomicBoolean hasAccumulated;
+    private final AtomicInteger fwdLinks;
     private final Result inner;
     @Nonnull
     private final LinkedList<TensorList> passbackBuffers;
@@ -113,8 +111,7 @@ public class CountingResult extends Result {
     public CountingAccumulator(Result inner) {
       this.inner = inner;
       this.inner.addRef();
-      references = new AtomicInteger(0);
-      hasAccumulated = new AtomicBoolean(false);
+      fwdLinks = new AtomicInteger(0);
       passbackBuffers = new LinkedList<>();
       accumulations = new AtomicInteger(0);
     }
@@ -125,7 +122,7 @@ public class CountingResult extends Result {
      * @return the counting nn result
      */
     public int increment() {
-      return this.references.incrementAndGet();
+      return this.fwdLinks.incrementAndGet();
     }
 
     /**
@@ -134,7 +131,7 @@ public class CountingResult extends Result {
      * @return the count
      */
     public int getCount() {
-      return this.references.get();
+      return this.fwdLinks.get();
     }
 
     @Override
@@ -142,7 +139,7 @@ public class CountingResult extends Result {
       //assert null == CudaSystem.getThreadHandle();
       assertAlive();
       data.assertAlive();
-      if (1 >= references.get()) {
+      if (1 >= fwdLinks.get()) {
         //data.addRef();
         inner.accumulate(buffer, data);
       } else {
@@ -165,7 +162,7 @@ public class CountingResult extends Result {
             passbackBuffers.add(compacted);
             assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           }
-          if (accumulations.incrementAndGet() == references.get()) {
+          if (accumulations.incrementAndGet() == fwdLinks.get()) {
             Stream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded()) stream = stream.parallel();
             reduced = stream.reduce((a, b) -> {
