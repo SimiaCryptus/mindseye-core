@@ -56,7 +56,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
   private final Map<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new HashMap<>();
   private final Trainable subject;
   private AtomicInteger currentIteration = new AtomicInteger(0);
-  private int iterationsPerSample = 1;
+  private int iterationsPerSample = 100;
   private Function<CharSequence, LineSearchStrategy> lineSearchFactory = (s) -> new ArmijoWolfeSearch();
   private int maxIterations = Integer.MAX_VALUE;
   private TrainingMonitor monitor = new TrainingMonitor();
