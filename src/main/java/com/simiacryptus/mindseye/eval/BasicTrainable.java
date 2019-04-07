@@ -112,7 +112,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
         Map<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
         for (Tensor[] tensors : list) {
           for (Tensor tensor : tensors) {
-            if(deltaSetMap.containsKey(tensor.getId()))
+            if (deltaSetMap.containsKey(tensor.getId()))
               stateSet.get(tensor.getId(), tensor.getData()).freeRef();
           }
         }
@@ -141,10 +141,26 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return data.toArray(new Tensor[][]{});
   }
 
+  @Nonnull
+  @Override
+  public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
+    if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
+    if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
+    this.data = data;
+    return this;
+  }
+
   @Nullable
   @Override
   public boolean[] getMask() {
     return mask;
+  }
+
+  @Nonnull
+  @Override
+  public BasicTrainable setMask(final boolean... mask) {
+    this.mask = mask;
+    return this;
   }
 
   @Override
@@ -168,22 +184,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     }
     assert null != timedResult.result;
     return timedResult.result;
-  }
-
-  @Nonnull
-  @Override
-  public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
-    if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
-    if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
-    this.data = data;
-    return this;
-  }
-
-  @Nonnull
-  @Override
-  public BasicTrainable setMask(final boolean... mask) {
-    this.mask = mask;
-    return this;
   }
 
   /**

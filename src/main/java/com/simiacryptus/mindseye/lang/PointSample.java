@@ -233,8 +233,8 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Override
   protected void _free() {
-    if(null != this.weights) this.weights.freeRef();
-    if(null != this.delta) this.delta.freeRef();
+    if (null != this.weights) this.weights.freeRef();
+    if (null != this.delta) this.delta.freeRef();
   }
 
   @Override

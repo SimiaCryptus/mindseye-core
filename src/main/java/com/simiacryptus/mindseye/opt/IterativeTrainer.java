@@ -76,6 +76,12 @@ public class IterativeTrainer extends ReferenceCountingBase {
     terminateThreshold = 0;
   }
 
+  public static IterativeTrainer wrap(Trainable trainable) {
+    IterativeTrainer trainer = new IterativeTrainer(trainable);
+    trainable.freeRef();
+    return trainer;
+  }
+
   /**
    * Gets current iteration.
    *
@@ -450,11 +456,5 @@ subiterationLoop:
   protected void _free() {
     this.subject.freeRef();
     this.orientation.freeRef();
-  }
-
-  public static IterativeTrainer wrap(Trainable trainable) {
-    IterativeTrainer trainer = new IterativeTrainer(trainable);
-    trainable.freeRef();
-    return trainer;
   }
 }
