@@ -1940,6 +1940,16 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
     return this;
   }
 
+  public double mag() {
+    return Math.sqrt(sumSq());
+  }
+
+  public double magAndFree() {
+    double mag = mag();
+    freeRef();
+    return mag;
+  }
+
   /**
    * The interface Coord operator.
    */
