@@ -263,7 +263,7 @@ public class PipelineNetwork extends DAGNetwork {
 
   @Nullable
   @Override
-  public DAGNode getHead() {
+  public final DAGNode getHead() {
     assertAlive();
     if (null == head) {
       return getInput(0);

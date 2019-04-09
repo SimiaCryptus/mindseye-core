@@ -381,7 +381,7 @@ public abstract class DAGNetwork extends LayerBase {
    * @param index the index
    * @return the input
    */
-  public DAGNode getInput(final int index) {
+  public final DAGNode getInput(final int index) {
     assertAlive();
     UUID key = inputHandles.get(index);
     final DAGNode input = inputNodes.get(key);
