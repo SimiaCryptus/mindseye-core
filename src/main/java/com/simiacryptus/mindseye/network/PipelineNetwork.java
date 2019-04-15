@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.network;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;
@@ -28,8 +29,10 @@ import com.simiacryptus.mindseye.layers.ValueLayer;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A simple network architecture based on the assumption of a linear sequence of components. Each component added
@@ -87,6 +90,10 @@ public class PipelineNetwork extends DAGNetwork {
     addAll(layers);
   }
 
+  public PipelineNetwork(int inputs, UUID id, String name) {
+    super(inputs, id, name);
+  }
+
   /**
    * From json pipeline network.
    *
@@ -121,11 +128,40 @@ public class PipelineNetwork extends DAGNetwork {
    * @return the pipeline network
    */
   public static PipelineNetwork wrap(final int inputs, final Layer... layers) {
+    assert Arrays.stream(layers).allMatch(ReferenceCounting::assertAlive);
     PipelineNetwork pipelineNetwork = new PipelineNetwork(inputs);
     for (final Layer layer : layers) {
       pipelineNetwork.wrap(layer).freeRef();
     }
     return pipelineNetwork;
+  }
+
+  public static InnerNode transferNode(PipelineNetwork pipelineNetwork, DAGNode head) {
+    try {
+      return pipelineNetwork.add(head.getLayer(), Arrays.stream(head.getInputs()).map((DAGNode input) -> {
+        if (input.getNetwork().inputNodes.containsKey(input.getId())) {
+          return pipelineNetwork.getInput(input.getNetwork().inputHandles.indexOf(input.getId()));
+        } else {
+          Layer inputLayer = input.getLayer();
+          if (inputLayer == null) throw new IllegalArgumentException(input.getClass().toString());
+          return pipelineNetwork.getNodes().stream().filter(dagNode -> {
+            Layer layer = dagNode.getLayer();
+            if (null == layer) return false;
+            if (layer.getId().equals(inputLayer.getId())) return true;
+            return false;
+          }).findFirst().map(DAGNode::addRef).orElseGet(() -> {
+            int inputNumber = ((PipelineNetwork) input.getNetwork()).inputNodes.keySet().stream().collect(Collectors.toList()).indexOf(input.getId());
+            if (-1 == inputNumber) {
+              return transferNode(pipelineNetwork, input.addRef());
+            } else {
+              return pipelineNetwork.getInput(inputNumber);
+            }
+          });
+        }
+      }).toArray(i -> new DAGNode[i]));
+    } finally {
+      head.freeRef();
+    }
   }
 
   @Nonnull
@@ -280,13 +316,13 @@ public class PipelineNetwork extends DAGNetwork {
    * @return the head
    */
   @Nonnull
-  public PipelineNetwork setHead(final DAGNode obj) {
+  public DAGNode setHead(final DAGNode obj) {
     if (obj != head) {
       if (null != head) head.freeRef();
       head = obj;
       if (null != head) head.addRef();
     }
-    return this;
+    return obj;
   }
 
   @Override
@@ -309,4 +345,11 @@ public class PipelineNetwork extends DAGNetwork {
   public PipelineNetwork addRef() {
     return (PipelineNetwork) super.addRef();
   }
+
+  public PipelineNetwork copyPipeline() {
+    PipelineNetwork pipelineNetwork = new PipelineNetwork(1, getId(), getName());
+    if (!this.internalNodes.isEmpty()) pipelineNetwork.setHead(transferNode(pipelineNetwork, getHead())).freeRef();
+    return pipelineNetwork;
+  }
+
 }

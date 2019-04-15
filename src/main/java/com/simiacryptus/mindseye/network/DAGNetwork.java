@@ -64,6 +64,14 @@ public abstract class DAGNetwork extends LayerBase {
    */
   protected final LinkedHashMap<UUID, DAGNode> internalNodes = new LinkedHashMap<>();
 
+  public DAGNetwork(final int inputs, UUID id, String name) {
+    super(id, name);
+    assert 0 < inputs;
+    for (int i = 0; i < inputs; i++) {
+      addInput();
+    }
+  }
+
   /**
    * Instantiates a new Dag network.
    *

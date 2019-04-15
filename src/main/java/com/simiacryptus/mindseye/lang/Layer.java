@@ -159,12 +159,10 @@ public interface Layer extends ReferenceCounting, Serializable {
    * @return the pipeline network
    */
   default PipelineNetwork freeAndThenWrap(Layer append) {
-    assert append.assertAlive();
-    PipelineNetwork build = PipelineNetwork.wrap(1,
+    return PipelineNetwork.wrap(1,
         this,
         append
     );
-    return build;
   }
 
   /**

@@ -393,7 +393,7 @@ subiterationLoop:
     } finally {
       monitor.log(String.format("Final threshold in iteration %s: %s (> %s) after %.3fs (< %.3fs)",
           currentIteration.get(),
-          currentPoint.getMean(),
+          null == currentPoint ? null : currentPoint.getMean(),
           terminateThreshold,
           (System.currentTimeMillis() - startTime) / 1000.0,
           timeout.toMillis() / 1000.0
