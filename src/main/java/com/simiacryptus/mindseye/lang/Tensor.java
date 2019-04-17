@@ -1878,17 +1878,6 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   }
 
   /**
-   * To image and free buffered image.
-   *
-   * @return the buffered image
-   */
-  public BufferedImage toImageAndFree() {
-    BufferedImage image = toImage();
-    freeRef();
-    return image;
-  }
-
-  /**
    * Copy and free tensor.
    *
    * @return the tensor
