@@ -1406,7 +1406,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
     assertAlive();
     @Nullable final double[] src = right.getData();
     double[] dst = getData();
-    if (dst.length != src.length) throw new IllegalArgumentException(dst.length + " != " + src.length);
+    if (dst.length != src.length) {
+      throw new IllegalArgumentException(dst.length + " != " + src.length);
+    }
     System.arraycopy(src, 0, dst, 0, src.length);
     return this;
   }

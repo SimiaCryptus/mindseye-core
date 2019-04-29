@@ -79,7 +79,7 @@ public abstract class DAGNetwork extends LayerBase {
    */
   public DAGNetwork(final int inputs) {
     super();
-    assert 0 < inputs;
+    //assert 0 < inputs;
     for (int i = 0; i < inputs; i++) {
       addInput();
     }
