@@ -552,10 +552,7 @@ public class ValidatingTrainer {
     phase.orientation.reset();
     phase.trainingSubject.reseed(seed);
     if (phase.trainingSubject.getLayer() instanceof DAGNetwork) {
-      ((DAGNetwork) phase.trainingSubject.getLayer()).visitLayers(layer -> {
-        if (layer instanceof StochasticComponent)
-          ((StochasticComponent) layer).shuffle(StochasticComponent.random.get().nextLong());
-      });
+      ((DAGNetwork) phase.trainingSubject.getLayer()).shuffle(StochasticComponent.random.get().nextLong());
     }
     return this;
   }

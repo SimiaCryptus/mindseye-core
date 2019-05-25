@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
 /**
  * Encapsulates the results of evaluating neural network. It includes both the result data and a function which can be
@@ -37,6 +38,11 @@ public class Result extends ReferenceCountingBase {
    */
   @Nonnull
   protected final TensorList data;
+
+  @Nonnull
+  protected final int[] dims;
+  @Nonnull
+  protected final int dataLength;
   /**
    * The Accumulator.
    */
@@ -53,6 +59,8 @@ public class Result extends ReferenceCountingBase {
     super();
     this.data = data;
     this.accumulator = accumulator;
+    this.dims = data.getDimensions();
+    this.dataLength = data.length();
   }
 
   /**
@@ -96,7 +104,8 @@ public class Result extends ReferenceCountingBase {
    * @param value  the value
    */
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
-    accumulate(buffer, TensorArray.wrap(getData().stream().map(t -> t.mapAndFree(v -> value)).toArray(i -> new Tensor[i])));
+
+    accumulate(buffer, TensorArray.wrap(IntStream.range(0, dataLength).mapToObj(x->new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
 
 

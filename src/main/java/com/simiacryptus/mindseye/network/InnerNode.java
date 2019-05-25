@@ -76,7 +76,7 @@ public final class InnerNode extends LazyResult {
     this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
     assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
     assert Arrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
-    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
+//    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
 //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
 //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
   }

@@ -129,26 +129,26 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     Set<UUID> keySet = gradient.direction.getMap().keySet();
     List<Layer> layerSet = keySet.stream().map(id -> ((DAGNetwork) subject.getLayer()).getLayersById().get(id)).collect(Collectors.toList());
     for (@Nonnull final Layer layer : getLayers(layerSet)) {
-      Delta<UUID> layerDelta = gradient.direction.getMap().get(layer.getId());
-      final double[] weights = layerDelta.target;
-      @Nullable final double[] delta = layerDelta.getDelta();
-      Delta<UUID> layerDelta1 = searchDirection.get(layer.getId(), weights);
-      @Nullable final double[] searchDir = layerDelta1.getDelta();
-      Delta<UUID> layerDelta2 = orthant.get(layer.getId(), weights);
-      @Nullable final double[] suborthant = layerDelta2.getDelta();
-      for (int i = 0; i < searchDir.length; i++) {
-        final int positionSign = sign(weights[i]);
-        final int directionSign = sign(delta[i]);
-        suborthant[i] = 0 == positionSign ? directionSign : positionSign;
-        searchDir[i] += factor_L1 * (weights[i] < 0 ? -1.0 : 1.0);
-        if (sign(searchDir[i]) != directionSign) {
-          searchDir[i] = delta[i];
+      gradient.direction.getMap().forEach((layerId,layerDelta)->{
+        final double[] weights = layerDelta.target;
+        @Nullable final double[] delta = layerDelta.getDelta();
+        Delta<UUID> layerDelta1 = searchDirection.get(layerId, weights);
+        @Nullable final double[] searchDir = layerDelta1.getDelta();
+        Delta<UUID> layerDelta2 = orthant.get(layerId, weights);
+        @Nullable final double[] suborthant = layerDelta2.getDelta();
+        for (int i = 0; i < searchDir.length; i++) {
+          final int positionSign = sign(weights[i]);
+          final int directionSign = sign(delta[i]);
+          suborthant[i] = 0 == positionSign ? directionSign : positionSign;
+          searchDir[i] += factor_L1 * (weights[i] < 0 ? -1.0 : 1.0);
+          if (sign(searchDir[i]) != directionSign) {
+            searchDir[i] = delta[i];
+          }
         }
-      }
-      layerDelta.freeRef();
-      layerDelta1.freeRef();
-      layerDelta2.freeRef();
-      assert null != searchDir;
+        layerDelta1.freeRef();
+        layerDelta2.freeRef();
+        assert null != searchDir;
+      });
     }
     gradient.freeRef();
     return new SimpleLineSearchCursor(subject, measurement, searchDirection) {

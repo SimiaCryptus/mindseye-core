@@ -162,7 +162,7 @@ public class ValueLayer extends LayerBase {
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
-    Arrays.stream(data).map(datum -> datum.toJson(resources, dataSerializer)).forEach(values::add);
+    Arrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer)).forEach(values::add);
     json.add("values", values);
     return json;
   }

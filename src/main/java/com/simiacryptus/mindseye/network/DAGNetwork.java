@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.network;
 import com.google.gson.*;
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.layers.StochasticComponent;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
 import com.simiacryptus.util.MonitoredItem;
 import com.simiacryptus.util.MonitoredObject;
@@ -185,6 +186,19 @@ public abstract class DAGNetwork extends LayerBase {
       return sb.toString();
     }
     return replacement;
+  }
+
+  public void shuffle(long seed) {
+    visitLayers(layer -> {
+      if (layer instanceof StochasticComponent)
+        ((StochasticComponent) layer).shuffle(seed);
+    });
+  }
+
+  public void clearNoise() {
+    visitLayers(layer -> {
+      if (layer instanceof StochasticComponent) ((StochasticComponent) layer).clearNoise();
+    });
   }
 
   /**

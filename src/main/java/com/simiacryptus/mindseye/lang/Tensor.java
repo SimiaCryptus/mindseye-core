@@ -40,7 +40,7 @@ import java.util.stream.*;
  * handling in MindsEye, and may have some odd-looking or suprising optimizations.
  */
 @SuppressWarnings("serial")
-public final class Tensor extends ReferenceCountingBase implements Serializable {
+public final class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializable {
   /**
    * The constant json_precision.
    */
@@ -241,9 +241,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   public static int length(@Nonnull int... dims) {
     long total = 1;
     for (final int dim : dims) {
-      assert 0 < dim : Arrays.toString(dims);
+      assert 0 <= dim : Arrays.toString(dims);
       total *= dim;
-      assert 0 < total : Arrays.toString(dims);
+      assert 0 <= total : Arrays.toString(dims);
       assert total < Integer.MAX_VALUE : Arrays.toString(dims);
     }
     return (int) total;
@@ -354,9 +354,12 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    */
   @Nonnull
   public static float[] toFloats(@Nonnull final double[] data) {
-    @Nonnull final float[] buffer = new float[data.length];
-    for (int i = 0; i < data.length; i++) {
-      buffer[i] = (float) data[i];
+    return copy(data, new float[data.length]);
+  }
+
+  public static float[] copy(double[] src, float[] buffer) {
+    for (int i = 0; i < src.length; i++) {
+      buffer[i] = (float) src[i];
     }
     return buffer;
   }
@@ -1579,7 +1582,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
    * @return the json element
    */
   @Nonnull
-  public JsonElement toJson(@Nullable Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
+  public JsonElement getJson(@Nullable Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
     if (length() > 1024) {
       @Nonnull JsonObject obj = new JsonObject();
       @Nonnull int[] dimensions = getDimensions();
@@ -1596,7 +1599,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
       }
       return obj;
     } else {
-      return toJson(new int[]{});
+      return getJson(new int[]{});
     }
   }
 
@@ -1636,7 +1639,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
   }
 
   @Nonnull
-  private JsonElement toJson(@Nonnull final int[] coords) {
+  private JsonElement getJson(@Nonnull final int[] coords) {
     if (coords.length == dimensions.length) {
       final double d = get(coords);
       return new JsonPrimitive(d);
@@ -1646,7 +1649,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable 
         @Nonnull final int[] newCoord = new int[coords.length + 1];
         System.arraycopy(coords, 0, newCoord, 1, coords.length);
         newCoord[0] = i;
-        return toJson(newCoord);
+        return getJson(newCoord);
       }).forEach(l -> jsonArray.add(l));
       return jsonArray;
     }

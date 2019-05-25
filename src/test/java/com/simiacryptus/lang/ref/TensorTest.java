@@ -51,7 +51,7 @@ public class TensorTest {
   public Tensor parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
     @Nullable final Tensor tensor = Tensor.fromJson(json, null);
-    Assert.assertEquals(json, tensor.toJson(null, Tensor.json_precision));
+    Assert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
     return tensor;
   }
 
@@ -61,7 +61,7 @@ public class TensorTest {
    * @param t the t
    */
   public void test(@Nonnull final Tensor t) {
-    @Nonnull final JsonElement json = t.toJson(null, Tensor.json_precision);
+    @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
     Assert.assertEquals(Tensor.fromJson(json, null), t);
     parse(json.toString());
   }

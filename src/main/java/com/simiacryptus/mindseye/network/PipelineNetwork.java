@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.network;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;
@@ -162,6 +163,18 @@ public class PipelineNetwork extends DAGNetwork {
     } finally {
       head.freeRef();
     }
+  }
+
+  public static PipelineNetwork combine(Layer combiner, PipelineNetwork... networks) {
+    Arrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
+    if (1 == networks.length) return networks[0];
+    PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
+    pipelineNetwork.wrap(combiner, Arrays.stream(networks).map(network -> {
+      InnerNode node = transferNode(pipelineNetwork, network.getHead());
+      network.freeRef();
+      return node;
+    }).toArray(i -> new DAGNode[i])).freeRef();
+    return pipelineNetwork;
   }
 
   @Nonnull
