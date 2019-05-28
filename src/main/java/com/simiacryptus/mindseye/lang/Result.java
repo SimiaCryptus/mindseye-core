@@ -105,7 +105,7 @@ public class Result extends ReferenceCountingBase {
    */
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
 
-    accumulate(buffer, TensorArray.wrap(IntStream.range(0, dataLength).mapToObj(x->new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
+    accumulate(buffer, TensorArray.wrap(IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
 
 

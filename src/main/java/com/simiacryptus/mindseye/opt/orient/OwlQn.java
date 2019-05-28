@@ -129,7 +129,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     Set<UUID> keySet = gradient.direction.getMap().keySet();
     List<Layer> layerSet = keySet.stream().map(id -> ((DAGNetwork) subject.getLayer()).getLayersById().get(id)).collect(Collectors.toList());
     for (@Nonnull final Layer layer : getLayers(layerSet)) {
-      gradient.direction.getMap().forEach((layerId,layerDelta)->{
+      gradient.direction.getMap().forEach((layerId, layerDelta) -> {
         final double[] weights = layerDelta.target;
         @Nullable final double[] delta = layerDelta.getDelta();
         Delta<UUID> layerDelta1 = searchDirection.get(layerId, weights);

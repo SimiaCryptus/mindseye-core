@@ -36,15 +36,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public interface ZipSerializable {
-  /**
-   * Gets json.
-   *
-   * @param resources      the resources
-   * @param dataSerializer the data serializer
-   * @return the json
-   */
-  JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
-
   static JsonObject toJson(byte[] buf) {
     return new GsonBuilder().create().fromJson(
         new InputStreamReader(new ByteArrayInputStream(
@@ -68,6 +59,15 @@ public interface ZipSerializable {
     }
     return resources;
   }
+
+  /**
+   * Gets json.
+   *
+   * @param resources      the resources
+   * @param dataSerializer the data serializer
+   * @return the json
+   */
+  JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
 
   /**
    * Gets json.
