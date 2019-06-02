@@ -23,6 +23,7 @@ import javax.annotation.Nonnull;
 import java.nio.*;
 import java.nio.DoubleBuffer;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.DoubleSummaryStatistics;
 
 /**
@@ -214,6 +215,14 @@ public enum SerialPrecision implements DataSerializer {
 
   SerialPrecision(final int size) {
     this.size = size;
+  }
+
+  public double[] parse(String trim) {
+    return fromBytes(Base64.getDecoder().decode(trim));
+  }
+
+  public String base64(Tensor value) {
+    return Base64.getEncoder().encodeToString(toBytes(value.getData()));
   }
 
 

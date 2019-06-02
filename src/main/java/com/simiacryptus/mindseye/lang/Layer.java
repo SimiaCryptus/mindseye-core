@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -31,6 +32,8 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 /**
@@ -85,6 +88,20 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     } catch (@Nonnull IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @NotNull
+  default List<Tensor> map(List<Tensor> values) {
+    return values.stream().map(t -> {
+      return eval(t).getDataAndFree().getAndFree(0);
+    }).collect(Collectors.toList());
+  }
+
+  @NotNull
+  default Stream<Tensor> map(Stream<Tensor> values) {
+    return values.map(t -> {
+      return eval(t).getDataAndFree().getAndFree(0);
+    });
   }
 
   @Override

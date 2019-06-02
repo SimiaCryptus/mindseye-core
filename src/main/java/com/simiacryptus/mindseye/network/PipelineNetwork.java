@@ -148,8 +148,7 @@ public class PipelineNetwork extends DAGNetwork {
           return pipelineNetwork.getNodes().stream().filter(dagNode -> {
             Layer layer = dagNode.getLayer();
             if (null == layer) return false;
-            if (layer.getId().equals(inputLayer.getId())) return true;
-            return false;
+            return layer.getId().equals(inputLayer.getId());
           }).findFirst().map(DAGNode::addRef).orElseGet(() -> {
             int inputNumber = ((PipelineNetwork) input.getNetwork()).inputNodes.keySet().stream().collect(Collectors.toList()).indexOf(input.getId());
             if (-1 == inputNumber) {

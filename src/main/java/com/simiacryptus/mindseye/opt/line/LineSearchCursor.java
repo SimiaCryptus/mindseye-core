@@ -36,8 +36,6 @@ public interface LineSearchCursor extends ReferenceCounting {
     return step;
   }
 
-  ;
-
   /**
    * Gets direction type.
    *
