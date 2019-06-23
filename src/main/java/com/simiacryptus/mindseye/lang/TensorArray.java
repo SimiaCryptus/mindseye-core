@@ -26,18 +26,10 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-/**
- * An on-heap implementation of the TensorList data container.
- */
 public class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
   @Nonnull
   private final Tensor[] data;
 
-  /**
-   * Instantiates a new Tensor array.
-   *
-   * @param data the data
-   */
   private TensorArray(@Nonnull final Tensor... data) {
     assert null != data;
     assert 0 < data.length;
@@ -49,22 +41,10 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     }
   }
 
-  /**
-   * Create tensor array.
-   *
-   * @param data the data
-   * @return the tensor array
-   */
   public static TensorArray create(final Tensor... data) {
     return new TensorArray(data);
   }
 
-  /**
-   * Wrap tensor array.
-   *
-   * @param data the data
-   * @return the tensor array
-   */
   @Nonnull
   public static TensorArray wrap(@Nonnull final Tensor... data) {
     @Nonnull TensorArray tensorArray = TensorArray.create(data);
@@ -72,14 +52,6 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     return tensorArray;
   }
 
-  /**
-   * To string string.
-   *
-   * @param <T>   the type parameter
-   * @param limit the limit
-   * @param data  the data
-   * @return the string
-   */
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
     return (data.length < limit) ? Arrays.toString(data) : "[" + Arrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b).get() + ", ...]";
   }

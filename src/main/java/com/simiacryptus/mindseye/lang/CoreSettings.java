@@ -25,9 +25,6 @@ import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * The type Cuda settings.
- */
 public class CoreSettings extends RefSettings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
@@ -43,11 +40,6 @@ public class CoreSettings extends RefSettings {
     this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 3);
   }
 
-  /**
-   * The constant INSTANCE.
-   *
-   * @return the core settings
-   */
   public static CoreSettings INSTANCE() {
     if (null == INSTANCE) {
       synchronized (CoreSettings.class) {
@@ -60,11 +52,6 @@ public class CoreSettings extends RefSettings {
     return INSTANCE;
   }
 
-  /**
-   * Is conservative boolean.
-   *
-   * @return the boolean
-   */
   public boolean isSingleThreaded() {
     return singleThreaded;
   }

@@ -35,45 +35,19 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * A collection of DoubleBuffer objects being staged for particular layers. Provides indexing capabilities to reference
- * the deltas based on physical references (to double[] objects) and based on logical referants (i.e. layers)
- *
- * @param <K> the type parameter
- * @param <T> the type parameter
- */
 public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
-  /**
-   * The Log.
-   */
   static final Logger log = LoggerFactory.getLogger(DoubleBufferSet.class);
 
-  /**
-   * The Map.
-   */
   @Nonnull
   protected final HashMap<K, T> map = new HashMap<>();
 
-  /**
-   * Instantiates a new Delta setByCoord.
-   */
   public DoubleBufferSet() {
   }
 
-  /**
-   * Instantiates a new Delta setByCoord.
-   *
-   * @param toCopy the to copy
-   */
   public DoubleBufferSet(@Nonnull final DoubleBufferSet<K, T> toCopy) {
     this(toCopy.map);
   }
 
-  /**
-   * Instantiates a new Delta setByCoord.
-   *
-   * @param collect the collect
-   */
   public DoubleBufferSet(@Nonnull final Map<K, ? extends T> collect) {
     collect.forEach((k, v) -> {
       assert null != k;
@@ -88,33 +62,14 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     }
   }
 
-  /**
-   * Copy evalInputDelta setByCoord.
-   *
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   @SuppressWarnings("unchecked")
   public DoubleBufferSet<K, T> copy() {
     return map(x -> (T) x.copy());
   }
 
-  /**
-   * Factory t.
-   *
-   * @param layer  the key
-   * @param target the target
-   * @return the t
-   */
   protected abstract T factory(final K layer, final double[] target);
 
-  /**
-   * Get evalInputDelta.
-   *
-   * @param layer the key
-   * @param ptr   the ptr
-   * @return the evalInputDelta
-   */
   public T get(final K layer, final double[] ptr) {
     final T delta = get(layer, () -> factory(layer, ptr));
     assert delta.key.equals(layer);
@@ -122,13 +77,6 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     return delta;
   }
 
-  /**
-   * Get t.
-   *
-   * @param layer   the key
-   * @param factory the factory
-   * @return the t
-   */
   private T get(@Nullable final K layer, @Nullable final Supplier<T> factory) {
     if (null == map) throw new IllegalArgumentException();
     if (null == factory) throw new IllegalArgumentException();
@@ -147,33 +95,15 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     }
   }
 
-  /**
-   * Get evalInputDelta.
-   *
-   * @param layer the key
-   * @param ptr   the ptr
-   * @return the evalInputDelta
-   */
   public T get(final K layer, @Nonnull final Tensor ptr) {
     return get(layer, ptr.getData());
   }
 
-  /**
-   * Gets buildMap.
-   *
-   * @return the buildMap
-   */
   @Nonnull
   public Map<K, T> getMap() {
     return Collections.unmodifiableMap(map);
   }
 
-  /**
-   * Map evalInputDelta setByCoord.
-   *
-   * @param mapper the mapper
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
     @Nonnull final DoubleBufferSet<K, T> parent = this;
@@ -187,11 +117,6 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     return delegate;
   }
 
-  /**
-   * Stream stream.
-   *
-   * @return the stream
-   */
   public Stream<T> stream() {
     return map.values().stream().filter(n -> null != n).distinct().sorted(Comparator.comparing(y -> System.identityHashCode(y.target)));
   }
@@ -205,27 +130,13 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
 //    map.clear();
   }
 
-  /**
-   * The type Delegate.
-   */
   protected class Delegate extends DoubleBufferSet<K, T> {
     private final DoubleBufferSet<K, T> parent;
 
-    /**
-     * Instantiates a new Delegate.
-     *
-     * @param parent the parent
-     */
     public Delegate(final DoubleBufferSet<K, T> parent) {
       this(parent, new HashMap<>());
     }
 
-    /**
-     * Instantiates a new Delegate.
-     *
-     * @param parent the parent
-     * @param newMap the new buildMap
-     */
     public Delegate(final DoubleBufferSet<K, T> parent, @Nonnull final Map<K, T> newMap) {
       super(newMap);
       this.parent = parent;

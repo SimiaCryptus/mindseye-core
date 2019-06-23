@@ -19,30 +19,13 @@
 
 package com.simiacryptus.mindseye.opt;
 
-/**
- * The base class for defining callbacks to monitor training tasks.
- */
 public class TrainingMonitor {
-  /**
-   * Clear.
-   */
   public void clear() {
   }
 
-  /**
-   * This callback intercepts log messages describing the ongoing training process.
-   *
-   * @param msg the msg
-   */
   public void log(final String msg) {
   }
 
-  /**
-   * This callback is executed periodically, between each line-search process. While processing, the training process is
-   * blocked.
-   *
-   * @param currentPoint the current point
-   */
   public void onStepComplete(final Step currentPoint) {
   }
 }

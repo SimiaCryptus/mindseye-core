@@ -26,17 +26,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-/**
- * An asynchronous, settable reference buffer. Allows consumers to block until a value is availble.
- *
- * @param <T> the type parameter
- */
 public class Singleton<T> implements Supplier<T> {
   private final BlockingDeque<T> deque = new LinkedBlockingDeque<>();
 
-  /**
-   * Instantiates a new Singleton.
-   */
   public Singleton() {
   }
 
@@ -56,12 +48,6 @@ public class Singleton<T> implements Supplier<T> {
     }
   }
 
-  /**
-   * Set.
-   *
-   * @param obj the obj
-   * @return the singleton
-   */
   @Nonnull
   public Singleton<T> set(T obj) {
     assert deque.isEmpty();

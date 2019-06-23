@@ -46,9 +46,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
-/**
- * The basic type of training loop, which integrates a Trainable object apply an Orientation and Line Search strategy
- */
 public class IterativeTrainer extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(IterativeTrainer.class);
 
@@ -63,11 +60,6 @@ public class IterativeTrainer extends ReferenceCountingBase {
   private double terminateThreshold;
   private Duration timeout;
 
-  /**
-   * Instantiates a new Iterative trainer.
-   *
-   * @param subject the subject
-   */
   public IterativeTrainer(final Trainable subject) {
     this.subject = subject;
     this.subject.addRef();
@@ -81,126 +73,60 @@ public class IterativeTrainer extends ReferenceCountingBase {
     return trainer;
   }
 
-  /**
-   * Gets current iteration.
-   *
-   * @return the current iteration
-   */
   public AtomicInteger getCurrentIteration() {
     return currentIteration;
   }
 
-  /**
-   * Sets current iteration.
-   *
-   * @param currentIteration the current iteration
-   * @return the current iteration
-   */
   @Nonnull
   public IterativeTrainer setCurrentIteration(final AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
     return this;
   }
 
-  /**
-   * Gets iterations per sample.
-   *
-   * @return the iterations per sample
-   */
   public int getIterationsPerSample() {
     return iterationsPerSample;
   }
 
-  /**
-   * Sets iterations per sample.
-   *
-   * @param iterationsPerSample the iterations per sample
-   * @return the iterations per sample
-   */
   @Nonnull
   public IterativeTrainer setIterationsPerSample(final int iterationsPerSample) {
     this.iterationsPerSample = iterationsPerSample;
     return this;
   }
 
-  /**
-   * Gets line search factory.
-   *
-   * @return the line search factory
-   */
   public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
     return lineSearchFactory;
   }
 
-  /**
-   * Sets line search factory.
-   *
-   * @param lineSearchFactory the line search factory
-   * @return the line search factory
-   */
   @Nonnull
   public IterativeTrainer setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
     this.lineSearchFactory = lineSearchFactory;
     return this;
   }
 
-  /**
-   * Gets max iterations.
-   *
-   * @return the max iterations
-   */
   public int getMaxIterations() {
     return maxIterations;
   }
 
-  /**
-   * Sets max iterations.
-   *
-   * @param maxIterations the max iterations
-   * @return the max iterations
-   */
   @Nonnull
   public IterativeTrainer setMaxIterations(final int maxIterations) {
     this.maxIterations = maxIterations;
     return this;
   }
 
-  /**
-   * Gets monitor.
-   *
-   * @return the monitor
-   */
   public TrainingMonitor getMonitor() {
     return monitor;
   }
 
-  /**
-   * Sets monitor.
-   *
-   * @param monitor the monitor
-   * @return the monitor
-   */
   @Nonnull
   public IterativeTrainer setMonitor(final TrainingMonitor monitor) {
     this.monitor = monitor;
     return this;
   }
 
-  /**
-   * Gets orientation.
-   *
-   * @return the orientation
-   */
   public OrientationStrategy<?> getOrientation() {
     return orientation;
   }
 
-  /**
-   * Sets orientation.
-   *
-   * @param orientation the orientation
-   * @return the orientation
-   */
   @Nonnull
   public IterativeTrainer setOrientation(final OrientationStrategy<?> orientation) {
     if (null != this.orientation) this.orientation.freeRef();
@@ -208,53 +134,26 @@ public class IterativeTrainer extends ReferenceCountingBase {
     return this;
   }
 
-  /**
-   * Gets terminate threshold.
-   *
-   * @return the terminate threshold
-   */
   public double getTerminateThreshold() {
     return terminateThreshold;
   }
 
-  /**
-   * Sets terminate threshold.
-   *
-   * @param terminateThreshold the terminate threshold
-   * @return the terminate threshold
-   */
   @Nonnull
   public IterativeTrainer setTerminateThreshold(final double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
     return this;
   }
 
-  /**
-   * Gets timeout.
-   *
-   * @return the timeout
-   */
   public Duration getTimeout() {
     return timeout;
   }
 
-  /**
-   * Sets timeout.
-   *
-   * @param timeout the timeout
-   * @return the timeout
-   */
   @Nonnull
   public IterativeTrainer setTimeout(final Duration timeout) {
     this.timeout = timeout;
     return this;
   }
 
-  /**
-   * Measure point sample.
-   *
-   * @return the point sample
-   */
   @Nullable
   public PointSample measure() {
     @Nullable PointSample currentPoint = null;
@@ -265,9 +164,14 @@ public class IterativeTrainer extends ReferenceCountingBase {
       }
       currentPoint = subject.measure(monitor);
     } while (!Double.isFinite(currentPoint.getMean()) && 10 < retries++);
-    if (!Double.isFinite(currentPoint.getMean())) {
+    if (0 >= currentPoint.delta.getMap().size()) {
       currentPoint.freeRef();
-      throw new IterativeStopException();
+      throw new AssertionError("Nothing to optimize");
+    }
+    double mean = currentPoint.getMean();
+    if (!Double.isFinite(mean)) {
+      currentPoint.freeRef();
+      throw new IterativeStopException(Double.toString(mean));
     }
     return currentPoint;
   }
@@ -282,11 +186,6 @@ public class IterativeTrainer extends ReferenceCountingBase {
     }
   }
 
-  /**
-   * Run and free double.
-   *
-   * @return the double
-   */
   public double runAndFree() {
     try {
       return run();
@@ -295,11 +194,6 @@ public class IterativeTrainer extends ReferenceCountingBase {
     }
   }
 
-  /**
-   * Run double.
-   *
-   * @return the double
-   */
   public double run() {
     long startTime = System.currentTimeMillis();
     final long timeoutMs = startTime + timeout.toMillis();
@@ -316,7 +210,6 @@ mainLoop:
         currentPoint.freeRef();
         currentPoint = null;
         currentPoint = measure();
-        assert 0 < currentPoint.delta.getMap().size() : "Nothing to optimize";
 subiterationLoop:
         for (int subiteration = 0; subiteration < iterationsPerSample || iterationsPerSample <= 0; subiteration++) {
           if (timeoutMs < System.currentTimeMillis()) {
@@ -396,39 +289,17 @@ subiterationLoop:
     }
   }
 
-  /**
-   * Sets timeout.
-   *
-   * @param number the number
-   * @param units  the units
-   * @return the timeout
-   */
   @Nonnull
   public IterativeTrainer setTimeout(final int number, @Nonnull final TemporalUnit units) {
     timeout = Duration.of(number, units);
     return this;
   }
 
-  /**
-   * Sets timeout.
-   *
-   * @param number the number
-   * @param units  the units
-   * @return the timeout
-   */
   @Nonnull
   public IterativeTrainer setTimeout(final int number, @Nonnull final TimeUnit units) {
     return setTimeout(number, Util.cvt(units));
   }
 
-  /**
-   * Step point sample.
-   *
-   * @param direction     the direction
-   * @param directionType the direction type
-   * @param previous      the previous
-   * @return the point sample
-   */
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType, @Nonnull final PointSample previous) {
     PointSample currentPoint;
     LineSearchStrategy lineSearchStrategy;

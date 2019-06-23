@@ -24,27 +24,11 @@ import com.simiacryptus.mindseye.lang.PointSample;
 
 import javax.annotation.Nonnull;
 
-/**
- * A particular point in a LayerBase line search phase. Contains both the high-dimensional position and derivative, and
- * the simplified one-dimensional positiion and derivative.
- */
 public class LineSearchPoint extends ReferenceCountingBase {
 
-  /**
-   * The Derivative.
-   */
   public final double derivative;
-  /**
-   * The Point.
-   */
   public final PointSample point;
 
-  /**
-   * Instantiates a new Line search point.
-   *
-   * @param point      the point
-   * @param derivative the derivative
-   */
   public LineSearchPoint(final PointSample point, final double derivative) {
     this.point = point;
     this.point.addRef();

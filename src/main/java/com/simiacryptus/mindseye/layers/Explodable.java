@@ -21,14 +21,6 @@ package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.lang.Layer;
 
-/**
- * An (LayerBase) object which can be exploded into an equivalent network apply more fine-grained components.
- */
 public interface Explodable {
-  /**
-   * Explode nn key.
-   *
-   * @return the nn key
-   */
   Layer explode();
 }

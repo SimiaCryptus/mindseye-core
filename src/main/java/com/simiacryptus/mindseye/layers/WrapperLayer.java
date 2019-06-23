@@ -30,37 +30,20 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 
-/**
- * A base class for layers whose actual behavior is delegated.
- */
 @SuppressWarnings("serial")
 public abstract class WrapperLayer extends LayerBase {
   @Nullable
   private Layer inner;
 
-  /**
-   * Instantiates a new Wrapper key.
-   */
   protected WrapperLayer() {
     inner = null;
   }
 
-  /**
-   * Instantiates a new Wrapper key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
   }
 
-  /**
-   * Instantiates a new Wrapper key.
-   *
-   * @param inner the heapCopy
-   */
   public WrapperLayer(final Layer inner) {
     this.inner = inner;
     this.inner.addRef();
@@ -84,25 +67,11 @@ public abstract class WrapperLayer extends LayerBase {
     return inner.evalAndFree(array);
   }
 
-  /**
-   * The Inner.
-   */
-  /**
-   * Gets heapCopy.
-   *
-   * @return the heapCopy
-   */
   @Nullable
   public final Layer getInner() {
     return inner;
   }
 
-  /**
-   * Sets inner.
-   *
-   * @param inner the inner
-   * @return the inner
-   */
   public WrapperLayer setInner(@Nullable Layer inner) {
     if (this.getInner() != null) this.getInner().freeRef();
     this.inner = inner;

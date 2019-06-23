@@ -23,58 +23,27 @@ import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.stream.DoubleStream;
 
-/**
- * A stateless wrapper class that provides accessors for statistical metrics of a given scalar array.
- */
 public class DoubleArrayStatsFacade {
-  /**
-   * The Data.
-   */
   private final double[] data;
 
-  /**
-   * Instantiates a new Double array stats facade.
-   *
-   * @param data the data
-   */
   public DoubleArrayStatsFacade(final double[] data) {
     this.data = data;
   }
 
 
-  /**
-   * Length int.
-   *
-   * @return the int
-   */
   public int length() {
     return data.length;
   }
 
-  /**
-   * Rms double.
-   *
-   * @return the double
-   */
   public double rms() {
     return Math.sqrt(sumSq() / length());
   }
 
-  /**
-   * Sum double.
-   *
-   * @return the double
-   */
   public double sum() {
     final DoubleSummaryStatistics statistics = Arrays.stream(data).summaryStatistics();
     return statistics.getSum();
   }
 
-  /**
-   * Sum sq double.
-   *
-   * @return the double
-   */
   public double sumSq() {
     final DoubleStream doubleStream = Arrays.stream(data).map((final double x) -> x * x);
     final DoubleSummaryStatistics statistics = doubleStream.summaryStatistics();

@@ -28,63 +28,26 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.UUID;
 
-/**
- * This is a logical node used within a network graph definition. It is associated apply a LayerBase WITHOUT a 1:1
- * relation assumtion; i.e. the same logical key CAN be used twice in the same graph. Also, the key assigned to a
- * node can be updated, which can be useful for adding/removing instrumentation wrappers.
- */
 public interface DAGNode extends Serializable, ReferenceCounting {
   @Override
   DAGNode addRef();
 
-  /**
-   * Get nn result.
-   *
-   * @param buildExeCtx the getNetwork handler ctx
-   * @return the nn result
-   */
   @Nullable
   Result get(GraphEvaluationContext buildExeCtx);
 
-  /**
-   * Gets id.
-   *
-   * @return the id
-   */
   UUID getId();
 
-  /**
-   * Get inputs dag node [ ].
-   *
-   * @return the dag node [ ]
-   */
   @Nonnull
   default DAGNode[] getInputs() {
     return new DAGNode[]{};
   }
 
-  /**
-   * Gets key.
-   *
-   * @param <T> the type parameter
-   * @return the key
-   */
   @Nullable
   <T extends Layer> T getLayer();
 
 
-  /**
-   * Sets key.
-   *
-   * @param layer the key
-   */
   void setLayer(Layer layer);
 
-  /**
-   * Gets network.
-   *
-   * @return the network
-   */
   DAGNetwork getNetwork();
 
 }

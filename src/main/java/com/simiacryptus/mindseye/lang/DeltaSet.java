@@ -25,47 +25,21 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-/**
- * This is a collection of Deltas being staged for particular layers. Provides indexing capabilities to reference the
- * deltas based on physical references (to double[] objects) and based on logical referants (i.e. layers) Provides
- * collection-arithmetic operations appropriate to the Delta's vector geometric archtype.
- *
- * @param <K> the type parameter
- */
 public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
-  /**
-   * Instantiates a new Delta setByCoord.
-   */
   public DeltaSet() {
   }
 
-  /**
-   * Instantiates a new Delta setByCoord.
-   *
-   * @param toCopy the to copy
-   */
   public DeltaSet(@Nonnull final DoubleBufferSet<K, Delta<K>> toCopy) {
     super(toCopy);
     assert stream().allMatch(x -> x instanceof Delta);
   }
 
-  /**
-   * Instantiates a new Delta setByCoord.
-   *
-   * @param collect the collect
-   */
   public DeltaSet(@Nonnull final Map<K, ? extends Delta<K>> collect) {
     super(collect);
     assert stream().allMatch(x -> x instanceof Delta);
   }
 
-  /**
-   * Accumulate evalInputDelta setByCoord.
-   *
-   * @param alpha the alphaList
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> accumulate(final double alpha) {
     stream().forEach(d -> d.accumulate(alpha));
@@ -73,23 +47,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
 
-  /**
-   * Add evalInputDelta setByCoord.
-   *
-   * @param right the right
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
     return this.copy().addInPlace(right);
   }
 
-  /**
-   * Add in place evalInputDelta setByCoord.
-   *
-   * @param right the right
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> addInPlace(@Nonnull final DeltaSet<K> right) {
     right.map.forEach((layer, buffer) -> {
@@ -98,11 +60,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return this;
   }
 
-  /**
-   * As state state setByCoord.
-   *
-   * @return the state setByCoord
-   */
   @Nonnull
   public StateSet<K> asState() {
     @Nonnull final StateSet<K> returnValue = new StateSet<>();
@@ -121,12 +78,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return this.map(x -> x.copy());
   }
 
-  /**
-   * Dot double.
-   *
-   * @param right the right
-   * @return the double
-   */
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
     Stream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
     if (100 < map.size()) {
@@ -150,11 +101,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return new Delta<K>(layer, target);
   }
 
-  /**
-   * Gets magnitude.
-   *
-   * @return the magnitude
-   */
   public double getMagnitude() {
     Stream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
     if (100 < map.size()) {
@@ -177,23 +123,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return kDeltaSet;
   }
 
-  /**
-   * Scale evalInputDelta setByCoord.
-   *
-   * @param f the f
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> scale(final double f) {
     return map(x -> x.scale(f));
   }
 
-  /**
-   * Subtract evalInputDelta setByCoord.
-   *
-   * @param right the right
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> scale = right.scale(-1);
@@ -202,11 +136,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return add;
   }
 
-  /**
-   * Unit evalInputDelta setByCoord.
-   *
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> unit() {
     return scale(1.0 / getMagnitude());

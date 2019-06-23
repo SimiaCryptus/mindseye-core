@@ -29,47 +29,22 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
-/**
- * This class handles dispatching network evaluations, and distributing the evaluations to the system GPU(s). This is
- * the main class the handles actual execution for training purposes.
- */
 public class BasicTrainable extends ReferenceCountingBase implements DataTrainable, TrainableDataMask {
 
-  /**
-   * The Network.
-   */
   protected final Layer network;
-  /**
-   * The Data.
-   */
   @Nullable
   protected List<Tensor[]> data;
 
-  /**
-   * The Mask.
-   */
   @Nullable
   boolean[] mask = null;
   private int verbosity = 0;
 
-  /**
-   * Instantiates a new Gpu trainable.
-   *
-   * @param network the network
-   */
   public BasicTrainable(final Layer network) {
     this.network = network;
     this.network.addRef(this);
     data = null;
   }
 
-  /**
-   * Get nn context nn result [ ].
-   *
-   * @param data the data
-   * @param mask the mask
-   * @return the nn result [ ]
-   */
   public static Result[] getNNContext(@Nullable final List<Tensor[]> data, @Nullable final boolean[] mask) {
     if (null == data) throw new IllegalArgumentException();
     if (0 >= data.size()) throw new IllegalArgumentException();
@@ -84,13 +59,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     }).toArray(x1 -> new Result[x1]);
   }
 
-  /**
-   * Eval point sample.
-   *
-   * @param list    the list
-   * @param monitor the monitor
-   * @return the point sample
-   */
   @Nonnull
   protected PointSample eval(@Nonnull final List<Tensor[]> list, @Nullable final TrainingMonitor monitor) {
     @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
@@ -168,12 +136,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return network;
   }
 
-  /**
-   * Measure point sample.
-   *
-   * @param monitor the monitor
-   * @return the point sample
-   */
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert !data.isEmpty();
@@ -186,23 +148,12 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return timedResult.result;
   }
 
-  /**
-   * Sets verbose.
-   *
-   * @param verbose the verbose
-   * @return the verbose
-   */
   @Nonnull
   public BasicTrainable setVerbosity(final int verbose) {
     verbosity = verbose;
     return this;
   }
 
-  /**
-   * Is verbose boolean.
-   *
-   * @return the boolean
-   */
   public int verbosity() {
     return verbosity;
   }

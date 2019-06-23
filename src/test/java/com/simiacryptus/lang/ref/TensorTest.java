@@ -35,18 +35,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * The type Tensor apply.
- */
 public class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
-  /**
-   * Parse tensor.
-   *
-   * @param str the str
-   * @return the tensor
-   */
   @Nullable
   public Tensor parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
@@ -55,22 +46,12 @@ public class TensorTest {
     return tensor;
   }
 
-  /**
-   * Test.
-   *
-   * @param t the t
-   */
   public void test(@Nonnull final Tensor t) {
     @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
     Assert.assertEquals(Tensor.fromJson(json, null), t);
     parse(json.toString());
   }
 
-  /**
-   * Test coord stream.
-   *
-   * @throws Exception the exception
-   */
   @Test
   @Category(TestCategories.UnitTest.class)
   public void testCoordStream() {
@@ -97,11 +78,6 @@ public class TensorTest {
 //    });
 //  }
 
-  /**
-   * Test to json.
-   *
-   * @throws Exception the exception
-   */
   @Test
   @Category(TestCategories.UnitTest.class)
   public void testToJson() {

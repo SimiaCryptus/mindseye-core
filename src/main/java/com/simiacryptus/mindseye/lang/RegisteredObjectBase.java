@@ -29,39 +29,19 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
 
-/**
- * The type Registered object base.
- */
 public abstract class RegisteredObjectBase extends ReferenceCountingBase {
   private static final Logger logger = LoggerFactory.getLogger(RegisteredObjectBase.class);
   private static final Map<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>> cache = new ConcurrentHashMap<>();
   private static final ScheduledExecutorService maintenanceThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build());
 
-  /**
-   * Instantiates a new Registered object base.
-   */
   public RegisteredObjectBase() {
     cache.computeIfAbsent(getClass(), k -> new ObjectRecords<>()).add(new WeakReference<>(this));
   }
 
-  /**
-   * Gets living instances.
-   *
-   * @param <T> the type parameter
-   * @param k   the k
-   * @return the living instances
-   */
   public static <T extends RegisteredObjectBase> Stream<T> getLivingInstances(final Class<T> k) {
     return getInstances(k).filter(x -> !x.isFinalized());
   }
 
-  /**
-   * Gets instances.
-   *
-   * @param <T> the type parameter
-   * @param k   the k
-   * @return the instances
-   */
   public static <T extends RegisteredObjectBase> Stream<T> getInstances(final Class<T> k) {
     return cache.entrySet().stream().filter(e -> k.isAssignableFrom(e.getKey())).map(x -> x.getValue())
         .flatMap(ObjectRecords::stream).map(x -> (T) x.get()).filter(x -> x != null);

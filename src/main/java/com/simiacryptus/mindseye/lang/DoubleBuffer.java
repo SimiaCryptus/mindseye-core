@@ -31,35 +31,15 @@ import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.IntStream;
 
-/**
- * A generic alternate memory buffer being staged in relation to an existing double[] array.
- *
- * @param <K> the type parameter
- */
 public class DoubleBuffer<K> extends ReferenceCountingBase {
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(DoubleBuffer.class);
-  /**
-   * The LayerBase.
-   */
   @Nonnull
   public final K key;
-  /**
-   * The Target.
-   */
   public final double[] target;
-  /**
-   * The Delta.
-   */
   @Nullable
   protected volatile double[] delta;
 
-  /**
-   * Instantiates a new Double buffer.
-   *
-   * @param key    the key
-   * @param target the target
-   */
   public DoubleBuffer(@Nonnull final K key, final double[] target) {
     this.key = key;
     if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
@@ -67,13 +47,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     this.delta = null;
   }
 
-  /**
-   * Instantiates a new Double buffer.
-   *
-   * @param key    the key
-   * @param target the target
-   * @param delta  the evalInputDelta
-   */
   public DoubleBuffer(@Nonnull final K key, final double[] target, final double[] delta) {
     this.key = key;
     if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
@@ -81,13 +54,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     this.delta = delta;
   }
 
-  /**
-   * Are equal boolean.
-   *
-   * @param l the l
-   * @param r the r
-   * @return the boolean
-   */
   public static boolean areEqual(@Nonnull final double[] l, @Nonnull final double[] r) {
     if (r.length != l.length) throw new IllegalArgumentException();
     for (int i = 0; i < r.length; i++) {
@@ -96,33 +62,17 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return true;
   }
 
-  /**
-   * Copy evalInputDelta.
-   *
-   * @return the evalInputDelta
-   */
   @Nullable
   public DoubleBuffer<K> copy() {
     assertAlive();
     return new DoubleBuffer<K>(key, target, RecycleBin.DOUBLES.copyOf(delta, length()));
   }
 
-  /**
-   * Delta statistics double array stats facade.
-   *
-   * @return the double array stats facade
-   */
   @Nonnull
   public DoubleArrayStatsFacade deltaStatistics() {
     return new DoubleArrayStatsFacade(getDelta());
   }
 
-  /**
-   * Dot double.
-   *
-   * @param right the right
-   * @return the double
-   */
   public double dot(@Nonnull final DoubleBuffer<K> right) {
     if (this.target != right.target) {
       throw new IllegalArgumentException(String.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
@@ -137,11 +87,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return Arrays.stream(array).summaryStatistics().getSum();
   }
 
-  /**
-   * Get delta and free double [ ].
-   *
-   * @return the double [ ]
-   */
   @Nullable
   public double[] getDeltaAndFree() {
     double[] delta = getDelta();
@@ -149,11 +94,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return delta;
   }
 
-  /**
-   * Get evalInputDelta double [ ].
-   *
-   * @return the double [ ]
-   */
   @Nullable
   public double[] getDelta() {
     assertAlive();
@@ -167,41 +107,19 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return delta;
   }
 
-  /**
-   * Gets id.
-   *
-   * @return the id
-   */
   public CharSequence getId() {
     return this.key.toString();
   }
 
-  /**
-   * Length int.
-   *
-   * @return the int
-   */
   public int length() {
     return this.target.length;
   }
 
-  /**
-   * Map evalInputDelta.
-   *
-   * @param mapper the mapper
-   * @return the evalInputDelta
-   */
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
     return new DoubleBuffer<K>(this.key, this.target, Arrays.stream(this.getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
-  /**
-   * Set evalInputDelta.
-   *
-   * @param data the data
-   * @return the evalInputDelta
-   */
   @Nonnull
   public DoubleBuffer<K> set(@Nonnull final double[] data) {
     assert Arrays.stream(data).allMatch(Double::isFinite);
@@ -211,11 +129,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return this;
   }
 
-  /**
-   * Target statistics double array stats facade.
-   *
-   * @return the double array stats facade
-   */
   @Nonnull
   public DoubleArrayStatsFacade targetStatistics() {
     return new DoubleArrayStatsFacade(target);

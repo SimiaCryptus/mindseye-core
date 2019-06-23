@@ -24,44 +24,17 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
-/**
- * Base class for an object which can be evaluated using differential weights. This represents a function without inputs
- * and apply only one output. The internal weights, effectively the function's input, are adjusted to minimize this
- * output.
- */
 public interface Trainable extends ReferenceCounting {
-  /**
-   * Cached cached trainable.
-   *
-   * @return the cached trainable
-   */
   default CachedTrainable<? extends Trainable> cached() {
     return new CachedTrainable<>(this);
   }
 
-  /**
-   * Measure trainable . point sample.
-   *
-   * @param monitor the monitor
-   * @return the trainable . point sample
-   */
   PointSample measure(TrainingMonitor monitor);
 
-  /**
-   * Reset sampling boolean.
-   *
-   * @param seed the seed
-   * @return the boolean
-   */
   default boolean reseed(final long seed) {
     return false;
   }
 
-  /**
-   * Gets key.
-   *
-   * @return the key
-   */
   Layer getLayer();
 
 }

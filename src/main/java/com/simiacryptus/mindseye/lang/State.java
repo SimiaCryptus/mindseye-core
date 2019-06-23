@@ -25,51 +25,22 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-/**
- * Alternate version being staged to effect an in-memory change to a double[] array. In comparison apply the Delta class
- * via geometric analogy, this would be a point whereas Delta is a vector.
- *
- * @param <K> the type parameter
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class State<K> extends DoubleBuffer<K> {
 
 
-  /**
-   * Instantiates a new State.
-   *
-   * @param layer  the key
-   * @param target the target
-   */
   public State(@Nonnull final K layer, final double[] target) {
     super(layer, target);
   }
 
-  /**
-   * Instantiates a new Delta.
-   *
-   * @param layer  the key
-   * @param target the target
-   * @param delta  the evalInputDelta
-   */
   public State(@Nonnull final K layer, final double[] target, final double[] delta) {
     super(layer, target, delta);
   }
 
-  /**
-   * Are equal boolean.
-   *
-   * @return the boolean
-   */
   public boolean areEqual() {
     return areEqual(getDelta(), target);
   }
 
-  /**
-   * Backup double buffer.
-   *
-   * @return the double buffer
-   */
   @Nonnull
   public final synchronized State<K> backup() {
     System.arraycopy(target, 0, getDelta(), 0, target.length);
@@ -83,11 +54,6 @@ public class State<K> extends DoubleBuffer<K> {
     return new State(key, target, RecycleBin.DOUBLES.copyOf(delta, length()));
   }
 
-  /**
-   * Backup copy state.
-   *
-   * @return the state
-   */
   @Nonnull
   public State<K> backupCopy() {
     return new State(key, target, RecycleBin.DOUBLES.copyOf(target, length()));
@@ -99,11 +65,6 @@ public class State<K> extends DoubleBuffer<K> {
     return new State(key, target, Arrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
-  /**
-   * Overwrite.
-   *
-   * @return the double buffer
-   */
   @Nonnull
   public final synchronized State<K> restore() {
     System.arraycopy(getDelta(), 0, target, 0, target.length);

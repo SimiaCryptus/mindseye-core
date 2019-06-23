@@ -25,60 +25,29 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * A very basic line search which uses a static rate, searching lower rates when iterations do not result in
- * improvement.
- */
 public class StaticLearningRate implements LineSearchStrategy {
 
   private double minimumRate = 1e-12;
   private double rate = 1e-4;
 
-  /**
-   * Instantiates a new Static learning rate.
-   *
-   * @param rate the rate
-   */
   public StaticLearningRate(double rate) {
     this.rate = rate;
   }
 
-  /**
-   * Gets minimum rate.
-   *
-   * @return the minimum rate
-   */
   public double getMinimumRate() {
     return minimumRate;
   }
 
-  /**
-   * Sets minimum rate.
-   *
-   * @param minimumRate the minimum rate
-   * @return the minimum rate
-   */
   @Nonnull
   public StaticLearningRate setMinimumRate(final double minimumRate) {
     this.minimumRate = minimumRate;
     return this;
   }
 
-  /**
-   * Gets rate.
-   *
-   * @return the rate
-   */
   public double getRate() {
     return rate;
   }
 
-  /**
-   * Sets rate.
-   *
-   * @param rate the rate
-   * @return the rate
-   */
   @Nonnull
   public StaticLearningRate setRate(final double rate) {
     this.rate = rate;

@@ -28,10 +28,6 @@ import com.simiacryptus.mindseye.opt.orient.DescribeOrientationWrapper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * This exact line search method uses a linear interpolation of the derivative to find the extrema, where dx/dy = 0.
- * Bracketing conditions are established apply logic that largely ignores derivatives, due to heuristic observations.
- */
 public class QuadraticSearch implements LineSearchStrategy {
 
   private final double initialDerivFactor = 0.95;
@@ -42,13 +38,6 @@ public class QuadraticSearch implements LineSearchStrategy {
   private double relativeTolerance = 1e-2;
   private double stepSize = 1.0;
 
-  /**
-   * Step point sample.
-   *
-   * @param cursor  the cursor
-   * @param monitor the monitor
-   * @return the point sample
-   */
   public PointSample _step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
     double thisX = 0;
     LineSearchPoint thisPoint = cursor.step(thisX, monitor);
@@ -202,132 +191,61 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
-  /**
-   * Gets absolute tolerance.
-   *
-   * @return the absolute tolerance
-   */
   public double getAbsoluteTolerance() {
     return absoluteTolerance;
   }
 
-  /**
-   * Sets absolute tolerance.
-   *
-   * @param absoluteTolerance the absolute tolerance
-   * @return the absolute tolerance
-   */
   @Nonnull
   public QuadraticSearch setAbsoluteTolerance(final double absoluteTolerance) {
     this.absoluteTolerance = absoluteTolerance;
     return this;
   }
 
-  /**
-   * Gets current rate.
-   *
-   * @return the current rate
-   */
   public double getCurrentRate() {
     return currentRate;
   }
 
-  /**
-   * Sets current rate.
-   *
-   * @param currentRate the current rate
-   * @return the current rate
-   */
   @Nonnull
   public QuadraticSearch setCurrentRate(final double currentRate) {
     this.currentRate = currentRate;
     return this;
   }
 
-  /**
-   * Gets min rate.
-   *
-   * @return the min rate
-   */
   public double getMinRate() {
     return minRate;
   }
 
-  /**
-   * Sets min rate.
-   *
-   * @param minRate the min rate
-   */
   public QuadraticSearch setMinRate(final double minRate) {
     this.minRate = minRate;
     return this;
   }
 
-  /**
-   * Gets relative tolerance.
-   *
-   * @return the relative tolerance
-   */
   public double getRelativeTolerance() {
     return relativeTolerance;
   }
 
-  /**
-   * Sets relative tolerance.
-   *
-   * @param relativeTolerance the relative tolerance
-   * @return the relative tolerance
-   */
   @Nonnull
   public QuadraticSearch setRelativeTolerance(final double relativeTolerance) {
     this.relativeTolerance = relativeTolerance;
     return this;
   }
 
-  /**
-   * Gets runStep size.
-   *
-   * @return the runStep size
-   */
   public double getStepSize() {
     return stepSize;
   }
 
-  /**
-   * Sets runStep size.
-   *
-   * @param stepSize the runStep size
-   * @return the runStep size
-   */
   @Nonnull
   public QuadraticSearch setStepSize(final double stepSize) {
     this.stepSize = stepSize;
     return this;
   }
 
-  /**
-   * Is same boolean.
-   *
-   * @param a     the a
-   * @param b     the b
-   * @param slack the slack
-   * @return the boolean
-   */
   protected boolean isSame(final double a, final double b, final double slack) {
     final double diff = Math.abs(a - b) / slack;
     final double scale = Math.max(Math.abs(a), Math.abs(b));
     return diff < absoluteTolerance || diff < scale * relativeTolerance;
   }
 
-  /**
-   * Is same boolean.
-   *
-   * @param cursor  the cursor
-   * @param monitor the monitor
-   * @param a       the a
-   * @param b       the b
-   * @return the boolean
-   */
   protected boolean isSame(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
     if (isSame(a.point.rate, b.point.rate, 1.0)) {
       if (!isSame(a.point.getMean(), b.point.getMean(), 10.0)) {
@@ -373,13 +291,6 @@ public class QuadraticSearch implements LineSearchStrategy {
     private LineSearchPoint thisPoint;
     private double thisX;
 
-    /**
-     * Instantiates a new Locate initial right point.
-     *
-     * @param cursor    the cursor
-     * @param monitor   the monitor
-     * @param leftPoint the left point
-     */
     public LocateInitialRightPoint(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint leftPoint) {
       this.cursor = cursor;
       this.monitor = monitor;
@@ -391,11 +302,6 @@ public class QuadraticSearch implements LineSearchStrategy {
       this.initialPoint.addRef();
     }
 
-    /**
-     * Apply locate initial right point.
-     *
-     * @return the locate initial right point
-     */
     @Nonnull
     public LocateInitialRightPoint apply() {
       assertAlive();
@@ -435,20 +341,10 @@ public class QuadraticSearch implements LineSearchStrategy {
       }
     }
 
-    /**
-     * Gets right point.
-     *
-     * @return the right point
-     */
     public LineSearchPoint getRightPoint() {
       return thisPoint;
     }
 
-    /**
-     * Gets right x.
-     *
-     * @return the right x
-     */
     public double getRightX() {
       return thisX;
     }

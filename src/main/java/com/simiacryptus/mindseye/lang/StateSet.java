@@ -29,26 +29,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * A collection of State objects being staged for particular layers. Provides indexing capabilities to reference the
- * deltas based on physical references (to double[] objects) and based on logical referants (i.e. layers) Provides
- * collection-arithmetic operations appropriate to the State's 'point' geometric archtype.
- *
- * @param <K> the type parameter
- */
 public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
-  /**
-   * Instantiates a new State setByCoord.
-   */
   public StateSet() {
   }
 
-  /**
-   * Instantiates a new State setByCoord as a copy of the target data buffers in the input setByCoord
-   *
-   * @param toCopy the to copy
-   */
   public StateSet(@Nonnull final DeltaSet<K> toCopy) {
     assert toCopy.stream().allMatch(x -> Arrays.stream(x.getDelta()).allMatch(Double::isFinite));
     toCopy.getMap().forEach((layer, layerDelta) -> {
@@ -58,33 +43,15 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     assert stream().allMatch(x -> x instanceof State);
   }
 
-  /**
-   * Instantiates a new State setByCoord.
-   *
-   * @param toCopy the to copy
-   */
   public StateSet(@Nonnull final DoubleBufferSet<K, State<K>> toCopy) {
     super(toCopy);
     assert stream().allMatch(x -> x instanceof State);
   }
 
-  /**
-   * Instantiates a new State setByCoord.
-   *
-   * @param collect the collect
-   */
   public StateSet(@Nonnull final Map<K, State<K>> collect) {
     super(collect);
   }
 
-  /**
-   * Union state setByCoord.
-   *
-   * @param <K>   the type parameter
-   * @param left  the left
-   * @param right the right
-   * @return the state setByCoord
-   */
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left, @Nonnull final DoubleBufferSet<K, State<K>> right) {
     final Map<K, State<K>> collect = Stream.concat(
         left.map.entrySet().stream(),
@@ -99,12 +66,6 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return new StateSet<K>(collect);
   }
 
-  /**
-   * Add evalInputDelta setByCoord.
-   *
-   * @param right the right
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
     @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
@@ -119,11 +80,6 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return kStateSet;
   }
 
-  /**
-   * As vector evalInputDelta setByCoord.
-   *
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> asVector() {
     @Nonnull final HashMap<K, Delta<K>> newMap = new HashMap<>();
@@ -139,21 +95,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return map(x -> x.copy());
   }
 
-  /**
-   * Backup copy state setBytes.
-   *
-   * @return the state setBytes
-   */
   @Nonnull
   public StateSet<K> backupCopy() {
     return map(l -> l.backupCopy());
   }
 
-  /**
-   * Backup state setBytes.
-   *
-   * @return the state setBytes
-   */
   @Nonnull
   public StateSet<K> backup() {
     Stream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
@@ -164,11 +110,6 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return this;
   }
 
-  /**
-   * Restore state setBytes.
-   *
-   * @return the state setBytes
-   */
   @Nonnull
   public StateSet<K> restore() {
     Stream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
@@ -185,11 +126,6 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return new State<K>(layer, target);
   }
 
-  /**
-   * Is different boolean.
-   *
-   * @return the boolean
-   */
   public boolean isDifferent() {
     return stream().parallel().anyMatch(x -> !x.areEqual());
   }
@@ -207,23 +143,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return kStateSet;
   }
 
-  /**
-   * Subtract evalInputDelta setByCoord.
-   *
-   * @param right the right
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public StateSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     return this.add(right.scale(-1));
   }
 
-  /**
-   * Subtract evalInputDelta setByCoord.
-   *
-   * @param right the right
-   * @return the evalInputDelta setByCoord
-   */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final StateSet<K> right) {
     @Nonnull DeltaSet<K> rvec = right.asVector();

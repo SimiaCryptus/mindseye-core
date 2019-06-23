@@ -32,53 +32,25 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * This wrapper adds extra logging to the orientation step.
- */
 public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
-  /**
-   * Instantiates a new Describe orientation wrapper.
-   *
-   * @param inner the heapCopy
-   */
   public DescribeOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
     this.inner = inner;
   }
 
-  /**
-   * Gets id.
-   *
-   * @param x the x
-   * @return the id
-   */
   @Nonnull
   public static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
     return x.key.toString();
   }
 
-  /**
-   * Render string.
-   *
-   * @param weightDelta the weight evalInputDelta
-   * @param dirDelta    the dir evalInputDelta
-   * @return the string
-   */
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta, @Nonnull final DoubleBuffer<UUID> dirDelta) {
     @Nonnull final CharSequence weightString = Arrays.toString(weightDelta.getDelta());
     @Nonnull final CharSequence deltaString = Arrays.toString(dirDelta.getDelta());
     return String.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
-  /**
-   * Render string.
-   *
-   * @param weights   the weights
-   * @param direction the direction
-   * @return the string
-   */
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
     final Map<CharSequence, CharSequence> data = weights.stream()
         .collect(Collectors.groupingBy(x -> DescribeOrientationWrapper.getId(x), Collectors.toList())).entrySet().stream()

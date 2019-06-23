@@ -35,17 +35,10 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * An implementation of the Limited-Memory Broyden–Fletcher–Goldfarb–Shanno algorithm
- * https://en.m.wikipedia.org/wiki/Limited-memory_BFGS
- */
 public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   private final TreeSet<PointSample> history = new TreeSet<>(Comparator.comparing(x -> -x.getMean()));
 
-  /**
-   * The Verbose.
-   */
   protected boolean verbose = true;
   private int maxHistory = 30;
   private int minHistory = 3;
@@ -54,12 +47,6 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     return delta.stream().parallel().flatMapToDouble(y -> Arrays.stream(y.getDelta())).allMatch(d -> Double.isFinite(d));
   }
 
-  /**
-   * Add to history.
-   *
-   * @param measurement the measurement
-   * @param monitor     the monitor
-   */
   public void addToHistory(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
     if (!LBFGS.isFinite(measurement.delta)) {
       if (verbose) {
@@ -97,56 +84,26 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }.setDirectionType(type);
   }
 
-  /**
-   * Gets max history.
-   *
-   * @return the max history
-   */
   public int getMaxHistory() {
     return maxHistory;
   }
 
-  /**
-   * Sets max history.
-   *
-   * @param maxHistory the max history
-   * @return the max history
-   */
   @Nonnull
   public LBFGS setMaxHistory(final int maxHistory) {
     this.maxHistory = maxHistory;
     return this;
   }
 
-  /**
-   * Gets min history.
-   *
-   * @return the min history
-   */
   public int getMinHistory() {
     return minHistory;
   }
 
-  /**
-   * Sets min history.
-   *
-   * @param minHistory the min history
-   * @return the min history
-   */
   @Nonnull
   public LBFGS setMinHistory(final int minHistory) {
     this.minHistory = minHistory;
     return this;
   }
 
-  /**
-   * Lbfgs evalInputDelta setBytes.
-   *
-   * @param measurement the measurement
-   * @param monitor     the monitor
-   * @param history     the history
-   * @return the evalInputDelta setBytes
-   */
   @Nullable
   protected DeltaSet<UUID> lbfgs(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor, @Nonnull final List<PointSample> history) {
     @Nonnull final DeltaSet<UUID> result = measurement.delta.scale(-1);
@@ -326,12 +283,6 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     private final double dot;
     private final List<CharSequence> anglesPerLayer;
 
-    /**
-     * Instantiates a new Stats.
-     *
-     * @param gradient    the gradient
-     * @param quasinewton the quasinewton
-     */
     public Stats(@Nonnull DeltaSet<UUID> gradient, @Nonnull DeltaSet<UUID> quasinewton) {
       mag = Math.sqrt(quasinewton.dot(quasinewton));
       magGrad = Math.sqrt(gradient.dot(gradient));
@@ -367,38 +318,18 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
           getMag(), getMagGrad(), getDot(), getAnglesPerLayer());
     }
 
-    /**
-     * Gets mag.
-     *
-     * @return the mag
-     */
     public double getMag() {
       return mag;
     }
 
-    /**
-     * Gets mag grad.
-     *
-     * @return the mag grad
-     */
     public double getMagGrad() {
       return magGrad;
     }
 
-    /**
-     * Gets dot.
-     *
-     * @return the dot
-     */
     public double getDot() {
       return dot;
     }
 
-    /**
-     * Gets angles per key.
-     *
-     * @return the angles per key
-     */
     public List<CharSequence> getAnglesPerLayer() {
       return anglesPerLayer;
     }

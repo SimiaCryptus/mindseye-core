@@ -25,38 +25,14 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import java.util.UUID;
 
-/**
- * A mutable cursor which represents a 1-d optimization problem.
- */
 public abstract class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
 
-  /**
-   * Gets direction type.
-   *
-   * @return the direction type
-   */
   public abstract CharSequence getDirectionType();
 
-  /**
-   * Position evalInputDelta setByCoord.
-   *
-   * @param alpha the alphaList
-   * @return the evalInputDelta setByCoord
-   */
   public abstract DeltaSet<UUID> position(double alpha);
 
-  /**
-   * Reset.
-   */
   public abstract void reset();
 
-  /**
-   * Step line search point.
-   *
-   * @param alpha   the alphaList
-   * @param monitor the monitor
-   * @return the line search point
-   */
   public abstract LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
   protected abstract void _free();

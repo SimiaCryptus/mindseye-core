@@ -27,34 +27,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * The basic type of Neural Network LayerBase supporting the backpropigation model of learning. In general, these
- * components define differentiable functions and the accompanying derivatives. The interface is designed to support
- * composability; see DAGNetwork for composition details.
- */
 @SuppressWarnings("serial")
 public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   private final UUID id;
-  /**
-   * The Frozen.
-   */
   protected boolean frozen = false;
   @Nullable
   private String name;
 
-  /**
-   * Instantiates a new Nn key.
-   */
   protected LayerBase() {
     id = UUID.randomUUID();
     name = getClass().getSimpleName();// + "/" + getId();
   }
 
-  /**
-   * Instantiates a new Nn key.
-   *
-   * @param json the json
-   */
   protected LayerBase(@Nonnull final JsonObject json) {
     if (!getClass().getCanonicalName().equals(json.get("class").getAsString())) {
       throw new IllegalArgumentException(getClass().getCanonicalName() + " != " + json.get("class").getAsString());
@@ -68,12 +52,6 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     }
   }
 
-  /**
-   * Instantiates a new Nn key.
-   *
-   * @param id   the id
-   * @param name the name
-   */
   protected LayerBase(final UUID id, final String name) {
     this.id = id;
     this.name = name;
@@ -101,41 +79,20 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     } else return getId().equals(other.getId());
   }
 
-  /**
-   * The Id.
-   *
-   * @return the children
-   */
   public List<Layer> getChildren() {
     return Arrays.asList(this);
   }
 
-  /**
-   * Gets id.
-   *
-   * @return the id
-   */
   @Nullable
   public UUID getId() {
     return id;
   }
 
-  /**
-   * Gets name.
-   *
-   * @return the name
-   */
   @Nullable
   public String getName() {
     return name;
   }
 
-  /**
-   * Sets name.
-   *
-   * @param name the name
-   * @return the name
-   */
   @Nonnull
   public Layer setName(final String name) {
     this.name = name;
@@ -147,32 +104,16 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     return getId().hashCode();
   }
 
-  /**
-   * Is frozen boolean.
-   *
-   * @return the boolean
-   */
   public boolean isFrozen() {
     return frozen;
   }
 
-  /**
-   * Sets frozen.
-   *
-   * @param frozen the frozen
-   * @return the frozen
-   */
   @Nonnull
   public Layer setFrozen(final boolean frozen) {
     this.frozen = frozen;
     return self();
   }
 
-  /**
-   * Self nn key.
-   *
-   * @return the nn key
-   */
   @Nonnull
   protected final Layer self() {
     return this;

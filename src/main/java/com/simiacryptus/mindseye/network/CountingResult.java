@@ -34,40 +34,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
-/**
- * A result type for evaluating the backpropigation phase of an Acyclic Directed Graph. Since the result of a given
- * compoent in a network can be used multiple times, we can improve efficiency of backprop by accumulating all the
- * backpropigating evalInputDelta signals into a single signal before evaluating further backwards.
- */
 public class CountingResult extends Result {
-  /**
-   * The constant logger.
-   */
   protected static final Logger logger = LoggerFactory.getLogger(CountingResult.class);
 
-  /**
-   * The Inner.
-   */
   @Nonnull
   private final Result inner;
 
-  /**
-   * Instantiates a new Counting nn result.
-   *
-   * @param inner the heapCopy
-   */
   public CountingResult(@Nonnull final Result inner) {
     super(inner.getData(), new CountingAccumulator(inner));
     this.inner = inner;
     inner.addRef();
   }
 
-  /**
-   * Instantiates a new Counting result.
-   *
-   * @param r       the r
-   * @param samples the samples
-   */
   public CountingResult(final Result r, final int samples) {
     this(r);
     getAccumulator().fwdLinks.set(samples);
@@ -90,9 +68,6 @@ public class CountingResult extends Result {
     return inner.isAlive();
   }
 
-  /**
-   * The type Counting accumulator.
-   */
   static class CountingAccumulator extends ReferenceCountingBase implements BiConsumer<DeltaSet<UUID>, TensorList> {
     @Nonnull
     private final AtomicInteger fwdLinks;
@@ -102,11 +77,6 @@ public class CountingResult extends Result {
     @Nonnull
     private final AtomicInteger accumulations;
 
-    /**
-     * Instantiates a new Counting accumulator.
-     *
-     * @param inner the inner
-     */
     public CountingAccumulator(Result inner) {
       this.inner = inner;
       this.inner.addRef();
@@ -115,20 +85,10 @@ public class CountingResult extends Result {
       accumulations = new AtomicInteger(0);
     }
 
-    /**
-     * Increment counting nn result.
-     *
-     * @return the counting nn result
-     */
     public int increment() {
       return this.fwdLinks.incrementAndGet();
     }
 
-    /**
-     * Gets count.
-     *
-     * @return the count
-     */
     public int getCount() {
       return this.fwdLinks.get();
     }

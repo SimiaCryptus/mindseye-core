@@ -32,10 +32,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * This type handles the data selection part of stochastic gradient descent training. Between each epoch, a "remove"
- * method is called to re-sample the training data and pass it to the heapCopy Trainable implementation.
- */
 public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> implements SampledTrainable, TrainableDataMask {
 
   private final List<? extends Supplier<Tensor[]>> trainingData;
@@ -43,25 +39,10 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
   private long seed = Util.R.get().nextInt();
   private int trainingSize;
 
-  /**
-   * Instantiates a new Stochastic array trainable.
-   *
-   * @param trainingData the training data
-   * @param network      the network
-   * @param trainingSize the training size
-   */
   public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network, final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
-  /**
-   * Instantiates a new Stochastic array trainable.
-   *
-   * @param trainingData the training data
-   * @param network      the network
-   * @param trainingSize the training size
-   * @param batchSize    the batch size
-   */
   public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network, final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(null, network, batchSize));
     if (0 == trainingData.size()) throw new IllegalArgumentException();
@@ -70,25 +51,10 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
     reseed(System.nanoTime());
   }
 
-  /**
-   * Instantiates a new Stochastic array trainable.
-   *
-   * @param trainingData the training data
-   * @param network      the network
-   * @param trainingSize the training size
-   */
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
-  /**
-   * Instantiates a new Stochastic array trainable.
-   *
-   * @param trainingData the training data
-   * @param network      the network
-   * @param trainingSize the training size
-   * @param batchSize    the batch size
-   */
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(network, batchSize));
     getInner().freeRef();
@@ -104,21 +70,10 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
     return new SampledCachedTrainable<>(this);
   }
 
-  /**
-   * Gets min samples.
-   *
-   * @return the min samples
-   */
   public int getMinSamples() {
     return minSamples;
   }
 
-  /**
-   * Sets min samples.
-   *
-   * @param minSamples the min samples
-   * @return the min samples
-   */
   @Nonnull
   public SampledArrayTrainable setMinSamples(final int minSamples) {
     this.minSamples = minSamples;
@@ -130,9 +85,6 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
     return Math.max(minSamples, Math.min(trainingData.size(), trainingSize));
   }
 
-  /**
-   * Refresh sampled data.
-   */
   protected void refreshSampledData() {
     assert 0 < trainingData.size();
     Tensor[][] trainingData;

@@ -28,12 +28,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A wrapper which maintains a hisotry of N prior evaluations. If a detectable repeated evaluation is requested, the
- * cached result is used.
- *
- * @param <T> the type parameter
- */
 public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private static final Logger log = LoggerFactory.getLogger(CachedTrainable.class);
 
@@ -41,11 +35,6 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private int historySize = 3;
   private boolean verbose = true;
 
-  /**
-   * Instantiates a new Cached trainable.
-   *
-   * @param inner the heapCopy
-   */
   public CachedTrainable(final T inner) {
     super(inner);
   }
@@ -56,42 +45,20 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     return this;
   }
 
-  /**
-   * Gets history size.
-   *
-   * @return the history size
-   */
   public int getHistorySize() {
     return historySize;
   }
 
-  /**
-   * Sets history size.
-   *
-   * @param historySize the history size
-   * @return the history size
-   */
   @Nonnull
   public CachedTrainable<T> setHistorySize(final int historySize) {
     this.historySize = historySize;
     return this;
   }
 
-  /**
-   * Is verbose boolean.
-   *
-   * @return the boolean
-   */
   public boolean isVerbose() {
     return verbose;
   }
 
-  /**
-   * Sets verbose.
-   *
-   * @param verbose the verbose
-   * @return the verbose
-   */
   @Nonnull
   public CachedTrainable<T> setVerbose(final boolean verbose) {
     this.verbose = verbose;

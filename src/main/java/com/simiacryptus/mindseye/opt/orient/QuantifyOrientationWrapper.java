@@ -35,18 +35,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * An orientation wrapper which adds additional log statements.
- */
 public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
-  /**
-   * Instantiates a new Quantify orientation wrapper.
-   *
-   * @param inner the heapCopy
-   */
   public QuantifyOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
     this.inner = inner;
   }
@@ -56,12 +48,6 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
     inner.freeRef();
   }
 
-  /**
-   * Gets id.
-   *
-   * @param x the x
-   * @return the id
-   */
   @Nonnull
   public CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
     return x.toString();

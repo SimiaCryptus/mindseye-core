@@ -24,23 +24,9 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-/**
- * A base class for Trainable objects advertizing an API for setting and accessing the training data.
- */
 public interface DataTrainable extends Trainable {
-  /**
-   * Get data tensor [ ] [ ].
-   *
-   * @return the tensor [ ] [ ]
-   */
   Tensor[][] getData();
 
-  /**
-   * Sets data.
-   *
-   * @param tensors the tensors
-   * @return the data
-   */
   @Nonnull
   Trainable setData(List<Tensor[]> tensors);
 }

@@ -26,22 +26,12 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-/**
- * A wrapper for a line search cursor which tracks the best-known point.
- */
 public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   private final LineSearchCursor direction;
   private final TrainingMonitor monitor;
   private PointSample best;
 
 
-  /**
-   * Instantiates a new Failsafe line search cursor.
-   *
-   * @param direction     the direction
-   * @param previousPoint the previous point
-   * @param monitor       the monitor
-   */
   public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint, final TrainingMonitor monitor) {
     this.direction = direction;
     this.direction.addRef();
@@ -49,11 +39,6 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     this.monitor = monitor;
   }
 
-  /**
-   * Accumulate.
-   *
-   * @param step the runStep
-   */
   @Override
   public synchronized PointSample afterStep(@Nonnull final PointSample step) {
     super.afterStep(step);
@@ -70,12 +55,6 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   }
 
 
-  /**
-   * Gets best.
-   *
-   * @param monitor the monitor
-   * @return the best
-   */
   public PointSample getBest(final TrainingMonitor monitor) {
     if (null != this.best) {
       best.weights.restore();

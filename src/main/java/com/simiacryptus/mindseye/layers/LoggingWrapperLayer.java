@@ -35,44 +35,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-/**
- * This wrapper adds a highly verbose amount of logging to System.out detailing all inputs and outputs during forward
- * and backwards evaluation. Intended as a diagnostic and demonstration tool.
- */
 @SuppressWarnings("serial")
 public final class LoggingWrapperLayer extends WrapperLayer {
-  /**
-   * The Logger.
-   */
   static final Logger log = LoggerFactory.getLogger(LoggingWrapperLayer.class);
 
 
-  /**
-   * Instantiates a new Monitoring wrapper key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected LoggingWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
   }
 
-  /**
-   * Instantiates a new Monitoring wrapper key.
-   *
-   * @param inner the heapCopy
-   */
   public LoggingWrapperLayer(final Layer inner) {
     super(inner);
   }
 
-  /**
-   * From json monitoring wrapper key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the monitoring wrapper key
-   */
   public static LoggingWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new LoggingWrapperLayer(json, rs);
   }

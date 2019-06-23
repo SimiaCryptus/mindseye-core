@@ -25,27 +25,9 @@ import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 
-/**
- * Base class for the "orientation" optimization sub-component. This class interprets the result of the differential
- * function evaluation result at the start of a training iteration, transforming the multi-dimensional
- * point-vector-function entity into a one-dimensional search sub-problem.
- *
- * @param <T> the type parameter
- */
 public interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
 
-  /**
-   * Orient line search cursor.
-   *
-   * @param subject     the subject
-   * @param measurement the measurement
-   * @param monitor     the monitor
-   * @return the line search cursor
-   */
   T orient(Trainable subject, PointSample measurement, TrainingMonitor monitor);
 
-  /**
-   * Reset.
-   */
   void reset();
 }

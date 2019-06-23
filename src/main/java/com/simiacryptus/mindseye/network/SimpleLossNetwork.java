@@ -24,32 +24,15 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * The basic supervised network archetype. The network has two inputs; the input and the examplar output. A given
- * component is then evaluated on the input, and the resulting output is combined apply the exemplar output via the loss
- * function.
- */
 @SuppressWarnings("serial")
 public class SimpleLossNetwork extends SupervisedNetwork {
 
 
-  /**
-   * The Loss node.
-   */
   @Nullable
   public final DAGNode lossNode;
-  /**
-   * The Student node.
-   */
   @Nullable
   public final DAGNode studentNode;
 
-  /**
-   * Instantiates a new Simple loss network.
-   *
-   * @param student the student
-   * @param loss    the loss
-   */
   public SimpleLossNetwork(@Nonnull final Layer student, @Nonnull final Layer loss) {
     super(2);
     studentNode = add(student, getInput(0));

@@ -23,15 +23,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 
 import java.util.Random;
 
-/**
- * A parent interface for layers which should be "shuffled" often, generally when the key has some random
- * noise-determining state. This is needed since even noise-introducing layers must behave well as analytic functions
- * between shuffles to guarantee the optimizer will converge.
- */
 public interface StochasticComponent extends Layer {
-  /**
-   * The constant randomize.
-   */
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
     @Override
     protected Random initialValue() {
@@ -39,15 +31,7 @@ public interface StochasticComponent extends Layer {
     }
   };
 
-  /**
-   * Shuffle.
-   *
-   * @param seed the seed
-   */
   void shuffle(final long seed);
 
-  /**
-   * Clear noise.
-   */
   void clearNoise();
 }

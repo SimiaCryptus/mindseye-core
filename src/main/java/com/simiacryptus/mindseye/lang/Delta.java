@@ -26,48 +26,18 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-/**
- * An arithmetic evalInputDelta being staged to effect an in-memory change to a double[] array. In comparison apply the State
- * class via geometric analogy, this would be a vector whereas State is a point.
- *
- * @param <K> the type parameter
- */
 public class Delta<K> extends DoubleBuffer<K> {
-  /**
-   * The Delta compensation.
-   */
   @Nullable
   protected double[] deltaCompensation;
 
-  /**
-   * Instantiates a new Delta.
-   *
-   * @param layer  the key
-   * @param target the target
-   */
   public Delta(@Nonnull final K layer, @Nullable final double[] target) {
     this(layer, target, null == target ? null : RecycleBin.DOUBLES.obtain(target.length));
   }
 
-  /**
-   * Instantiates a new Delta.
-   *
-   * @param layer  the key
-   * @param target the target
-   * @param delta  the evalInputDelta
-   */
   public Delta(@Nonnull final K layer, final double[] target, @Nonnull final double[] delta) {
     this(layer, target, delta, RecycleBin.DOUBLES.obtain(delta.length));
   }
 
-  /**
-   * Instantiates a new Delta.
-   *
-   * @param layer             the key
-   * @param target            the target
-   * @param delta             the doubles
-   * @param deltaCompensation the evalInputDelta compensation
-   */
   protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta, final double[] deltaCompensation) {
     super(layer, target, delta);
     if (null == target) throw new IllegalArgumentException();
@@ -76,13 +46,6 @@ public class Delta<K> extends DoubleBuffer<K> {
     this.deltaCompensation = deltaCompensation;
   }
 
-  /**
-   * Accumulate.
-   *
-   * @param data             the data
-   * @param delta            the evalInputDelta
-   * @param dataCompensation the data compensation
-   */
   public static void accumulate(@Nonnull final double[] data, final double[] delta, @Nullable final double[] dataCompensation) {
     synchronized (data) {
       for (int i = 0; i < data.length; i++) {
@@ -111,11 +74,6 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
-  /**
-   * Accumulate.
-   *
-   * @param factor the factor
-   */
   public final void accumulate(final double factor) {
     synchronized (target) {
       assert Arrays.stream(target).allMatch(Double::isFinite);
@@ -128,24 +86,12 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
-  /**
-   * Add in place evalInputDelta.
-   *
-   * @param buffer the buffer
-   * @return the evalInputDelta
-   */
   @Nonnull
   public Delta<K> addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
     return addInPlace(buffer.delta).addInPlace(buffer.deltaCompensation);
   }
 
-  /**
-   * Accumulate evalInputDelta.
-   *
-   * @param data the data
-   * @return the evalInputDelta
-   */
   @Nonnull
   public Delta<K> addInPlace(@Nonnull final double[] data) {
     assert data.length == this.target.length;
@@ -180,12 +126,6 @@ public class Delta<K> extends DoubleBuffer<K> {
     return new Delta<K>(key, target, Arrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
-  /**
-   * Scale evalInputDelta.
-   *
-   * @param f the f
-   * @return the evalInputDelta
-   */
   @Nonnull
   public Delta<K> scale(final double f) {
     return map(x -> x * f);

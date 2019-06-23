@@ -28,9 +28,6 @@ import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-/**
- * The most basic type of orientation, which uses the raw function gradient.
- */
 public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Nonnull

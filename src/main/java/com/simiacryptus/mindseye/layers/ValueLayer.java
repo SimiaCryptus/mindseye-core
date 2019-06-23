@@ -33,22 +33,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * This key does not require any input, and produces a constant output. This constant can be tuned by optimization
- * processes.
- */
 @SuppressWarnings("serial")
 public class ValueLayer extends LayerBase {
 
   @Nullable
   private Tensor[] data;
 
-  /**
-   * Instantiates a new Const nn key.
-   *
-   * @param json      the json
-   * @param resources the resources
-   */
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
@@ -56,11 +46,6 @@ public class ValueLayer extends LayerBase {
   }
 
 
-  /**
-   * Instantiates a new Const nn key.
-   *
-   * @param data the data
-   */
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
     this.data = Arrays.copyOf(data, data.length);
@@ -76,13 +61,6 @@ public class ValueLayer extends LayerBase {
     return valueLayer;
   }
 
-  /**
-   * From json const nn key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the const nn key
-   */
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
@@ -132,21 +110,11 @@ public class ValueLayer extends LayerBase {
         .forEach(ReferenceCountingBase::freeRef);
   }
 
-  /**
-   * Gets data.
-   *
-   * @return the data
-   */
   @Nullable
   public Tensor[] getData() {
     return data;
   }
 
-  /**
-   * Sets data.
-   *
-   * @param data the data
-   */
   public void setData(final Tensor... data) {
     Arrays.stream(data)
         .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)

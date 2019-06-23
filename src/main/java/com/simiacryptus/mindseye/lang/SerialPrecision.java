@@ -26,13 +26,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.DoubleSummaryStatistics;
 
-/**
- * This enum defines the default levels of precision supported for bulk data serialization.
- */
 public enum SerialPrecision implements DataSerializer {
-  /**
-   * Double floating-point precision.
-   */
   Double(8) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -52,9 +46,6 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
   },
-  /**
-   * Float floating-point precision.
-   */
   Float(4) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -75,9 +66,6 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
   },
-  /**
-   * 32-bit adaptive uniform precision
-   */
   Uniform32(4) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -120,9 +108,6 @@ public enum SerialPrecision implements DataSerializer {
       return 8;
     }
   },
-  /**
-   * 16-bit adaptive uniform precision
-   */
   Uniform16(2) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -165,9 +150,6 @@ public enum SerialPrecision implements DataSerializer {
       return 8;
     }
   },
-  /**
-   * 8-bit adaptive uniform precision
-   */
   Uniform8(1) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -226,22 +208,12 @@ public enum SerialPrecision implements DataSerializer {
   }
 
 
-  /**
-   * The Element Size.
-   */
   @Override
   public int getElementSize() {
     return size;
   }
 
 
-  /**
-   * To rational rational.
-   *
-   * @param value     the value
-   * @param maxScalar the max scalar
-   * @return the rational
-   */
   @Nonnull
   public Rational toRational(double value, int maxScalar) {
     @Nonnull Rational current = rationalRecursion(value, 0);
@@ -274,25 +246,10 @@ public enum SerialPrecision implements DataSerializer {
     }
   }
 
-  /**
-   * The type Rational.
-   */
   public static class Rational {
-    /**
-     * The Numerator.
-     */
     public final int numerator;
-    /**
-     * The Denominator.
-     */
     public final int denominator;
 
-    /**
-     * Instantiates a new Rational.
-     *
-     * @param numerator   the numerator
-     * @param denominator the denominator
-     */
     public Rational(int numerator, int denominator) {
       this.numerator = numerator;
       this.denominator = denominator;

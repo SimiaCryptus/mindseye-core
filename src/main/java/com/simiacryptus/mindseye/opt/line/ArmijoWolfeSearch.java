@@ -25,9 +25,6 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * Commonly used "loose" criteria for the line search iteration.
- */
 public class ArmijoWolfeSearch implements LineSearchStrategy {
 
   private double absoluteTolerance = 1e-15;
@@ -40,168 +37,80 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   private double relativeTolerance = 1e-2;
   private boolean strongWolfe = true;
 
-  /**
-   * Gets absolute tolerance.
-   *
-   * @return the absolute tolerance
-   */
   public double getAbsoluteTolerance() {
     return absoluteTolerance;
   }
 
-  /**
-   * Sets absolute tolerance.
-   *
-   * @param absoluteTolerance the absolute tolerance
-   * @return the absolute tolerance
-   */
   @Nonnull
   public ArmijoWolfeSearch setAbsoluteTolerance(final double absoluteTolerance) {
     this.absoluteTolerance = absoluteTolerance;
     return this;
   }
 
-  /**
-   * Gets alphaList.
-   *
-   * @return the alphaList
-   */
   public double getAlpha() {
     return alpha;
   }
 
-  /**
-   * Sets alphaList.
-   *
-   * @param alpha the alphaList
-   * @return the alphaList
-   */
   @Nonnull
   public ArmijoWolfeSearch setAlpha(final double alpha) {
     this.alpha = alpha;
     return this;
   }
 
-  /**
-   * Gets alphaList growth.
-   *
-   * @return the alphaList growth
-   */
   public double getAlphaGrowth() {
     return alphaGrowth;
   }
 
-  /**
-   * Sets alphaList growth.
-   *
-   * @param alphaGrowth the alphaList growth
-   * @return the alphaList growth
-   */
   @Nonnull
   public ArmijoWolfeSearch setAlphaGrowth(final double alphaGrowth) {
     this.alphaGrowth = alphaGrowth;
     return this;
   }
 
-  /**
-   * Gets c 1.
-   *
-   * @return the c 1
-   */
   public double getC1() {
     return c1;
   }
 
-  /**
-   * Sets c 1.
-   *
-   * @param c1 the c 1
-   * @return the c 1
-   */
   @Nonnull
   public ArmijoWolfeSearch setC1(final double c1) {
     this.c1 = c1;
     return this;
   }
 
-  /**
-   * Gets c 2.
-   *
-   * @return the c 2
-   */
   public double getC2() {
     return c2;
   }
 
-  /**
-   * Sets c 2.
-   *
-   * @param c2 the c 2
-   * @return the c 2
-   */
   @Nonnull
   public ArmijoWolfeSearch setC2(final double c2) {
     this.c2 = c2;
     return this;
   }
 
-  /**
-   * Gets max alphaList.
-   *
-   * @return the max alphaList
-   */
   public double getMaxAlpha() {
     return maxAlpha;
   }
 
-  /**
-   * Sets max alphaList.
-   *
-   * @param maxAlpha the max alphaList
-   * @return the max alphaList
-   */
   @Nonnull
   public ArmijoWolfeSearch setMaxAlpha(final double maxAlpha) {
     this.maxAlpha = maxAlpha;
     return this;
   }
 
-  /**
-   * Gets min alphaList.
-   *
-   * @return the min alphaList
-   */
   public double getMinAlpha() {
     return minAlpha;
   }
 
-  /**
-   * Sets min alphaList.
-   *
-   * @param minAlpha the min alphaList
-   * @return the min alphaList
-   */
   @Nonnull
   public ArmijoWolfeSearch setMinAlpha(final double minAlpha) {
     this.minAlpha = minAlpha;
     return this;
   }
 
-  /**
-   * Gets relative tolerance.
-   *
-   * @return the relative tolerance
-   */
   public double getRelativeTolerance() {
     return relativeTolerance;
   }
 
-  /**
-   * Sets relative tolerance.
-   *
-   * @param relativeTolerance the relative tolerance
-   * @return the relative tolerance
-   */
   @Nonnull
   public ArmijoWolfeSearch setRelativeTolerance(final double relativeTolerance) {
     this.relativeTolerance = relativeTolerance;
@@ -212,30 +121,16 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     return Double.isFinite(alpha) && 0 <= alpha;
   }
 
-  /**
-   * Is strong wolfe boolean.
-   *
-   * @return the boolean
-   */
   public boolean isStrongWolfe() {
     return strongWolfe;
   }
 
-  /**
-   * Sets strong wolfe.
-   *
-   * @param strongWolfe the strong wolfe
-   * @return the strong wolfe
-   */
   @Nonnull
   public ArmijoWolfeSearch setStrongWolfe(final boolean strongWolfe) {
     this.strongWolfe = strongWolfe;
     return this;
   }
 
-  /**
-   * Loosen metaparameters.
-   */
   public void loosenMetaparameters() {
     c1 *= 0.2;
     c2 = Math.pow(c2, c2 < 1 ? 1.5 : 1 / 1.5);

@@ -26,20 +26,10 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
 
-/**
- * A base class for a Trainable type which wraps an heapCopy type of the same kind.
- *
- * @param <T> the type parameter
- */
 public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase implements TrainableDataMask {
 
   private final T inner;
 
-  /**
-   * Instantiates a new Trainable wrapper.
-   *
-   * @param inner the heapCopy
-   */
   public TrainableWrapper(final T inner) {
     this.inner = inner;
     this.inner.addRef(this);
@@ -51,11 +41,6 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     super._free();
   }
 
-  /**
-   * Gets heapCopy.
-   *
-   * @return the heapCopy
-   */
   public T getInner() {
     return inner;
   }

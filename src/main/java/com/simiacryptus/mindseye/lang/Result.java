@@ -27,15 +27,7 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
-/**
- * Encapsulates the results of evaluating neural network. It includes both the result data and a function which can be
- * evaluated to determine the learning gradient. Does not hold a reference on the result data object, allowing that data
- * to be freed when possible while preserving the gradient callback.
- */
 public class Result extends ReferenceCountingBase {
-  /**
-   * The Data.
-   */
   @Nonnull
   protected final TensorList data;
 
@@ -43,18 +35,9 @@ public class Result extends ReferenceCountingBase {
   protected final int[] dims;
   @Nonnull
   protected final int dataLength;
-  /**
-   * The Accumulator.
-   */
   @Nonnull
   protected final BiConsumer<DeltaSet<UUID>, TensorList> accumulator;
 
-  /**
-   * Instantiates a new Nn result.
-   *
-   * @param data        the data
-   * @param accumulator the accumulator
-   */
   public Result(@Nonnull final TensorList data, @Nonnull BiConsumer<DeltaSet<UUID>, TensorList> accumulator) {
     super();
     this.data = data;
@@ -63,11 +46,6 @@ public class Result extends ReferenceCountingBase {
     this.dataLength = data.length();
   }
 
-  /**
-   * Get single delta double [ ].
-   *
-   * @return the double [ ]
-   */
   public double[] getSingleDelta() {
     DeltaSet<UUID> deltaBuffer = new DeltaSet<>();
     accumulate(deltaBuffer);
@@ -77,81 +55,38 @@ public class Result extends ReferenceCountingBase {
     return delta;
   }
 
-  /**
-   * Copy double [ ].
-   *
-   * @param delta the delta
-   * @return the double [ ]
-   */
   public double[] copy(double[] delta) {
     delta = Arrays.copyOf(delta, delta.length);
     return delta;
   }
 
-  /**
-   * Accumulate.
-   *
-   * @param buffer the buffer
-   */
   public final void accumulate(final DeltaSet<UUID> buffer) {
     accumulate(buffer, 1.0);
   }
 
-  /**
-   * Accumulate.
-   *
-   * @param buffer the buffer
-   * @param value  the value
-   */
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
 
     accumulate(buffer, TensorArray.wrap(IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
 
 
-  /**
-   * Accumulate.
-   *
-   * @param buffer the buffer
-   * @param delta  the evalInputDelta
-   */
   public void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
     getAccumulator().accept(buffer, delta);
   }
 
-  /**
-   * Gets data.
-   *
-   * @return the data
-   */
   public final TensorList getData() {
     return data;
   }
 
-  /**
-   * Is alive boolean.
-   *
-   * @return the boolean
-   */
   public boolean isAlive() {
     return null != getAccumulator();
   }
 
-  /**
-   * Gets accumulator.
-   *
-   * @return the accumulator
-   */
   public BiConsumer<DeltaSet<UUID>, TensorList> getAccumulator() {
     assertAlive();
     return accumulator;
   }
 
-  /**
-   * Gets data and free.
-   *
-   * @return the data and free
-   */
   public TensorList getDataAndFree() {
     assertAlive();
     TensorList data = getData();

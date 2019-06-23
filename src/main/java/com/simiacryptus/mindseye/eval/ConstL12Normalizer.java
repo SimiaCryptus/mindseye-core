@@ -24,19 +24,10 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * This Trainable wrapper adds additional L1 and L2 terms for weight normalization. Both coefficients are universal for
- * the network (does not depend on key) and are setByCoord statically.
- */
 public class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, TrainableDataMask {
   private double factor_L1 = 0.0;
   private double factor_L2 = 0.0;
 
-  /**
-   * Instantiates a new Const l 12 normalizer.
-   *
-   * @param inner the heapCopy
-   */
   public ConstL12Normalizer(final Trainable inner) {
     super(inner);
   }
@@ -52,42 +43,20 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     return inner.getLayer();
   }
 
-  /**
-   * Gets factor l 1.
-   *
-   * @return the factor l 1
-   */
   public double getFactor_L1() {
     return factor_L1;
   }
 
-  /**
-   * Sets factor l 1.
-   *
-   * @param factor_L1 the factor l 1
-   * @return the factor l 1
-   */
   @Nonnull
   public ConstL12Normalizer setFactor_L1(final double factor_L1) {
     this.factor_L1 = factor_L1;
     return this;
   }
 
-  /**
-   * Gets factor l 2.
-   *
-   * @return the factor l 2
-   */
   public double getFactor_L2() {
     return factor_L2;
   }
 
-  /**
-   * Sets factor l 2.
-   *
-   * @param factor_L2 the factor l 2
-   * @return the factor l 2
-   */
   @Nonnull
   public ConstL12Normalizer setFactor_L2(final double factor_L2) {
     this.factor_L2 = factor_L2;

@@ -32,10 +32,6 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * A diagnostic wrapper that collects performance data and, if enabled, value statistics of output and backprop
- * signals.
- */
 @SuppressWarnings({"serial", "FieldCanBeLocal"})
 public final class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
@@ -48,12 +44,6 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   private int totalBatches = 0;
   private int totalItems = 0;
 
-  /**
-   * Instantiates a new Monitoring wrapper key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected MonitoringWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     if (json.has("forwardPerf")) {
@@ -73,44 +63,19 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     totalItems = json.get("totalItems").getAsInt();
   }
 
-  /**
-   * Instantiates a new Monitoring wrapper key.
-   *
-   * @param inner the heapCopy
-   */
   public MonitoringWrapperLayer(final Layer inner) {
     super(inner);
   }
 
-  /**
-   * From json monitoring wrapper key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the monitoring wrapper key
-   */
   public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
   }
 
-  /**
-   * Add to monitoring wrapper key.
-   *
-   * @param obj the obj
-   * @return the monitoring wrapper key
-   */
   @Nonnull
   public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj) {
     return addTo(obj, getInner().getName());
   }
 
-  /**
-   * Add to monitoring wrapper key.
-   *
-   * @param obj  the obj
-   * @param name the name
-   * @return the monitoring wrapper key
-   */
   @Nonnull
   public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj, final String name) {
     setName(name);
@@ -174,41 +139,21 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     };
   }
 
-  /**
-   * Gets backward performance.
-   *
-   * @return the backward performance
-   */
   @Nonnull
   public PercentileStatistics getBackwardPerformance() {
     return backwardPerformance;
   }
 
-  /**
-   * Gets backward signal.
-   *
-   * @return the backward signal
-   */
   @Nonnull
   public ScalarStatistics getBackwardSignal() {
     return backwardSignal;
   }
 
-  /**
-   * Gets forward performance.
-   *
-   * @return the forward performance
-   */
   @Nonnull
   public PercentileStatistics getForwardPerformance() {
     return forwardPerformance;
   }
 
-  /**
-   * Gets forward signal.
-   *
-   * @return the forward signal
-   */
   @Nonnull
   public ScalarStatistics getForwardSignal() {
     return forwardSignal;
@@ -268,11 +213,6 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return getInner().getName();
   }
 
-  /**
-   * Record signal metrics boolean.
-   *
-   * @return the boolean
-   */
   public boolean recordSignalMetrics() {
     return recordSignalMetrics;
   }
@@ -286,12 +226,6 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return this;
   }
 
-  /**
-   * Should record signal metrics monitoring wrapper key.
-   *
-   * @param recordSignalMetrics the record signal metrics
-   * @return the monitoring wrapper key
-   */
   @Nonnull
   public MonitoringWrapperLayer shouldRecordSignalMetrics(final boolean recordSignalMetrics) {
     this.recordSignalMetrics = recordSignalMetrics;

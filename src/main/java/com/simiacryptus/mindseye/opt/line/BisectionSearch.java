@@ -24,10 +24,6 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
 
-/**
- * An exact line search method which ignores the quantity of the derivative, using only sign. Signs are sufficient to
- * find and detect bracketing conditions. When the solution is bracketed, the next iteration always tests the midpoint.
- */
 public class BisectionSearch implements LineSearchStrategy {
 
   private double maxRate = 1e20;
@@ -35,12 +31,6 @@ public class BisectionSearch implements LineSearchStrategy {
   private double zeroTol = 1e-20;
   private double spanTol = 1e-3;
 
-  /**
-   * Gets point and free.
-   *
-   * @param iterate the iterate
-   * @return the point and free
-   */
   @Nonnull
   public static PointSample getPointAndFree(final LineSearchPoint iterate) {
     PointSample point = iterate.point;
@@ -49,42 +39,20 @@ public class BisectionSearch implements LineSearchStrategy {
     return point;
   }
 
-  /**
-   * Gets current rate.
-   *
-   * @return the current rate
-   */
   public double getCurrentRate() {
     return currentRate;
   }
 
-  /**
-   * Sets current rate.
-   *
-   * @param currentRate the current rate
-   * @return the current rate
-   */
   @Nonnull
   public BisectionSearch setCurrentRate(final double currentRate) {
     this.currentRate = currentRate;
     return this;
   }
 
-  /**
-   * Gets zero tol.
-   *
-   * @return the zero tol
-   */
   public double getZeroTol() {
     return zeroTol;
   }
 
-  /**
-   * Sets zero tol.
-   *
-   * @param zeroTol the zero tol
-   * @return the zero tol
-   */
   @Nonnull
   public BisectionSearch setZeroTol(final double zeroTol) {
     this.zeroTol = zeroTol;
@@ -154,15 +122,6 @@ public class BisectionSearch implements LineSearchStrategy {
     return getPointAndFree(iterate(cursor, monitor, leftX, rightX));
   }
 
-  /**
-   * Iterate line search point.
-   *
-   * @param cursor  the cursor
-   * @param monitor the monitor
-   * @param leftX   the left x
-   * @param rightX  the right x
-   * @return the line search point
-   */
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor, double leftX, double rightX) {
     LineSearchPoint searchPoint = null;
     int loopCount = 0;
@@ -201,21 +160,10 @@ public class BisectionSearch implements LineSearchStrategy {
     }
   }
 
-  /**
-   * Gets span tol.
-   *
-   * @return the span tol
-   */
   public double getSpanTol() {
     return spanTol;
   }
 
-  /**
-   * Sets span tol.
-   *
-   * @param spanTol the span tol
-   * @return the span tol
-   */
   public BisectionSearch setSpanTol(double spanTol) {
     this.spanTol = spanTol;
     return this;

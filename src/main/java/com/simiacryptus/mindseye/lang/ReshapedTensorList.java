@@ -26,21 +26,11 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
-/**
- * A wrapper TensorList data to override the existing tensor key. Can be used for example to flatten or unflatten a
- * tensor to/from a rank-1 array.
- */
 public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
   @Nonnull
   private final TensorList inner;
   private final int[] dims;
 
-  /**
-   * Instantiates a new Reshaped tensor list.
-   *
-   * @param inner the data
-   * @param toDim the to length
-   */
   public ReshapedTensorList(@Nonnull TensorList inner, int[] toDim) {
     if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim))
       throw new IllegalArgumentException(Arrays.toString(inner.getDimensions()) + " != " + Arrays.toString(toDim));
@@ -89,11 +79,6 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     inner.freeRef();
   }
 
-  /**
-   * Gets inner.
-   *
-   * @return the inner
-   */
   @Nonnull
   public TensorList getInner() {
     return inner;

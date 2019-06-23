@@ -26,20 +26,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-/**
- * This class provides the index for re-using the output of any given node during a single network evaluation, such that
- * each node is executed minimally.
- */
 class GraphEvaluationContext extends ReferenceCountingBase {
 
-  /**
-   * The Expected counts.
-   */
   final Map<UUID, Long> expectedCounts = new ConcurrentHashMap<>();
 
-  /**
-   * The Calculated.
-   */
   final Map<UUID, Supplier<CountingResult>> calculated = new ConcurrentHashMap<>();
 
   @Override

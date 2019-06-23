@@ -38,82 +38,39 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Orthant-Wise Limited-memory Quasi-Newton optimization This is a modified L-BFGS algorithm which uses orthant trust
- * regions to bound the cursor path during the line search phase of each iteration
- */
 public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
-  /**
-   * The Inner.
-   */
   public final OrientationStrategy<?> inner;
   private double factor_L1 = 0.000;
   private double zeroTol = 1e-20;
 
-  /**
-   * Instantiates a new Owl qn.
-   */
   public OwlQn() {
     this(new LBFGS());
   }
 
-  /**
-   * Instantiates a new Owl qn.
-   *
-   * @param inner the heapCopy
-   */
   protected OwlQn(final OrientationStrategy<?> inner) {
     this.inner = inner;
   }
 
-  /**
-   * Gets factor l 1.
-   *
-   * @return the factor l 1
-   */
   public double getFactor_L1() {
     return factor_L1;
   }
 
-  /**
-   * Sets factor l 1.
-   *
-   * @param factor_L1 the factor l 1
-   * @return the factor l 1
-   */
   @Nonnull
   public OwlQn setFactor_L1(final double factor_L1) {
     this.factor_L1 = factor_L1;
     return this;
   }
 
-  /**
-   * Gets layers.
-   *
-   * @param layers the layers
-   * @return the layers
-   */
   public Collection<Layer> getLayers(@Nonnull final Collection<Layer> layers) {
     return layers.stream()
 //        .filter(layer -> layer instanceof FullyConnectedLayer)
         .collect(Collectors.toList());
   }
 
-  /**
-   * Gets zero tol.
-   *
-   * @return the zero tol
-   */
   public double getZeroTol() {
     return zeroTol;
   }
 
-  /**
-   * Sets zero tol.
-   *
-   * @param zeroTol the zero tol
-   * @return the zero tol
-   */
   @Nonnull
   public OwlQn setZeroTol(final double zeroTol) {
     this.zeroTol = zeroTol;
@@ -188,12 +145,6 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     inner.reset();
   }
 
-  /**
-   * Sign int.
-   *
-   * @param weight the weight
-   * @return the int
-   */
   protected int sign(final double weight) {
     if (weight > zeroTol) {
       return 1;

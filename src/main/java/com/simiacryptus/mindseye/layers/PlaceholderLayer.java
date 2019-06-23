@@ -31,22 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * An ephemeral, non-serializable, non-evaluatable key. Used when a key is required as an identifier, e.g. DeltaSet
- *
- * @param <T> the type parameter
- */
 @SuppressWarnings("serial")
 public final class PlaceholderLayer<T> extends LayerBase {
 
   @Nullable
   private final T key;
 
-  /**
-   * Instantiates a new Placeholder key.
-   *
-   * @param key the key
-   */
   public PlaceholderLayer(@Nullable final T key) {
     if (null == key) throw new UnsupportedOperationException();
     this.key = key;
@@ -89,11 +79,6 @@ public final class PlaceholderLayer<T> extends LayerBase {
     super._free();
   }
 
-  /**
-   * Gets key.
-   *
-   * @return the key
-   */
   @Nullable
   public T getKey() {
     return key;

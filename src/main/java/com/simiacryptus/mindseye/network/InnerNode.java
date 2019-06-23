@@ -31,14 +31,8 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-/**
- * A calculation node, to be evaluated by a network once the inputs are available.
- */
 @SuppressWarnings("serial")
 public final class InnerNode extends LazyResult {
-  /**
-   * The Created by.
-   */
   @SuppressWarnings("unused")
   public final CharSequence[] createdBy = Util.currentStack();
   private final DAGNetwork dagNetwork;
@@ -47,26 +41,11 @@ public final class InnerNode extends LazyResult {
   private volatile Layer layer;
   private boolean parallel = true;
 
-  /**
-   * Instantiates a new Inner node.
-   *
-   * @param dagNetwork the dag network
-   * @param layer      the key
-   * @param inputNodes the input nodes
-   */
   @SafeVarargs
   InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final DAGNode... inputNodes) {
     this(dagNetwork, layer, UUID.randomUUID(), inputNodes);
   }
 
-  /**
-   * Instantiates a new Inner node.
-   *
-   * @param dagNetwork the dag network
-   * @param layer      the key
-   * @param key        the key
-   * @param inputNodes the input nodes
-   */
   @SafeVarargs
   InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key, @Nonnull final DAGNode... inputNodes) {
     super(key);
@@ -81,12 +60,6 @@ public final class InnerNode extends LazyResult {
 //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
   }
 
-  /**
-   * Add dag node.
-   *
-   * @param nextHead the next head
-   * @return the dag node
-   */
   public DAGNode add(@Nonnull final Layer nextHead) {
     return dagNetwork.add(nextHead, InnerNode.this);
   }
@@ -148,21 +121,10 @@ public final class InnerNode extends LazyResult {
     this.layer = null;
   }
 
-  /**
-   * Is parallel boolean.
-   *
-   * @return the boolean
-   */
   public boolean isParallel() {
     return parallel;
   }
 
-  /**
-   * Sets parallel.
-   *
-   * @param parallel the parallel
-   * @return the parallel
-   */
   public InnerNode setParallel(boolean parallel) {
     this.parallel = parallel;
     return this;

@@ -30,20 +30,10 @@ import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-/**
- * This strategy uses finite-difference methods to estimate a numerical derivative, and compares it apply the derivative
- * supplied by the heapCopy's cursor. This is a diagnostic tool; extra processing is used to estimate derivatives which
- * should agree apply the programmatic derivatives to an appropriate degree.
- */
 public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
-  /**
-   * Instantiates a new Validating orientation strategy.
-   *
-   * @param inner the heapCopy
-   */
   public ValidatingOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
     this.inner = inner;
   }
@@ -68,11 +58,6 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
   private static class ValidatingLineSearchCursor extends LineSearchCursorBase {
     private final LineSearchCursor cursor;
 
-    /**
-     * Instantiates a new Validating line search cursor.
-     *
-     * @param cursor the cursor
-     */
     public ValidatingLineSearchCursor(final LineSearchCursor cursor) {
       this.cursor = cursor;
       this.cursor.addRef();
@@ -109,13 +94,6 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       return primaryPoint;
     }
 
-    /**
-     * Test.
-     *
-     * @param monitor      the monitor
-     * @param primaryPoint the primary point
-     * @param probeSize    the probe size
-     */
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint, final double probeSize) {
       final double alpha = primaryPoint.point.rate;
       double probeAlpha = alpha + primaryPoint.point.sum * probeSize / primaryPoint.derivative;

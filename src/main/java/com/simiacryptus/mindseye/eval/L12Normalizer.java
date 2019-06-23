@@ -31,22 +31,10 @@ import java.util.Collection;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Abstract base class for a trainable wrapper that adds per-key L1 and L2 normalization constants. It allows the
- * implementing class to choose the coefficients for each key.
- */
 public abstract class L12Normalizer extends TrainableBase {
-  /**
-   * The Inner.
-   */
   public final Trainable inner;
   private final boolean hideAdj = false;
 
-  /**
-   * Instantiates a new L 12 normalizer.
-   *
-   * @param inner the heapCopy
-   */
   public L12Normalizer(final Trainable inner) {
     this.inner = inner;
     this.inner.addRef(this);
@@ -57,32 +45,14 @@ public abstract class L12Normalizer extends TrainableBase {
     this.inner.freeRef();
   }
 
-  /**
-   * Gets l 1.
-   *
-   * @param layer the key
-   * @return the l 1
-   */
   protected abstract double getL1(Layer layer);
 
-  /**
-   * Gets l 2.
-   *
-   * @param layer the key
-   * @return the l 2
-   */
   protected abstract double getL2(Layer layer);
 
   public Layer toLayer(UUID id) {
     return ((DAGNetwork) inner.getLayer()).getLayersById().get(id);
   }
 
-  /**
-   * Gets layers.
-   *
-   * @param layers the layers
-   * @return the layers
-   */
   public Collection<Layer> getLayers(@Nonnull final Collection<UUID> layers) {
     return layers.stream().map(this::toLayer)
         //.filter(layer -> layer instanceof FullyConnectedLayer)

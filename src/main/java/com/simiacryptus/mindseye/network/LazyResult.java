@@ -30,31 +30,16 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/**
- * A base class for a network node providing cached lazy evaluation; It gaurantees a node is only evaluated once, and
- * only if and when needed.
- */
 @SuppressWarnings("serial")
 abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
-  /**
-   * The Id.
-   */
   public final UUID id;
 
-  /**
-   * Instantiates a new Lazy result.
-   */
   public LazyResult() {
     this(UUID.randomUUID());
   }
 
 
-  /**
-   * Instantiates a new Lazy result.
-   *
-   * @param id the id
-   */
   protected LazyResult(final UUID id) {
     super();
     this.id = id;
@@ -65,12 +50,6 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return (LazyResult) super.addRef();
   }
 
-  /**
-   * Eval nn result.
-   *
-   * @param t the t
-   * @return the nn result
-   */
   @Nullable
   protected abstract Result eval(GraphEvaluationContext t);
 

@@ -21,29 +21,11 @@ package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.mindseye.lang.PointSample;
 
-/**
- * Data describing the result of a given training iteration evaluation.
- */
 public class Step {
-  /**
-   * The Iteration.
-   */
   public final long iteration;
-  /**
-   * The Point.
-   */
   public final PointSample point;
-  /**
-   * The Time.
-   */
   public final long time = System.currentTimeMillis();
 
-  /**
-   * Instantiates a new Step.
-   *
-   * @param point     the point
-   * @param iteration the iteration
-   */
   Step(final PointSample point, final long iteration) {
     this.point = point;
     this.iteration = iteration;

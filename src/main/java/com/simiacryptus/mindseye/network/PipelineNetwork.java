@@ -35,28 +35,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * A simple network architecture based on the assumption of a linear sequence of components. Each component added
- * becomes the new head node, and a default add method appends a new node on the existing head.
- */
 @SuppressWarnings("serial")
 public class PipelineNetwork extends DAGNetwork {
   @Nullable
   private DAGNode head;
 
-  /**
-   * Instantiates a new Pipeline network.
-   */
   public PipelineNetwork() {
     this(1);
   }
 
-  /**
-   * Instantiates a new Pipeline network.
-   *
-   * @param inputs the inputs
-   * @param layers the layers
-   */
   public PipelineNetwork(final int inputs, @Nonnull final Layer... layers) {
     super(inputs);
     for (final Layer layer : layers) {
@@ -64,12 +51,6 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
-  /**
-   * Instantiates a new Pipeline network.
-   *
-   * @param json the json
-   * @param rs   the rs
-   */
   protected PipelineNetwork(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     @Nonnull final UUID headId = UUID.fromString(json.get("head").getAsString());
@@ -81,11 +62,6 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
-  /**
-   * Instantiates a new Pipeline network.
-   *
-   * @param layers the layers
-   */
   public PipelineNetwork(final Layer... layers) {
     this();
     addAll(layers);
@@ -95,24 +71,10 @@ public class PipelineNetwork extends DAGNetwork {
     super(inputs, id, name);
   }
 
-  /**
-   * From json pipeline network.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the pipeline network
-   */
   public static PipelineNetwork fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new PipelineNetwork(json, rs);
   }
 
-  /**
-   * Build pipeline network.
-   *
-   * @param inputs the inputs
-   * @param layers the layers
-   * @return the pipeline network
-   */
   public static PipelineNetwork build(final int inputs, final Layer... layers) {
     PipelineNetwork pipelineNetwork = new PipelineNetwork(inputs);
     for (final Layer layer : layers) {
@@ -121,13 +83,6 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
-  /**
-   * Wrap pipeline network.
-   *
-   * @param inputs the inputs
-   * @param layers the layers
-   * @return the pipeline network
-   */
   public static PipelineNetwork wrap(final int inputs, final Layer... layers) {
     assert Arrays.stream(layers).allMatch(ReferenceCounting::assertAlive);
     PipelineNetwork pipelineNetwork = new PipelineNetwork(inputs);
@@ -188,12 +143,6 @@ public class PipelineNetwork extends DAGNetwork {
     return (PipelineNetwork) super.copy();
   }
 
-  /**
-   * Add dag node.
-   *
-   * @param nextHead the next head
-   * @return the dag node
-   */
   @Nullable
   public InnerNode add(@Nullable final Layer nextHead) {
     assert nextHead.assertAlive();
@@ -201,12 +150,6 @@ public class PipelineNetwork extends DAGNetwork {
     return add(nextHead, getHead());
   }
 
-  /**
-   * Wrap dag node.
-   *
-   * @param nextHead the next head
-   * @return the dag node
-   */
   @Nullable
   public InnerNode wrap(@Nullable final Layer nextHead) {
     @Nullable InnerNode add = add(nextHead);
@@ -221,14 +164,6 @@ public class PipelineNetwork extends DAGNetwork {
     return add;
   }
 
-  /**
-   * Wrap dag node.
-   *
-   * @param label    the label
-   * @param nextHead the next head
-   * @param head     the head
-   * @return the dag node
-   */
   @Nullable
   public DAGNode wrap(final CharSequence label, @Nullable final Layer nextHead, @Nonnull final DAGNode... head) {
     DAGNode add = add(label, nextHead, head);
@@ -252,13 +187,6 @@ public class PipelineNetwork extends DAGNetwork {
     return node;
   }
 
-  /**
-   * Add all dag node.
-   *
-   * @param node   the node
-   * @param layers the layers
-   * @return the dag node
-   */
   public InnerNode addAll(InnerNode node, @Nonnull final Layer... layers) {
     for (final Layer l : layers) {
       node = add(l, node);
@@ -266,33 +194,15 @@ public class PipelineNetwork extends DAGNetwork {
     return node;
   }
 
-  /**
-   * Add all dag node.
-   *
-   * @param layers the layers
-   * @return the dag node
-   */
   public InnerNode addAll(final Layer... layers) {
     return addAll((InnerNode) getHead(), layers);
   }
 
-  /**
-   * Const value dag node.
-   *
-   * @param tensor the tensor
-   * @return the dag node
-   */
   @Nullable
   public DAGNode constValue(final Tensor tensor) {
     return super.wrap(new ValueLayer(tensor));
   }
 
-  /**
-   * Const value wrap dag node.
-   *
-   * @param tensor the tensor
-   * @return the dag node
-   */
   @Nullable
   public DAGNode constValueWrap(final Tensor tensor) {
     DAGNode node = constValue(tensor);
@@ -321,12 +231,6 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
-  /**
-   * Sets head.
-   *
-   * @param obj the obj
-   * @return the head
-   */
   @Nonnull
   public DAGNode setHead(final DAGNode obj) {
     if (obj != head) {

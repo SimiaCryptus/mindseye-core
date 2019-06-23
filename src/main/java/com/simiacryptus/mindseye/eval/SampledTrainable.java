@@ -21,27 +21,13 @@ package com.simiacryptus.mindseye.eval;
 
 import javax.annotation.Nonnull;
 
-/**
- * A trainable contract for variable sample size; smaller values result in faster but less representative evaluations.
- */
 public interface SampledTrainable extends Trainable {
   @Nonnull
   @Override
   SampledCachedTrainable<? extends SampledTrainable> cached();
 
-  /**
-   * Gets training size.
-   *
-   * @return the training size
-   */
   int getTrainingSize();
 
-  /**
-   * Sets training size.
-   *
-   * @param trainingSize the training size
-   * @return the training size
-   */
   @Nonnull
   SampledTrainable setTrainingSize(int trainingSize);
 }

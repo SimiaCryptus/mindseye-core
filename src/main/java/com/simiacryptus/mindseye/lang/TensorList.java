@@ -26,21 +26,10 @@ import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-/**
- * This abstract data container is used to pass data between LayerBase components. It potentially represents data stored
- * off-heap, such as on a particular GPU. Use of this abstract class allows optimizations where adjacent GPU components
- * can operate apply minimal CPU-GPU data transfer.
- */
 public interface TensorList extends ReferenceCounting {
   @Override
   TensorList addRef();
 
-  /**
-   * Add tensor list.
-   *
-   * @param right the right
-   * @return the tensor list
-   */
   default TensorList add(@Nonnull final TensorList right) {
     if (right.length() == 0) return this;
     if (length() == 0) throw new IllegalArgumentException();
@@ -55,12 +44,6 @@ public interface TensorList extends ReferenceCounting {
         .toArray(i -> new Tensor[i]));
   }
 
-  /**
-   * Add and free tensor list.
-   *
-   * @param right the right
-   * @return the tensor list
-   */
   default TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
     right.assertAlive();
@@ -69,12 +52,6 @@ public interface TensorList extends ReferenceCounting {
     return add;
   }
 
-  /**
-   * Minus tensor list.
-   *
-   * @param right the right
-   * @return the tensor list
-   */
   @Nonnull
   default TensorList minus(@Nonnull final TensorList right) {
     if (right.length() == 0) return this;
@@ -90,11 +67,6 @@ public interface TensorList extends ReferenceCounting {
     }).toArray(i -> new Tensor[i]));
   }
 
-  /**
-   * Copy tensor list.
-   *
-   * @return the tensor list
-   */
   default TensorList copy() {
     return TensorArray.wrap(
         IntStream.range(0, length()).mapToObj(i -> {
@@ -106,42 +78,16 @@ public interface TensorList extends ReferenceCounting {
     );
   }
 
-  /**
-   * Get tensor.
-   *
-   * @param i the
-   * @return the tensor
-   */
   @Nonnull
   Tensor get(int i);
 
-  /**
-   * Get dimensions int [ ].
-   *
-   * @return the int [ ]
-   */
   @Nonnull
   int[] getDimensions();
 
-  /**
-   * Length int.
-   *
-   * @return the int
-   */
   int length();
 
-  /**
-   * Stream stream.
-   *
-   * @return the stream
-   */
   Stream<Tensor> stream();
 
-  /**
-   * Pretty print string.
-   *
-   * @return the string
-   */
   @Nonnull
   default CharSequence prettyPrint() {
     return stream().map(t -> {
@@ -151,12 +97,6 @@ public interface TensorList extends ReferenceCounting {
     }).reduce((a, b) -> a + "\n" + b).get();
   }
 
-  /**
-   * Gets and free.
-   *
-   * @param i the
-   * @return the and free
-   */
   @Nonnull
   default Tensor getAndFree(int i) {
     @Nullable Tensor tensor = get(i);
@@ -164,11 +104,6 @@ public interface TensorList extends ReferenceCounting {
     return tensor;
   }
 
-  /**
-   * Gets elements.
-   *
-   * @return the elements
-   */
   default int getElements() {
     return length() * Tensor.length(getDimensions());
   }

@@ -31,45 +31,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Base class to manage batched execution, where a data setByCoord is executed in segments in order to manage execution
- * memory requirements.
- */
 public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
 
-  /**
-   * The Batch size.
-   */
   protected final int batchSize;
   private boolean verbose = false;
 
-  /**
-   * Instantiates a new Batched trainable.
-   *
-   * @param inner     the heapCopy
-   * @param batchSize the batch size
-   */
   public BatchedTrainable(final DataTrainable inner, final int batchSize) {
     super(inner);
     this.batchSize = batchSize;
   }
 
-  /**
-   * Instantiates a new Batched trainable.
-   *
-   * @param network   the network
-   * @param batchSize the batch size
-   */
   public BatchedTrainable(final Layer network, final int batchSize) {
     this(new BasicTrainable(network), batchSize);
     getInner().freeRef();
   }
 
-  /**
-   * Gets batch size.
-   *
-   * @return the batch size
-   */
   public int getBatchSize() {
     return batchSize;
   }
@@ -111,21 +87,10 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
     return timedResult.result;
   }
 
-  /**
-   * Is verbose boolean.
-   *
-   * @return the boolean
-   */
   public boolean isVerbose() {
     return verbose;
   }
 
-  /**
-   * Sets verbose.
-   *
-   * @param verbose the verbose
-   * @return the verbose
-   */
   public BatchedTrainable setVerbose(final boolean verbose) {
     this.verbose = verbose;
     return this;

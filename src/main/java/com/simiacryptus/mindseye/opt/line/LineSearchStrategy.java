@@ -22,17 +22,7 @@ package com.simiacryptus.mindseye.opt.line;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
-/**
- * Base interface for providing a solver for line search problems.
- */
 public interface LineSearchStrategy {
 
-  /**
-   * Step point sample.
-   *
-   * @param cursor  the cursor
-   * @param monitor the monitor
-   * @return the point sample
-   */
   PointSample step(LineSearchCursor cursor, TrainingMonitor monitor);
 }

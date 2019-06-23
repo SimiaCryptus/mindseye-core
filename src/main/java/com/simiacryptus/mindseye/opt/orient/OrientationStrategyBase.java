@@ -22,10 +22,5 @@ package com.simiacryptus.mindseye.opt.orient;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 
-/**
- * The type Orientation strategy base.
- *
- * @param <T> the type parameter
- */
 public abstract class OrientationStrategyBase<T extends LineSearchCursor> extends ReferenceCountingBase implements OrientationStrategy<T> {
 }

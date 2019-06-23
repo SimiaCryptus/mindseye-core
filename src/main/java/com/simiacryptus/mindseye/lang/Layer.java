@@ -36,40 +36,18 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
-/**
- * The interface Layer.
- */
 public interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
-  /**
-   * From json nn key.
-   *
-   * @param json the json
-   * @return the nn key
-   */
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json) {
     return fromJson(json, null);
   }
 
-  /**
-   * From zip nn key.
-   *
-   * @param zipfile the zipfile
-   * @return the nn key
-   */
   @Nonnull
   static Layer fromZip(@Nonnull final ZipFile zipfile) {
     @Nonnull HashMap<CharSequence, byte[]> resources = ZipSerializable.extract(zipfile);
     return fromJson(ZipSerializable.toJson(resources.get("model.json")), resources);
   }
 
-  /**
-   * From json nn key.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the nn key
-   */
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     JsonElement classElement = json.get("class");
@@ -91,7 +69,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   @NotNull
-  default List<Tensor> map(List<Tensor> values) {
+  default List<Tensor> map(Collection<Tensor> values) {
     return values.stream().map(t -> {
       return eval(t).getDataAndFree().getAndFree(0);
     }).collect(Collectors.toList());
@@ -107,12 +85,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Override
   Layer addRef();
 
-  /**
-   * And then key.
-   *
-   * @param append the append
-   * @return the key
-   */
   default PipelineNetwork andThen(Layer append) {
     return PipelineNetwork.build(1,
         this,
@@ -120,24 +92,12 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     );
   }
 
-  /**
-   * Free and then pipeline network.
-   *
-   * @param append the append
-   * @return the pipeline network
-   */
   default PipelineNetwork freeAndThen(Layer append) {
     PipelineNetwork build = andThen(append);
     this.freeRef();
     return build;
   }
 
-  /**
-   * And then wrap pipeline network.
-   *
-   * @param append the append
-   * @return the pipeline network
-   */
   default PipelineNetwork andThenWrap(Layer append) {
     assert append.assertAlive();
     assert assertAlive();
@@ -149,12 +109,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return wrap;
   }
 
-  /**
-   * Free and then wrap pipeline network.
-   *
-   * @param append the append
-   * @return the pipeline network
-   */
   default PipelineNetwork freeAndThenWrap(Layer append) {
     return PipelineNetwork.wrap(1,
         this,
@@ -162,13 +116,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     );
   }
 
-  /**
-   * As t.
-   *
-   * @param <T>         the type parameter
-   * @param targetClass the target class
-   * @return the t
-   */
   @Nonnull
   @SuppressWarnings("unchecked")
   default <T extends Layer> T as(@Nonnull final Class<T> targetClass) {
@@ -179,22 +126,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return (T) fromJson(json, resources);
   }
 
-  /**
-   * Copy nn key.
-   *
-   * @return the nn key
-   */
   @Nonnull
   default Layer copy() {
     return copy(SerialPrecision.Double);
   }
 
-  /**
-   * Copy nn key.
-   *
-   * @param precision the precision
-   * @return the nn key
-   */
   @Nonnull
   default Layer copy(SerialPrecision precision) {
     assertAlive();
@@ -203,12 +139,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return Layer.fromJson(json, resources);
   }
 
-  /**
-   * Eval nn result.
-   *
-   * @param array the array
-   * @return the nn result
-   */
   @Nullable
   default Result eval(Result... array) {
     assertAlive();
@@ -217,12 +147,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return evalAndFree(array);
   }
 
-  /**
-   * Eval and free nn result.
-   *
-   * @param array the array
-   * @return the nn result
-   */
   @Nullable
   default Result evalAndFree(Result... array) {
     assertAlive();
@@ -232,12 +156,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return result;
   }
 
-  /**
-   * Eval nn result.
-   *
-   * @param array the array
-   * @return the nn result
-   */
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
     Result[] input = ConstantResult.singleResultArray(array);
@@ -247,12 +165,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return eval;
   }
 
-  /**
-   * Eval nn result.
-   *
-   * @param array the array
-   * @return the nn result
-   */
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
     Result[] input = ConstantResult.singleResultArray(array);
@@ -262,45 +174,20 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return eval;
   }
 
-  /**
-   * Freeze nn key.
-   *
-   * @return the nn key
-   */
   @Nonnull
   default Layer freeze() {
     return setFrozen(true);
   }
 
-  /**
-   * The Id.
-   *
-   * @return the children
-   */
   List<Layer> getChildren();
 
-  /**
-   * Gets id.
-   *
-   * @return the id
-   */
   @Nullable
   UUID getId();
 
-  /**
-   * Gets json string.
-   *
-   * @return the json string
-   */
   default CharSequence getJsonString() {
     return new GsonBuilder().setPrettyPrinting().create().toJson(getJson());
   }
 
-  /**
-   * Gets json stub.
-   *
-   * @return the json stub
-   */
   @Nonnull
   default JsonObject getJsonStub() {
     assertAlive();
@@ -312,52 +199,20 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return json;
   }
 
-  /**
-   * Gets name.
-   *
-   * @return the name
-   */
   @Nullable
   String getName();
 
-  /**
-   * Sets name.
-   *
-   * @param name the name
-   * @return the name
-   */
   @Nonnull
   Layer setName(final String name);
 
-  /**
-   * Is frozen boolean.
-   *
-   * @return the boolean
-   */
   boolean isFrozen();
 
-  /**
-   * Sets frozen.
-   *
-   * @param frozen the frozen
-   * @return the frozen
-   */
   @Nonnull
   Layer setFrozen(final boolean frozen);
 
-  /**
-   * State list.
-   *
-   * @return the list
-   */
   @Nullable
   List<double[]> state();
 
-  /**
-   * Copy and free key.
-   *
-   * @return the key
-   */
   default Layer copyAndFree() {
     Layer copy = copy();
     freeRef();

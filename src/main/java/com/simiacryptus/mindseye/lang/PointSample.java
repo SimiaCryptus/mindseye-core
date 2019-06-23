@@ -24,43 +24,15 @@ import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-/**
- * Represents an evaluation record used during optimization of a function apply one scalar output and many inputs. We
- * track both a record of the network's state, and a record of the gradient evaluated at that point.
- */
 public final class PointSample extends ReferenceCountingBase {
-  /**
-   * The Count.
-   */
   public final int count;
-  /**
-   * The Delta.
-   */
   @Nonnull
   public final DeltaSet<UUID> delta;
-  /**
-   * The Sum.
-   */
   public final double sum;
-  /**
-   * The Weights.
-   */
   @Nonnull
   public final StateSet<UUID> weights;
-  /**
-   * The Rate.
-   */
   public double rate;
 
-  /**
-   * Instantiates a new Point sample.
-   *
-   * @param delta   the evalInputDelta
-   * @param weights the weights
-   * @param sum     the sum
-   * @param rate    the rate
-   * @param count   the count
-   */
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum, final double rate, final int count) {
     try {
       assert delta.getMap().size() == weights.getMap().size();
@@ -79,13 +51,6 @@ public final class PointSample extends ReferenceCountingBase {
     }
   }
 
-  /**
-   * Add point sample.
-   *
-   * @param left  the left
-   * @param right the right
-   * @return the point sample
-   */
   public static PointSample add(@Nonnull final PointSample left, @Nonnull final PointSample right) {
     assert left.delta.getMap().size() == left.weights.getMap().size();
     assert right.delta.getMap().size() == right.weights.getMap().size();
@@ -102,22 +67,10 @@ public final class PointSample extends ReferenceCountingBase {
     return pointSample;
   }
 
-  /**
-   * Add point sample.
-   *
-   * @param right the right
-   * @return the point sample
-   */
   public PointSample add(@Nonnull final PointSample right) {
     return PointSample.add(this, right);
   }
 
-  /**
-   * Add in place point sample.
-   *
-   * @param right the right
-   * @return the point sample
-   */
   public PointSample addInPlace(@Nonnull final PointSample right) {
     assert delta.getMap().size() == weights.getMap().size();
     assert right.delta.getMap().size() == right.weights.getMap().size();
@@ -129,20 +82,10 @@ public final class PointSample extends ReferenceCountingBase {
         count + right.count);
   }
 
-  /**
-   * Copy evalInputDelta point sample.
-   *
-   * @return the point sample
-   */
   public PointSample copyDelta() {
     return new PointSample(delta.copy(), weights, sum, rate, count);
   }
 
-  /**
-   * Copy full point sample.
-   *
-   * @return the point sample
-   */
   @Nonnull
   public PointSample copyFull() {
     @Nonnull DeltaSet<UUID> deltaCopy = delta.copy();
@@ -153,41 +96,20 @@ public final class PointSample extends ReferenceCountingBase {
     return pointSample;
   }
 
-  /**
-   * Gets mean.
-   *
-   * @return the mean
-   */
   public double getMean() {
     return sum / count;
   }
 
-  /**
-   * Gets rate.
-   *
-   * @return the rate
-   */
   public double getRate() {
     return rate;
   }
 
-  /**
-   * Sets rate.
-   *
-   * @param rate the rate
-   * @return the rate
-   */
   @Nonnull
   public PointSample setRate(final double rate) {
     this.rate = rate;
     return this;
   }
 
-  /**
-   * Normalize point sample.
-   *
-   * @return the point sample
-   */
   @Nonnull
   public PointSample normalize() {
     if (count == 1) {
@@ -201,22 +123,12 @@ public final class PointSample extends ReferenceCountingBase {
     }
   }
 
-  /**
-   * Reset point sample.
-   *
-   * @return the point sample
-   */
   @Nonnull
   public PointSample restore() {
     weights.stream().forEach(d -> d.restore());
     return this;
   }
 
-  /**
-   * Backup point sample.
-   *
-   * @return the point sample
-   */
   @Nonnull
   public PointSample backup() {
     weights.stream().forEach(d -> d.backup());

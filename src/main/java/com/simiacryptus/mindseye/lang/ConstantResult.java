@@ -24,48 +24,24 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-/**
- * A special type of Result which ignores backpropigation; it has a constant value.
- */
 public final class ConstantResult extends Result {
 
-  /**
-   * Instantiates a new Nn constant.
-   *
-   * @param data the data
-   */
   public ConstantResult(final Tensor... data) {
     this(TensorArray.create(data));
   }
 
-  /**
-   * Instantiates a new Nn constant.
-   *
-   * @param tensorArray
-   */
   public ConstantResult(TensorArray tensorArray) {
     super(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
       data.freeRef();
     });
   }
 
-  /**
-   * Instantiates a new Nn constant.
-   *
-   * @param tensorList the tensor array
-   */
   public ConstantResult(final TensorList tensorList) {
     super(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
       data.freeRef();
     });
   }
 
-  /**
-   * Batch result array nn result [ ].
-   *
-   * @param input the batch data
-   * @return the nn result [ ]
-   */
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
     if (null == input) throw new IllegalArgumentException();
     return IntStream.range(0, input[0].length).mapToObj(x -> IntStream.range(0, input.length)
@@ -76,22 +52,10 @@ public final class ConstantResult extends Result {
         .toArray(x -> new Result[x]);
   }
 
-  /**
-   * Single result array nn result [ ].
-   *
-   * @param input the input
-   * @return the nn result [ ]
-   */
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
     return Arrays.stream(input).map((@Nonnull final Tensor x) -> new ConstantResult(TensorArray.create(x))).toArray(i -> new Result[i]);
   }
 
-  /**
-   * Single result array nn result [ ].
-   *
-   * @param input the input
-   * @return the nn result [ ]
-   */
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
     return Arrays.stream(input).map((@Nonnull final Tensor[] x) -> new ConstantResult(TensorArray.create(x))).toArray(i -> new Result[i]);
   }

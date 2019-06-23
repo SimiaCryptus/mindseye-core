@@ -47,12 +47,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/**
- * This training class attempts to manage the sample size hyperparameter and convergence criteria via the periodic
- * evaluation of a validation function. It uses an itermediate "epoch" loop where a target learning improvement and
- * overtraining ratio are sought. It also supports multiple stages to each epoch, allowing use cases such as GAN and
- * layerwise training.
- */
 public class ValidatingTrainer {
 
 
@@ -82,12 +76,6 @@ public class ValidatingTrainer {
   private int trainingSize = 10000;
   private double trainingTarget = 0.7;
 
-  /**
-   * Instantiates a new Validating trainer.
-   *
-   * @param trainingSubject   the training subject
-   * @param validationSubject the validation subject
-   */
   public ValidatingTrainer(@Nonnull final SampledTrainable trainingSubject, @Nonnull final Trainable validationSubject) {
     regimen = new ArrayList<TrainingPhase>(Arrays.asList(new TrainingPhase(new PerformanceWrapper(trainingSubject))));
     validationSubject.addRef();
@@ -144,393 +132,187 @@ public class ValidatingTrainer {
         })));
   }
 
-  /**
-   * Gets adjustment factor.
-   *
-   * @return the adjustment factor
-   */
   public double getAdjustmentFactor() {
     return adjustmentFactor;
   }
 
-  /**
-   * Sets adjustment factor.
-   *
-   * @param adjustmentFactor the adjustment factor
-   * @return the adjustment factor
-   */
   @Nonnull
   public ValidatingTrainer setAdjustmentFactor(final double adjustmentFactor) {
     this.adjustmentFactor = adjustmentFactor;
     return this;
   }
 
-  /**
-   * Gets adjustment tolerance.
-   *
-   * @return the adjustment tolerance
-   */
   public double getAdjustmentTolerance() {
     return adjustmentTolerance;
   }
 
-  /**
-   * Sets adjustment tolerance.
-   *
-   * @param adjustmentTolerance the adjustment tolerance
-   * @return the adjustment tolerance
-   */
   @Nonnull
   public ValidatingTrainer setAdjustmentTolerance(final double adjustmentTolerance) {
     this.adjustmentTolerance = adjustmentTolerance;
     return this;
   }
 
-  /**
-   * Gets current iteration.
-   *
-   * @return the current iteration
-   */
   public AtomicInteger getCurrentIteration() {
     return currentIteration;
   }
 
-  /**
-   * Sets current iteration.
-   *
-   * @param currentIteration the current iteration
-   * @return the current iteration
-   */
   @Nonnull
   public ValidatingTrainer setCurrentIteration(final AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
     return this;
   }
 
-  /**
-   * Gets disappointment threshold.
-   *
-   * @return the disappointment threshold
-   */
   public int getDisappointmentThreshold() {
     return disappointmentThreshold;
   }
 
-  /**
-   * Sets disappointment threshold.
-   *
-   * @param disappointmentThreshold the disappointment threshold
-   */
   public void setDisappointmentThreshold(final int disappointmentThreshold) {
     this.disappointmentThreshold = disappointmentThreshold;
   }
 
-  /**
-   * Gets runPhase iterations.
-   *
-   * @return the runPhase iterations
-   */
   public int getEpochIterations() {
     return epochIterations;
   }
 
-  /**
-   * Sets runPhase iterations.
-   *
-   * @param epochIterations the runPhase iterations
-   * @return the runPhase iterations
-   */
   @Nonnull
   public ValidatingTrainer setEpochIterations(final int epochIterations) {
     this.epochIterations = epochIterations;
     return this;
   }
 
-  /**
-   * Gets improvment stale threshold.
-   *
-   * @return the improvment stale threshold
-   */
   public int getImprovmentStaleThreshold() {
     return improvmentStaleThreshold;
   }
 
-  /**
-   * Sets improvment stale threshold.
-   *
-   * @param improvmentStaleThreshold the improvment stale threshold
-   */
   public void setImprovmentStaleThreshold(final int improvmentStaleThreshold) {
     this.improvmentStaleThreshold = improvmentStaleThreshold;
   }
 
-  /**
-   * Gets max runPhase iterations.
-   *
-   * @return the max runPhase iterations
-   */
   public int getMaxEpochIterations() {
     return maxEpochIterations;
   }
 
-  /**
-   * Sets max runPhase iterations.
-   *
-   * @param maxEpochIterations the max runPhase iterations
-   * @return the max runPhase iterations
-   */
   @Nonnull
   public ValidatingTrainer setMaxEpochIterations(final int maxEpochIterations) {
     this.maxEpochIterations = maxEpochIterations;
     return this;
   }
 
-  /**
-   * Gets max iterations.
-   *
-   * @return the max iterations
-   */
   public int getMaxIterations() {
     return maxIterations;
   }
 
-  /**
-   * Sets max iterations.
-   *
-   * @param maxIterations the max iterations
-   * @return the max iterations
-   */
   @Nonnull
   public ValidatingTrainer setMaxIterations(final int maxIterations) {
     this.maxIterations = maxIterations;
     return this;
   }
 
-  /**
-   * Gets max training size.
-   *
-   * @return the max training size
-   */
   public int getMaxTrainingSize() {
     return maxTrainingSize;
   }
 
-  /**
-   * Sets max training size.
-   *
-   * @param maxTrainingSize the max training size
-   * @return the max training size
-   */
   @Nonnull
   public ValidatingTrainer setMaxTrainingSize(final int maxTrainingSize) {
     this.maxTrainingSize = maxTrainingSize;
     return this;
   }
 
-  /**
-   * Gets min runPhase iterations.
-   *
-   * @return the min runPhase iterations
-   */
   public int getMinEpochIterations() {
     return minEpochIterations;
   }
 
-  /**
-   * Sets min runPhase iterations.
-   *
-   * @param minEpochIterations the min runPhase iterations
-   * @return the min runPhase iterations
-   */
   @Nonnull
   public ValidatingTrainer setMinEpochIterations(final int minEpochIterations) {
     this.minEpochIterations = minEpochIterations;
     return this;
   }
 
-  /**
-   * Gets min training size.
-   *
-   * @return the min training size
-   */
   public int getMinTrainingSize() {
     return minTrainingSize;
   }
 
-  /**
-   * Sets min training size.
-   *
-   * @param minTrainingSize the min training size
-   * @return the min training size
-   */
   @Nonnull
   public ValidatingTrainer setMinTrainingSize(final int minTrainingSize) {
     this.minTrainingSize = minTrainingSize;
     return this;
   }
 
-  /**
-   * Gets monitor.
-   *
-   * @return the monitor
-   */
   public TrainingMonitor getMonitor() {
     return monitor;
   }
 
-  /**
-   * Sets monitor.
-   *
-   * @param monitor the monitor
-   * @return the monitor
-   */
   @Nonnull
   public ValidatingTrainer setMonitor(final TrainingMonitor monitor) {
     this.monitor = monitor;
     return this;
   }
 
-  /**
-   * Gets overtraining target.
-   *
-   * @return the overtraining target
-   */
   public double getOvertrainingTarget() {
     return overtrainingTarget;
   }
 
-  /**
-   * Sets overtraining target.
-   *
-   * @param overtrainingTarget the overtraining target
-   * @return the overtraining target
-   */
   @Nonnull
   public ValidatingTrainer setOvertrainingTarget(final double overtrainingTarget) {
     this.overtrainingTarget = overtrainingTarget;
     return this;
   }
 
-  /**
-   * Gets pessimism.
-   *
-   * @return the pessimism
-   */
   public double getPessimism() {
     return pessimism;
   }
 
-  /**
-   * Sets pessimism.
-   *
-   * @param pessimism the pessimism
-   * @return the pessimism
-   */
   @Nonnull
   public ValidatingTrainer setPessimism(final double pessimism) {
     this.pessimism = pessimism;
     return this;
   }
 
-  /**
-   * Gets regimen.
-   *
-   * @return the regimen
-   */
   @Nonnull
   public List<TrainingPhase> getRegimen() {
     return regimen;
   }
 
-  /**
-   * Gets terminate threshold.
-   *
-   * @return the terminate threshold
-   */
   public double getTerminateThreshold() {
     return terminateThreshold;
   }
 
-  /**
-   * Sets terminate threshold.
-   *
-   * @param terminateThreshold the terminate threshold
-   * @return the terminate threshold
-   */
   @Nonnull
   public ValidatingTrainer setTerminateThreshold(final double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
     return this;
   }
 
-  /**
-   * Gets timeout.
-   *
-   * @return the timeout
-   */
   public Duration getTimeout() {
     return timeout;
   }
 
-  /**
-   * Sets timeout.
-   *
-   * @param timeout the timeout
-   * @return the timeout
-   */
   @Nonnull
   public ValidatingTrainer setTimeout(final Duration timeout) {
     this.timeout = timeout;
     return this;
   }
 
-  /**
-   * Gets training size.
-   *
-   * @return the training size
-   */
   public int getTrainingSize() {
     return trainingSize;
   }
 
-  /**
-   * Sets training size.
-   *
-   * @param trainingSize the training size
-   * @return the training size
-   */
   @Nonnull
   public ValidatingTrainer setTrainingSize(final int trainingSize) {
     this.trainingSize = trainingSize;
     return this;
   }
 
-  /**
-   * Gets training target.
-   *
-   * @return the training target
-   */
   public double getTrainingTarget() {
     return trainingTarget;
   }
 
-  /**
-   * Sets training target.
-   *
-   * @param trainingTarget the training target
-   * @return the training target
-   */
   @Nonnull
   public ValidatingTrainer setTrainingTarget(final double trainingTarget) {
     this.trainingTarget = trainingTarget;
     return this;
   }
 
-  /**
-   * Gets validation subject.
-   *
-   * @return the validation subject
-   */
   @Nonnull
   public Trainable getValidationSubject() {
     return validationSubject;
@@ -557,11 +339,6 @@ public class ValidatingTrainer {
     return this;
   }
 
-  /**
-   * Run double.
-   *
-   * @return the double
-   */
   public double run() {
     try {
       final long timeoutAt = System.currentTimeMillis() + timeout.toMillis();
@@ -656,15 +433,6 @@ public class ValidatingTrainer {
     }
   }
 
-  /**
-   * Epoch runPhase result.
-   *
-   * @param epochParams the runPhase params
-   * @param phase       the phase
-   * @param i           the
-   * @param seed        the seed
-   * @return the runPhase result
-   */
   @Nonnull
   protected EpochResult runPhase(@Nonnull final EpochParams epochParams, @Nonnull final TrainingPhase phase, final int i, final long seed) {
     monitor.log(String.format("Phase %d: %s", i, phase));
@@ -703,13 +471,6 @@ public class ValidatingTrainer {
     return new EpochResult(true, pointMean, currentPoint, step);
   }
 
-  /**
-   * Step runStep result.
-   *
-   * @param previousPoint the previous point
-   * @param phase         the phase
-   * @return the runStep result
-   */
   @Nonnull
   protected StepResult runStep(@Nonnull final PointSample previousPoint, @Nonnull final TrainingPhase phase) {
     currentIteration.incrementAndGet();
@@ -739,12 +500,6 @@ public class ValidatingTrainer {
     return new StepResult(previousPoint, bestPoint, new double[]{timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9});
   }
 
-  /**
-   * Sets line search factory.
-   *
-   * @param lineSearchFactory the line search factory
-   * @return the line search factory
-   */
   @Nonnull
   @Deprecated
   public ValidatingTrainer setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
@@ -752,12 +507,6 @@ public class ValidatingTrainer {
     return this;
   }
 
-  /**
-   * Sets orientation.
-   *
-   * @param orientation the orientation
-   * @return the orientation
-   */
   @Nonnull
   @Deprecated
   public ValidatingTrainer setOrientation(final OrientationStrategy<?> orientation) {
@@ -765,38 +514,17 @@ public class ValidatingTrainer {
     return this;
   }
 
-  /**
-   * Sets timeout.
-   *
-   * @param number the number
-   * @param units  the units
-   * @return the timeout
-   */
   @Nonnull
   public ValidatingTrainer setTimeout(final int number, @Nonnull final TemporalUnit units) {
     timeout = Duration.of(number, units);
     return this;
   }
 
-  /**
-   * Sets timeout.
-   *
-   * @param number the number
-   * @param units  the units
-   * @return the timeout
-   */
   @Nonnull
   public ValidatingTrainer setTimeout(final int number, @Nonnull final TimeUnit units) {
     return setTimeout(number, Util.cvt(units));
   }
 
-  /**
-   * Should halt boolean.
-   *
-   * @param monitor   the monitor
-   * @param timeoutMs the timeout ms
-   * @return the boolean
-   */
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
     System.currentTimeMillis();
     if (timeoutMs < System.currentTimeMillis()) {
@@ -811,21 +539,9 @@ public class ValidatingTrainer {
   }
 
   private static class EpochParams {
-    /**
-     * The Iterations.
-     */
     int iterations;
-    /**
-     * The Timeout ms.
-     */
     long timeoutMs;
-    /**
-     * The Training size.
-     */
     int trainingSize;
-    /**
-     * The Validation.
-     */
     PointSample validation;
 
     private EpochParams(final long timeoutMs, final int iterations, final int trainingSize, final PointSample validation) {
@@ -839,31 +555,11 @@ public class ValidatingTrainer {
 
   private static class EpochResult {
 
-    /**
-     * The Continue training.
-     */
     boolean continueTraining;
-    /**
-     * The Current point.
-     */
     PointSample currentPoint;
-    /**
-     * The Iterations.
-     */
     int iterations;
-    /**
-     * The Prior point.
-     */
     double priorMean;
 
-    /**
-     * Instantiates a new Epoch result.
-     *
-     * @param continueTraining the continue training
-     * @param priorMean        the prior point
-     * @param currentPoint     the current point
-     * @param iterations       the iterations
-     */
     public EpochResult(final boolean continueTraining, final double priorMean, final PointSample currentPoint, final int iterations) {
       this.priorMean = priorMean;
       this.currentPoint = currentPoint;
@@ -873,103 +569,51 @@ public class ValidatingTrainer {
 
   }
 
-  /**
-   * The type Training phase.
-   */
   public static class TrainingPhase {
     private Function<CharSequence, LineSearchStrategy> lineSearchFactory = (s) -> new ArmijoWolfeSearch();
     private Map<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new HashMap<>();
     private OrientationStrategy<?> orientation = new LBFGS();
     private SampledTrainable trainingSubject;
 
-    /**
-     * Instantiates a new Training phase.
-     *
-     * @param trainingSubject the training subject
-     */
     public TrainingPhase(final SampledTrainable trainingSubject) {
       setTrainingSubject(trainingSubject);
     }
 
 
-    /**
-     * Gets line search factory.
-     *
-     * @return the line search factory
-     */
     public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
       return lineSearchFactory;
     }
 
-    /**
-     * Sets line search factory.
-     *
-     * @param lineSearchFactory the line search factory
-     * @return the line search factory
-     */
     @Nonnull
     public TrainingPhase setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
       this.lineSearchFactory = lineSearchFactory;
       return this;
     }
 
-    /**
-     * Gets line search strategy buildMap.
-     *
-     * @return the line search strategy buildMap
-     */
     public Map<CharSequence, LineSearchStrategy> getLineSearchStrategyMap() {
       return lineSearchStrategyMap;
     }
 
-    /**
-     * Sets line search strategy buildMap.
-     *
-     * @param lineSearchStrategyMap the line search strategy buildMap
-     * @return the line search strategy buildMap
-     */
     @Nonnull
     public TrainingPhase setLineSearchStrategyMap(final Map<CharSequence, LineSearchStrategy> lineSearchStrategyMap) {
       this.lineSearchStrategyMap = lineSearchStrategyMap;
       return this;
     }
 
-    /**
-     * Gets orientation.
-     *
-     * @return the orientation
-     */
     public OrientationStrategy<?> getOrientation() {
       return orientation;
     }
 
-    /**
-     * Sets orientation.
-     *
-     * @param orientation the orientation
-     * @return the orientation
-     */
     @Nonnull
     public TrainingPhase setOrientation(final OrientationStrategy<?> orientation) {
       this.orientation = orientation;
       return this;
     }
 
-    /**
-     * Gets training subject.
-     *
-     * @return the training subject
-     */
     public SampledTrainable getTrainingSubject() {
       return trainingSubject;
     }
 
-    /**
-     * Sets training subject.
-     *
-     * @param trainingSubject the training subject
-     * @return the training subject
-     */
     @Nonnull
     public TrainingPhase setTrainingSubject(final SampledTrainable trainingSubject) {
       this.trainingSubject = trainingSubject;
@@ -988,11 +632,6 @@ public class ValidatingTrainer {
 
   private class PerformanceWrapper extends TrainableWrapper<SampledTrainable> implements SampledTrainable {
 
-    /**
-     * Instantiates a new Performance wrapper.
-     *
-     * @param trainingSubject the training subject
-     */
     public PerformanceWrapper(final SampledTrainable trainingSubject) {
       super(trainingSubject);
     }
@@ -1027,26 +666,10 @@ public class ValidatingTrainer {
   }
 
   private class StepResult {
-    /**
-     * The Current point.
-     */
     final PointSample currentPoint;
-    /**
-     * The Performance.
-     */
     final double[] performance;
-    /**
-     * The Previous.
-     */
     final PointSample previous;
 
-    /**
-     * Instantiates a new Step result.
-     *
-     * @param previous     the previous
-     * @param currentPoint the current point
-     * @param performance  the performance
-     */
     public StepResult(final PointSample previous, final PointSample currentPoint, final double[] performance) {
       this.currentPoint = currentPoint;
       this.previous = previous;

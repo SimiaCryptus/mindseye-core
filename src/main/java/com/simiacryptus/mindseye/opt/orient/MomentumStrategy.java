@@ -31,28 +31,13 @@ import com.simiacryptus.util.ArrayUtil;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-/**
- * A simple momentum module which uses a cumulative decay algorithm to add a momentum term to any orientation strategy
- * (if it yields a SimpleLineSearch cursor)
- */
 public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
-  /**
-   * The Inner.
-   */
   public final OrientationStrategy<SimpleLineSearchCursor> inner;
-  /**
-   * The Prev evalInputDelta.
-   */
   @Nonnull
   DeltaSet<UUID> prevDelta = new DeltaSet<UUID>();
   private double carryOver = 0.1;
 
-  /**
-   * Instantiates a new Momentum strategy.
-   *
-   * @param inner the heapCopy
-   */
   public MomentumStrategy(final OrientationStrategy<SimpleLineSearchCursor> inner) {
     this.inner = inner;
   }
@@ -62,21 +47,10 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     this.inner.freeRef();
   }
 
-  /**
-   * Gets carry over.
-   *
-   * @return the carry over
-   */
   public double getCarryOver() {
     return carryOver;
   }
 
-  /**
-   * Sets carry over.
-   *
-   * @param carryOver the carry over
-   * @return the carry over
-   */
   @Nonnull
   public MomentumStrategy setCarryOver(final double carryOver) {
     this.carryOver = carryOver;

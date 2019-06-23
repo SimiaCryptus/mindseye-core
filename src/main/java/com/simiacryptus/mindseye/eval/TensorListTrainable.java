@@ -32,48 +32,22 @@ import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
-/**
- * This class handles dispatching network evaluations, and distributing the evaluations to the system GPU(s). This is
- * the main class the handles actual execution for training purposes.
- */
 public class TensorListTrainable extends ReferenceCountingBase implements TrainableDataMask {
 
-  /**
-   * The Network.
-   */
   protected final Layer network;
-  /**
-   * The Data.
-   */
   @Nullable
   protected TensorList[] data;
 
-  /**
-   * The Mask.
-   */
   @Nullable
   boolean[] mask = null;
   private int verbosity = 0;
 
-  /**
-   * Instantiates a new Gpu trainable.
-   *
-   * @param network the network
-   * @param data    the data
-   */
   public TensorListTrainable(final Layer network, final TensorList... data) {
     this.network = network;
     this.network.addRef(this);
     this.data = data;
   }
 
-  /**
-   * Get nn context nn result [ ].
-   *
-   * @param data the data
-   * @param mask the mask
-   * @return the nn result [ ]
-   */
   public static Result[] getNNContext(@Nullable final TensorList[] data, @Nullable final boolean[] mask) {
     if (null == data) throw new IllegalArgumentException();
     int inputs = data.length;
@@ -108,13 +82,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     }).toArray(x1 -> new Result[x1]);
   }
 
-  /**
-   * Eval point sample.
-   *
-   * @param list    the list
-   * @param monitor the monitor
-   * @return the point sample
-   */
   @Nonnull
   protected PointSample eval(@Nonnull final TensorList[] list, @Nullable final TrainingMonitor monitor) {
     int inputs = data.length;
@@ -159,11 +126,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return normalize;
   }
 
-  /**
-   * Get data tensor list [ ].
-   *
-   * @return the tensor list [ ]
-   */
   @Nonnull
   public TensorList[] getData() {
     return data;
@@ -180,12 +142,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return network;
   }
 
-  /**
-   * Measure point sample.
-   *
-   * @param monitor the monitor
-   * @return the point sample
-   */
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     int inputs = data.length;
@@ -201,12 +157,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return timedResult.result;
   }
 
-  /**
-   * Sets data.
-   *
-   * @param data the data
-   * @return the data
-   */
   @Nonnull
   public synchronized Trainable setData(@Nonnull final TensorList[] data) {
     int inputs = data.length;
@@ -225,23 +175,12 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return this;
   }
 
-  /**
-   * Sets verbose.
-   *
-   * @param verbose the verbose
-   * @return the verbose
-   */
   @Nonnull
   public TensorListTrainable setVerbosity(final int verbose) {
     verbosity = verbose;
     return this;
   }
 
-  /**
-   * Is verbose boolean.
-   *
-   * @return the boolean
-   */
   public int verbosity() {
     return verbosity;
   }

@@ -60,39 +60,16 @@ public interface ZipSerializable {
     return resources;
   }
 
-  /**
-   * Gets json.
-   *
-   * @param resources      the resources
-   * @param dataSerializer the data serializer
-   * @return the json
-   */
   JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
 
-  /**
-   * Gets json.
-   *
-   * @return the json
-   */
   default JsonElement getJson() {
     return getJson(null, SerialPrecision.Double);
   }
 
-  /**
-   * Write zip.
-   *
-   * @param out the out
-   */
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);
   }
 
-  /**
-   * Write zip.
-   *
-   * @param out       the out
-   * @param precision the precision
-   */
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
       writeZip(zipOutputStream, precision);
@@ -101,21 +78,10 @@ public interface ZipSerializable {
     }
   }
 
-  /**
-   * Write zip.
-   *
-   * @param out the out
-   */
   default void writeZip(@Nonnull ZipOutputStream out) {
     writeZip(out, SerialPrecision.Double);
   }
 
-  /**
-   * Write zip.
-   *
-   * @param out       the out
-   * @param precision the precision
-   */
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision) {
     try {
       @Nonnull HashMap<CharSequence, byte[]> resources = new HashMap<>();
