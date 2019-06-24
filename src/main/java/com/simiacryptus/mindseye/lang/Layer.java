@@ -69,14 +69,14 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   @NotNull
-  default List<Tensor> map(Collection<Tensor> values) {
+  default List<Tensor> map(Collection<? extends Tensor> values) {
     return values.stream().map(t -> {
       return eval(t).getDataAndFree().getAndFree(0);
     }).collect(Collectors.toList());
   }
 
   @NotNull
-  default Stream<Tensor> map(Stream<Tensor> values) {
+  default Stream<Tensor> map(Stream<? extends Tensor> values) {
     return values.map(t -> {
       return eval(t).getDataAndFree().getAndFree(0);
     });

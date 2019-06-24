@@ -23,6 +23,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.simiacryptus.lang.SerializableFunction;
 import com.simiacryptus.lang.ref.RecycleBin;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.util.FastRandom;
@@ -357,7 +358,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   @NotNull
-  public static Function<Tensor, Tensor> select(Coordinate... reducedCoords) {
+  public static SerializableFunction<Tensor, Tensor> select(Coordinate... reducedCoords) {
     return tensor -> {
       Tensor reduced = new Tensor(reducedCoords.length);
       reduced.setByCoord(c2 -> tensor.get(reducedCoords[c2.getIndex()]), false);

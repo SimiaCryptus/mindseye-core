@@ -21,9 +21,10 @@ package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.io.Serializable;
 import java.util.Arrays;
 
-public final class Coordinate {
+public final class Coordinate implements Serializable {
   protected int[] coords;
   protected int index;
 
