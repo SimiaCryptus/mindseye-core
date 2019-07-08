@@ -37,6 +37,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   protected LayerBase() {
     id = UUID.randomUUID();
     name = getClass().getSimpleName();// + "/" + getId();
+    register();
   }
 
   protected LayerBase(@Nonnull final JsonObject json) {
@@ -50,11 +51,13 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     if (json.has("name")) {
       setName(json.get("name").getAsString());
     }
+    register();
   }
 
   protected LayerBase(final UUID id, final String name) {
     this.id = id;
     this.name = name;
+    register();
   }
 
   @Override

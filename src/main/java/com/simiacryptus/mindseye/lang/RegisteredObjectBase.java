@@ -34,7 +34,11 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
   private static final Map<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>> cache = new ConcurrentHashMap<>();
   private static final ScheduledExecutorService maintenanceThread = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build());
 
-  public RegisteredObjectBase() {
+//  public RegisteredObjectBase() {
+//    register();
+//  }
+
+  protected void register() {
     cache.computeIfAbsent(getClass(), k -> new ObjectRecords<>()).add(new WeakReference<>(this));
   }
 

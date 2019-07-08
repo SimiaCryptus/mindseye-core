@@ -62,7 +62,10 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public Tensor(@Nullable final double[] data, @Nonnull final int... dims) {
+    if (null == dims) throw new IllegalArgumentException();
+    if (null != data && 0 >= data.length) throw new IllegalArgumentException();
     if (Tensor.length(dims) > Integer.MAX_VALUE) throw new IllegalArgumentException();
+    if (Tensor.length(dims) <= 0) throw new IllegalArgumentException();
     if (null != data && Tensor.length(dims) != data.length)
       throw new IllegalArgumentException(Arrays.toString(dims) + " != " + data.length);
     dimensions = (null == dims || 0 == dims.length) ? new int[]{} : Arrays.copyOf(dims, dims.length);

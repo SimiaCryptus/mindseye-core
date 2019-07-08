@@ -24,6 +24,8 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
+import javax.annotation.Nonnull;
+
 public interface Trainable extends ReferenceCounting {
   default CachedTrainable<? extends Trainable> cached() {
     return new CachedTrainable<>(this);
@@ -35,6 +37,6 @@ public interface Trainable extends ReferenceCounting {
     return false;
   }
 
-  Layer getLayer();
+  @Nonnull Layer getLayer();
 
 }

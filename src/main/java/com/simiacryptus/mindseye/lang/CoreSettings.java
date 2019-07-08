@@ -37,7 +37,7 @@ public class CoreSettings extends RefSettings {
     this.jvmThreads = Settings.get("THREADS", 64);
     System.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", Integer.toString(jvmThreads));
     this.singleThreaded = Settings.get("SINGLE_THREADED", false);
-    this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 3);
+    this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 1);
   }
 
   public static CoreSettings INSTANCE() {

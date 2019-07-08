@@ -31,14 +31,15 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   private final Tensor[] data;
 
   private TensorArray(@Nonnull final Tensor... data) {
-    assert null != data;
-    assert 0 < data.length;
+    if (null == data) throw new IllegalArgumentException();
+    if (0 >= data.length) throw new IllegalArgumentException();
     this.data = Arrays.copyOf(data, data.length);
     assert null != this.getData();
     for (@Nonnull Tensor tensor : this.getData()) {
       assert Arrays.equals(tensor.getDimensions(), this.getData()[0].getDimensions()) : Arrays.toString(tensor.getDimensions()) + " != " + Arrays.toString(tensor.getDimensions());
       tensor.addRef();
     }
+    register();
   }
 
   public static TensorArray create(final Tensor... data) {
