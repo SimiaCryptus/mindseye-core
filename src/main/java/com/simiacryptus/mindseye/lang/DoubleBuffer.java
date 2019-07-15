@@ -42,14 +42,14 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   public DoubleBuffer(@Nonnull final K key, final double[] target) {
     this.key = key;
-    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
+    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef();
     this.target = target;
     this.delta = null;
   }
 
   public DoubleBuffer(@Nonnull final K key, final double[] target, final double[] delta) {
     this.key = key;
-    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef(this);
+    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef();
     this.target = target;
     this.delta = delta;
   }

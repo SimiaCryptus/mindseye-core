@@ -37,7 +37,7 @@ public abstract class L12Normalizer extends TrainableBase {
 
   public L12Normalizer(final Trainable inner) {
     this.inner = inner;
-    this.inner.addRef(this);
+    this.inner.addRef();
   }
 
   @Override

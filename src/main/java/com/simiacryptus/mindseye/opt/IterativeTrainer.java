@@ -157,13 +157,10 @@ public class IterativeTrainer extends ReferenceCountingBase {
   @Nullable
   public PointSample measure() {
     @Nullable PointSample currentPoint = null;
-    int retries = 0;
-    do {
-      if (null != currentPoint) {
-        currentPoint.freeRef();
-      }
-      currentPoint = subject.measure(monitor);
-    } while (!Double.isFinite(currentPoint.getMean()) && 10 < retries++);
+    if (null != currentPoint) {
+      currentPoint.freeRef();
+    }
+    currentPoint = subject.measure(monitor);
     if (0 >= currentPoint.delta.getMap().size()) {
       currentPoint.freeRef();
       throw new AssertionError("Nothing to optimize");
@@ -246,17 +243,17 @@ subiterationLoop:
               } else {
                 monitor.log(String.format("Static Iteration %s", perfString));
               }
-              if (subject.reseed(System.nanoTime())) {
-                monitor.log(String.format("Iteration %s failed, retrying. Error: %s",
-                    currentIteration.get(), currentPoint.getMean()));
-                monitor.log(String.format("Previous Error: %s -> %s",
-                    previous.getRate(), previous.getMean()));
+
+              monitor.log(String.format("Iteration %s failed. Error: %s",
+                  currentIteration.get(), currentPoint.getMean()));
+              monitor.log(String.format("Previous Error: %s -> %s",
+                  previous.getRate(), previous.getMean()));
+              if (monitor.onStepFail(new Step(currentPoint, currentIteration.get()))) {
+                monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
+
                 break subiterationLoop;
               } else {
-                monitor.log(String.format("Iteration %s failed, aborting. Error: %s",
-                    currentIteration.get(), currentPoint.getMean()));
-                monitor.log(String.format("Previous Error: %s -> %s",
-                    previous.getRate(), previous.getMean()));
+                monitor.log(String.format("Optimization terminated %s", currentIteration.get()));
                 break mainLoop;
               }
             } else {

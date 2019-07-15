@@ -28,4 +28,8 @@ public class TrainingMonitor {
 
   public void onStepComplete(final Step currentPoint) {
   }
+
+  public boolean onStepFail(final Step currentPoint) {
+    return false;
+  }
 }

@@ -37,6 +37,7 @@ public interface Trainable extends ReferenceCounting {
     return false;
   }
 
-  @Nonnull Layer getLayer();
+  @Nonnull
+  Layer getLayer();
 
 }

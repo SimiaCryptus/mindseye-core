@@ -131,6 +131,18 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
+  public static PipelineNetwork sequence(PipelineNetwork... networks) {
+    Arrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
+    if (1 == networks.length) return networks[0];
+    if (1 != networks[0].inputHandles.size()) throw new IllegalArgumentException();
+    if (1 != Arrays.stream(networks).mapToInt(x -> x.inputHandles.size()).distinct().count()) throw new IllegalArgumentException();
+    PipelineNetwork pipelineNetwork = new PipelineNetwork(networks[0].inputHandles.size());
+    for (PipelineNetwork network : networks) {
+      transferNode(pipelineNetwork, network.getHead()).freeRef();
+    }
+    return pipelineNetwork;
+  }
+
   @Nonnull
   @Override
   public PipelineNetwork copy(final SerialPrecision precision) {

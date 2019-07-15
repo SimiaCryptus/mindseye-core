@@ -824,11 +824,13 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   @Nullable
   public Tensor scale(final double d) {
+    if (!Double.isFinite(d)) throw new IllegalArgumentException();
     return map(v -> v * d);
   }
 
   @Nonnull
   public Tensor scaleInPlace(final double d) {
+    if (!Double.isFinite(d)) throw new IllegalArgumentException();
     @Nullable final double[] data = getData();
     for (int i = 0; i < data.length; i++) {
       data[i] *= d;

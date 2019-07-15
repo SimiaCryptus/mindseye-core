@@ -44,7 +44,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
 
   public TensorListTrainable(final Layer network, final TensorList... data) {
     this.network = network;
-    this.network.addRef(this);
+    this.network.addRef();
     this.data = data;
   }
 
@@ -163,7 +163,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    Arrays.stream(data).forEach(x -> x.addRef(this));
+    Arrays.stream(data).forEach(x -> x.addRef());
     this.data = data;
     return this;
   }

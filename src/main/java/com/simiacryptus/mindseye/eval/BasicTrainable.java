@@ -41,7 +41,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   public BasicTrainable(final Layer network) {
     this.network = network;
-    this.network.addRef(this);
+    this.network.addRef();
     data = null;
   }
 
@@ -112,7 +112,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   @Nonnull
   @Override
   public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
-    if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef(this));
+    if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef());
     if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
     this.data = data;
     return this;

@@ -40,7 +40,7 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     this.trainingData = trainingData;
     for (@Nonnull Tensor[] tensors : trainingData) {
       for (@Nonnull Tensor tensor : tensors) {
-        tensor.addRef(this);
+        tensor.addRef();
       }
     }
   }
@@ -58,7 +58,7 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     this.trainingData = trainingData;
     if (null != trainingData) for (@Nonnull Tensor[] tensors : trainingData) {
       for (@Nonnull Tensor tensor : tensors) {
-        tensor.addRef(this);
+        tensor.addRef();
       }
     }
   }
@@ -89,7 +89,7 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   public Trainable setData(@Nonnull final List<Tensor[]> tensors) {
     for (@Nonnull Tensor[] ts : tensors) {
       for (@Nonnull Tensor tensor : ts) {
-        tensor.addRef(this);
+        tensor.addRef();
       }
     }
     if (null != trainingData) for (@Nonnull Tensor[] ts : trainingData) {
@@ -104,7 +104,7 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
     for (@Nonnull Tensor[] ts : tensors) {
       for (@Nonnull Tensor tensor : ts) {
-        tensor.addRef(this);
+        tensor.addRef();
       }
     }
     if (null != trainingData) for (@Nonnull Tensor[] ts : trainingData) {

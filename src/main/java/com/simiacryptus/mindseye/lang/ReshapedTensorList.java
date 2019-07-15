@@ -35,7 +35,7 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim))
       throw new IllegalArgumentException(Arrays.toString(inner.getDimensions()) + " != " + Arrays.toString(toDim));
     this.inner = inner;
-    this.inner.addRef(this);
+    this.inner.addRef();
     this.dims = toDim;
   }
 

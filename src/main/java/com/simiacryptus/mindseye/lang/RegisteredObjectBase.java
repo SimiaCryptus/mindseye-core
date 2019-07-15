@@ -38,10 +38,6 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
 //    register();
 //  }
 
-  protected void register() {
-    cache.computeIfAbsent(getClass(), k -> new ObjectRecords<>()).add(new WeakReference<>(this));
-  }
-
   public static <T extends RegisteredObjectBase> Stream<T> getLivingInstances(final Class<T> k) {
     return getInstances(k).filter(x -> !x.isFinalized());
   }
@@ -49,6 +45,10 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
   public static <T extends RegisteredObjectBase> Stream<T> getInstances(final Class<T> k) {
     return cache.entrySet().stream().filter(e -> k.isAssignableFrom(e.getKey())).map(x -> x.getValue())
         .flatMap(ObjectRecords::stream).map(x -> (T) x.get()).filter(x -> x != null);
+  }
+
+  protected void register() {
+    cache.computeIfAbsent(getClass(), k -> new ObjectRecords<>()).add(new WeakReference<>(this));
   }
 
   private static class ObjectRecords<T extends RegisteredObjectBase> extends ConcurrentLinkedDeque<WeakReference<T>> {
