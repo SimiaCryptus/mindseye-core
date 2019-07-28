@@ -29,6 +29,7 @@ import java.util.UUID;
 
 @SuppressWarnings("serial")
 public abstract class LayerBase extends RegisteredObjectBase implements Layer {
+  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
   protected boolean frozen = false;
   @Nullable
