@@ -28,9 +28,9 @@ import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 public class Result extends ReferenceCountingBase {
+  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
   protected final TensorList data;
-
   @Nonnull
   protected final int[] dims;
   @Nonnull
