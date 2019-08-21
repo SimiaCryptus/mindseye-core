@@ -68,6 +68,15 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     }
   }
 
+  default int[] evalDims(int[] inputDims) {
+    Tensor input = new Tensor(inputDims);
+    Tensor tensor = eval(input).getDataAndFree().getAndFree(0);
+    input.freeRef();
+    int[] dimensions = tensor.getDimensions();
+    tensor.freeRef();
+    return dimensions;
+  }
+
   @NotNull
   default List<Tensor> map(Collection<? extends Tensor> values) {
     return values.stream().map(t -> {
