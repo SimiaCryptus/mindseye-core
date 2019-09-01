@@ -937,6 +937,8 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     for (final double element : getData()) {
       v += element * element;
     }
+    if(v < 0) throw new RuntimeException("RMS is negative");
+    if(Double.isNaN(v)) throw new RuntimeException("RMS is NaN");
     // assert Double.isFinite(v);
     return v;
   }
