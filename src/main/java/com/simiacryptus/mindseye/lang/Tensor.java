@@ -573,7 +573,11 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public double get(final int c1, final int c2, final int c3) {
-    return getData()[index(c1, c2, c3)];
+    final int index = index(c1, c2, c3);
+    final double[] data = getData();
+    assert index >= 0;
+    assert index < data.length;
+    return data[index];
   }
 
   public double get(final int c1, final int c2, final int c3, final int c4, final int... coords) {
@@ -937,8 +941,8 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     for (final double element : getData()) {
       v += element * element;
     }
-    if(v < 0) throw new RuntimeException("RMS is negative");
-    if(Double.isNaN(v)) throw new RuntimeException("RMS is NaN");
+    if (v < 0) throw new RuntimeException("RMS is negative");
+    if (Double.isNaN(v)) throw new RuntimeException("RMS is NaN");
     // assert Double.isFinite(v);
     return v;
   }
@@ -973,7 +977,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
       if (3 == dims[2]) {
         return toRgbImage();
       } else {
-        assert 1 == dims[2];
+        assert 1 == dims[2] : dims[2];
         return toGrayImage();
       }
     } else {

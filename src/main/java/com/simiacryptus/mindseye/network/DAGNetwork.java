@@ -420,6 +420,10 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   public void visitNodes(@Nonnull final Consumer<DAGNode> visitor) {
+    visitNodes(true, visitor);
+  }
+
+  public void visitNodes(boolean recurse, @Nonnull final Consumer<DAGNode> visitor) {
     assertAlive();
     this.internalNodes.values().forEach(node -> {
       node.assertAlive();
@@ -428,7 +432,7 @@ public abstract class DAGNetwork extends LayerBase {
       while (layer instanceof WrapperLayer) {
         layer = ((WrapperLayer) layer).getInner();
       }
-      if (layer instanceof DAGNetwork) {
+      if (recurse && layer instanceof DAGNetwork) {
         ((DAGNetwork) layer).visitNodes(visitor);
       }
       visitor.accept(node);

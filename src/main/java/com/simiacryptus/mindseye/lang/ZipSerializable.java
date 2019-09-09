@@ -72,21 +72,16 @@ public interface ZipSerializable {
 
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
-      writeZip(zipOutputStream, precision);
+      writeZip(zipOutputStream, precision, new HashMap<>(), "model.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  default void writeZip(@Nonnull ZipOutputStream out) {
-    writeZip(out, SerialPrecision.Double);
-  }
-
-  default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision) {
+  default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision, HashMap<CharSequence, byte[]> resources, String fileName) {
     try {
-      @Nonnull HashMap<CharSequence, byte[]> resources = new HashMap<>();
       JsonElement json = getJson(resources, precision);
-      out.putNextEntry(new ZipEntry("model.json"));
+      out.putNextEntry(new ZipEntry(fileName));
       @Nonnull JsonWriter writer = new JsonWriter(new OutputStreamWriter(out));
       writer.setIndent("  ");
       writer.setHtmlSafe(true);
@@ -100,6 +95,8 @@ public interface ZipSerializable {
           IOUtils.write(data, out);
           out.flush();
           out.closeEntry();
+        } catch (java.util.zip.ZipException e) {
+          // Ignore duplicate entry
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

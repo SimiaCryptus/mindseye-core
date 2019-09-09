@@ -21,10 +21,7 @@ package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
-import com.simiacryptus.mindseye.lang.DeltaSet;
-import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.mindseye.lang.TensorList;
+import com.simiacryptus.mindseye.lang.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,16 +50,21 @@ public final class LoggingWrapperLayer extends WrapperLayer {
   }
 
   @Override
+  public Result evalAndFree(Result... array) {
+    assertAlive();
+    Result result = eval(array);
+    Arrays.stream(array).map(Result::getData).forEach(ReferenceCounting::freeRef);
+    Arrays.stream(array).forEach(ReferenceCounting::freeRef);
+    return result;
+  }
+
+  @Override
   public Result eval(@Nonnull final Result... inObj) {
     final Result[] wrappedInput = IntStream.range(0, inObj.length).mapToObj(i -> {
       final Result inputToWrap = inObj[i];
       inputToWrap.addRef();
       return new Result(inputToWrap.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-        @Nonnull final String formatted = data.stream().map(x -> {
-          String str = x.prettyPrint();
-          x.freeRef();
-          return str;
-        })
+        @Nonnull final String formatted = data.stream().map(this::getString)
             .reduce((a, b) -> a + "\n" + b).get();
         log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
         inputToWrap.accumulate(buffer, data);
@@ -81,11 +83,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     }).toArray(i -> new Result[i]);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
-      @Nonnull final String formatted = tensorList.stream().map(x -> {
-        String str = x.prettyPrint();
-        x.freeRef();
-        return str;
-      }).reduce((a, b) -> a + "\n" + b).get();
+      @Nonnull final String formatted = tensorList.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
       log.info(String.format("Input %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
     @Nullable final Result output = getInner().eval(wrappedInput);
@@ -93,18 +91,14 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     {
       final TensorList tensorList = output.getData();
       @Nonnull final String formatted = tensorList.stream().map(x -> {
-        String str = x.prettyPrint();
-        x.freeRef();
-        return str;
+        return getString(x);
       })
           .reduce((a, b) -> a + "\n" + b).get();
       log.info(String.format("Output for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
     return new Result(output.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
       @Nonnull final String formatted = data.stream().map(x -> {
-        String str = x.prettyPrint();
-        x.freeRef();
-        return str;
+        return getString(x);
       })
           .reduce((a, b) -> a + "\n" + b).get();
       log.info(String.format("Feedback Input for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
@@ -123,5 +117,13 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       }
     };
   }
+
+  public String getString(Tensor x) {
+//    String str = x.prettyPrint();
+    String str = Arrays.toString(x.getDimensions());
+    x.freeRef();
+    return str;
+  }
+
 
 }

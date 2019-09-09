@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.util;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.util.data.DoubleStatistics;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -279,5 +281,29 @@ public class ImageUtil {
   @Nonnull
   public static BufferedImage load(@Nonnull final Supplier<BufferedImage> image, final int width, final int height) {
     return width <= 0 ? image.get() : resize(image.get(), width, height);
+  }
+
+  @NotNull
+  public static Tensor getTensor(@Nonnull CharSequence file) {
+    String fileStr = file.toString();
+    if (fileStr.startsWith("http")) {
+      try {
+        BufferedImage read = ImageIO.read(new URL(fileStr));
+        if (null == read) throw new IllegalArgumentException("Error reading " + file);
+        return Tensor.fromRGB(read);
+      } catch (Throwable e) {
+        throw new RuntimeException("Error reading " + file, e);
+      }
+    }
+    if (fileStr.startsWith("file:///")) {
+      try {
+        BufferedImage read = ImageIO.read(new File(fileStr.substring(8)));
+        if (null == read) throw new IllegalArgumentException("Error reading " + file);
+        return Tensor.fromRGB(read);
+      } catch (Throwable e) {
+        throw new RuntimeException("Error reading " + file, e);
+      }
+    }
+    throw new IllegalArgumentException(file.toString());
   }
 }
