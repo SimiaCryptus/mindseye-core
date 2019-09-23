@@ -369,6 +369,10 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     };
   }
 
+  public double[] getPixel(int... coords) {
+    return IntStream.range(0, getDimensions()[2]).mapToDouble(c -> get(coords[0], coords[1], c)).toArray();
+  }
+
   @Override
   public Tensor addRef() {
     return (Tensor) super.addRef();
@@ -398,7 +402,8 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public Tensor rescaleRms(final double rms) {
-    return scale(rms / rms());
+    final double currentRms = rms();
+    return Double.isFinite(currentRms) && currentRms != 0 ? scale(rms / currentRms) : this.addRef();
   }
 
   public Tensor normalizeDistribution() {
@@ -646,9 +651,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   public int index(final int c1, final int c2, final int c3) {
     int v = 0;
-    v += strides[0] * c1;
-    v += strides[1] * c2;
-    v += strides[2] * c3;
+    if (c1 != 0) v += strides[0] * c1;
+    if (c2 != 0) v += strides[1] * c2;
+    if (c3 != 0) v += strides[2] * c3;
     return v;
     // return IntStream.range(0, strides.length).mapCoords(i->strides[i]*coords[i]).sum();
   }
@@ -659,10 +664,10 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   public int index(final int c1, final int c2, final int c3, final int c4, @Nullable final int... coords) {
     int v = 0;
-    v += strides[0] * c1;
-    v += strides[1] * c2;
-    v += strides[2] * c3;
-    v += strides[3] * c4;
+    if (c1 != 0) v += strides[0] * c1;
+    if (c2 != 0) v += strides[1] * c2;
+    if (c3 != 0) v += strides[2] * c3;
+    if (c4 != 0) v += strides[3] * c4;
     if (null != coords && 0 < coords.length) {
       for (int i = 0; 4 + i < strides.length && i < coords.length; i++) {
         v += strides[4 + i] * coords[4 + i];
@@ -798,7 +803,15 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public double rms() {
-    return Math.sqrt(sumSq() / length());
+    double v = 0;
+    int c = 0;
+    for (final double element : getData()) {
+      if (Double.isFinite(element)) {
+        v += element * element;
+        c++;
+      }
+    }
+    return Math.sqrt(v / c);
   }
 
   @Nullable
@@ -939,7 +952,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   public double sumSq() {
     double v = 0;
     for (final double element : getData()) {
-      v += element * element;
+      if (Double.isFinite(element)) v += element * element;
     }
     if (v < 0) throw new RuntimeException("RMS is negative");
     if (Double.isNaN(v)) throw new RuntimeException("RMS is NaN");

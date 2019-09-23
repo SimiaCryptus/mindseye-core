@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.lang;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonWriter;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
@@ -36,12 +35,6 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 public interface ZipSerializable {
-  static JsonObject toJson(byte[] buf) {
-    return new GsonBuilder().create().fromJson(
-        new InputStreamReader(new ByteArrayInputStream(
-            buf
-        )), JsonObject.class);
-  }
 
   @NotNull
   static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {

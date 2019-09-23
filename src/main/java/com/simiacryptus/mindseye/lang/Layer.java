@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.ref.ReferenceCounting;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -45,7 +46,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nonnull
   static Layer fromZip(@Nonnull final ZipFile zipfile) {
     @Nonnull HashMap<CharSequence, byte[]> resources = ZipSerializable.extract(zipfile);
-    return fromJson(ZipSerializable.toJson(resources.get("model.json")), resources);
+    return fromJson(JsonUtil.toJson(resources.get("model.json")), resources);
   }
 
   @Nonnull
