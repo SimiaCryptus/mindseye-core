@@ -356,10 +356,6 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     return prettyPrint;
   }
 
-  public static double[] getPixel(final Tensor tensor, final int x, final int y, final int bands) {
-    return IntStream.range(0, bands).mapToDouble(band -> tensor.get(x, y, band)).toArray();
-  }
-
   @NotNull
   public static SerializableFunction<Tensor, Tensor> select(Coordinate... reducedCoords) {
     return tensor -> {
@@ -370,7 +366,11 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public double[] getPixel(int... coords) {
-    return IntStream.range(0, getDimensions()[2]).mapToDouble(c -> get(coords[0], coords[1], c)).toArray();
+    return getPixel(coords[0], coords[1], getDimensions()[2]);
+  }
+
+  public double[] getPixel(int x, int y, int bands) {
+    return IntStream.range(0, bands).mapToDouble(c -> get(x, y, c)).toArray();
   }
 
   @Override
@@ -396,7 +396,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     int bands = dimensions[2];
     return IntStream.range(0, width).mapToObj(x -> x).parallel().flatMap(x -> {
       return IntStream.range(0, height).mapToObj(y -> y).map(y -> {
-        return getPixel(this, x, y, bands);
+        return this.getPixel(x, y, bands);
       });
     });
   }
