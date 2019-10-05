@@ -1291,6 +1291,23 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     return mag;
   }
 
+  public Tensor mapPixelsAndFree(UnaryOperator<double[]> fn) {
+    final Tensor result = mapPixels(fn);
+    freeRef();
+    return result;
+  }
+
+  public Tensor mapPixels(UnaryOperator<double[]> fn) {
+    final Tensor copy = new Tensor(dimensions);
+    IntStream.range(0, dimensions[0]).forEach(x -> {
+      IntStream.range(0, dimensions[1]).forEach(y -> {
+        final double[] finalPixel = fn.apply(IntStream.range(0, dimensions[2]).mapToDouble(c1 -> get(x, y, c1)).toArray());
+        IntStream.range(0, dimensions[2]).forEach(c -> copy.set(x, y, c, finalPixel[c]));
+      });
+    });
+    return copy;
+  }
+
   public interface CoordOperator {
     void eval(double value, Coordinate index);
   }
