@@ -92,11 +92,13 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
-  public static InnerNode transferNode(PipelineNetwork pipelineNetwork, DAGNode head) {
+  public static InnerNode transferNode(PipelineNetwork pipelineNetwork, DAGNode node) {
     try {
-      return pipelineNetwork.add(head.getLayer(), Arrays.stream(head.getInputs()).map((DAGNode input) -> {
-        if (input.getNetwork().inputNodes.containsKey(input.getId())) {
-          return pipelineNetwork.getInput(input.getNetwork().inputHandles.indexOf(input.getId()));
+      final DAGNode[] dagNodes = Arrays.stream(node.getInputs()).map((DAGNode input) -> {
+        final PipelineNetwork inputNetwork = (PipelineNetwork) input.getNetwork();
+        final UUID inputId = input.getId();
+        if (inputNetwork.inputNodes.containsKey(inputId)) {
+          return pipelineNetwork.getInput(inputNetwork.inputHandles.indexOf(inputId));
         } else {
           Layer inputLayer = input.getLayer();
           if (inputLayer == null) throw new IllegalArgumentException(input.getClass().toString());
@@ -105,7 +107,7 @@ public class PipelineNetwork extends DAGNetwork {
             if (null == layer) return false;
             return layer.getId().equals(inputLayer.getId());
           }).findFirst().map(DAGNode::addRef).orElseGet(() -> {
-            int inputNumber = ((PipelineNetwork) input.getNetwork()).inputNodes.keySet().stream().collect(Collectors.toList()).indexOf(input.getId());
+            int inputNumber = inputNetwork.inputNodes.keySet().stream().collect(Collectors.toList()).indexOf(inputId);
             if (-1 == inputNumber) {
               return transferNode(pipelineNetwork, input.addRef());
             } else {
@@ -113,9 +115,10 @@ public class PipelineNetwork extends DAGNetwork {
             }
           });
         }
-      }).toArray(i -> new DAGNode[i]));
+      }).toArray(i -> new DAGNode[i]);
+      return pipelineNetwork.add(node.getLayer(), dagNodes);
     } finally {
-      head.freeRef();
+      node.freeRef();
     }
   }
 

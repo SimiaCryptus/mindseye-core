@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.lang.ref.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
@@ -57,6 +58,12 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
         return new MutableResult(tensors);
       }
     }).toArray(x1 -> new Result[x1]);
+  }
+
+  public static BasicTrainable wrap(PipelineNetwork network) {
+    final BasicTrainable trainable = new BasicTrainable(network);
+    network.freeRef();
+    return trainable;
   }
 
   @Nonnull

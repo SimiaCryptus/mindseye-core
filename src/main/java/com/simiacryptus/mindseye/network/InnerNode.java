@@ -52,12 +52,21 @@ public final class InnerNode extends LazyResult {
     this.dagNetwork = dagNetwork;
     assert null != inputNodes;
     setLayer(layer);
-    this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
-    assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
-    assert Arrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
+    if (0 == inputNodes.length) {
+      this.inputNodes = new DAGNode[]{};
+    } else {
+      this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
+      assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
+      assert Arrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
+    }
 //    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
 //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
 //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
+  }
+
+  @Override
+  public InnerNode addRef() {
+    return (InnerNode) super.addRef();
   }
 
   public DAGNode add(@Nonnull final Layer nextHead) {

@@ -464,7 +464,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   @Nullable
   public Tensor add(@Nonnull final Tensor right) {
     assert Arrays.equals(getDimensions(), right.getDimensions());
-    return mapCoords((c) -> get(c) + right.get(c));
+    final double[] data = getData();
+    final double[] rightData = right.getData();
+    return new Tensor(getDimensions(), IntStream.range(0, length()).mapToDouble(i -> rightData[i] + data[i]).toArray());
   }
 
   @Nullable
@@ -476,7 +478,11 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
       return this;
     } else {
       assert Arrays.equals(getDimensions(), right.getDimensions());
-      return mapCoordsAndFree((c) -> get(c) + right.get(c));
+      final double[] data = getData();
+      final double[] rightData = right.getData();
+      final Tensor tensor = new Tensor(getDimensions(), IntStream.range(0, length()).mapToDouble(i -> rightData[i] + data[i]).toArray());
+      freeRef();
+      return tensor;
     }
   }
 
@@ -1299,7 +1305,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   public Tensor mapPixels(UnaryOperator<double[]> fn) {
     final Tensor copy = new Tensor(dimensions);
-    IntStream.range(0, dimensions[0]).forEach(x -> {
+    IntStream.range(0, dimensions[0]).parallel().forEach(x -> {
       IntStream.range(0, dimensions[1]).forEach(y -> {
         final double[] finalPixel = fn.apply(IntStream.range(0, dimensions[2]).mapToDouble(c1 -> get(x, y, c1)).toArray());
         IntStream.range(0, dimensions[2]).forEach(c -> copy.set(x, y, c, finalPixel[c]));

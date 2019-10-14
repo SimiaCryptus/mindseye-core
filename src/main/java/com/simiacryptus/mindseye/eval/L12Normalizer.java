@@ -78,12 +78,18 @@ public abstract class L12Normalizer extends TrainableBase {
         valueAdj += (factor_L1 * sign + factor_L2 * weights[i]) * weights[i];
       }
     }
-    return new PointSample(
-        innerMeasure.delta.add(normalizationVector),
+    final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector);
+    final PointSample pointSample = new PointSample(
+        deltaSet,
         innerMeasure.weights,
         innerMeasure.sum + (hideAdj ? 0 : valueAdj),
         innerMeasure.rate,
-        innerMeasure.count).normalize();
+        innerMeasure.count);
+    deltaSet.freeRef();
+    final PointSample normalize = pointSample.normalize();
+    pointSample.freeRef();
+    innerMeasure.freeRef();
+    return normalize;
   }
 
   @Override

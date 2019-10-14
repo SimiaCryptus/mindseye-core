@@ -185,12 +185,9 @@ public abstract class DAGNetwork extends LayerBase {
     assertConsistent();
     assert null != inputHandles;
     @Nonnull final InnerNode node = new InnerNode(this, layer, head);
-    DAGNode replaced = internalNodes.put(node.getId(), node);
+    DAGNode replaced = internalNodes.put(node.getId(), node.addRef());
     if (null != replaced) replaced.freeRef();
-    node.addRef();
-    if (null != label) {
-      labels.put(label, node.getId());
-    }
+    if (null != label) labels.put(label, node.getId());
     assertConsistent();
     return node;
   }
