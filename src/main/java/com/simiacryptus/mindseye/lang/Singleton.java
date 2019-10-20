@@ -32,7 +32,7 @@ public class Singleton<T> implements Supplier<T> {
   public Singleton() {
   }
 
-  public T getOrInit(Supplier<T> fn) {
+  public synchronized T getOrInit(Supplier<T> fn) {
     if (deque.isEmpty()) set(fn.get());
     return get();
   }

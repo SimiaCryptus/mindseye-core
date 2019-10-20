@@ -33,6 +33,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipFile;
@@ -227,5 +228,13 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     Layer copy = copy();
     freeRef();
     return copy;
+  }
+
+  default UnaryOperator<Tensor> asTensorFunction() {
+    return input -> {
+      final Tensor result = eval(input).getDataAndFree().getAndFree(0);
+      input.freeRef();
+      return result;
+    };
   }
 }
