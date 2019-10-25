@@ -1314,10 +1314,17 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     return copy;
   }
 
+  public Tensor mult(Tensor right) {
+    assert Arrays.equals(right.getDimensions(), getDimensions());
+    final Tensor tensor = new Tensor(getDimensions());
+    tensor.set(i -> right.getData()[i] * getData()[i]);
+    return tensor;
+  }
+
+
   public interface CoordOperator {
     void eval(double value, Coordinate index);
   }
-
 
   public interface TupleOperator {
     double eval(double value, int index);
