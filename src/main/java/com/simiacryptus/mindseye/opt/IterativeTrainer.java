@@ -167,8 +167,16 @@ public class IterativeTrainer extends ReferenceCountingBase {
     }
     double mean = currentPoint.getMean();
     if (!Double.isFinite(mean)) {
-      currentPoint.freeRef();
-      throw new IterativeStopException(Double.toString(mean));
+      if (monitor.onStepFail(new Step(currentPoint, currentIteration.get()))) {
+        monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
+        currentPoint.freeRef();
+        return measure();
+      } else {
+        monitor.log(String.format("Optimization terminated %s", currentIteration.get()));
+        currentPoint.freeRef();
+        throw new IterativeStopException(Double.toString(mean));
+      }
+
     }
     return currentPoint;
   }
