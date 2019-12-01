@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 
 import javax.annotation.Nonnull;

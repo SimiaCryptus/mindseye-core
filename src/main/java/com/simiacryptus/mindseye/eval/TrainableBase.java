@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 public abstract class TrainableBase extends ReferenceCountingBase implements Trainable {
 

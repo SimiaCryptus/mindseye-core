@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.PointSample;
 
 import javax.annotation.Nonnull;

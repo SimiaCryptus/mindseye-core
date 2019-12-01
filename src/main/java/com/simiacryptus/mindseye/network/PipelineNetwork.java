@@ -20,8 +20,8 @@
 package com.simiacryptus.mindseye.network;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.ReferenceCounting;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCounting;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;

@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

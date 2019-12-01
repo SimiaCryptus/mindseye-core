@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

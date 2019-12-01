@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
 import org.slf4j.Logger;

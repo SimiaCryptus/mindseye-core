@@ -24,8 +24,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.simiacryptus.lang.SerializableFunction;
-import com.simiacryptus.lang.ref.RecycleBin;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.util.FastRandom;
 import org.jetbrains.annotations.NotNull;
 

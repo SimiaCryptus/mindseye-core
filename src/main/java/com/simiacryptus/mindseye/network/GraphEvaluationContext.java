@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import java.util.Map;
 import java.util.UUID;

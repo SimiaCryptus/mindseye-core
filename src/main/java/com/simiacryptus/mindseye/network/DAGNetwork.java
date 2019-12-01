@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.network;
 
 import com.google.gson.*;
-import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.StochasticComponent;
 import com.simiacryptus.mindseye.layers.WrapperLayer;

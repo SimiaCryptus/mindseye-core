@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.simiacryptus.lang.ref;
+package com.simiacryptus.ref.lang;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;

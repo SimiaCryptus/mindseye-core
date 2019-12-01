@@ -19,8 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.lang.ref.ReferenceCounting;
-import com.simiacryptus.lang.ref.ReferenceCountingBase;
+import com.simiacryptus.ref.lang.ReferenceCounting;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

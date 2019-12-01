@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
-import com.simiacryptus.lang.ref.ReferenceCounting;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;

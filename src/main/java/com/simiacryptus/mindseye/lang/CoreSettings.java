@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.lang.Settings;
-import com.simiacryptus.lang.ref.RefSettings;
+import com.simiacryptus.ref.RefSettings;
 import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

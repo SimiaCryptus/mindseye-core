@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package com.simiacryptus.lang.ref;
+package com.simiacryptus.ref.lang;
 
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;

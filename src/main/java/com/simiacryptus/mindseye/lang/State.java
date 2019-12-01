@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.lang.ref.RecycleBin;
+import com.simiacryptus.ref.lang.RecycleBin;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
