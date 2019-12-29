@@ -35,7 +35,6 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim))
       throw new IllegalArgumentException(Arrays.toString(inner.getDimensions()) + " != " + Arrays.toString(toDim));
     this.inner = inner;
-    this.inner.addRef();
     this.dims = toDim;
   }
 
@@ -48,10 +47,9 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
   @Override
   public Tensor get(int i) {
     assertAlive();
-    @Nonnull Tensor tensor = inner.get(i);
-    @Nonnull Tensor reshapeCast = tensor.reshapeCast(dims);
-    tensor.freeRef();
-    return reshapeCast;
+    @Nonnull
+    Tensor tensor = inner.get(i);
+    return tensor.reshapeCast(dims);
   }
 
   @Nonnull
@@ -68,15 +66,12 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
   @Override
   public Stream<Tensor> stream() {
     return inner.stream().map(t -> {
-      @Nullable Tensor tensor = t.reshapeCast(dims);
-      t.freeRef();
-      return tensor;
+      return t.reshapeCast(dims);
     });
   }
 
   @Override
   protected void _free() {
-    inner.freeRef();
   }
 
   @Nonnull

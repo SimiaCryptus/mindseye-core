@@ -47,21 +47,22 @@ public final class InnerNode extends LazyResult {
   }
 
   @SafeVarargs
-  InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key, @Nonnull final DAGNode... inputNodes) {
+  InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key,
+      @Nonnull final DAGNode... inputNodes) {
     super(key);
     this.dagNetwork = dagNetwork;
     assert null != inputNodes;
     setLayer(layer);
     if (0 == inputNodes.length) {
-      this.inputNodes = new DAGNode[]{};
+      this.inputNodes = new DAGNode[] {};
     } else {
       this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
       assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
       assert Arrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
     }
-//    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
-//    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
-//    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
+    //    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
+    //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
+    //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
   }
 
   @Override
@@ -77,14 +78,16 @@ public final class InnerNode extends LazyResult {
   @Override
   protected Result eval(final GraphEvaluationContext ctx) {
     assertAlive();
-    @Nonnull final Layer innerLayer = getLayer();
+    @Nonnull
+    final Layer innerLayer = getLayer();
     assert Arrays.stream(inputNodes).allMatch(x -> x != null);
-    @Nonnull Stream<DAGNode> stream = Arrays.stream(inputNodes);
-    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel) stream = stream.parallel();
+    @Nonnull
+    Stream<DAGNode> stream = Arrays.stream(inputNodes);
+    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      stream = stream.parallel();
     final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
     assert Arrays.stream(in).allMatch(x -> x != null);
-    @Nullable Result result = innerLayer.evalAndFree(in);
-    return result;
+    return innerLayer.evalAndFree(in);
   }
 
   @Nonnull
@@ -107,8 +110,6 @@ public final class InnerNode extends LazyResult {
     newLayer.assertAlive();
     Layer prevLayer = this.layer;
     if (newLayer != prevLayer) {
-      if (null != newLayer) newLayer.addRef();
-      if (null != prevLayer) prevLayer.freeRef();
       this.layer = newLayer;
       dagNetwork.assertConsistent();
     }
@@ -126,7 +127,6 @@ public final class InnerNode extends LazyResult {
       Arrays.stream(this.inputNodes).filter(x -> x != null).forEach(ReferenceCounting::freeRef);
       Arrays.setAll(this.inputNodes, x -> null);
     }
-    this.layer.freeRef();
     this.layer = null;
   }
 

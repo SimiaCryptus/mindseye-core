@@ -32,38 +32,36 @@ public final class ConstantResult extends Result {
 
   public ConstantResult(TensorArray tensorArray) {
     super(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      data.freeRef();
     });
   }
 
   public ConstantResult(final TensorList tensorList) {
     super(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      data.freeRef();
     });
   }
 
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
-    if (null == input) throw new IllegalArgumentException();
-    return IntStream.range(0, input[0].length).mapToObj(x -> IntStream.range(0, input.length)
-        .mapToObj(y -> input[y][x])
-        .toArray(i -> new Tensor[i]))
-        .map(tensors -> TensorArray.create(tensors))
-        .map(tensorArray -> new ConstantResult(tensorArray))
+    if (null == input)
+      throw new IllegalArgumentException();
+    return IntStream.range(0, input[0].length)
+        .mapToObj(x -> IntStream.range(0, input.length).mapToObj(y -> input[y][x]).toArray(i -> new Tensor[i]))
+        .map(tensors -> TensorArray.create(tensors)).map(tensorArray -> new ConstantResult(tensorArray))
         .toArray(x -> new Result[x]);
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
-    return Arrays.stream(input).map((@Nonnull final Tensor x) -> new ConstantResult(TensorArray.create(x))).toArray(i -> new Result[i]);
+    return Arrays.stream(input).map((@Nonnull final Tensor x) -> new ConstantResult(TensorArray.create(x)))
+        .toArray(i -> new Result[i]);
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
-    return Arrays.stream(input).map((@Nonnull final Tensor[] x) -> new ConstantResult(TensorArray.create(x))).toArray(i -> new Result[i]);
+    return Arrays.stream(input).map((@Nonnull final Tensor[] x) -> new ConstantResult(TensorArray.create(x)))
+        .toArray(i -> new Result[i]);
   }
 
   @Override
   public boolean isAlive() {
     return false;
   }
-
 
 }

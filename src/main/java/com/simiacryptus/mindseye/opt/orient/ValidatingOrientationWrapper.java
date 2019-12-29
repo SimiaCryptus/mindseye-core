@@ -40,12 +40,12 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
   @Override
   protected void _free() {
-    this.inner.freeRef();
   }
 
   @Nonnull
   @Override
-  public LineSearchCursor orient(final Trainable subject, final PointSample measurement, final TrainingMonitor monitor) {
+  public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
+      final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     return new ValidatingLineSearchCursor(cursor);
   }
@@ -60,7 +60,6 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
     public ValidatingLineSearchCursor(final LineSearchCursor cursor) {
       this.cursor = cursor;
-      this.cursor.addRef();
     }
 
     @Override
@@ -94,7 +93,8 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       return primaryPoint;
     }
 
-    public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint, final double probeSize) {
+    public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
+        final double probeSize) {
       final double alpha = primaryPoint.point.rate;
       double probeAlpha = alpha + primaryPoint.point.sum * probeSize / primaryPoint.derivative;
       if (!Double.isFinite(probeAlpha) || probeAlpha == alpha) {
@@ -104,12 +104,12 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       final double dy = probePoint.point.sum - primaryPoint.point.sum;
       final double dx = probeAlpha - alpha;
       final double measuredDerivative = dy / dx;
-      monitor.log(String.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative, probePoint.derivative, probeSize));
+      monitor.log(String.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative,
+          probePoint.derivative, probeSize));
     }
 
     @Override
     protected void _free() {
-      cursor.freeRef();
     }
   }
 }

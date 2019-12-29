@@ -45,15 +45,19 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return x.key.toString();
   }
 
-  public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta, @Nonnull final DoubleBuffer<UUID> dirDelta) {
-    @Nonnull final CharSequence weightString = Arrays.toString(weightDelta.getDelta());
-    @Nonnull final CharSequence deltaString = Arrays.toString(dirDelta.getDelta());
+  public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
+      @Nonnull final DoubleBuffer<UUID> dirDelta) {
+    @Nonnull
+    final CharSequence weightString = Arrays.toString(weightDelta.getDelta());
+    @Nonnull
+    final CharSequence deltaString = Arrays.toString(dirDelta.getDelta());
     return String.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
     final Map<CharSequence, CharSequence> data = weights.stream()
-        .collect(Collectors.groupingBy(x -> DescribeOrientationWrapper.getId(x), Collectors.toList())).entrySet().stream()
+        .collect(Collectors.groupingBy(x -> DescribeOrientationWrapper.getId(x), Collectors.toList())).entrySet()
+        .stream()
         .collect(Collectors.toMap(x -> x.getKey(), (@Nonnull final Map.Entry<CharSequence, List<State<UUID>>> list) -> {
           final List<State<UUID>> deltaList = list.getValue();
           if (1 == deltaList.size()) {
@@ -62,21 +66,21 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
           } else {
             return deltaList.stream().map(weightDelta -> {
               return DescribeOrientationWrapper.render(weightDelta, direction.getMap().get(weightDelta.key));
-            }).limit(10)
-                .reduce((a, b) -> a + "\n" + b).orElse("");
+            }).limit(10).reduce((a, b) -> a + "\n" + b).orElse("");
           }
         }));
     return data.entrySet().stream().map(e -> String.format("%s = %s", e.getKey(), e.getValue()))
-        .map(str -> str.replaceAll("\n", "\n\t"))
-        .reduce((a, b) -> a + "\n" + b).orElse("");
+        .map(str -> str.replaceAll("\n", "\n\t")).reduce((a, b) -> a + "\n" + b).orElse("");
   }
 
   @Override
-  public LineSearchCursor orient(final Trainable subject, final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
+  public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
+      @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      @Nonnull
+      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
       final CharSequence asString = DescribeOrientationWrapper.render(weights, direction);
       monitor.log(String.format("Orientation Details: %s", asString));
     } else {
@@ -90,9 +94,7 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     inner.reset();
   }
 
-
   @Override
   protected void _free() {
-    this.inner.freeRef();
   }
 }

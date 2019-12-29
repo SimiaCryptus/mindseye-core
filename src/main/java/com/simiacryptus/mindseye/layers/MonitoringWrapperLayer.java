@@ -32,7 +32,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-@SuppressWarnings({"serial", "FieldCanBeLocal"})
+@SuppressWarnings({ "serial", "FieldCanBeLocal" })
 public final class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
   private final PercentileStatistics backwardPerformance = new PercentileStatistics();
@@ -85,7 +85,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
   @Override
   public Result evalAndFree(@Nonnull final Result... inObj) {
-    @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
+    @Nonnull
+    final AtomicLong passbackNanos = new AtomicLong(0);
     final Result[] wrappedInput = Arrays.stream(inObj).map(result -> {
       return new Result(result.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
         passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
@@ -93,9 +94,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
         @Override
         protected void _free() {
-          result.freeRef();
         }
-
 
         @Override
         public boolean isAlive() {
@@ -103,7 +102,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
         }
       };
     }).toArray(i -> new Result[i]);
-    @Nonnull TimedResult<Result> timedResult = TimedResult.time(() -> getInner().evalAndFree(wrappedInput));
+    @Nonnull
+    TimedResult<Result> timedResult = TimedResult.time(() -> getInner().evalAndFree(wrappedInput));
     final Result output = timedResult.result;
     forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
     totalBatches++;
@@ -113,7 +113,6 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       forwardSignal.clear();
       output.getData().stream().parallel().forEach(t -> {
         forwardSignal.add(t.getData());
-        t.freeRef();
       });
     }
     return new Result(output.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
@@ -121,15 +120,15 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
         backwardSignal.clear();
         data.stream().parallel().forEach(t -> {
           backwardSignal.add(t.getData());
-          t.freeRef();
         });
       }
-      backwardPerformance.add((TimedResult.time(() -> output.accumulate(buffer, data)).timeNanos - passbackNanos.getAndSet(0)) / (items * 1e9));
+      backwardPerformance
+          .add((TimedResult.time(() -> output.accumulate(buffer, data)).timeNanos - passbackNanos.getAndSet(0))
+              / (items * 1e9));
     }) {
 
       @Override
       protected void _free() {
-        output.freeRef();
       }
 
       @Override
@@ -162,7 +161,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     //json.fn("forwardPerf",forwardPerf.getJson());
     //json.fn("backwardPerf",backwardPerf.getJson());
     json.addProperty("totalBatches", totalBatches);
@@ -174,7 +174,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   @Nonnull
   @Override
   public Map<CharSequence, Object> getMetrics() {
-    @Nonnull final HashMap<CharSequence, Object> map = new HashMap<>();
+    @Nonnull
+    final HashMap<CharSequence, Object> map = new HashMap<>();
     map.put("class", getInner().getClass().getName());
     map.put("totalBatches", totalBatches);
     map.put("totalItems", totalItems);
@@ -191,15 +192,19 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     final double backpropMedian = backwardPerformance.getPercentile(0.5);
     map.put("avgMsPerItem_Backward", 1000 * batchesPerItem * backpropMean);
     map.put("medianMsPerItem_Backward", 1000 * batchesPerItem * backpropMedian);
-    @Nullable final List<double[]> state = state();
-    @Nonnull final ScalarStatistics statistics = new PercentileStatistics();
-    for (@Nonnull final double[] s : state) {
+    @Nullable
+    final List<double[]> state = state();
+    @Nonnull
+    final ScalarStatistics statistics = new PercentileStatistics();
+    for (@Nonnull
+    final double[] s : state) {
       for (final double v : s) {
         statistics.add(v);
       }
     }
     if (statistics.getCount() > 0) {
-      @Nonnull final HashMap<CharSequence, Object> weightStats = new HashMap<>();
+      @Nonnull
+      final HashMap<CharSequence, Object> weightStats = new HashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
       map.put("weights", weightStats);

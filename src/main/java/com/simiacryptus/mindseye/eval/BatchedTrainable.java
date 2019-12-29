@@ -43,23 +43,24 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
 
   public BatchedTrainable(final Layer network, final int batchSize) {
     this(new BasicTrainable(network), batchSize);
-    getInner().freeRef();
+    getInner();
   }
 
   public int getBatchSize() {
     return batchSize;
   }
 
-
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull final List<Tensor[]> tensors = Arrays.asList(getData());
+    @Nonnull
+    final List<Tensor[]> tensors = Arrays.asList(getData());
     TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       DataTrainable inner = getInner();
       if (batchSize < tensors.size()) {
         final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
         final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-        @Nonnull final List<List<Tensor[]>> collection = Lists.partition(tensors, evenBatchSize);
+        @Nonnull
+        final List<List<Tensor[]>> collection = Lists.partition(tensors, evenBatchSize);
         return collection.stream().map(trainingData -> {
           if (batchSize < trainingData.size()) {
             throw new RuntimeException();
@@ -69,10 +70,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
           inner.setData(new ArrayList<>());
           return measure;
         }).reduce((a, b) -> {
-          PointSample r = a.add(b);
-          a.freeRef();
-          b.freeRef();
-          return r;
+          return a.add(b);
         }).get();
       } else {
         inner.setData(tensors);
@@ -82,7 +80,8 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
       }
     });
     if (null != monitor && isVerbose()) {
-      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9, timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
+      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9,
+          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     return timedResult.result;
   }

@@ -46,7 +46,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return this;
   }
 
-
   @Nonnull
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
     return this.copy().addInPlace(right);
@@ -55,19 +54,19 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Nonnull
   public DeltaSet<K> addInPlace(@Nonnull final DeltaSet<K> right) {
     right.map.forEach((layer, buffer) -> {
-      get(layer, buffer.target).addInPlace(buffer).freeRef();
+      get(layer, buffer.target).addInPlace(buffer);
     });
     return this;
   }
 
   @Nonnull
   public StateSet<K> asState() {
-    @Nonnull final StateSet<K> returnValue = new StateSet<>();
+    @Nonnull
+    final StateSet<K> returnValue = new StateSet<>();
     map.forEach((layer, delta) -> {
       delta.assertAlive();
       State<K> kState = returnValue.get(layer, delta.target);
       kState.set(delta.delta);
-      kState.freeRef();
     });
     return returnValue;
   }
@@ -108,8 +107,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     }
     final double[] elementArray = stream.mapToDouble(entry -> {
       final DoubleBuffer<K> value = entry.getValue();
-      final double v = value.deltaStatistics().sumSq();
-      return v;
+      return value.deltaStatistics().sumSq();
     }).toArray();
     return Math.sqrt(Arrays.stream(elementArray).sum());
   }
@@ -117,10 +115,9 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Nonnull
   @Override
   public DeltaSet<K> map(final Function<Delta<K>, Delta<K>> mapper) {
-    @Nonnull DoubleBufferSet<K, Delta<K>> map = super.map(mapper);
-    @Nonnull DeltaSet<K> kDeltaSet = new DeltaSet<>(map);
-    map.freeRef();
-    return kDeltaSet;
+    @Nonnull
+    DoubleBufferSet<K, Delta<K>> map = super.map(mapper);
+    return new DeltaSet<>(map);
   }
 
   @Nonnull
@@ -131,9 +128,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> scale = right.scale(-1);
-    DeltaSet<K> add = this.add(scale);
-    scale.freeRef();
-    return add;
+    return this.add(scale);
   }
 
   @Nonnull
@@ -147,4 +142,3 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
 }
-

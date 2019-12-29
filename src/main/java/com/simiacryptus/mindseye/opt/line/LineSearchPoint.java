@@ -31,7 +31,6 @@ public class LineSearchPoint extends ReferenceCountingBase {
 
   public LineSearchPoint(final PointSample point, final double derivative) {
     this.point = point;
-    this.point.addRef();
     this.derivative = derivative;
   }
 
@@ -43,7 +42,8 @@ public class LineSearchPoint extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final StringBuffer sb = new StringBuffer("LineSearchPoint{");
+    @Nonnull
+    final StringBuffer sb = new StringBuffer("LineSearchPoint{");
     sb.append("point=").append(point);
     sb.append(", derivative=").append(derivative);
     sb.append('}');
@@ -52,6 +52,5 @@ public class LineSearchPoint extends ReferenceCountingBase {
 
   @Override
   protected void _free() {
-    point.freeRef();
   }
 }

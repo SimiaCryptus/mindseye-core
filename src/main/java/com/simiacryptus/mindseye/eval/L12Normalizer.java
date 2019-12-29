@@ -37,12 +37,10 @@ public abstract class L12Normalizer extends TrainableBase {
 
   public L12Normalizer(final Trainable inner) {
     this.inner = inner;
-    this.inner.addRef();
   }
 
   @Override
   protected void _free() {
-    this.inner.freeRef();
   }
 
   protected abstract double getL1(Layer layer);
@@ -59,16 +57,18 @@ public abstract class L12Normalizer extends TrainableBase {
         .collect(Collectors.toList());
   }
 
-
   @Nonnull
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     final PointSample innerMeasure = inner.measure(monitor);
-    @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
+    @Nonnull
+    final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
     double valueAdj = 0;
-    for (@Nonnull final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
+    for (@Nonnull
+    final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
       final double[] weights = innerMeasure.delta.getMap().get(layer.getId()).target;
-      @Nullable final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
+      @Nullable
+      final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
       final double factor_L1 = getL1(layer);
       final double factor_L2 = getL2(layer);
       assert null != gradientAdj;
@@ -79,17 +79,9 @@ public abstract class L12Normalizer extends TrainableBase {
       }
     }
     final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector);
-    final PointSample pointSample = new PointSample(
-        deltaSet,
-        innerMeasure.weights,
-        innerMeasure.sum + (hideAdj ? 0 : valueAdj),
-        innerMeasure.rate,
-        innerMeasure.count);
-    deltaSet.freeRef();
-    final PointSample normalize = pointSample.normalize();
-    pointSample.freeRef();
-    innerMeasure.freeRef();
-    return normalize;
+    final PointSample pointSample = new PointSample(deltaSet, innerMeasure.weights,
+        innerMeasure.sum + (hideAdj ? 0 : valueAdj), innerMeasure.rate, innerMeasure.count);
+    return pointSample.normalize();
   }
 
   @Override

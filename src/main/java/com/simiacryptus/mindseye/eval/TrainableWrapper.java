@@ -32,12 +32,10 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
 
   public TrainableWrapper(final T inner) {
     this.inner = inner;
-    this.inner.addRef();
   }
 
   @Override
   protected void _free() {
-    this.inner.freeRef();
     super._free();
   }
 
@@ -75,8 +73,6 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   @Nonnull
   @Override
   public String toString() {
-    return getClass().getSimpleName() + "{" +
-        "heapCopy=" + inner +
-        '}';
+    return getClass().getSimpleName() + "{" + "heapCopy=" + inner + '}';
   }
 }

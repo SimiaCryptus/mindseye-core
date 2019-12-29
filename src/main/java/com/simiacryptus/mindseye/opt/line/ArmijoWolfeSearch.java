@@ -143,17 +143,15 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     double mu = 0;
     double nu = Double.POSITIVE_INFINITY;
     final LineSearchPoint startPoint = cursor.step(0, monitor);
-    @Nullable LineSearchPoint lastStep = null;
-    try {
+    @Nullable
+    LineSearchPoint lastStep = null;
+    {
       final double startLineDeriv = startPoint.derivative; // theta'(0)
       final double startValue = startPoint.point.getMean(); // theta(0)
       if (0 <= startPoint.derivative) {
         monitor.log(String.format("th(0)=%s;dx=%s (ERROR: Starting derivative negative)", startValue, startLineDeriv));
         LineSearchPoint step = cursor.step(0, monitor);
-        PointSample point = step.point;
-        point.addRef();
-        step.freeRef();
-        return point;
+        return step.point;
       }
       monitor.log(String.format("th(0)=%s;dx=%s", startValue, startLineDeriv));
       int stepBias = 0;
@@ -190,7 +188,6 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           return point;
         }
         LineSearchPoint newValue = cursor.step(alpha, monitor);
-        if (null != lastStep) lastStep.freeRef();
         lastStep = newValue;
         double lastValue = lastStep.point.getMean();
         if (bestValue > lastValue) {
@@ -202,24 +199,26 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
         }
         if (lastValue > startValue + alpha * c1 * startLineDeriv) {
           // Value did not decrease (enough) - It is gauranteed to decrease given an infitefimal rate; the rate must be less than this; this is a new ceiling
-          monitor.log(String.format("Armijo: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative, startValue - lastValue));
+          monitor.log(String.format("Armijo: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
+              startValue - lastValue));
           nu = alpha;
           stepBias = Math.min(-1, stepBias - 1);
         } else if (isStrongWolfe() && lastStep.derivative > 0) {
           // If the slope is increasing, then we can go lower by choosing a lower rate; this is a new ceiling
-          monitor.log(String.format("WOLF (strong): th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative, startValue - lastValue));
+          monitor.log(String.format("WOLF (strong): th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue,
+              lastStep.derivative, startValue - lastValue));
           nu = alpha;
           stepBias = Math.min(-1, stepBias - 1);
         } else if (lastStep.derivative < c2 * startLineDeriv) {
           // Current slope decreases at no more than X - If it is still decreasing that fast, we know we want a rate of least this value; this is a new floor
-          monitor.log(String.format("WOLFE (weak): th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative, startValue - lastValue));
+          monitor.log(String.format("WOLFE (weak): th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue,
+              lastStep.derivative, startValue - lastValue));
           mu = alpha;
           stepBias = Math.max(1, stepBias + 1);
         } else {
-          monitor.log(String.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative, startValue - lastValue));
-          PointSample point = lastStep.point;
-          point.addRef();
-          return point;
+          monitor.log(String.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
+              startValue - lastValue));
+          return lastStep.point;
         }
         if (!Double.isFinite(nu)) {
           alpha = (1 + Math.abs(stepBias)) * alpha;
@@ -229,17 +228,11 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           alpha = (mu + nu) / 2;
         }
       }
-    } finally {
-      if (null != lastStep) lastStep.freeRef();
-      startPoint.freeRef();
     }
   }
 
   private PointSample stepPoint(@Nonnull LineSearchCursor cursor, TrainingMonitor monitor, double bestAlpha) {
     LineSearchPoint step = cursor.step(bestAlpha, monitor);
-    PointSample point = step.point;
-    point.addRef();
-    step.freeRef();
-    return point;
+    return step.point;
   }
 }

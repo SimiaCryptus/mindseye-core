@@ -49,10 +49,9 @@ public class Result extends ReferenceCountingBase {
   public double[] getSingleDelta() {
     DeltaSet<UUID> deltaBuffer = new DeltaSet<>();
     accumulate(deltaBuffer);
-    if (deltaBuffer.getMap().size() != 1) throw new AssertionError(deltaBuffer.getMap().size());
-    double[] delta = copy(deltaBuffer.getMap().values().iterator().next().getDelta());
-    deltaBuffer.freeRef();
-    return delta;
+    if (deltaBuffer.getMap().size() != 1)
+      throw new AssertionError(deltaBuffer.getMap().size());
+    return copy(deltaBuffer.getMap().values().iterator().next().getDelta());
   }
 
   public double[] copy(double[] delta) {
@@ -66,9 +65,9 @@ public class Result extends ReferenceCountingBase {
 
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
 
-    accumulate(buffer, TensorArray.wrap(IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
+    accumulate(buffer, TensorArray.wrap(
+        IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
-
 
   public void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
     getAccumulator().accept(buffer, delta);

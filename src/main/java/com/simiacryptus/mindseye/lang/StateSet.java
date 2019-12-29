@@ -37,7 +37,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   public StateSet(@Nonnull final DeltaSet<K> toCopy) {
     assert toCopy.stream().allMatch(x -> Arrays.stream(x.getDelta()).allMatch(Double::isFinite));
     toCopy.getMap().forEach((layer, layerDelta) -> {
-      this.get(layer, layerDelta.target).backup().freeRef();
+      this.get(layer, layerDelta.target).backup();
     });
     assert stream().allMatch(x -> Arrays.stream(x.getDelta()).allMatch(Double::isFinite));
     assert stream().allMatch(x -> x instanceof State);
@@ -52,13 +52,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     super(collect);
   }
 
-  public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left, @Nonnull final DoubleBufferSet<K, State<K>> right) {
-    final Map<K, State<K>> collect = Stream.concat(
-        left.map.entrySet().stream(),
-        right.map.entrySet().stream()
-    ).collect(Collectors.groupingBy((@Nonnull final Map.Entry<K, State<K>> e1) -> e1.getKey(),
-        Collectors.mapping((@Nonnull final Map.Entry<K, State<K>> x) -> x.getValue(), Collectors.collectingAndThen(
-            Collectors.reducing((@Nonnull final State<K> a, @Nonnull final State<K> b) -> {
+  public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
+      @Nonnull final DoubleBufferSet<K, State<K>> right) {
+    final Map<K, State<K>> collect = Stream.concat(left.map.entrySet().stream(), right.map.entrySet().stream())
+        .collect(Collectors.groupingBy((@Nonnull final Map.Entry<K, State<K>> e1) -> e1.getKey(), Collectors.mapping(
+            (@Nonnull final Map.Entry<K, State<K>> x) -> x.getValue(),
+            Collectors.collectingAndThen(Collectors.reducing((@Nonnull final State<K> a, @Nonnull final State<K> b) -> {
               assert a.target == b.target;
               assert a.key.equals(b.key);
               return a;
@@ -68,25 +67,24 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
-    @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
+    @Nonnull
+    final DeltaSet<K> deltas = new DeltaSet<K>();
     map.forEach((@Nonnull final K layer, @Nonnull final State<K> buffer) -> {
-      deltas.get(layer, buffer.target).set(buffer.getDelta()).freeRef();
+      deltas.get(layer, buffer.target).set(buffer.getDelta());
     });
     right.map.forEach((@Nonnull final K layer, @Nonnull final Delta<K> buffer) -> {
-      deltas.get(layer, buffer.target).addInPlace(buffer.getDelta()).freeRef();
+      deltas.get(layer, buffer.target).addInPlace(buffer.getDelta());
     });
-    @Nonnull StateSet<K> kStateSet = deltas.asState();
-    deltas.freeRef();
-    return kStateSet;
+    return deltas.asState();
   }
 
   @Nonnull
   public DeltaSet<K> asVector() {
-    @Nonnull final HashMap<K, Delta<K>> newMap = new HashMap<>();
-    map.forEach((layer, state) -> newMap.put(layer, new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
-    @Nonnull DeltaSet<K> deltaSet = new DeltaSet<>(newMap);
-    newMap.values().forEach(v -> v.freeRef());
-    return deltaSet;
+    @Nonnull
+    final HashMap<K, Delta<K>> newMap = new HashMap<>();
+    map.forEach((layer, state) -> newMap.put(layer,
+        new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
+    return new DeltaSet<>(newMap);
   }
 
   @Nonnull
@@ -138,9 +136,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
       stream = stream.parallel();
     }
     final Map<K, State<K>> newMap = stream.collect(Collectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
-    @Nonnull StateSet<K> kStateSet = new StateSet<>(newMap);
-    newMap.values().forEach(x -> x.freeRef());
-    return kStateSet;
+    return new StateSet<>(newMap);
   }
 
   @Nonnull
@@ -150,27 +146,25 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final StateSet<K> right) {
-    @Nonnull DeltaSet<K> rvec = right.asVector();
-    @Nonnull DeltaSet<K> scale = rvec.scale(-1);
-    rvec.freeRef();
-    @Nonnull StateSet<K> add = this.add(scale);
-    scale.freeRef();
-    @Nonnull DeltaSet<K> addVector = add.asVector();
-    add.freeRef();
-    return addVector;
+    @Nonnull
+    DeltaSet<K> rvec = right.asVector();
+    @Nonnull
+    DeltaSet<K> scale = rvec.scale(-1);
+    @Nonnull
+    StateSet<K> add = this.add(scale);
+    return add.asVector();
   }
 
-
-//  /**
-//   * Union evalInputDelta setByCoord.
-//   *
-//   * @param right the right
-//   * @return the evalInputDelta setByCoord
-//   */
-//  @Nonnull
-//  public DoubleBufferSet<K, State<K>> union(@Nonnull final DoubleBufferSet<K, State<K>> right) {
-//    return StateSet.union(this, right);
-//  }
+  //  /**
+  //   * Union evalInputDelta setByCoord.
+  //   *
+  //   * @param right the right
+  //   * @return the evalInputDelta setByCoord
+  //   */
+  //  @Nonnull
+  //  public DoubleBufferSet<K, State<K>> union(@Nonnull final DoubleBufferSet<K, State<K>> right) {
+  //    return StateSet.union(this, right);
+  //  }
 
   @Override
   public StateSet<K> addRef() {

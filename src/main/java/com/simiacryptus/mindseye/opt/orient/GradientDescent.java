@@ -32,17 +32,17 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
 
   @Nonnull
   @Override
-  public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
-    @Nonnull final DeltaSet<UUID> direction = measurement.delta.scale(-1);
+  public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
+      @Nonnull final TrainingMonitor monitor) {
+    @Nonnull
+    final DeltaSet<UUID> direction = measurement.delta.scale(-1);
     final double magnitude = direction.getMagnitude();
     if (Math.abs(magnitude) < 1e-10) {
       monitor.log(String.format("Zero gradient: %s", magnitude));
     } else if (Math.abs(magnitude) < 1e-5) {
       monitor.log(String.format("Low gradient: %s", magnitude));
     }
-    @Nonnull SimpleLineSearchCursor gd = new SimpleLineSearchCursor(subject, measurement, direction).setDirectionType("GD");
-    direction.freeRef();
-    return gd;
+    return new SimpleLineSearchCursor(subject, measurement, direction).setDirectionType("GD");
   }
 
   @Override

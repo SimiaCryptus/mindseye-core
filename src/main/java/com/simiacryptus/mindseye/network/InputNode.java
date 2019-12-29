@@ -47,9 +47,7 @@ final class InputNode extends LazyResult {
     assertAlive();
     this.dagNetwork.assertAlive();
     synchronized (context) {
-      CountingResult countingNNResult = context.calculated.get(id).get();
-      countingNNResult.addRef();
-      return countingNNResult;
+      return context.calculated.get(id).get();
     }
   }
 

@@ -31,13 +31,17 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   private final Tensor[] data;
 
   private TensorArray(@Nonnull final Tensor... data) {
-    if (null == data) throw new IllegalArgumentException();
-    if (0 >= data.length) throw new IllegalArgumentException();
+    if (null == data)
+      throw new IllegalArgumentException();
+    if (0 >= data.length)
+      throw new IllegalArgumentException();
     this.data = Arrays.copyOf(data, data.length);
     assert null != this.getData();
-    for (@Nonnull Tensor tensor : this.getData()) {
-      assert Arrays.equals(tensor.getDimensions(), this.getData()[0].getDimensions()) : Arrays.toString(tensor.getDimensions()) + " != " + Arrays.toString(tensor.getDimensions());
-      tensor.addRef();
+    for (@Nonnull
+    Tensor tensor : this.getData()) {
+      assert Arrays.equals(tensor.getDimensions(),
+          this.getData()[0].getDimensions()) : Arrays.toString(tensor.getDimensions()) + " != "
+              + Arrays.toString(tensor.getDimensions());
     }
     register();
   }
@@ -48,13 +52,15 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
 
   @Nonnull
   public static TensorArray wrap(@Nonnull final Tensor... data) {
-    @Nonnull TensorArray tensorArray = TensorArray.create(data);
+    @Nonnull
+    TensorArray tensorArray = TensorArray.create(data);
     Arrays.stream(data).forEach(ReferenceCounting::freeRef);
     return tensorArray;
   }
 
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
-    return (data.length < limit) ? Arrays.toString(data) : "[" + Arrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b).get() + ", ...]";
+    return (data.length < limit) ? Arrays.toString(data)
+        : "[" + Arrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b).get() + ", ...]";
   }
 
   @Override
@@ -65,9 +71,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   @Override
   @Nonnull
   public Tensor get(final int i) {
-    Tensor datum = getData()[i];
-    datum.addRef();
-    return datum;
+    return getData()[i];
   }
 
   @Nonnull
@@ -85,7 +89,6 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   @Override
   public Stream<Tensor> stream() {
     return Arrays.stream(getData()).map(x -> {
-      x.addRef();
       return x;
     });
   }
@@ -98,9 +101,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   @Override
   protected void _free() {
     try {
-      for (@Nonnull final Tensor d : getData()) {
-        d.freeRef();
-      }
+      getData();
     } catch (@Nonnull final RuntimeException e) {
       throw e;
     } catch (@Nonnull final Throwable e) {

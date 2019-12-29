@@ -34,12 +34,11 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
   public final Trainable subject;
   private String type = "";
 
-  public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin, final DeltaSet<UUID> direction) {
+  public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin,
+      final DeltaSet<UUID> direction) {
     this.origin = origin.copyFull();
     this.direction = direction;
-    this.direction.addRef();
     this.subject = subject;
-    this.subject.addRef();
   }
 
   @Override
@@ -66,22 +65,19 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
 
   @Override
   public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
-    if (!Double.isFinite(alpha)) throw new IllegalArgumentException();
+    if (!Double.isFinite(alpha))
+      throw new IllegalArgumentException();
     reset();
     if (0.0 != alpha) {
       direction.accumulate(alpha);
     }
-    @Nonnull final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
+    @Nonnull
+    final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
     final double dot = direction.dot(sample.delta);
-    @Nonnull LineSearchPoint lineSearchPoint = new LineSearchPoint(sample, dot);
-    sample.freeRef();
-    return lineSearchPoint;
+    return new LineSearchPoint(sample, dot);
   }
 
   @Override
   protected void _free() {
-    this.origin.freeRef();
-    this.direction.freeRef();
-    this.subject.freeRef();
   }
 }

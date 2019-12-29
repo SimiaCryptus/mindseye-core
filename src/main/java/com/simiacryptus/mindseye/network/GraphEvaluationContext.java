@@ -36,8 +36,10 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   protected synchronized void _free() {
     calculated.entrySet().stream().filter(entry -> {
       Object o = entry.getValue().get();
-      if (o instanceof RuntimeException) throw (RuntimeException) o;
-      if (o instanceof Throwable) throw new RuntimeException((Throwable) o);
+      if (o instanceof RuntimeException)
+        throw (RuntimeException) o;
+      if (o instanceof Throwable)
+        throw new RuntimeException((Throwable) o);
       CountingResult countingNNResult = (CountingResult) o;
       if (expectedCounts.containsKey(entry.getKey())) {
         return expectedCounts.get(entry.getKey()) > countingNNResult.getAccumulator().getCount();
@@ -46,8 +48,7 @@ class GraphEvaluationContext extends ReferenceCountingBase {
       }
     }).forEach(entry -> {
       CountingResult result = entry.getValue().get();
-      result.freeRef();
-      result.getData().freeRef();
+      result.getData();
     });
     calculated.clear();
   }

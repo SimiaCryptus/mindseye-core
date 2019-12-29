@@ -46,12 +46,10 @@ public abstract class WrapperLayer extends LayerBase {
 
   public WrapperLayer(final Layer inner) {
     this.inner = inner;
-    this.inner.addRef();
   }
 
   @Override
   protected void _free() {
-    if (null != this.inner) this.inner.freeRef();
     super._free();
   }
 
@@ -73,30 +71,34 @@ public abstract class WrapperLayer extends LayerBase {
   }
 
   public WrapperLayer setInner(@Nullable Layer inner) {
-    if (this.getInner() != null) this.getInner().freeRef();
+    if (this.getInner() != null)
+      this.getInner();
     this.inner = inner;
-    this.getInner().addRef();
+    this.getInner();
     return this;
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.add("inner", getInner().getJson(resources, dataSerializer));
     return json;
   }
 
   @Override
   public boolean isFrozen() {
-    if (null == inner) return true;
+    if (null == inner)
+      return true;
     return inner.isFrozen();
   }
 
   @Nonnull
   @Override
   public Layer setFrozen(final boolean frozen) {
-    if (null == inner) return this;
+    if (null == inner)
+      return this;
     inner.setFrozen(frozen);
     return this;
   }

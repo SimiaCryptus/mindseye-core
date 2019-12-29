@@ -56,8 +56,6 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     synchronized (collect) {
       map.putAll(collect);
       map.forEach((k, v) -> {
-        if (k instanceof ReferenceCounting) ((ReferenceCounting) k).addRef();
-        v.addRef();
       });
     }
   }
@@ -78,20 +76,20 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   private T get(@Nullable final K layer, @Nullable final Supplier<T> factory) {
-    if (null == map) throw new IllegalArgumentException();
-    if (null == factory) throw new IllegalArgumentException();
-    if (null == layer) throw new IllegalArgumentException();
+    if (null == map)
+      throw new IllegalArgumentException();
+    if (null == factory)
+      throw new IllegalArgumentException();
+    if (null == layer)
+      throw new IllegalArgumentException();
     synchronized (map) {
-      T v = map.computeIfAbsent(layer, l -> {
-        if (l instanceof ReferenceCounting) ((ReferenceCounting) l).addRef();
+      return map.computeIfAbsent(layer, l -> {
         T delta = factory.get();
         assert null != delta;
         if (log.isDebugEnabled())
           log.debug(String.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));
         return delta;
       });
-      v.addRef();
-      return v;
     }
   }
 
@@ -106,28 +104,26 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
 
   @Nonnull
   public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
-    @Nonnull final DoubleBufferSet<K, T> parent = this;
+    @Nonnull
+    final DoubleBufferSet<K, T> parent = this;
     Stream<Map.Entry<K, T>> stream = map.entrySet().stream();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
     final Map<K, T> newMap = stream.collect(Collectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
-    @Nonnull Delegate delegate = new Delegate(parent, newMap);
-    newMap.values().forEach(x -> x.freeRef());
-    return delegate;
+    return new Delegate(parent, newMap);
   }
 
   public Stream<T> stream() {
-    return map.values().stream().filter(n -> null != n).distinct().sorted(Comparator.comparing(y -> System.identityHashCode(y.target)));
+    return map.values().stream().filter(n -> null != n).distinct()
+        .sorted(Comparator.comparing(y -> System.identityHashCode(y.target)));
   }
 
   @Override
   protected void _free() {
     map.forEach((k, v) -> {
-      if (k instanceof ReferenceCounting) ((ReferenceCounting) k).freeRef();
-      v.freeRef();
     });
-//    map.clear();
+    //    map.clear();
   }
 
   protected class Delegate extends DoubleBufferSet<K, T> {

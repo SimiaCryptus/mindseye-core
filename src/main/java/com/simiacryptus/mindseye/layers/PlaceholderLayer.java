@@ -38,10 +38,11 @@ public final class PlaceholderLayer<T> extends LayerBase {
   private final T key;
 
   public PlaceholderLayer(@Nullable final T key) {
-    if (null == key) throw new UnsupportedOperationException();
+    if (null == key)
+      throw new UnsupportedOperationException();
     this.key = key;
     if (this.getKey() instanceof ReferenceCounting) {
-      ((ReferenceCounting) this.getKey()).addRef();
+      this.getKey();
     }
     setName(getClass().getSimpleName() + "/" + getId());
   }
@@ -74,7 +75,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
   @Override
   protected void _free() {
     if (this.getKey() instanceof ReferenceCounting) {
-      ((ReferenceCounting) this.getKey()).freeRef();
+      this.getKey();
     }
     super._free();
   }

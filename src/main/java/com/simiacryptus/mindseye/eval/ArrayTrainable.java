@@ -38,11 +38,6 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[][] trainingData, int batchSize) {
     super(inner, batchSize);
     this.trainingData = trainingData;
-    for (@Nonnull Tensor[] tensors : trainingData) {
-      for (@Nonnull Tensor tensor : tensors) {
-        tensor.addRef();
-      }
-    }
   }
 
   public ArrayTrainable(final Layer network, final int batchSize) {
@@ -56,11 +51,6 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   public ArrayTrainable(@Nullable final Tensor[][] trainingData, final Layer network, final int batchSize) {
     super(network, batchSize);
     this.trainingData = trainingData;
-    if (null != trainingData) for (@Nonnull Tensor[] tensors : trainingData) {
-      for (@Nonnull Tensor tensor : tensors) {
-        tensor.addRef();
-      }
-    }
   }
 
   @Nullable
@@ -76,42 +66,17 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
 
   @Override
   protected void _free() {
-    for (@Nonnull Tensor[] tensors : trainingData) {
-      for (@Nonnull Tensor tensor : tensors) {
-        tensor.freeRef();
-      }
-    }
     super._free();
   }
 
   @Nonnull
   @Override
   public Trainable setData(@Nonnull final List<Tensor[]> tensors) {
-    for (@Nonnull Tensor[] ts : tensors) {
-      for (@Nonnull Tensor tensor : ts) {
-        tensor.addRef();
-      }
-    }
-    if (null != trainingData) for (@Nonnull Tensor[] ts : trainingData) {
-      for (@Nonnull Tensor tensor : ts) {
-        tensor.freeRef();
-      }
-    }
-    trainingData = tensors.toArray(new Tensor[][]{});
+    trainingData = tensors.toArray(new Tensor[][] {});
     return this;
   }
 
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
-    for (@Nonnull Tensor[] ts : tensors) {
-      for (@Nonnull Tensor tensor : ts) {
-        tensor.addRef();
-      }
-    }
-    if (null != trainingData) for (@Nonnull Tensor[] ts : trainingData) {
-      for (@Nonnull Tensor tensor : ts) {
-        tensor.freeRef();
-      }
-    }
     this.trainingData = tensors;
   }
 
@@ -120,6 +85,5 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   public ArrayTrainable setMask(boolean... mask) {
     return (ArrayTrainable) super.setMask(mask);
   }
-
 
 }

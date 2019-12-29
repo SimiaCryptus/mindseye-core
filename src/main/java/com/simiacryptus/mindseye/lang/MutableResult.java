@@ -37,13 +37,10 @@ public class MutableResult extends Result {
   private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors, UUID[] objectId) {
     return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       for (int index = 0; index < delta.length(); index++) {
-        buffer.get(objectId[index], tensors[index].getData())
-            .addInPlaceAndFree(delta.get(index)).freeRef();
+        buffer.get(objectId[index], tensors[index].getData()).addInPlaceAndFree(delta.get(index));
       }
-      delta.freeRef();
     };
   }
-
 
   @Override
   public boolean isAlive() {

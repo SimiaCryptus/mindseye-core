@@ -42,22 +42,22 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   public DoubleBuffer(@Nonnull final K key, final double[] target) {
     this.key = key;
-    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef();
     this.target = target;
     this.delta = null;
   }
 
   public DoubleBuffer(@Nonnull final K key, final double[] target, final double[] delta) {
     this.key = key;
-    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).addRef();
     this.target = target;
     this.delta = delta;
   }
 
   public static boolean areEqual(@Nonnull final double[] l, @Nonnull final double[] r) {
-    if (r.length != l.length) throw new IllegalArgumentException();
+    if (r.length != l.length)
+      throw new IllegalArgumentException();
     for (int i = 0; i < r.length; i++) {
-      if (r[i] != l[i]) return false;
+      if (r[i] != l[i])
+        return false;
     }
     return true;
   }
@@ -75,13 +75,17 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   public double dot(@Nonnull final DoubleBuffer<K> right) {
     if (this.target != right.target) {
-      throw new IllegalArgumentException(String.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
+      throw new IllegalArgumentException(
+          String.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
     }
     if (!this.key.equals(right.key)) {
-      throw new IllegalArgumentException(String.format("Deltas are not based on same key. %s != %s", this.key, right.key));
+      throw new IllegalArgumentException(
+          String.format("Deltas are not based on same key. %s != %s", this.key, right.key));
     }
-    @Nullable final double[] l = this.getDelta();
-    @Nullable final double[] r = right.getDelta();
+    @Nullable
+    final double[] l = this.getDelta();
+    @Nullable
+    final double[] r = right.getDelta();
     assert l.length == r.length;
     final double[] array = IntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i]).toArray();
     return Arrays.stream(array).summaryStatistics().getSum();
@@ -117,14 +121,15 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new DoubleBuffer<K>(this.key, this.target, Arrays.stream(this.getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+    return new DoubleBuffer<K>(this.key, this.target,
+        Arrays.stream(this.getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
   @Nonnull
   public DoubleBuffer<K> set(@Nonnull final double[] data) {
     assert Arrays.stream(data).allMatch(Double::isFinite);
     System.arraycopy(data, 0, this.getDelta(), 0, data.length);
-//    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
+    //    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
     assert Arrays.stream(getDelta()).allMatch(Double::isFinite);
     return this;
   }
@@ -137,7 +142,8 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final StringBuilder builder = new StringBuilder();
+    @Nonnull
+    final StringBuilder builder = new StringBuilder();
     builder.append(getClass().getSimpleName());
     builder.append("/");
     builder.append(this.key);
@@ -146,8 +152,8 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   @Override
   protected void _free() {
-    if (key instanceof ReferenceCounting) ((ReferenceCounting) key).freeRef();
-    @Nullable double[] delta = this.delta;
+    @Nullable
+    double[] delta = this.delta;
     if (null != delta) {
       if (RecycleBin.DOUBLES.want(delta.length)) {
         RecycleBin.DOUBLES.recycle(this.delta, delta.length);

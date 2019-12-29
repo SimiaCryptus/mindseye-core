@@ -39,7 +39,6 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     this(UUID.randomUUID());
   }
 
-
   protected LazyResult(final UUID id) {
     super();
     this.id = id;
@@ -60,7 +59,8 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     assertAlive();
     long expectedCount = context.expectedCounts.getOrDefault(id, -1L);
     if (!context.calculated.containsKey(id)) {
-      @Nullable Singleton singleton = null;
+      @Nullable
+      Singleton singleton = null;
       synchronized (context) {
         if (!context.calculated.containsKey(id)) {
           singleton = new Singleton();
@@ -69,10 +69,11 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
       }
       if (null != singleton) {
         try {
-          @Nullable Result result = eval(context);
-          if (null == result) throw new IllegalStateException();
+          @Nullable
+          Result result = eval(context);
+          if (null == result)
+            throw new IllegalStateException();
           singleton.set(new CountingResult(result));
-          result.freeRef();
         } catch (Throwable e) {
           log.warn("Error execuing network component", e);
           singleton.set(e);
@@ -80,18 +81,24 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
       }
     }
     Supplier resultSupplier = context.calculated.get(id);
-    if (null == resultSupplier) throw new IllegalStateException();
+    if (null == resultSupplier)
+      throw new IllegalStateException();
     Object obj = null == resultSupplier ? null : resultSupplier.get();
-    if (obj != null && obj instanceof Throwable) throw new RuntimeException((Throwable) obj);
-    if (obj != null && obj instanceof RuntimeException) throw ((RuntimeException) obj);
-    @Nullable CountingResult nnResult = (CountingResult) obj;
-    if (null == nnResult) throw new IllegalStateException();
+    if (obj != null && obj instanceof Throwable)
+      throw new RuntimeException((Throwable) obj);
+    if (obj != null && obj instanceof RuntimeException)
+      throw ((RuntimeException) obj);
+    @Nullable
+    CountingResult nnResult = (CountingResult) obj;
+    if (null == nnResult)
+      throw new IllegalStateException();
     int references = nnResult.getAccumulator().increment();
-    if (references <= 0) throw new IllegalStateException();
-    if (expectedCount >= 0 && references > expectedCount) throw new IllegalStateException();
+    if (references <= 0)
+      throw new IllegalStateException();
+    if (expectedCount >= 0 && references > expectedCount)
+      throw new IllegalStateException();
     if (expectedCount <= 0 || references < expectedCount) {
-      nnResult.addRef();
-      nnResult.getData().addRef();
+      nnResult.getData();
     } else {
       context.calculated.remove(id);
     }

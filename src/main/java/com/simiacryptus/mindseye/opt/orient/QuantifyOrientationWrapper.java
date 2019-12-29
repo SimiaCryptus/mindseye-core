@@ -45,7 +45,6 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
 
   @Override
   protected void _free() {
-    inner.freeRef();
   }
 
   @Nonnull
@@ -54,11 +53,13 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   @Override
-  public LineSearchCursor orient(final Trainable subject, final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
+  public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
+      @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      @Nonnull
+      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
       final Map<CharSequence, CharSequence> dataMap = weights.stream()
           .collect(Collectors.groupingBy(x -> getId(x), Collectors.toList())).entrySet().stream()
           .collect(Collectors.toMap(x -> x.getKey(), list -> {
@@ -83,6 +84,5 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
   public void reset() {
     inner.reset();
   }
-
 
 }

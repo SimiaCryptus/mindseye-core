@@ -36,7 +36,6 @@ import java.util.stream.IntStream;
 public final class LoggingWrapperLayer extends WrapperLayer {
   static final Logger log = LoggerFactory.getLogger(LoggingWrapperLayer.class);
 
-
   protected LoggingWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
   }
@@ -62,17 +61,17 @@ public final class LoggingWrapperLayer extends WrapperLayer {
   public Result eval(@Nonnull final Result... inObj) {
     final Result[] wrappedInput = IntStream.range(0, inObj.length).mapToObj(i -> {
       final Result inputToWrap = inObj[i];
-      inputToWrap.addRef();
-      return new Result(inputToWrap.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-        @Nonnull final String formatted = data.stream().map(this::getString)
-            .reduce((a, b) -> a + "\n" + b).get();
-        log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
-        inputToWrap.accumulate(buffer, data);
-      }) {
+      return new Result(inputToWrap.getData(),
+          (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
+            @Nonnull
+            final String formatted = data.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
+            log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, getInner().getName(),
+                formatted.replaceAll("\n", "\n\t")));
+            inputToWrap.accumulate(buffer, data);
+          }) {
 
         @Override
         protected void _free() {
-          inputToWrap.freeRef();
         }
 
         @Override
@@ -83,33 +82,35 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     }).toArray(i -> new Result[i]);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
-      @Nonnull final String formatted = tensorList.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
-      log.info(String.format("Input %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
+      @Nonnull
+      final String formatted = tensorList.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
+      log.info(
+          String.format("Input %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
-    @Nullable final Result output = getInner().eval(wrappedInput);
+    @Nullable
+    final Result output = getInner().eval(wrappedInput);
     Arrays.stream(wrappedInput).forEach(ReferenceCounting::freeRef);
     {
       final TensorList tensorList = output.getData();
-      @Nonnull final String formatted = tensorList.stream().map(x -> {
+      @Nonnull
+      final String formatted = tensorList.stream().map(x -> {
         return getString(x);
-      })
-          .reduce((a, b) -> a + "\n" + b).get();
+      }).reduce((a, b) -> a + "\n" + b).get();
       log.info(String.format("Output for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
     return new Result(output.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      @Nonnull final String formatted = data.stream().map(x -> {
+      @Nonnull
+      final String formatted = data.stream().map(x -> {
         return getString(x);
-      })
-          .reduce((a, b) -> a + "\n" + b).get();
-      log.info(String.format("Feedback Input for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
+      }).reduce((a, b) -> a + "\n" + b).get();
+      log.info(
+          String.format("Feedback Input for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
       output.accumulate(buffer, data);
     }) {
 
       @Override
       protected void _free() {
-        output.freeRef();
       }
-
 
       @Override
       public boolean isAlive() {
@@ -119,11 +120,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
   }
 
   public String getString(Tensor x) {
-//    String str = x.prettyPrint();
-    String str = Arrays.toString(x.getDimensions());
-    x.freeRef();
-    return str;
+    return Arrays.toString(x.getDimensions());
   }
-
 
 }

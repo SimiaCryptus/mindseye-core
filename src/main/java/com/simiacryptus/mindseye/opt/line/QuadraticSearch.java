@@ -41,25 +41,22 @@ public class QuadraticSearch implements LineSearchStrategy {
   public PointSample _step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
     double thisX = 0;
     LineSearchPoint thisPoint = cursor.step(thisX, monitor);
-    final LineSearchPoint initialPoint = thisPoint.addRef();
+    final LineSearchPoint initialPoint = thisPoint;
     double leftX = thisX;
-    LineSearchPoint leftPoint = thisPoint.addRef();
+    LineSearchPoint leftPoint = thisPoint;
     monitor.log(String.format("F(%s) = %s", leftX, leftPoint));
     if (0 == leftPoint.derivative) {
-      initialPoint.freeRef();
-      thisPoint.freeRef();
-      PointSample point = leftPoint.point;
-      point.addRef();
-      leftPoint.freeRef();
-      return point;
+      return leftPoint.point;
     }
 
-    @Nonnull final LocateInitialRightPoint locateInitialRightPoint = new LocateInitialRightPoint(cursor, monitor, leftPoint).apply();
-    @Nonnull LineSearchPoint rightPoint = locateInitialRightPoint.getRightPoint();
-    rightPoint.addRef();
+    @Nonnull
+    final LocateInitialRightPoint locateInitialRightPoint = new LocateInitialRightPoint(cursor, monitor, leftPoint)
+        .apply();
+    @Nonnull
+    LineSearchPoint rightPoint = locateInitialRightPoint.getRightPoint();
     double rightX = locateInitialRightPoint.getRightX();
 
-    try {
+    {
       int loops = 0;
       while (true) {
         final double a = (rightPoint.derivative - leftPoint.derivative) / (rightX - leftX);
@@ -72,8 +69,10 @@ public class QuadraticSearch implements LineSearchStrategy {
         if (!isBracketed && thisX < 0) {
           thisX = rightX * 2;
         }
-        if (thisX < getMinRate()) thisX = getMinRate();
-        if (thisX > getMaxRate()) thisX = getMaxRate();
+        if (thisX < getMinRate())
+          thisX = getMinRate();
+        if (thisX > getMaxRate())
+          thisX = getMaxRate();
         if (isSame(leftX, thisX, 1.0)) {
           monitor.log(String.format("Converged to left"));
           return filter(cursor, leftPoint.point, monitor);
@@ -81,7 +80,6 @@ public class QuadraticSearch implements LineSearchStrategy {
           monitor.log(String.format("Converged to right"));
           return filter(cursor, rightPoint.point, monitor);
         }
-        thisPoint.freeRef();
         thisPoint = null;
         thisPoint = cursor.step(thisX, monitor);
         if (isSame(cursor, monitor, leftPoint, thisPoint)) {
@@ -92,26 +90,25 @@ public class QuadraticSearch implements LineSearchStrategy {
           monitor.log(String.format("%s ~= %s", thisX, rightX));
           return filter(cursor, rightPoint.point, monitor);
         }
-        thisPoint.freeRef();
         thisPoint = null;
         thisPoint = cursor.step(thisX, monitor);
         boolean isLeft;
         if (!isBracketed) {
-          isLeft = Math.abs(rightPoint.point.rate - thisPoint.point.rate) > Math.abs(leftPoint.point.rate - thisPoint.point.rate);
+          isLeft = Math.abs(rightPoint.point.rate - thisPoint.point.rate) > Math
+              .abs(leftPoint.point.rate - thisPoint.point.rate);
         } else {
           isLeft = thisPoint.derivative < 0;
         }
         //monitor.log(String.format("isLeft=%s; isBracketed=%s; leftPoint=%s; rightPoint=%s", isLeft, isBracketed, leftPoint, rightPoint));
-        monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint, thisPoint.point.getMean() - initialPoint.point.getMean()));
+        monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint,
+            thisPoint.point.getMean() - initialPoint.point.getMean()));
         if (loops++ > 10) {
           monitor.log(String.format("Loops = %s", loops));
-          PointSample filter = filter(cursor, thisPoint.point, monitor);
-          return filter;
+          return filter(cursor, thisPoint.point, monitor);
         }
         if (isSame(cursor, monitor, leftPoint, rightPoint)) {
           monitor.log(String.format("%s ~= %s", leftX, rightX));
-          PointSample filter = filter(cursor, thisPoint.point, monitor);
-          return filter;
+          return filter(cursor, thisPoint.point, monitor);
         }
         if (isLeft) {
           if (thisPoint.point.getMean() > leftPoint.point.getMean()) {
@@ -120,12 +117,9 @@ public class QuadraticSearch implements LineSearchStrategy {
           }
           if (!isBracketed && leftPoint.point.getMean() < rightPoint.point.getMean()) {
             rightX = leftX;
-            if (null != rightPoint) rightPoint.freeRef();
             rightPoint = leftPoint;
-            rightPoint.addRef();
           }
-          if (null != leftPoint) leftPoint.freeRef();
-          leftPoint = thisPoint.addRef();
+          leftPoint = thisPoint;
           leftX = thisX;
           monitor.log(String.format("Left bracket at %s", thisX));
         } else {
@@ -135,30 +129,21 @@ public class QuadraticSearch implements LineSearchStrategy {
           }
           if (!isBracketed && rightPoint.point.getMean() < leftPoint.point.getMean()) {
             leftX = rightX;
-            if (null != leftPoint) leftPoint.freeRef();
             leftPoint = rightPoint;
-            leftPoint.addRef();
           }
           rightX = thisX;
-          if (null != rightPoint) rightPoint.freeRef();
-          rightPoint = thisPoint.addRef();
+          rightPoint = thisPoint;
           monitor.log(String.format("Right bracket at %s", thisX));
         }
       }
-    } finally {
-      if (null != leftPoint) leftPoint.freeRef();
-      if (null != rightPoint) rightPoint.freeRef();
-      if (null != thisPoint) thisPoint.freeRef();
-      if (null != initialPoint) initialPoint.freeRef();
-      if (null != locateInitialRightPoint) locateInitialRightPoint.freeRef();
     }
   }
 
-  private String diagnose(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
+  private String diagnose(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
+      @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
     final LineSearchPoint verifyA = cursor.step(a.point.rate, monitor);
     final boolean validA = isSame(a.point.getMean(), verifyA.point.getMean(), 1.0);
     monitor.log(String.format("Verify %s: %s (%s)", a.point.rate, verifyA.point.getMean(), validA));
-    verifyA.freeRef();
     if (!validA) {
       DescribeOrientationWrapper.render(a.point.weights, a.point.delta);
       return "Non-Reproducable Point Found: " + a.point.rate;
@@ -166,9 +151,10 @@ public class QuadraticSearch implements LineSearchStrategy {
     final LineSearchPoint verifyB = cursor.step(b.point.rate, monitor);
     final boolean validB = isSame(b.point.getMean(), verifyB.point.getMean(), 1.0);
     monitor.log(String.format("Verify %s: %s (%s)", b.point.rate, verifyB.point.getMean(), validB));
-    verifyB.freeRef();
-    if (!validA && !validB) return "Non-Reproducable Function Found";
-    if (validA && validB) return "Function Discontinuity Found";
+    if (!validA && !validB)
+      return "Non-Reproducable Function Found";
+    if (validA && validB)
+      return "Function Discontinuity Found";
     if (!validA) {
       return "Non-Reproducable Point Found: " + a.point.rate;
     }
@@ -178,16 +164,13 @@ public class QuadraticSearch implements LineSearchStrategy {
     return "";
   }
 
-  private PointSample filter(@Nonnull final LineSearchCursor cursor, @Nonnull final PointSample point, final TrainingMonitor monitor) {
+  private PointSample filter(@Nonnull final LineSearchCursor cursor, @Nonnull final PointSample point,
+      final TrainingMonitor monitor) {
     if (stepSize == 1.0) {
-      point.addRef();
       return point;
     } else {
       LineSearchPoint step = cursor.step(point.rate * stepSize, monitor);
-      PointSample point1 = step.point;
-      point1.addRef();
-      step.freeRef();
-      return point1;
+      return step.point;
     }
   }
 
@@ -246,10 +229,12 @@ public class QuadraticSearch implements LineSearchStrategy {
     return diff < absoluteTolerance || diff < scale * relativeTolerance;
   }
 
-  protected boolean isSame(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
+  protected boolean isSame(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
+      @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
     if (isSame(a.point.rate, b.point.rate, 1.0)) {
       if (!isSame(a.point.getMean(), b.point.getMean(), 10.0)) {
-        @Nonnull final String diagnose = diagnose(cursor, monitor, a, b);
+        @Nonnull
+        final String diagnose = diagnose(cursor, monitor, a, b);
         monitor.log(diagnose);
         throw new IterativeStopException(diagnose);
       }
@@ -291,27 +276,27 @@ public class QuadraticSearch implements LineSearchStrategy {
     private LineSearchPoint thisPoint;
     private double thisX;
 
-    public LocateInitialRightPoint(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint leftPoint) {
+    public LocateInitialRightPoint(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
+        @Nonnull final LineSearchPoint leftPoint) {
       this.cursor = cursor;
       this.monitor = monitor;
       initialPoint = leftPoint;
-      thisX = getCurrentRate() > 0 ? getCurrentRate() : Math.abs(leftPoint.point.getMean() * 1e-4 / leftPoint.derivative);
+      thisX = getCurrentRate() > 0 ? getCurrentRate()
+          : Math.abs(leftPoint.point.getMean() * 1e-4 / leftPoint.derivative);
       thisPoint = cursor.step(thisX, monitor);
-      monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint, thisPoint.point.getMean() - initialPoint.point.getMean()));
-      this.cursor.addRef();
-      this.initialPoint.addRef();
+      monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint,
+          thisPoint.point.getMean() - initialPoint.point.getMean()));
     }
 
     @Nonnull
     public LocateInitialRightPoint apply() {
       assertAlive();
-      @Nullable LineSearchPoint lastPoint = null;
-      try {
+      @Nullable
+      LineSearchPoint lastPoint = null;
+      {
         int loops = 0;
         while (true) {
-          if (null != lastPoint) lastPoint.freeRef();
           lastPoint = thisPoint;
-          lastPoint.addRef();
           if (isSame(cursor, monitor, initialPoint, thisPoint)) {
             monitor.log(String.format("%s ~= %s", initialPoint.point.rate, thisX));
             return this;
@@ -324,20 +309,18 @@ public class QuadraticSearch implements LineSearchStrategy {
             return this;
           }
 
-          if (null != thisPoint) thisPoint.freeRef();
           thisPoint = cursor.step(thisX, monitor);
           if (isSame(cursor, monitor, lastPoint, thisPoint)) {
             monitor.log(String.format("%s ~= %s", lastPoint.point.rate, thisX));
             return this;
           }
-          monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint, thisPoint.point.getMean() - initialPoint.point.getMean()));
+          monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint,
+              thisPoint.point.getMean() - initialPoint.point.getMean()));
           if (loops++ > 50) {
             monitor.log(String.format("Loops = %s", loops));
             return this;
           }
         }
-      } finally {
-        if (null != lastPoint) lastPoint.freeRef();
       }
     }
 
@@ -351,9 +334,6 @@ public class QuadraticSearch implements LineSearchStrategy {
 
     @Override
     protected void _free() {
-      this.thisPoint.freeRef();
-      this.cursor.freeRef();
-      this.initialPoint.freeRef();
     }
   }
 }

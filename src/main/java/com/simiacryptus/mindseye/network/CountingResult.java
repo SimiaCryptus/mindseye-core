@@ -43,7 +43,6 @@ public class CountingResult extends Result {
   public CountingResult(@Nonnull final Result inner) {
     super(inner.getData(), new CountingAccumulator(inner));
     this.inner = inner;
-    inner.addRef();
   }
 
   public CountingResult(final Result r, final int samples) {
@@ -59,8 +58,6 @@ public class CountingResult extends Result {
 
   @Override
   protected void _free() {
-    inner.freeRef();
-    ((CountingAccumulator) accumulator).freeRef();
   }
 
   @Override
@@ -79,7 +76,6 @@ public class CountingResult extends Result {
 
     public CountingAccumulator(Result inner) {
       this.inner = inner;
-      this.inner.addRef();
       fwdLinks = new AtomicInteger(0);
       passbackBuffers = new LinkedList<>();
       accumulations = new AtomicInteger(0);
@@ -102,18 +98,20 @@ public class CountingResult extends Result {
         //data.addRef();
         inner.accumulate(buffer, data);
       } else {
-        @Nonnull TensorList reduced = null;
+        @Nonnull
+        TensorList reduced = null;
         synchronized (passbackBuffers) {
           assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           passbackBuffers.add(data);
           if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
             Stream<TensorList> stream = passbackBuffers.stream();
-            if (!CoreSettings.INSTANCE().isSingleThreaded()) stream = stream.parallel();
+            if (!CoreSettings.INSTANCE().isSingleThreaded())
+              stream = stream.parallel();
             //x.addRef();
-            @Nonnull TensorList compacted = stream.reduce((a, b) -> {
+            @Nonnull
+            TensorList compacted = stream.reduce((a, b) -> {
               TensorList c;
               c = a.addAndFree(b);
-              b.freeRef();
               return c;
             }).get();
             //passbackBuffers.stream().distinct().filter((TensorList x) -> x != reduced).forEach(t -> t.freeRef());
@@ -123,11 +121,11 @@ public class CountingResult extends Result {
           }
           if (accumulations.incrementAndGet() == fwdLinks.get()) {
             Stream<TensorList> stream = passbackBuffers.stream();
-            if (!CoreSettings.INSTANCE().isSingleThreaded()) stream = stream.parallel();
+            if (!CoreSettings.INSTANCE().isSingleThreaded())
+              stream = stream.parallel();
             reduced = stream.reduce((a, b) -> {
               TensorList c;
               c = a.addAndFree(b);
-              b.freeRef();
               return c;
             }).get();
             passbackBuffers.clear();
@@ -144,12 +142,9 @@ public class CountingResult extends Result {
     @Override
     protected void _free() {
       synchronized (passbackBuffers) {
-        passbackBuffers.stream().forEach(t -> t.freeRef());
         passbackBuffers.clear();
       }
-      this.inner.freeRef();
     }
-
 
   }
 }

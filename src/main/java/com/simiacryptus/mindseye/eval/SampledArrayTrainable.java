@@ -32,20 +32,24 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> implements SampledTrainable, TrainableDataMask {
+public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
+    implements SampledTrainable, TrainableDataMask {
 
   private final List<? extends Supplier<Tensor[]>> trainingData;
   private int minSamples = 0;
   private long seed = Util.R.get().nextInt();
   private int trainingSize;
 
-  public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network, final int trainingSize) {
+  public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network,
+      final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
-  public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network, final int trainingSize, final int batchSize) {
+  public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network,
+      final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(null, network, batchSize));
-    if (0 == trainingData.size()) throw new IllegalArgumentException();
+    if (0 == trainingData.size())
+      throw new IllegalArgumentException();
     this.trainingData = trainingData;
     this.trainingSize = trainingSize;
     reseed(System.nanoTime());
@@ -55,11 +59,14 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
     this(trainingData, network, trainingSize, trainingSize);
   }
 
-  public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize, final int batchSize) {
+  public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize,
+      final int batchSize) {
     super(new ArrayTrainable(network, batchSize));
-    getInner().freeRef();
-    if (0 == trainingData.length) throw new IllegalArgumentException();
-    this.trainingData = Arrays.stream(trainingData).map(obj -> new WeakCachedSupplier<>(() -> obj)).collect(Collectors.toList());
+    getInner();
+    if (0 == trainingData.length)
+      throw new IllegalArgumentException();
+    this.trainingData = Arrays.stream(trainingData).map(obj -> new WeakCachedSupplier<>(() -> obj))
+        .collect(Collectors.toList());
     this.trainingSize = trainingSize;
     reseed(System.nanoTime());
   }
@@ -89,18 +96,14 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
     assert 0 < trainingData.size();
     Tensor[][] trainingData;
     if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
-      @Nonnull final Random random = new Random(seed);
-      trainingData = IntStream.generate(() -> random.nextInt(this.trainingData.size()))
-          .distinct()
-          .mapToObj(i -> this.trainingData.get(i))
-          .filter(x -> x != null && x.get() != null)
-          .limit(getTrainingSize()).map(x -> x.get())
-          .toArray(i -> new Tensor[i][]);
+      @Nonnull
+      final Random random = new Random(seed);
+      trainingData = IntStream.generate(() -> random.nextInt(this.trainingData.size())).distinct()
+          .mapToObj(i -> this.trainingData.get(i)).filter(x -> x != null && x.get() != null).limit(getTrainingSize())
+          .map(x -> x.get()).toArray(i -> new Tensor[i][]);
     } else {
-      trainingData = this.trainingData.stream()
-          .filter(x -> x != null && x.get() != null)
-          .limit(getTrainingSize()).map(x -> x.get())
-          .toArray(i -> new Tensor[i][]);
+      trainingData = this.trainingData.stream().filter(x -> x != null && x.get() != null).limit(getTrainingSize())
+          .map(x -> x.get()).toArray(i -> new Tensor[i][]);
     }
     getInner().setTrainingData(trainingData);
   }
@@ -114,7 +117,8 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable> impl
   }
 
   private void setSeed(final int newValue) {
-    if (seed == newValue) return;
+    if (seed == newValue)
+      return;
     seed = newValue;
     refreshSampledData();
   }

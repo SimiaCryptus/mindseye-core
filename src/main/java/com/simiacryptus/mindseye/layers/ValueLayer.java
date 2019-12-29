@@ -42,23 +42,18 @@ public class ValueLayer extends LayerBase {
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
-    data = IntStream.range(0, values.size()).mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
+    data = IntStream.range(0, values.size()).mapToObj(i -> Tensor.fromJson(values.get(i), resources))
+        .toArray(i -> new Tensor[i]);
   }
-
 
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
     this.data = Arrays.copyOf(data, data.length);
-    Arrays.stream(this.data)
-        .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-        .forEach(ReferenceCountingBase::addRef);
     this.frozen = true;
   }
 
   public static Layer wrap(Tensor tensor) {
-    ValueLayer valueLayer = new ValueLayer(tensor);
-    tensor.freeRef();
-    return valueLayer;
+    return new ValueLayer(tensor);
   }
 
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -69,30 +64,23 @@ public class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    ValueLayer.this.addRef();
-    Arrays.stream(data)
-        .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-        .forEach(ReferenceCountingBase::addRef);
-    return new Result(TensorArray.create(ValueLayer.this.data), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      if (!isFrozen()) {
-        assertAlive();
-        assert (1 == ValueLayer.this.data.length || ValueLayer.this.data.length == data.length());
-        for (int i = 0; i < data.length(); i++) {
-          Tensor delta = data.get(i);
-          Tensor value = ValueLayer.this.data[i % ValueLayer.this.data.length];
-          buffer.get(value.getId(), value.getData()).addInPlace(delta.getData()).freeRef();
-          delta.freeRef();
-        }
-      }
-      data.freeRef();
-    }) {
+    return new Result(TensorArray.create(ValueLayer.this.data),
+        (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
+          if (!isFrozen()) {
+            assertAlive();
+            assert (1 == ValueLayer.this.data.length || ValueLayer.this.data.length == data.length());
+            for (int i = 0; i < data.length(); i++) {
+              Tensor delta = data.get(i);
+              Tensor value = ValueLayer.this.data[i % ValueLayer.this.data.length];
+              buffer.get(value.getId(), value.getData()).addInPlace(delta.getData());
+            }
+          }
+        }) {
 
       @Override
       protected void _free() {
-        Arrays.stream(ValueLayer.this.data)
-            .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
+        Arrays.stream(ValueLayer.this.data).map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
             .forEach(ReferenceCountingBase::freeRef);
-        ValueLayer.this.freeRef();
       }
 
       @Override
@@ -105,8 +93,7 @@ public class ValueLayer extends LayerBase {
   @Override
   protected void _free() {
 
-    Arrays.stream(ValueLayer.this.data)
-        .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
+    Arrays.stream(ValueLayer.this.data).map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
         .forEach(ReferenceCountingBase::freeRef);
   }
 
@@ -116,19 +103,17 @@ public class ValueLayer extends LayerBase {
   }
 
   public void setData(final Tensor... data) {
-    Arrays.stream(data)
-        .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-        .forEach(ReferenceCountingBase::addRef);
-    if (null != this.data) Arrays.stream(this.data)
-        .map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-        .forEach(ReferenceCountingBase::freeRef);
+    if (null != this.data)
+      Arrays.stream(this.data).map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
+          .forEach(ReferenceCountingBase::freeRef);
     this.data = data;
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
     Arrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer)).forEach(values::add);
     json.add("values", values);
@@ -150,8 +135,10 @@ public class ValueLayer extends LayerBase {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o)
+        return true;
+      if (o == null || getClass() != o.getClass())
+        return false;
       RefWrapper<?> that = (RefWrapper<?>) o;
       return obj == that.obj;
     }

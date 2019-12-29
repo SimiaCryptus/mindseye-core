@@ -44,32 +44,35 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
 
   public TensorListTrainable(final Layer network, final TensorList... data) {
     this.network = network;
-    this.network.addRef();
     this.data = data;
   }
 
   public static Result[] getNNContext(@Nullable final TensorList[] data, @Nullable final boolean[] mask) {
-    if (null == data) throw new IllegalArgumentException();
+    if (null == data)
+      throw new IllegalArgumentException();
     int inputs = data.length;
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
     return IntStream.range(0, inputs).mapToObj(col -> {
-      final Tensor[] tensors = IntStream.range(0, items).mapToObj(row -> data[col].get(row)).toArray(i -> new Tensor[i]);
-      @Nonnull TensorArray tensorArray = TensorArray.create(tensors);
+      final Tensor[] tensors = IntStream.range(0, items).mapToObj(row -> data[col].get(row))
+          .toArray(i -> new Tensor[i]);
+      @Nonnull
+      TensorArray tensorArray = TensorArray.create(tensors);
       if (null == mask || col >= mask.length || !mask[col]) {
         return new ConstantResult(tensorArray);
       } else {
         return new Result(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
           for (int index = 0; index < delta.length(); index++) {
             final Tensor dt = delta.get(index);
-            @Nullable final double[] d = dt.getData();
+            @Nullable
+            final double[] d = dt.getData();
             final Tensor t = tensors[index];
-            @Nullable final double[] p = t.getData();
-            @Nonnull PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
-            buffer.get(layer.getId(), p).addInPlace(d).freeRef();
-            dt.freeRef();
-            layer.freeRef();
+            @Nullable
+            final double[] p = t.getData();
+            @Nonnull
+            PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
+            buffer.get(layer.getId(), p).addInPlace(d);
           }
         }) {
 
@@ -88,42 +91,37 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = TensorListTrainable.getNNContext(list, mask);
       final Result result = network.eval(nnContext);
-      for (@Nonnull Result nnResult : nnContext) {
-        nnResult.getData().freeRef();
-        nnResult.freeRef();
+      for (@Nonnull
+      Result nnResult : nnContext) {
+        nnResult.getData();
       }
       final TensorList resultData = result.getData();
-      final DoubleSummaryStatistics statistics = resultData.stream()
-          .flatMapToDouble(x -> {
-            double[] array = Arrays.stream(x.getData()).toArray();
-            x.freeRef();
-            return Arrays.stream(array);
-          }).summaryStatistics();
+      final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
+        double[] array = Arrays.stream(x.getData()).toArray();
+        return Arrays.stream(array);
+      }).summaryStatistics();
       final double sum = statistics.getSum();
-      @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
-      @Nonnull PointSample pointSample;
-      try {
+      @Nonnull
+      final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+      @Nonnull
+      PointSample pointSample;
+      {
         result.accumulate(deltaSet);
         //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
-        @Nonnull StateSet<UUID> stateSet = new StateSet<>(deltaSet);
+        @Nonnull
+        StateSet<UUID> stateSet = new StateSet<>(deltaSet);
         pointSample = new PointSample(deltaSet, stateSet, sum, 0.0, items);
-        stateSet.freeRef();
-      } finally {
-        resultData.freeRef();
-        result.freeRef();
-        deltaSet.freeRef();
       }
       return pointSample;
     });
     if (null != monitor && verbosity() > 0) {
       monitor.log(String.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
     }
-    @Nonnull PointSample normalize = timedResult.result.normalize();
-    timedResult.result.freeRef();
-    return normalize;
+    return timedResult.result.normalize();
   }
 
   @Nonnull
@@ -148,10 +146,12 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
-      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9, timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
+      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9,
+          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     assert null != timedResult.result;
     return timedResult.result;
@@ -163,7 +163,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    Arrays.stream(data).forEach(x -> x.addRef());
     this.data = data;
     return this;
   }
@@ -187,7 +186,5 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
 
   @Override
   protected void _free() {
-    this.network.freeRef();
-    if (null != this.data) Arrays.stream(this.data).forEach(x -> x.freeRef());
   }
 }

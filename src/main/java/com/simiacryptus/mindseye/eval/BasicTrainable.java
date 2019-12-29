@@ -42,16 +42,18 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   public BasicTrainable(final Layer network) {
     this.network = network;
-    this.network.addRef();
     data = null;
   }
 
   public static Result[] getNNContext(@Nullable final List<Tensor[]> data, @Nullable final boolean[] mask) {
-    if (null == data) throw new IllegalArgumentException();
-    if (0 >= data.size()) throw new IllegalArgumentException();
+    if (null == data)
+      throw new IllegalArgumentException();
+    if (0 >= data.size())
+      throw new IllegalArgumentException();
     final int cols = data.get(0).length;
     return IntStream.range(0, cols).mapToObj(col -> {
-      final Tensor[] tensors = IntStream.range(0, data.size()).mapToObj(row -> data.get(row)[col]).toArray(i -> new Tensor[i]);
+      final Tensor[] tensors = IntStream.range(0, data.size()).mapToObj(row -> data.get(row)[col])
+          .toArray(i -> new Tensor[i]);
       if (null == mask || col >= mask.length || !mask[col]) {
         return new ConstantResult(TensorArray.create(tensors));
       } else {
@@ -61,26 +63,25 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   public static BasicTrainable wrap(PipelineNetwork network) {
-    final BasicTrainable trainable = new BasicTrainable(network);
-    network.freeRef();
-    return trainable;
+    return new BasicTrainable(network);
   }
 
   @Nonnull
   protected PointSample eval(@Nonnull final List<Tensor[]> list, @Nullable final TrainingMonitor monitor) {
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = BasicTrainable.getNNContext(list, mask);
       final Result result = network.evalAndFree(nnContext);
       final TensorList resultData = result.getData();
-      @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
-      @Nonnull StateSet<UUID> stateSet = null;
+      @Nonnull
+      final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+      @Nonnull
+      StateSet<UUID> stateSet = null;
       try {
-        final DoubleSummaryStatistics statistics = resultData.stream()
-            .flatMapToDouble(x -> {
-              double[] array = Arrays.stream(x.getData()).toArray();
-              x.freeRef();
-              return Arrays.stream(array);
-            }).summaryStatistics();
+        final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
+          double[] array = Arrays.stream(x.getData()).toArray();
+          return Arrays.stream(array);
+        }).summaryStatistics();
         final double sum = statistics.getSum();
         result.accumulate(deltaSet);
         stateSet = new StateSet<>(deltaSet);
@@ -88,13 +89,14 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
         for (Tensor[] tensors : list) {
           for (Tensor tensor : tensors) {
             if (deltaSetMap.containsKey(tensor.getId()))
-              stateSet.get(tensor.getId(), tensor.getData()).freeRef();
+              stateSet.get(tensor.getId(), tensor.getData());
           }
         }
         //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
         return new PointSample(deltaSet, stateSet, sum, 0.0, list.size());
       } finally {
-        if (null != stateSet) stateSet.freeRefAsync();
+        if (null != stateSet)
+          stateSet.freeRefAsync();
         resultData.freeRefAsync();
         result.freeRefAsync();
         deltaSet.freeRefAsync();
@@ -103,24 +105,18 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     if (null != monitor && verbosity() > 0) {
       monitor.log(String.format("Device completed %s items in %.3f sec", list.size(), timedResult.timeNanos / 1e9));
     }
-    try {
-      return timedResult.result.normalize();
-    } finally {
-      timedResult.result.freeRef();
-    }
+    return timedResult.result.normalize();
   }
 
   @Nonnull
   @Override
   public Tensor[][] getData() {
-    return data.toArray(new Tensor[][]{});
+    return data.toArray(new Tensor[][] {});
   }
 
   @Nonnull
   @Override
   public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
-    if (null != data) data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.addRef());
-    if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
     this.data = data;
     return this;
   }
@@ -146,10 +142,12 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert !data.isEmpty();
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
-      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", data.size(), timedResult.timeNanos / 1e9, timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
+      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", data.size(), timedResult.timeNanos / 1e9,
+          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     assert null != timedResult.result;
     return timedResult.result;
@@ -167,8 +165,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   @Override
   protected void _free() {
-    this.network.freeRef();
-    if (null != this.data) this.data.stream().flatMap(x -> Arrays.stream(x)).forEach(x -> x.freeRef());
   }
 
 }

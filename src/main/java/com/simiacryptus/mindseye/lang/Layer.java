@@ -46,7 +46,8 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
 
   @Nonnull
   static Layer fromZip(@Nonnull final ZipFile zipfile) {
-    @Nonnull HashMap<CharSequence, byte[]> resources = ZipSerializable.extract(zipfile);
+    @Nonnull
+    HashMap<CharSequence, byte[]> resources = ZipSerializable.extract(zipfile);
     return fromJson(JsonUtil.toJson(resources.get("model.json")), resources);
   }
 
@@ -57,15 +58,19 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     final String className = classElement.getAsString();
     try {
       final Class<?> clazz = Class.forName(className);
-      if (null == clazz) throw new ClassNotFoundException(className);
+      if (null == clazz)
+        throw new ClassNotFoundException(className);
       final Method method = clazz.getMethod("fromJson", JsonObject.class, Map.class);
       if (method.getDeclaringClass() == Layer.class) {
         throw new IllegalArgumentException("Cannot find deserialization method for " + className);
       }
-      @Nonnull Layer invoke = (Layer) method.invoke(null, json, rs);
-      if (null == invoke) throw new IllegalStateException();
+      @Nonnull
+      Layer invoke = (Layer) method.invoke(null, json, rs);
+      if (null == invoke)
+        throw new IllegalStateException();
       return invoke;
-    } catch (@Nonnull IllegalAccessException | InvocationTargetException | NoSuchMethodException | ClassNotFoundException e) {
+    } catch (@Nonnull IllegalAccessException | InvocationTargetException | NoSuchMethodException
+        | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
@@ -73,10 +78,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   default int[] evalDims(int[] inputDims) {
     Tensor input = new Tensor(inputDims);
     Tensor tensor = eval(input).getDataAndFree().getAndFree(0);
-    input.freeRef();
-    int[] dimensions = tensor.getDimensions();
-    tensor.freeRef();
-    return dimensions;
+    return tensor.getDimensions();
   }
 
   @NotNull
@@ -97,40 +99,28 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   Layer addRef();
 
   default PipelineNetwork andThen(Layer append) {
-    return PipelineNetwork.build(1,
-        this,
-        append
-    );
+    return PipelineNetwork.build(1, this, append);
   }
 
   default PipelineNetwork freeAndThen(Layer append) {
-    PipelineNetwork build = andThen(append);
-    this.freeRef();
-    return build;
+    return andThen(append);
   }
 
   default PipelineNetwork andThenWrap(Layer append) {
     assert append.assertAlive();
     assert assertAlive();
-    PipelineNetwork wrap = PipelineNetwork.build(1,
-        this,
-        append
-    );
-    append.freeRef();
-    return wrap;
+    return PipelineNetwork.build(1, this, append);
   }
 
   default PipelineNetwork freeAndThenWrap(Layer append) {
-    return PipelineNetwork.wrap(1,
-        this,
-        append
-    );
+    return PipelineNetwork.wrap(1, this, append);
   }
 
   @Nonnull
   @SuppressWarnings("unchecked")
   default <T extends Layer> T as(@Nonnull final Class<T> targetClass) {
-    @Nonnull HashMap<CharSequence, byte[]> resources = new HashMap<>();
+    @Nonnull
+    HashMap<CharSequence, byte[]> resources = new HashMap<>();
     final JsonObject json = getJson(resources, SerialPrecision.Double).getAsJsonObject();
     json.remove("class");
     json.addProperty("class", targetClass.getCanonicalName());
@@ -145,7 +135,8 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nonnull
   default Layer copy(SerialPrecision precision) {
     assertAlive();
-    @Nonnull HashMap<CharSequence, byte[]> resources = new HashMap<>();
+    @Nonnull
+    HashMap<CharSequence, byte[]> resources = new HashMap<>();
     final JsonObject json = getJson(resources, precision).getAsJsonObject();
     return Layer.fromJson(json, resources);
   }
@@ -153,27 +144,19 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nullable
   default Result eval(Result... array) {
     assertAlive();
-    Arrays.stream(array).forEach(ReferenceCounting::addRef);
-    Arrays.stream(array).map(Result::getData).forEach(ReferenceCounting::addRef);
     return evalAndFree(array);
   }
 
   @Nullable
   default Result evalAndFree(Result... array) {
     assertAlive();
-    Result result = eval(array);
-    Arrays.stream(array).map(Result::getData).forEach(ReferenceCounting::freeRef);
-    Arrays.stream(array).forEach(ReferenceCounting::freeRef);
-    return result;
+    return eval(array);
   }
 
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
     Result[] input = ConstantResult.singleResultArray(array);
-    Result eval = eval(input);
-    Arrays.stream(input).forEach(ReferenceCounting::freeRef);
-    Arrays.stream(input).map(Result::getData).forEach(ReferenceCounting::freeRef);
-    return eval;
+    return eval(input);
   }
 
   @Nullable
@@ -202,7 +185,8 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nonnull
   default JsonObject getJsonStub() {
     assertAlive();
-    @Nonnull final JsonObject json = new JsonObject();
+    @Nonnull
+    final JsonObject json = new JsonObject();
     json.addProperty("class", getClass().getCanonicalName());
     json.addProperty("id", getId().toString());
     json.addProperty("isFrozen", isFrozen());
@@ -232,9 +216,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
 
   default UnaryOperator<Tensor> asTensorFunction() {
     return input -> {
-      final Tensor result = eval(input).getDataAndFree().getAndFree(0);
-      input.freeRef();
-      return result;
+      return eval(input).getDataAndFree().getAndFree(0);
     };
   }
 }

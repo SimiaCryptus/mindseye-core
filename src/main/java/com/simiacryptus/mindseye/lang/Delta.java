@@ -38,15 +38,18 @@ public class Delta<K> extends DoubleBuffer<K> {
     this(layer, target, delta, RecycleBin.DOUBLES.obtain(delta.length));
   }
 
-  protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta, final double[] deltaCompensation) {
+  protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta,
+      final double[] deltaCompensation) {
     super(layer, target, delta);
-    if (null == target) throw new IllegalArgumentException();
+    if (null == target)
+      throw new IllegalArgumentException();
     assert null == delta || target.length == delta.length;
     //if(null == array) throw new IllegalArgumentException();
     this.deltaCompensation = deltaCompensation;
   }
 
-  public static void accumulate(@Nonnull final double[] data, final double[] delta, @Nullable final double[] dataCompensation) {
+  public static void accumulate(@Nonnull final double[] data, final double[] delta,
+      @Nullable final double[] dataCompensation) {
     synchronized (data) {
       for (int i = 0; i < data.length; i++) {
         final double sum = data[i];
@@ -69,7 +72,8 @@ public class Delta<K> extends DoubleBuffer<K> {
             dataCompensation[i] = c;
           }
         }
-        if (!Double.isFinite(data[i])) data[i] = 0;
+        if (!Double.isFinite(data[i]))
+          data[i] = 0;
       }
     }
   }
@@ -77,10 +81,12 @@ public class Delta<K> extends DoubleBuffer<K> {
   public final void accumulate(final double factor) {
     synchronized (target) {
       assert Arrays.stream(target).allMatch(Double::isFinite);
-      @Nullable final double[] delta = getDelta();
+      @Nullable
+      final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
         target[i] += delta[i] * factor;
-        if (!Double.isFinite(target[i])) target[i] = 0;
+        if (!Double.isFinite(target[i]))
+          target[i] = 0;
       }
       assert Arrays.stream(target).allMatch(Double::isFinite);
     }
@@ -101,12 +107,12 @@ public class Delta<K> extends DoubleBuffer<K> {
     return this;
   }
 
-
   @Nonnull
   @Override
   public Delta<K> copy() {
     assertAlive();
-    return new Delta<K>(key, target, RecycleBin.DOUBLES.copyOf(delta, length()), RecycleBin.DOUBLES.copyOf(deltaCompensation, length()));
+    return new Delta<K>(key, target, RecycleBin.DOUBLES.copyOf(delta, length()),
+        RecycleBin.DOUBLES.copyOf(deltaCompensation, length()));
   }
 
   @Override
@@ -140,7 +146,6 @@ public class Delta<K> extends DoubleBuffer<K> {
 
   public Delta<K> addInPlaceAndFree(Tensor dt) {
     addInPlace(dt.getData());
-    dt.freeRef();
     return this;
   }
 }

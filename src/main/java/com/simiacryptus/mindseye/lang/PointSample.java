@@ -33,7 +33,8 @@ public final class PointSample extends ReferenceCountingBase {
   public final StateSet<UUID> weights;
   public double rate;
 
-  public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum, final double rate, final int count) {
+  public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum,
+      final double rate, final int count) {
     try {
       assert delta.getMap().size() == weights.getMap().size();
       this.delta = new DeltaSet<>(delta);
@@ -57,14 +58,7 @@ public final class PointSample extends ReferenceCountingBase {
     assert left.rate == right.rate;
     DeltaSet<UUID> delta = left.delta.add(right.delta);
     StateSet<UUID> stateSet = StateSet.union(left.weights, right.weights);
-    PointSample pointSample = new PointSample(delta,
-        stateSet,
-        left.sum + right.sum,
-        left.rate,
-        left.count + right.count);
-    stateSet.freeRef();
-    delta.freeRef();
-    return pointSample;
+    return new PointSample(delta, stateSet, left.sum + right.sum, left.rate, left.count + right.count);
   }
 
   public PointSample add(@Nonnull final PointSample right) {
@@ -75,10 +69,7 @@ public final class PointSample extends ReferenceCountingBase {
     assert delta.getMap().size() == weights.getMap().size();
     assert right.delta.getMap().size() == right.weights.getMap().size();
     assert rate == right.rate;
-    return new PointSample(delta.addInPlace(right.delta),
-        StateSet.union(weights, right.weights),
-        sum + right.sum,
-        rate,
+    return new PointSample(delta.addInPlace(right.delta), StateSet.union(weights, right.weights), sum + right.sum, rate,
         count + right.count);
   }
 
@@ -88,12 +79,11 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Nonnull
   public PointSample copyFull() {
-    @Nonnull DeltaSet<UUID> deltaCopy = delta.copy();
-    @Nonnull StateSet<UUID> weightsCopy = weights.copy();
-    @Nonnull PointSample pointSample = new PointSample(deltaCopy, weightsCopy, sum, rate, count);
-    deltaCopy.freeRef();
-    weightsCopy.freeRef();
-    return pointSample;
+    @Nonnull
+    DeltaSet<UUID> deltaCopy = delta.copy();
+    @Nonnull
+    StateSet<UUID> weightsCopy = weights.copy();
+    return new PointSample(deltaCopy, weightsCopy, sum, rate, count);
   }
 
   public double getMean() {
@@ -113,13 +103,11 @@ public final class PointSample extends ReferenceCountingBase {
   @Nonnull
   public PointSample normalize() {
     if (count == 1) {
-      this.addRef();
       return this;
     } else {
-      @Nonnull DeltaSet<UUID> scale = delta.scale(1.0 / count);
-      @Nonnull PointSample pointSample = new PointSample(scale, weights, sum / count, rate, 1);
-      scale.freeRef();
-      return pointSample;
+      @Nonnull
+      DeltaSet<UUID> scale = delta.scale(1.0 / count);
+      return new PointSample(scale, weights, sum / count, rate, 1);
     }
   }
 
@@ -137,7 +125,8 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Override
   public String toString() {
-    @Nonnull final StringBuffer sb = new StringBuffer("PointSample{");
+    @Nonnull
+    final StringBuffer sb = new StringBuffer("PointSample{");
     sb.append("avg=").append(getMean());
     sb.append('}');
     return sb.toString();
@@ -145,8 +134,6 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Override
   protected void _free() {
-    if (null != this.weights) this.weights.freeRef();
-    if (null != this.delta) this.delta.freeRef();
   }
 
   @Override

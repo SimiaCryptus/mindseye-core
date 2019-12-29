@@ -1,0 +1,24 @@
+Uniform RMS: 1.5385576276582142E-16
+Exponential RMS: 1.7705307932205245E-16
+Uniform RMS: 1.5897597170454384E-8
+Exponential RMS: 2.4796753334607076E-11
+Uniform RMS: 2.920571724442933E-17
+Exponential RMS: 4.7823582751362037E-17
+Uniform RMS: 0.001892023987168241
+Exponential RMS: 1.6367651893009504E-6
+Uniform RMS: 0.0
+Exponential RMS: 0.0
+THREADS = 64
+DEBUG_LIFECYCLE = true
+DOUBLE_CACHE_MODE = WEAK
+Initialized RefSettings = {
+  "doubleCacheMode" : "WEAK"
+}
+0 - [0, 0, 0]
+1 - [1, 0, 0]
+2 - [0, 1, 0]
+3 - [1, 1, 0]
+4 - [0, 0, 1]
+5 - [1, 0, 1]
+6 - [0, 1, 1]
+7 - [1, 1, 1]

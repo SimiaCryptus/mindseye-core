@@ -31,10 +31,9 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   private final TrainingMonitor monitor;
   private PointSample best;
 
-
-  public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint, final TrainingMonitor monitor) {
+  public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
+      final TrainingMonitor monitor) {
     this.direction = direction;
-    this.direction.addRef();
     best = previousPoint.copyFull();
     this.monitor = monitor;
   }
@@ -44,21 +43,19 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     super.afterStep(step);
     direction.afterStep(step);
     if (null == best || best.getMean() > step.getMean()) {
-      @Nonnull PointSample newValue = step.copyFull();
+      @Nonnull
+      PointSample newValue = step.copyFull();
       if (null != this.best) {
         monitor.log(String.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
-        this.best.freeRef();
       }
       this.best = newValue;
     }
     return step;
   }
 
-
   public PointSample getBest(final TrainingMonitor monitor) {
     if (null != this.best) {
       best.weights.restore();
-      best.addRef();
     }
     return best;
   }
@@ -88,10 +85,8 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Override
   public void _free() {
     if (null != this.best) {
-      this.best.freeRef();
       this.best = null;
     }
-    this.direction.freeRef();
   }
 
 }
