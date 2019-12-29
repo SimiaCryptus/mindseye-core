@@ -33,6 +33,7 @@ import com.simiacryptus.mindseye.opt.orient.OrientationStrategy;
 import com.simiacryptus.util.FastRandom;
 import com.simiacryptus.util.Util;
 import com.simiacryptus.util.data.DoubleStatistics;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.lang.management.ManagementFactory;
@@ -76,17 +77,18 @@ public class ValidatingTrainer {
   private double trainingTarget = 0.7;
 
   public ValidatingTrainer(@Nonnull final SampledTrainable trainingSubject,
-      @Nonnull final Trainable validationSubject) {
+                           @Nonnull final Trainable validationSubject) {
     regimen = new ArrayList<TrainingPhase>(Arrays.asList(new TrainingPhase(new PerformanceWrapper(trainingSubject))));
     this.validationSubject = new TrainableBase() {
+      @NotNull
       @Override
-      protected void _free() {
+      public Layer getLayer() {
+        return validationSubject.getLayer();
       }
 
       @Override
       public PointSample measure(final TrainingMonitor monitor) {
-        @Nonnull
-        final TimedResult<PointSample> time = TimedResult.time(() -> validationSubject.measure(monitor));
+        @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> validationSubject.measure(monitor));
         validatingMeasurementTime.addAndGet(time.timeNanos);
         return time.result;
       }
@@ -97,38 +99,12 @@ public class ValidatingTrainer {
       }
 
       @Override
-      public Layer getLayer() {
-        return validationSubject.getLayer();
+      protected void _free() {
       }
     };
     trainingSize = trainingSubject.getTrainingSize();
     timeout = Duration.of(5, ChronoUnit.MINUTES);
     terminateThreshold = Double.NEGATIVE_INFINITY;
-  }
-
-  @Nonnull
-  private static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
-    return x.key.toString();
-  }
-
-  private String compare(@Nonnull final PointSample previousPoint, @Nonnull final PointSample nextPoint) {
-    @Nonnull
-    final StateSet<UUID> nextWeights = nextPoint.weights;
-    @Nonnull
-    final StateSet<UUID> prevWeights = previousPoint.weights;
-    return String.format("Overall network state change: %s",
-        prevWeights.stream().collect(Collectors.groupingBy(x -> x, Collectors.toList())).entrySet().stream()
-            .collect(Collectors.toMap(x -> x.getKey(), list -> {
-              final List<Double> doubleList = list.getValue().stream().map(prevWeight -> {
-                final DoubleBuffer<UUID> dirDelta = nextWeights.getMap().get(prevWeight.key);
-                final double numerator = prevWeight.deltaStatistics().rms();
-                final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
-                return numerator / (0 == denominator ? 1 : denominator);
-              }).collect(Collectors.toList());
-              if (1 == doubleList.size())
-                return Double.toString(doubleList.get(0));
-              return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
-            })));
   }
 
   public double getAdjustmentFactor() {
@@ -317,28 +293,23 @@ public class ValidatingTrainer {
     return validationSubject;
   }
 
-  private PointSample measure(@Nonnull final TrainingPhase phase) {
-    int retries = 0;
-    do {
-      if (10 < retries++)
-        throw new IterativeStopException();
-      final PointSample currentPoint = phase.trainingSubject.measure(monitor);
-      if (Double.isFinite(currentPoint.getMean()))
-        return currentPoint;
-      phase.orientation.reset();
-    } while (true);
+  @Nonnull
+  @Deprecated
+  public ValidatingTrainer setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
+    getRegimen().get(0).setLineSearchFactory(lineSearchFactory);
+    return this;
   }
 
   @Nonnull
-  private ValidatingTrainer reset(@Nonnull final TrainingPhase phase, final long seed) {
-    if (!phase.trainingSubject.reseed(seed))
-      throw new IterativeStopException();
-    phase.orientation.reset();
-    phase.trainingSubject.reseed(seed);
-    if (phase.trainingSubject.getLayer() instanceof DAGNetwork) {
-      ((DAGNetwork) phase.trainingSubject.getLayer()).shuffle(StochasticComponent.random.get().nextLong());
-    }
+  @Deprecated
+  public ValidatingTrainer setOrientation(final OrientationStrategy<?> orientation) {
+    getRegimen().get(0).setOrientation(orientation);
     return this;
+  }
+
+  @Nonnull
+  private static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
+    return x.key.toString();
   }
 
   public double run() {
@@ -350,8 +321,7 @@ public class ValidatingTrainer {
             ((StochasticComponent) layer).clearNoise();
         });
       }
-      @Nonnull
-      final EpochParams epochParams = new EpochParams(timeoutAt, epochIterations, getTrainingSize(),
+      @Nonnull final EpochParams epochParams = new EpochParams(timeoutAt, epochIterations, getTrainingSize(),
           validationSubject.measure(monitor));
       int epochNumber = 0;
       int iterationNumber = 0;
@@ -363,8 +333,7 @@ public class ValidatingTrainer {
           break;
         }
         monitor.log(String.format("Epoch parameters: %s, %s", epochParams.trainingSize, epochParams.iterations));
-        @Nonnull
-        final List<TrainingPhase> regimen = getRegimen();
+        @Nonnull final List<TrainingPhase> regimen = getRegimen();
         final long seed = System.nanoTime();
         final List<EpochResult> epochResults = IntStream.range(0, regimen.size()).mapToObj(i -> {
           final TrainingPhase phase = getRegimen().get(i);
@@ -451,8 +420,19 @@ public class ValidatingTrainer {
   }
 
   @Nonnull
+  public ValidatingTrainer setTimeout(final int number, @Nonnull final TemporalUnit units) {
+    timeout = Duration.of(number, units);
+    return this;
+  }
+
+  @Nonnull
+  public ValidatingTrainer setTimeout(final int number, @Nonnull final TimeUnit units) {
+    return setTimeout(number, Util.cvt(units));
+  }
+
+  @Nonnull
   protected EpochResult runPhase(@Nonnull final EpochParams epochParams, @Nonnull final TrainingPhase phase,
-      final int i, final long seed) {
+                                 final int i, final long seed) {
     monitor.log(String.format("Phase %d: %s", i, phase));
     phase.trainingSubject.setTrainingSize(epochParams.trainingSize);
     monitor.log(String.format("resetAndMeasure; trainingSize=%s", epochParams.trainingSize));
@@ -467,8 +447,7 @@ public class ValidatingTrainer {
       final long startTime = System.nanoTime();
       final long prevGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
-      @Nonnull
-      final StepResult epoch = runStep(currentPoint, phase);
+      @Nonnull final StepResult epoch = runStep(currentPoint, phase);
       final long newGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
       final long endTime = System.nanoTime();
@@ -493,8 +472,7 @@ public class ValidatingTrainer {
   @Nonnull
   protected StepResult runStep(@Nonnull final PointSample previousPoint, @Nonnull final TrainingPhase phase) {
     currentIteration.incrementAndGet();
-    @Nonnull
-    final TimedResult<LineSearchCursor> timedOrientation = TimedResult
+    @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
         .time(() -> phase.orientation.orient(phase.trainingSubject, previousPoint, monitor));
     final LineSearchCursor direction = timedOrientation.result;
     final CharSequence directionType = direction.getDirectionType();
@@ -506,10 +484,8 @@ public class ValidatingTrainer {
       lineSearchStrategy = phase.lineSearchFactory.apply(direction.getDirectionType());
       phase.lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull
-    final TimedResult<PointSample> timedLineSearch = TimedResult.time(() -> {
-      @Nonnull
-      final FailsafeLineSearchCursor cursor = new FailsafeLineSearchCursor(direction, previousPoint, monitor);
+    @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult.time(() -> {
+      @Nonnull final FailsafeLineSearchCursor cursor = new FailsafeLineSearchCursor(direction, previousPoint, monitor);
       lineSearchStrategy.step(cursor, monitor);
       //cursor.step(restore.rate, monitor);
       return cursor.getBest(monitor).restore();
@@ -520,32 +496,7 @@ public class ValidatingTrainer {
     }
     monitor.log(compare(previousPoint, bestPoint));
     return new StepResult(previousPoint, bestPoint,
-        new double[] { timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9 });
-  }
-
-  @Nonnull
-  @Deprecated
-  public ValidatingTrainer setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
-    getRegimen().get(0).setLineSearchFactory(lineSearchFactory);
-    return this;
-  }
-
-  @Nonnull
-  @Deprecated
-  public ValidatingTrainer setOrientation(final OrientationStrategy<?> orientation) {
-    getRegimen().get(0).setOrientation(orientation);
-    return this;
-  }
-
-  @Nonnull
-  public ValidatingTrainer setTimeout(final int number, @Nonnull final TemporalUnit units) {
-    timeout = Duration.of(number, units);
-    return this;
-  }
-
-  @Nonnull
-  public ValidatingTrainer setTimeout(final int number, @Nonnull final TimeUnit units) {
-    return setTimeout(number, Util.cvt(units));
+        new double[]{timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9});
   }
 
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
@@ -561,37 +512,46 @@ public class ValidatingTrainer {
     }
   }
 
-  private static class EpochParams {
-    int iterations;
-    long timeoutMs;
-    int trainingSize;
-    PointSample validation;
-
-    private EpochParams(final long timeoutMs, final int iterations, final int trainingSize,
-        final PointSample validation) {
-      this.timeoutMs = timeoutMs;
-      this.iterations = iterations;
-      this.trainingSize = trainingSize;
-      this.validation = validation;
-    }
-
+  private String compare(@Nonnull final PointSample previousPoint, @Nonnull final PointSample nextPoint) {
+    @Nonnull final StateSet<UUID> nextWeights = nextPoint.weights;
+    @Nonnull final StateSet<UUID> prevWeights = previousPoint.weights;
+    return String.format("Overall network state change: %s",
+        prevWeights.stream().collect(Collectors.groupingBy(x -> x, Collectors.toList())).entrySet().stream()
+            .collect(Collectors.toMap(x -> x.getKey(), list -> {
+              final List<Double> doubleList = list.getValue().stream().map(prevWeight -> {
+                final DoubleBuffer<UUID> dirDelta = nextWeights.getMap().get(prevWeight.key);
+                final double numerator = prevWeight.deltaStatistics().rms();
+                final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
+                return numerator / (0 == denominator ? 1 : denominator);
+              }).collect(Collectors.toList());
+              if (1 == doubleList.size())
+                return Double.toString(doubleList.get(0));
+              return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
+            })));
   }
 
-  private static class EpochResult {
+  private PointSample measure(@Nonnull final TrainingPhase phase) {
+    int retries = 0;
+    do {
+      if (10 < retries++)
+        throw new IterativeStopException();
+      final PointSample currentPoint = phase.trainingSubject.measure(monitor);
+      if (Double.isFinite(currentPoint.getMean()))
+        return currentPoint;
+      phase.orientation.reset();
+    } while (true);
+  }
 
-    boolean continueTraining;
-    PointSample currentPoint;
-    int iterations;
-    double priorMean;
-
-    public EpochResult(final boolean continueTraining, final double priorMean, final PointSample currentPoint,
-        final int iterations) {
-      this.priorMean = priorMean;
-      this.currentPoint = currentPoint;
-      this.continueTraining = continueTraining;
-      this.iterations = iterations;
+  @Nonnull
+  private ValidatingTrainer reset(@Nonnull final TrainingPhase phase, final long seed) {
+    if (!phase.trainingSubject.reseed(seed))
+      throw new IterativeStopException();
+    phase.orientation.reset();
+    phase.trainingSubject.reseed(seed);
+    if (phase.trainingSubject.getLayer() instanceof DAGNetwork) {
+      ((DAGNetwork) phase.trainingSubject.getLayer()).shuffle(StochasticComponent.random.get().nextLong());
     }
-
+    return this;
   }
 
   public static class TrainingPhase {
@@ -639,9 +599,8 @@ public class ValidatingTrainer {
     }
 
     @Nonnull
-    public TrainingPhase setTrainingSubject(final SampledTrainable trainingSubject) {
+    public void setTrainingSubject(final SampledTrainable trainingSubject) {
       this.trainingSubject = trainingSubject;
-      return this;
     }
 
     @Nonnull
@@ -651,10 +610,48 @@ public class ValidatingTrainer {
     }
   }
 
+  private static class EpochParams {
+    int iterations;
+    final long timeoutMs;
+    int trainingSize;
+    PointSample validation;
+
+    private EpochParams(final long timeoutMs, final int iterations, final int trainingSize,
+                        final PointSample validation) {
+      this.timeoutMs = timeoutMs;
+      this.iterations = iterations;
+      this.trainingSize = trainingSize;
+      this.validation = validation;
+    }
+
+  }
+
+  private static class EpochResult {
+
+    final boolean continueTraining;
+    final PointSample currentPoint;
+    final int iterations;
+    final double priorMean;
+
+    public EpochResult(final boolean continueTraining, final double priorMean, final PointSample currentPoint,
+                       final int iterations) {
+      this.priorMean = priorMean;
+      this.currentPoint = currentPoint;
+      this.continueTraining = continueTraining;
+      this.iterations = iterations;
+    }
+
+  }
+
   private class PerformanceWrapper extends TrainableWrapper<SampledTrainable> implements SampledTrainable {
 
     public PerformanceWrapper(final SampledTrainable trainingSubject) {
       super(trainingSubject);
+    }
+
+    @Override
+    public int getTrainingSize() {
+      return getInner().getTrainingSize();
     }
 
     @Nonnull
@@ -664,23 +661,16 @@ public class ValidatingTrainer {
     }
 
     @Override
-    public int getTrainingSize() {
-      return getInner().getTrainingSize();
-    }
-
-    @Override
     public PointSample measure(final TrainingMonitor monitor) {
-      @Nonnull
-      final TimedResult<PointSample> time = TimedResult.time(() -> getInner().measure(monitor));
+      @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> getInner().measure(monitor));
       trainingMeasurementTime.addAndGet(time.timeNanos);
       return time.result;
     }
 
     @Nonnull
     @Override
-    public SampledTrainable setTrainingSize(final int trainingSize) {
+    public void setTrainingSize(final int trainingSize) {
       getInner().setTrainingSize(trainingSize);
-      return this;
     }
 
   }

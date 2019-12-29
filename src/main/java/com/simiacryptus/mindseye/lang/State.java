@@ -55,11 +55,6 @@ public class State<K> extends DoubleBuffer<K> {
   }
 
   @Nonnull
-  public State<K> backupCopy() {
-    return new State(key, target, RecycleBin.DOUBLES.copyOf(target, length()));
-  }
-
-  @Nonnull
   @Override
   public State<K> map(@Nonnull final DoubleUnaryOperator mapper) {
     return new State(key, target, Arrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());

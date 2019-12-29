@@ -19,9 +19,9 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +45,14 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   }
 
   @Override
+  public final UUID getId() {
+    return id;
+  }
+
+  @Override
   public LazyResult addRef() {
     return (LazyResult) super.addRef();
   }
-
-  @Nullable
-  protected abstract Result eval(GraphEvaluationContext t);
 
   @Nullable
   @Override
@@ -105,9 +107,7 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return nnResult;
   }
 
-  @Override
-  public final UUID getId() {
-    return id;
-  }
+  @Nullable
+  protected abstract Result eval(GraphEvaluationContext t);
 
 }

@@ -61,12 +61,6 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     return this;
   }
 
-  public Collection<Layer> getLayers(@Nonnull final Collection<Layer> layers) {
-    return layers.stream()
-        //        .filter(layer -> layer instanceof FullyConnectedLayer)
-        .collect(Collectors.toList());
-  }
-
   public double getZeroTol() {
     return zeroTol;
   }
@@ -77,31 +71,30 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     return this;
   }
 
+  public Collection<Layer> getLayers(@Nonnull final Collection<Layer> layers) {
+    return layers.stream()
+        //        .filter(layer -> layer instanceof FullyConnectedLayer)
+        .collect(Collectors.toList());
+  }
+
   @Nonnull
   @Override
   public LineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      final TrainingMonitor monitor) {
-    @Nonnull
-    final SimpleLineSearchCursor gradient = (SimpleLineSearchCursor) inner.orient(subject, measurement, monitor);
-    @Nonnull
-    final DeltaSet<UUID> searchDirection = gradient.direction.copy();
-    @Nonnull
-    final DeltaSet<UUID> orthant = new DeltaSet<UUID>();
+                                 final TrainingMonitor monitor) {
+    @Nonnull final SimpleLineSearchCursor gradient = (SimpleLineSearchCursor) inner.orient(subject, measurement, monitor);
+    @Nonnull final DeltaSet<UUID> searchDirection = gradient.direction.copy();
+    @Nonnull final DeltaSet<UUID> orthant = new DeltaSet<UUID>();
     Set<UUID> keySet = gradient.direction.getMap().keySet();
     List<Layer> layerSet = keySet.stream().map(id -> ((DAGNetwork) subject.getLayer()).getLayersById().get(id))
         .collect(Collectors.toList());
-    for (@Nonnull
-    final Layer layer : getLayers(layerSet)) {
+    for (@Nonnull final Layer layer : getLayers(layerSet)) {
       gradient.direction.getMap().forEach((layerId, layerDelta) -> {
         final double[] weights = layerDelta.target;
-        @Nullable
-        final double[] delta = layerDelta.getDelta();
+        @Nullable final double[] delta = layerDelta.getDelta();
         Delta<UUID> layerDelta1 = searchDirection.get(layerId, weights);
-        @Nullable
-        final double[] searchDir = layerDelta1.getDelta();
+        @Nullable final double[] searchDir = layerDelta1.getDelta();
         Delta<UUID> layerDelta2 = orthant.get(layerId, weights);
-        @Nullable
-        final double[] suborthant = layerDelta2.getDelta();
+        @Nullable final double[] suborthant = layerDelta2.getDelta();
         for (int i = 0; i < searchDir.length; i++) {
           final int positionSign = sign(weights[i]);
           final int directionSign = sign(delta[i]);
@@ -119,14 +112,12 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
       @Override
       public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
         origin.weights.stream().forEach(d -> d.restore());
-        @Nonnull
-        final DeltaSet<UUID> currentDirection = direction.copy();
+        @Nonnull final DeltaSet<UUID> currentDirection = direction.copy();
         direction.getMap().forEach((layer, buffer) -> {
           if (null == buffer.getDelta())
             return;
           Delta<UUID> layerDelta = currentDirection.get(layer, buffer.target);
-          @Nullable
-          final double[] currentDelta = layerDelta.getDelta();
+          @Nullable final double[] currentDelta = layerDelta.getDelta();
           for (int i = 0; i < buffer.getDelta().length; i++) {
             final double prevValue = buffer.target[i];
             final double newValue = prevValue + buffer.getDelta()[i] * alpha;
@@ -138,8 +129,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
             }
           }
         });
-        @Nonnull
-        final PointSample measure = afterStep(subject.measure(monitor).setRate(alpha));
+        @Nonnull final PointSample measure = afterStep(subject.measure(monitor).setRate(alpha));
         double dot = currentDirection.dot(measure.delta);
         return new LineSearchPoint(measure, dot);
       }
@@ -154,8 +144,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   protected int sign(final double weight) {
     if (weight > zeroTol) {
       return 1;
-    } else if (weight < -zeroTol) {
-    } else {
+    } else if (!(weight < -zeroTol)) {
       return -1;
     }
     return 0;

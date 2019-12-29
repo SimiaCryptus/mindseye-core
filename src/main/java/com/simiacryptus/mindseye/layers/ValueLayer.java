@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 
 import javax.annotation.Nonnull;
@@ -52,10 +51,16 @@ public class ValueLayer extends LayerBase {
     this.frozen = true;
   }
 
-  public static Layer wrap(Tensor tensor) {
-    return new ValueLayer(tensor);
+  @Nullable
+  public Tensor[] getData() {
+    return data;
   }
 
+  public void setData(final Tensor... data) {
+    this.data = data;
+  }
+
+  @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
@@ -64,7 +69,7 @@ public class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    return new Result(TensorArray.create(ValueLayer.this.data),
+    return new Result(new TensorArray(this.data),
         (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
           if (!isFrozen()) {
             assertAlive();
@@ -78,42 +83,20 @@ public class ValueLayer extends LayerBase {
         }) {
 
       @Override
-      protected void _free() {
-        Arrays.stream(ValueLayer.this.data).map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-            .forEach(ReferenceCountingBase::freeRef);
-      }
-
-      @Override
       public boolean isAlive() {
         return !ValueLayer.this.isFrozen();
       }
+
+      @Override
+      protected void _free() {
+      }
     };
-  }
-
-  @Override
-  protected void _free() {
-
-    Arrays.stream(ValueLayer.this.data).map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-        .forEach(ReferenceCountingBase::freeRef);
-  }
-
-  @Nullable
-  public Tensor[] getData() {
-    return data;
-  }
-
-  public void setData(final Tensor... data) {
-    if (null != this.data)
-      Arrays.stream(this.data).map(x -> new RefWrapper(x)).distinct().map(x -> (Tensor) x.obj)
-          .forEach(ReferenceCountingBase::freeRef);
-    this.data = data;
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
     Arrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer)).forEach(values::add);
     json.add("values", values);
@@ -124,6 +107,10 @@ public class ValueLayer extends LayerBase {
   @Override
   public List<double[]> state() {
     return Arrays.stream(data).map(x -> x.getData()).collect(Collectors.toList());
+  }
+
+  @Override
+  protected void _free() {
   }
 
   public static class RefWrapper<T> {

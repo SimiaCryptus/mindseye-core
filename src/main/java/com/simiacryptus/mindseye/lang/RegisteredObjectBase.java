@@ -56,13 +56,6 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
     private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(
         this::maintain, 1, 1, TimeUnit.SECONDS);
 
-    private void maintain() {
-      if (dirty) {
-        this.removeIf(ref -> null == ref.get());
-        dirty = false;
-      }
-    }
-
     @Override
     public boolean add(final WeakReference<T> tWeakReference) {
       dirty = true;
@@ -73,6 +66,13 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
     public Stream<WeakReference<T>> stream() {
       dirty = true;
       return super.stream();
+    }
+
+    private void maintain() {
+      if (dirty) {
+        this.removeIf(ref -> null == ref.get());
+        dirty = false;
+      }
     }
   }
 

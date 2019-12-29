@@ -199,6 +199,11 @@ public enum SerialPrecision implements DataSerializer {
     this.size = size;
   }
 
+  @Override
+  public int getElementSize() {
+    return size;
+  }
+
   public double[] parse(String trim) {
     return fromBytes(Base64.getDecoder().decode(trim));
   }
@@ -206,13 +211,6 @@ public enum SerialPrecision implements DataSerializer {
   public String base64(Tensor value) {
     return Base64.getEncoder().encodeToString(toBytes(value.getData()));
   }
-
-
-  @Override
-  public int getElementSize() {
-    return size;
-  }
-
 
   @Nonnull
   public Rational toRational(double value, int maxScalar) {

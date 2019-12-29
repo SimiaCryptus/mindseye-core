@@ -33,7 +33,6 @@ public class Result extends ReferenceCountingBase {
   protected final TensorList data;
   @Nonnull
   protected final int[] dims;
-  @Nonnull
   protected final int dataLength;
   @Nonnull
   protected final BiConsumer<DeltaSet<UUID>, TensorList> accumulator;
@@ -46,12 +45,27 @@ public class Result extends ReferenceCountingBase {
     this.dataLength = data.length();
   }
 
+  public BiConsumer<DeltaSet<UUID>, TensorList> getAccumulator() {
+    assertAlive();
+    return accumulator;
+  }
+
+  public final TensorList getData() {
+    assertAlive();
+    data.assertAlive();
+    return data;
+  }
+
   public double[] getSingleDelta() {
     DeltaSet<UUID> deltaBuffer = new DeltaSet<>();
     accumulate(deltaBuffer);
     if (deltaBuffer.getMap().size() != 1)
       throw new AssertionError(deltaBuffer.getMap().size());
     return copy(deltaBuffer.getMap().values().iterator().next().getDelta());
+  }
+
+  public boolean isAlive() {
+    return null != getAccumulator();
   }
 
   public double[] copy(double[] delta) {
@@ -65,33 +79,11 @@ public class Result extends ReferenceCountingBase {
 
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
 
-    accumulate(buffer, TensorArray.wrap(
-        IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
+    accumulate(buffer, new TensorArray(IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
 
   public void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
     getAccumulator().accept(buffer, delta);
-  }
-
-  public final TensorList getData() {
-    return data;
-  }
-
-  public boolean isAlive() {
-    return null != getAccumulator();
-  }
-
-  public BiConsumer<DeltaSet<UUID>, TensorList> getAccumulator() {
-    assertAlive();
-    return accumulator;
-  }
-
-  public TensorList getDataAndFree() {
-    assertAlive();
-    TensorList data = getData();
-    data.assertAlive();
-    freeRef();
-    return data;
   }
 
   @Override

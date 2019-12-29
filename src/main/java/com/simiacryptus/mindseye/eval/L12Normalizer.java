@@ -39,14 +39,6 @@ public abstract class L12Normalizer extends TrainableBase {
     this.inner = inner;
   }
 
-  @Override
-  protected void _free() {
-  }
-
-  protected abstract double getL1(Layer layer);
-
-  protected abstract double getL2(Layer layer);
-
   public Layer toLayer(UUID id) {
     return ((DAGNetwork) inner.getLayer()).getLayersById().get(id);
   }
@@ -61,14 +53,11 @@ public abstract class L12Normalizer extends TrainableBase {
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     final PointSample innerMeasure = inner.measure(monitor);
-    @Nonnull
-    final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
+    @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
     double valueAdj = 0;
-    for (@Nonnull
-    final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
+    for (@Nonnull final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
       final double[] weights = innerMeasure.delta.getMap().get(layer.getId()).target;
-      @Nullable
-      final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
+      @Nullable final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
       final double factor_L1 = getL1(layer);
       final double factor_L2 = getL2(layer);
       assert null != gradientAdj;
@@ -88,5 +77,13 @@ public abstract class L12Normalizer extends TrainableBase {
   public boolean reseed(final long seed) {
     return inner.reseed(seed);
   }
+
+  @Override
+  protected void _free() {
+  }
+
+  protected abstract double getL1(Layer layer);
+
+  protected abstract double getL2(Layer layer);
 
 }

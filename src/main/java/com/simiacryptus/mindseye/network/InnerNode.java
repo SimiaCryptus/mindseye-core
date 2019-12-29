@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
@@ -48,46 +47,18 @@ public final class InnerNode extends LazyResult {
 
   @SafeVarargs
   InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key,
-      @Nonnull final DAGNode... inputNodes) {
+            @Nonnull final DAGNode... inputNodes) {
     super(key);
     this.dagNetwork = dagNetwork;
     assert null != inputNodes;
     setLayer(layer);
     if (0 == inputNodes.length) {
-      this.inputNodes = new DAGNode[] {};
+      this.inputNodes = new DAGNode[]{};
     } else {
       this.inputNodes = Arrays.copyOf(inputNodes, inputNodes.length);
       assert Arrays.stream(inputNodes).parallel().allMatch(x -> x != null);
       assert Arrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
     }
-    //    assert Arrays.stream(inputNodes).distinct().count() == inputNodes.length;
-    //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::addRef);
-    //    Arrays.stream(this.inputNodes).forEach(ReferenceCounting::freeRef);
-  }
-
-  @Override
-  public InnerNode addRef() {
-    return (InnerNode) super.addRef();
-  }
-
-  public DAGNode add(@Nonnull final Layer nextHead) {
-    return dagNetwork.add(nextHead, InnerNode.this);
-  }
-
-  @Nullable
-  @Override
-  protected Result eval(final GraphEvaluationContext ctx) {
-    assertAlive();
-    @Nonnull
-    final Layer innerLayer = getLayer();
-    assert Arrays.stream(inputNodes).allMatch(x -> x != null);
-    @Nonnull
-    Stream<DAGNode> stream = Arrays.stream(inputNodes);
-    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-      stream = stream.parallel();
-    final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
-    assert Arrays.stream(in).allMatch(x -> x != null);
-    return innerLayer.evalAndFree(in);
   }
 
   @Nonnull
@@ -120,16 +91,6 @@ public final class InnerNode extends LazyResult {
     return dagNetwork;
   }
 
-  @Override
-  protected void _free() {
-    super._free();
-    if (null != this.inputNodes) {
-      Arrays.stream(this.inputNodes).filter(x -> x != null).forEach(ReferenceCounting::freeRef);
-      Arrays.setAll(this.inputNodes, x -> null);
-    }
-    this.layer = null;
-  }
-
   public boolean isParallel() {
     return parallel;
   }
@@ -137,5 +98,34 @@ public final class InnerNode extends LazyResult {
   public InnerNode setParallel(boolean parallel) {
     this.parallel = parallel;
     return this;
+  }
+
+  @Override
+  public InnerNode addRef() {
+    return (InnerNode) super.addRef();
+  }
+
+  @Nullable
+  @Override
+  protected Result eval(final GraphEvaluationContext ctx) {
+    assertAlive();
+    @Nonnull final Layer innerLayer = getLayer();
+    assert Arrays.stream(inputNodes).allMatch(x -> x != null);
+    @Nonnull
+    Stream<DAGNode> stream = Arrays.stream(inputNodes);
+    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      stream = stream.parallel();
+    final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
+    assert Arrays.stream(in).allMatch(x -> x != null);
+    return innerLayer.eval(in);
+  }
+
+  @Override
+  protected void _free() {
+    super._free();
+    if (null != this.inputNodes) {
+      Arrays.fill(this.inputNodes, null);
+    }
+    this.layer = null;
   }
 }

@@ -19,10 +19,11 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
@@ -34,13 +35,14 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     this.inner = inner;
   }
 
-  @Override
-  protected void _free() {
-    super._free();
-  }
-
   public T getInner() {
     return inner;
+  }
+
+  @NotNull
+  @Override
+  public Layer getLayer() {
+    return inner.getLayer();
   }
 
   @Override
@@ -58,11 +60,6 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return getInner().reseed(seed);
   }
 
-  @Override
-  public Layer getLayer() {
-    return inner.getLayer();
-  }
-
   @Nonnull
   @Override
   public TrainableDataMask setMask(final boolean... mask) {
@@ -74,5 +71,10 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   @Override
   public String toString() {
     return getClass().getSimpleName() + "{" + "heapCopy=" + inner + '}';
+  }
+
+  @Override
+  protected void _free() {
+    super._free();
   }
 }

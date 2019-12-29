@@ -55,10 +55,28 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     register();
   }
 
-  protected LayerBase(final UUID id, final String name) {
+  protected LayerBase(final UUID id, @org.jetbrains.annotations.Nullable final String name) {
     this.id = id;
     this.name = name;
     register();
+  }
+
+  public List<Layer> getChildren() {
+    return Arrays.asList(this);
+  }
+
+  @Nullable
+  public UUID getId() {
+    return id;
+  }
+
+  @Nullable
+  public String getName() {
+    return name;
+  }
+
+  public boolean isFrozen() {
+    return frozen;
   }
 
   @Override
@@ -83,20 +101,6 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     } else return getId().equals(other.getId());
   }
 
-  public List<Layer> getChildren() {
-    return Arrays.asList(this);
-  }
-
-  @Nullable
-  public UUID getId() {
-    return id;
-  }
-
-  @Nullable
-  public String getName() {
-    return name;
-  }
-
   @Nonnull
   public Layer setName(final String name) {
     this.name = name;
@@ -108,25 +112,21 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     return getId().hashCode();
   }
 
-  public boolean isFrozen() {
-    return frozen;
-  }
-
   @Nonnull
   public Layer setFrozen(final boolean frozen) {
     this.frozen = frozen;
     return self();
   }
 
-  @Nonnull
-  protected final Layer self() {
-    return this;
-  }
-
   @Nullable
   @Override
   public String toString() {
     return getName();
+  }
+
+  @Nonnull
+  protected final Layer self() {
+    return this;
   }
 
   @Override

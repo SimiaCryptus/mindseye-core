@@ -31,19 +31,19 @@ public class MutableResult extends Result {
   }
 
   public MutableResult(UUID[] objectId, final Tensor... tensors) {
-    super(TensorArray.create(tensors), handler(tensors, objectId));
-  }
-
-  private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors, UUID[] objectId) {
-    return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      for (int index = 0; index < delta.length(); index++) {
-        buffer.get(objectId[index], tensors[index].getData()).addInPlaceAndFree(delta.get(index));
-      }
-    };
+    super(new TensorArray(tensors), handler(tensors, objectId));
   }
 
   @Override
   public boolean isAlive() {
     return true;
+  }
+
+  private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors, UUID[] objectId) {
+    return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
+      for (int index = 0; index < delta.length(); index++) {
+        buffer.get(objectId[index], tensors[index].getData()).addInPlace(delta.get(index).getData());
+      }
+    };
   }
 }

@@ -33,9 +33,8 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
   @Nonnull
   @Override
   public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
-    @Nonnull
-    final DeltaSet<UUID> direction = measurement.delta.scale(-1);
+                                       @Nonnull final TrainingMonitor monitor) {
+    @Nonnull final DeltaSet<UUID> direction = measurement.delta.scale(-1);
     final double magnitude = direction.getMagnitude();
     if (Math.abs(magnitude) < 1e-10) {
       monitor.log(String.format("Zero gradient: %s", magnitude));

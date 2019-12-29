@@ -38,14 +38,10 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     this.inner = inner;
   }
 
-  @Override
-  protected void _free() {
-  }
-
   @Nonnull
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-      final TrainingMonitor monitor) {
+                                 final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     return new ValidatingLineSearchCursor(cursor);
   }
@@ -53,6 +49,10 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
   @Override
   public void reset() {
     inner.reset();
+  }
+
+  @Override
+  protected void _free() {
   }
 
   private static class ValidatingLineSearchCursor extends LineSearchCursorBase {
@@ -63,14 +63,14 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     @Override
-    public PointSample afterStep(@Nonnull PointSample step) {
-      super.afterStep(step);
-      return cursor.afterStep(step);
+    public CharSequence getDirectionType() {
+      return cursor.getDirectionType();
     }
 
     @Override
-    public CharSequence getDirectionType() {
-      return cursor.getDirectionType();
+    public PointSample afterStep(@Nonnull PointSample step) {
+      super.afterStep(step);
+      return cursor.afterStep(step);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
-        final double probeSize) {
+                     final double probeSize) {
       final double alpha = primaryPoint.point.rate;
       double probeAlpha = alpha + primaryPoint.point.sum * probeSize / primaryPoint.derivative;
       if (!Double.isFinite(probeAlpha) || probeAlpha == alpha) {

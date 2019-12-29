@@ -20,10 +20,10 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -47,17 +47,22 @@ public final class PlaceholderLayer<T> extends LayerBase {
     setName(getClass().getSimpleName() + "/" + getId());
   }
 
-  @Nonnull
-  @Override
-  public Result eval(final Result... array) {
-    throw new UnsupportedOperationException();
-  }
-
   @Nullable
   @Override
   public UUID getId() {
     T key = this.getKey();
     return key == null ? UUID.randomUUID() : UUID.nameUUIDFromBytes(key.toString().getBytes());
+  }
+
+  @Nullable
+  public T getKey() {
+    return key;
+  }
+
+  @Nonnull
+  @Override
+  public Result eval(final Result... array) {
+    throw new UnsupportedOperationException();
   }
 
   @Nonnull
@@ -78,10 +83,5 @@ public final class PlaceholderLayer<T> extends LayerBase {
       this.getKey();
     }
     super._free();
-  }
-
-  @Nullable
-  public T getKey() {
-    return key;
   }
 }

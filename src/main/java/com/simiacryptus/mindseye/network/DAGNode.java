@@ -19,9 +19,9 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,12 +29,6 @@ import java.io.Serializable;
 import java.util.UUID;
 
 public interface DAGNode extends Serializable, ReferenceCounting {
-  @Override
-  DAGNode addRef();
-
-  @Nullable
-  Result get(GraphEvaluationContext buildExeCtx);
-
   UUID getId();
 
   @Nonnull
@@ -45,9 +39,14 @@ public interface DAGNode extends Serializable, ReferenceCounting {
   @Nullable
   <T extends Layer> T getLayer();
 
-
   void setLayer(Layer layer);
 
   DAGNetwork getNetwork();
+
+  @Override
+  DAGNode addRef();
+
+  @Nullable
+  Result get(GraphEvaluationContext buildExeCtx);
 
 }

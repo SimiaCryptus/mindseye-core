@@ -36,6 +36,10 @@ import java.util.zip.ZipOutputStream;
 
 public interface ZipSerializable {
 
+  default JsonElement getJson() {
+    return getJson(null, SerialPrecision.Double);
+  }
+
   @NotNull
   static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
     Enumeration<? extends ZipEntry> entries = zipfile.entries();
@@ -54,10 +58,6 @@ public interface ZipSerializable {
   }
 
   JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
-
-  default JsonElement getJson() {
-    return getJson(null, SerialPrecision.Double);
-  }
 
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);

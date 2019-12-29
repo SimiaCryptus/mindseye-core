@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +40,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta,
-      final double[] deltaCompensation) {
+                  @org.jetbrains.annotations.Nullable final double[] deltaCompensation) {
     super(layer, target, delta);
     if (null == target)
       throw new IllegalArgumentException();
@@ -49,7 +50,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   public static void accumulate(@Nonnull final double[] data, final double[] delta,
-      @Nullable final double[] dataCompensation) {
+                                @Nullable final double[] dataCompensation) {
     synchronized (data) {
       for (int i = 0; i < data.length; i++) {
         final double sum = data[i];
@@ -81,8 +82,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   public final void accumulate(final double factor) {
     synchronized (target) {
       assert Arrays.stream(target).allMatch(Double::isFinite);
-      @Nullable
-      final double[] delta = getDelta();
+      @Nullable final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
         target[i] += delta[i] * factor;
         if (!Double.isFinite(target[i]))
@@ -93,9 +93,9 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   @Nonnull
-  public Delta<K> addInPlace(@Nonnull final Delta<K> buffer) {
+  public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
-    return addInPlace(buffer.delta).addInPlace(buffer.deltaCompensation);
+    addInPlace(buffer.delta).addInPlace(buffer.deltaCompensation);
   }
 
   @Nonnull
@@ -115,21 +115,10 @@ public class Delta<K> extends DoubleBuffer<K> {
         RecycleBin.DOUBLES.copyOf(deltaCompensation, length()));
   }
 
-  @Override
-  protected void _free() {
-    super._free();
-    if (null != deltaCompensation) {
-      if (RecycleBin.DOUBLES.want(deltaCompensation.length)) {
-        RecycleBin.DOUBLES.recycle(deltaCompensation, deltaCompensation.length);
-      }
-      deltaCompensation = null;
-    }
-  }
-
   @Nonnull
   @Override
   public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new Delta<K>(key, target, Arrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+    return new Delta<K>(key, target, Arrays.stream(getDelta()).map(mapper).toArray());
   }
 
   @Nonnull
@@ -139,13 +128,18 @@ public class Delta<K> extends DoubleBuffer<K> {
 
   @Nonnull
   @Override
-  public Delta<K> set(final double[] data) {
+  public void set(@NotNull final double[] data) {
     super.set(data);
-    return this;
   }
 
-  public Delta<K> addInPlaceAndFree(Tensor dt) {
-    addInPlace(dt.getData());
-    return this;
+  @Override
+  protected void _free() {
+    super._free();
+    if (null != deltaCompensation) {
+      if (RecycleBin.DOUBLES.want(deltaCompensation.length)) {
+        RecycleBin.DOUBLES.recycle(deltaCompensation, deltaCompensation.length);
+      }
+      deltaCompensation = null;
+    }
   }
 }

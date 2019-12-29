@@ -22,8 +22,8 @@ package com.simiacryptus.mindseye.lang;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,6 +39,37 @@ import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 public interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
+  List<Layer> getChildren();
+
+  @Nullable
+  UUID getId();
+
+  default CharSequence getJsonString() {
+    return new GsonBuilder().setPrettyPrinting().create().toJson(getJson());
+  }
+
+  @Nonnull
+  default JsonObject getJsonStub() {
+    assertAlive();
+    @Nonnull final JsonObject json = new JsonObject();
+    json.addProperty("class", getClass().getCanonicalName());
+    json.addProperty("id", getId().toString());
+    json.addProperty("isFrozen", isFrozen());
+    json.addProperty("name", getName());
+    return json;
+  }
+
+  @Nullable
+  String getName();
+
+  @Nonnull
+  Layer setName(final String name);
+
+  boolean isFrozen();
+
+  @Nonnull
+  Layer setFrozen(final boolean frozen);
+
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json) {
     return fromJson(json, null);
@@ -77,21 +108,21 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
 
   default int[] evalDims(int[] inputDims) {
     Tensor input = new Tensor(inputDims);
-    Tensor tensor = eval(input).getDataAndFree().getAndFree(0);
+    Tensor tensor = eval(input).getData().get(0);
     return tensor.getDimensions();
   }
 
   @NotNull
   default List<Tensor> map(Collection<? extends Tensor> values) {
     return values.stream().map(t -> {
-      return eval(t).getDataAndFree().getAndFree(0);
+      return eval(t).getData().get(0);
     }).collect(Collectors.toList());
   }
 
   @NotNull
   default Stream<Tensor> map(Stream<? extends Tensor> values) {
     return values.map(t -> {
-      return eval(t).getDataAndFree().getAndFree(0);
+      return eval(t).getData().get(0);
     });
   }
 
@@ -113,7 +144,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   default PipelineNetwork freeAndThenWrap(Layer append) {
-    return PipelineNetwork.wrap(1, this, append);
+    return PipelineNetwork.build(1, this, append);
   }
 
   @Nonnull
@@ -144,12 +175,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nullable
   default Result eval(Result... array) {
     assertAlive();
-    return evalAndFree(array);
-  }
-
-  @Nullable
-  default Result evalAndFree(Result... array) {
-    assertAlive();
     return eval(array);
   }
 
@@ -161,11 +186,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
 
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
-    Result[] input = ConstantResult.singleResultArray(array);
-    Result eval = eval(input);
-    Arrays.stream(input).forEach(ReferenceCounting::freeRef);
-    Arrays.stream(input).map(Result::getData).forEach(ReferenceCounting::freeRef);
-    return eval;
+    return eval(ConstantResult.singleResultArray(array));
   }
 
   @Nonnull
@@ -173,50 +194,12 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return setFrozen(true);
   }
 
-  List<Layer> getChildren();
-
-  @Nullable
-  UUID getId();
-
-  default CharSequence getJsonString() {
-    return new GsonBuilder().setPrettyPrinting().create().toJson(getJson());
-  }
-
-  @Nonnull
-  default JsonObject getJsonStub() {
-    assertAlive();
-    @Nonnull
-    final JsonObject json = new JsonObject();
-    json.addProperty("class", getClass().getCanonicalName());
-    json.addProperty("id", getId().toString());
-    json.addProperty("isFrozen", isFrozen());
-    json.addProperty("name", getName());
-    return json;
-  }
-
-  @Nullable
-  String getName();
-
-  @Nonnull
-  Layer setName(final String name);
-
-  boolean isFrozen();
-
-  @Nonnull
-  Layer setFrozen(final boolean frozen);
-
   @Nullable
   List<double[]> state();
 
-  default Layer copyAndFree() {
-    Layer copy = copy();
-    freeRef();
-    return copy;
-  }
-
   default UnaryOperator<Tensor> asTensorFunction() {
     return input -> {
-      return eval(input).getDataAndFree().getAndFree(0);
+      return eval(input).getData().get(0);
     };
   }
 }

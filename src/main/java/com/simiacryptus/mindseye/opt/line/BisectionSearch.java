@@ -31,11 +31,6 @@ public class BisectionSearch implements LineSearchStrategy {
   private double zeroTol = 1e-20;
   private double spanTol = 1e-3;
 
-  @Nonnull
-  public static PointSample getPointAndFree(final LineSearchPoint iterate) {
-    return iterate.point;
-  }
-
   public double getCurrentRate() {
     return currentRate;
   }
@@ -43,6 +38,24 @@ public class BisectionSearch implements LineSearchStrategy {
   @Nonnull
   public BisectionSearch setCurrentRate(final double currentRate) {
     this.currentRate = currentRate;
+    return this;
+  }
+
+  public double getMaxRate() {
+    return maxRate;
+  }
+
+  public BisectionSearch setMaxRate(double maxRate) {
+    this.maxRate = maxRate;
+    return this;
+  }
+
+  public double getSpanTol() {
+    return spanTol;
+  }
+
+  public BisectionSearch setSpanTol(double spanTol) {
+    this.spanTol = spanTol;
     return this;
   }
 
@@ -84,7 +97,7 @@ public class BisectionSearch implements LineSearchStrategy {
       if ((rightRight - leftX) * 2.0 / (leftX + rightRight) < spanTol) {
         monitor.log(String.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
         currentRate = leftX;
-        return getPointAndFree(cursor.step(leftX, monitor));
+        return cursor.step(leftX, monitor).point;
       }
       if (rightValue > leftValue) {
         rightRight = rightX;
@@ -99,18 +112,17 @@ public class BisectionSearch implements LineSearchStrategy {
       }
     }
     monitor.log(String.format("Starting bisection search from %s to %s", leftX, rightX));
-    return getPointAndFree(iterate(cursor, monitor, leftX, rightX));
+    return iterate(cursor, monitor, leftX, rightX).point;
   }
 
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
-      double leftX, double rightX) {
+                                 double leftX, double rightX) {
     LineSearchPoint searchPoint = null;
     int loopCount = 0;
     while (true) {
       double thisX;
       thisX = (rightX + leftX) / 2;
-      LineSearchPoint newPt = cursor.step(thisX, monitor);
-      searchPoint = newPt;
+      searchPoint = cursor.step(thisX, monitor);
       monitor.log(String.format("F(%s) = %s", thisX, searchPoint));
       if (loopCount++ > 1000)
         return searchPoint;
@@ -139,23 +151,5 @@ public class BisectionSearch implements LineSearchStrategy {
         return searchPoint;
       }
     }
-  }
-
-  public double getSpanTol() {
-    return spanTol;
-  }
-
-  public BisectionSearch setSpanTol(double spanTol) {
-    this.spanTol = spanTol;
-    return this;
-  }
-
-  public double getMaxRate() {
-    return maxRate;
-  }
-
-  public BisectionSearch setMaxRate(double maxRate) {
-    this.maxRate = maxRate;
-    return this;
   }
 }

@@ -53,7 +53,7 @@ import java.util.stream.Stream;
 
 public class ImageUtil {
   private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
-  public static ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build());
+  public static final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build());
 
   public static Stream<BufferedImage> renderToImages(@Nonnull final Tensor tensor, final boolean normalize) {
     final DoubleStatistics[] statistics = IntStream.range(0, tensor.getDimensions()[2]).mapToObj(band -> {
@@ -180,13 +180,13 @@ public class ImageUtil {
           fileChooser.setAcceptAllFileFilterUsed(false);
           fileChooser.addChoosableFileFilter(new FileFilter() {
             @Override
-            public boolean accept(final File f) {
-              return f.getName().toUpperCase().endsWith(".PNG");
+            public String getDescription() {
+              return "*.png";
             }
 
             @Override
-            public String getDescription() {
-              return "*.png";
+            public boolean accept(final File f) {
+              return f.getName().toUpperCase().endsWith(".PNG");
             }
           });
 

@@ -39,11 +39,10 @@ public class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
   @Nullable
-  public Tensor parse(final String str) {
+  public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
     @Nullable final Tensor tensor = Tensor.fromJson(json, null);
     Assert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
-    return tensor;
   }
 
   public void test(@Nonnull final Tensor t) {

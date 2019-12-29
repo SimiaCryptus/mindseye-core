@@ -19,21 +19,21 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public interface LineSearchCursor extends ReferenceCounting {
 
+  CharSequence getDirectionType();
+
   default PointSample afterStep(@Nonnull PointSample step) {
     return step;
   }
-
-  CharSequence getDirectionType();
 
   DeltaSet<UUID> position(double alpha);
 

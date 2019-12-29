@@ -32,6 +32,10 @@ public class Singleton<T> implements Supplier<T> {
   public Singleton() {
   }
 
+  public boolean isDefined() {
+    return !deque.isEmpty();
+  }
+
   public synchronized T getOrInit(Supplier<T> fn) {
     if (deque.isEmpty()) set(fn.get());
     return get();
@@ -53,10 +57,6 @@ public class Singleton<T> implements Supplier<T> {
     assert deque.isEmpty();
     deque.add(obj);
     return this;
-  }
-
-  public boolean isDefined() {
-    return !deque.isEmpty();
   }
 
   public T remove() {

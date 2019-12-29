@@ -20,10 +20,11 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -45,6 +46,44 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     data = null;
   }
 
+  @Nonnull
+  @Override
+  public Tensor[][] getData() {
+    return data.toArray(new Tensor[][]{});
+  }
+
+  @Nonnull
+  @Override
+  public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
+    this.data = data;
+    return this;
+  }
+
+  @NotNull
+  @Override
+  public Layer getLayer() {
+    return network;
+  }
+
+  @Nullable
+  @Override
+  public boolean[] getMask() {
+    return mask;
+  }
+
+  @Nonnull
+  @Override
+  public BasicTrainable setMask(final boolean... mask) {
+    this.mask = mask;
+    return this;
+  }
+
+  @Nonnull
+  public BasicTrainable setVerbosity(final int verbose) {
+    verbosity = verbose;
+    return this;
+  }
+
   public static Result[] getNNContext(@Nullable final List<Tensor[]> data, @Nullable final boolean[] mask) {
     if (null == data)
       throw new IllegalArgumentException();
@@ -55,26 +94,37 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
       final Tensor[] tensors = IntStream.range(0, data.size()).mapToObj(row -> data.get(row)[col])
           .toArray(i -> new Tensor[i]);
       if (null == mask || col >= mask.length || !mask[col]) {
-        return new ConstantResult(TensorArray.create(tensors));
+        return new ConstantResult(new TensorArray(tensors));
       } else {
         return new MutableResult(tensors);
       }
     }).toArray(x1 -> new Result[x1]);
   }
 
-  public static BasicTrainable wrap(PipelineNetwork network) {
-    return new BasicTrainable(network);
+  @Override
+  public PointSample measure(@Nullable final TrainingMonitor monitor) {
+    assert !data.isEmpty();
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
+    //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
+    if (null != monitor && verbosity() > 1) {
+      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", data.size(), timedResult.timeNanos / 1e9,
+          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
+    }
+    assert null != timedResult.result;
+    return timedResult.result;
+  }
+
+  public int verbosity() {
+    return verbosity;
   }
 
   @Nonnull
   protected PointSample eval(@Nonnull final List<Tensor[]> list, @Nullable final TrainingMonitor monitor) {
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = BasicTrainable.getNNContext(list, mask);
-      final Result result = network.evalAndFree(nnContext);
+      final Result result = network.eval(nnContext);
       final TensorList resultData = result.getData();
-      @Nonnull
-      final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+      @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
       @Nonnull
       StateSet<UUID> stateSet = null;
       try {
@@ -106,61 +156,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
       monitor.log(String.format("Device completed %s items in %.3f sec", list.size(), timedResult.timeNanos / 1e9));
     }
     return timedResult.result.normalize();
-  }
-
-  @Nonnull
-  @Override
-  public Tensor[][] getData() {
-    return data.toArray(new Tensor[][] {});
-  }
-
-  @Nonnull
-  @Override
-  public synchronized BasicTrainable setData(@Nonnull final List<Tensor[]> data) {
-    this.data = data;
-    return this;
-  }
-
-  @Nullable
-  @Override
-  public boolean[] getMask() {
-    return mask;
-  }
-
-  @Nonnull
-  @Override
-  public BasicTrainable setMask(final boolean... mask) {
-    this.mask = mask;
-    return this;
-  }
-
-  @Override
-  public Layer getLayer() {
-    return network;
-  }
-
-  @Override
-  public PointSample measure(@Nullable final TrainingMonitor monitor) {
-    assert !data.isEmpty();
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
-    //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
-    if (null != monitor && verbosity() > 1) {
-      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", data.size(), timedResult.timeNanos / 1e9,
-          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
-    }
-    assert null != timedResult.result;
-    return timedResult.result;
-  }
-
-  @Nonnull
-  public BasicTrainable setVerbosity(final int verbose) {
-    verbosity = verbose;
-    return this;
-  }
-
-  public int verbosity() {
-    return verbosity;
   }
 
   @Override

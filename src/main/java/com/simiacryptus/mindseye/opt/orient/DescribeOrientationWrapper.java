@@ -46,11 +46,9 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
-      @Nonnull final DoubleBuffer<UUID> dirDelta) {
-    @Nonnull
-    final CharSequence weightString = Arrays.toString(weightDelta.getDelta());
-    @Nonnull
-    final CharSequence deltaString = Arrays.toString(dirDelta.getDelta());
+                                    @Nonnull final DoubleBuffer<UUID> dirDelta) {
+    @Nonnull final CharSequence weightString = Arrays.toString(weightDelta.getDelta());
+    @Nonnull final CharSequence deltaString = Arrays.toString(dirDelta.getDelta());
     return String.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
@@ -75,12 +73,11 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
 
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
+                                 @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull
-      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
       final CharSequence asString = DescribeOrientationWrapper.render(weights, direction);
       monitor.log(String.format("Orientation Details: %s", asString));
     } else {

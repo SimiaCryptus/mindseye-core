@@ -22,12 +22,12 @@ package com.simiacryptus.mindseye.eval;
 import javax.annotation.Nonnull;
 
 public interface SampledTrainable extends Trainable {
-  @Nonnull
-  @Override
-  SampledCachedTrainable<? extends SampledTrainable> cached();
-
   int getTrainingSize();
 
   @Nonnull
-  SampledTrainable setTrainingSize(int trainingSize);
+  void setTrainingSize(int trainingSize);
+
+  @Nonnull
+  @Override
+  SampledCachedTrainable<? extends SampledTrainable> cached();
 }

@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +45,27 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     this.delta = null;
   }
 
-  public DoubleBuffer(@Nonnull final K key, final double[] target, final double[] delta) {
+  public DoubleBuffer(@Nonnull final K key, final double[] target, @org.jetbrains.annotations.Nullable final double[] delta) {
     this.key = key;
     this.target = target;
     this.delta = delta;
+  }
+
+  @Nullable
+  public double[] getDelta() {
+    assertAlive();
+    if (null == delta) {
+      synchronized (this) {
+        if (null == delta) {
+          delta = RecycleBin.DOUBLES.obtain(target.length);
+        }
+      }
+    }
+    return delta;
+  }
+
+  public CharSequence getId() {
+    return this.key.toString();
   }
 
   public static boolean areEqual(@Nonnull final double[] l, @Nonnull final double[] r) {
@@ -82,37 +98,11 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
       throw new IllegalArgumentException(
           String.format("Deltas are not based on same key. %s != %s", this.key, right.key));
     }
-    @Nullable
-    final double[] l = this.getDelta();
-    @Nullable
-    final double[] r = right.getDelta();
+    @Nullable final double[] l = this.getDelta();
+    @Nullable final double[] r = right.getDelta();
     assert l.length == r.length;
     final double[] array = IntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i]).toArray();
     return Arrays.stream(array).summaryStatistics().getSum();
-  }
-
-  @Nullable
-  public double[] getDeltaAndFree() {
-    double[] delta = getDelta();
-    freeRef();
-    return delta;
-  }
-
-  @Nullable
-  public double[] getDelta() {
-    assertAlive();
-    if (null == delta) {
-      synchronized (this) {
-        if (null == delta) {
-          delta = RecycleBin.DOUBLES.obtain(target.length);
-        }
-      }
-    }
-    return delta;
-  }
-
-  public CharSequence getId() {
-    return this.key.toString();
   }
 
   public int length() {
@@ -126,12 +116,11 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   @Nonnull
-  public DoubleBuffer<K> set(@Nonnull final double[] data) {
+  public void set(@Nonnull final double[] data) {
     assert Arrays.stream(data).allMatch(Double::isFinite);
     System.arraycopy(data, 0, this.getDelta(), 0, data.length);
     //    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
     assert Arrays.stream(getDelta()).allMatch(Double::isFinite);
-    return this;
   }
 
   @Nonnull
@@ -142,8 +131,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull
-    final StringBuilder builder = new StringBuilder();
+    @Nonnull final StringBuilder builder = new StringBuilder();
     builder.append(getClass().getSimpleName());
     builder.append("/");
     builder.append(this.key);

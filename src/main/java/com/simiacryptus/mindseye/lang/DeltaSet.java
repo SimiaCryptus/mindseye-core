@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Map;
@@ -40,10 +42,21 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     assert stream().allMatch(x -> x instanceof Delta);
   }
 
+  public double getMagnitude() {
+    Stream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
+    if (100 < map.size()) {
+      stream = stream.parallel();
+    }
+    final double[] elementArray = stream.mapToDouble(entry -> {
+      final DoubleBuffer<K> value = entry.getValue();
+      return value.deltaStatistics().sumSq();
+    }).toArray();
+    return Math.sqrt(Arrays.stream(elementArray).sum());
+  }
+
   @Nonnull
-  public DeltaSet<K> accumulate(final double alpha) {
+  public void accumulate(final double alpha) {
     stream().forEach(d -> d.accumulate(alpha));
-    return this;
   }
 
   @Nonnull
@@ -61,8 +74,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   public StateSet<K> asState() {
-    @Nonnull
-    final StateSet<K> returnValue = new StateSet<>();
+    @Nonnull final StateSet<K> returnValue = new StateSet<>();
     map.forEach((layer, delta) -> {
       delta.assertAlive();
       State<K> kState = returnValue.get(layer, delta.target);
@@ -96,25 +108,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   @Override
-  protected Delta<K> factory(@Nonnull final K layer, final double[] target) {
-    return new Delta<K>(layer, target);
-  }
-
-  public double getMagnitude() {
-    Stream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
-    if (100 < map.size()) {
-      stream = stream.parallel();
-    }
-    final double[] elementArray = stream.mapToDouble(entry -> {
-      final DoubleBuffer<K> value = entry.getValue();
-      return value.deltaStatistics().sumSq();
-    }).toArray();
-    return Math.sqrt(Arrays.stream(elementArray).sum());
-  }
-
-  @Nonnull
-  @Override
-  public DeltaSet<K> map(final Function<Delta<K>, Delta<K>> mapper) {
+  public DeltaSet<K> map(@NotNull final Function<Delta<K>, Delta<K>> mapper) {
     @Nonnull
     DoubleBufferSet<K, Delta<K>> map = super.map(mapper);
     return new DeltaSet<>(map);
@@ -139,6 +133,12 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Override
   public DeltaSet<K> addRef() {
     return (DeltaSet<K>) super.addRef();
+  }
+
+  @Nonnull
+  @Override
+  protected Delta<K> factory(@Nonnull final K layer, final double[] target) {
+    return new Delta<K>(layer, target);
   }
 
 }

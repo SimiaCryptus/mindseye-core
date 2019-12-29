@@ -19,11 +19,11 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,12 +57,12 @@ public class CountingResult extends Result {
   }
 
   @Override
-  protected void _free() {
+  public boolean isAlive() {
+    return inner.isAlive();
   }
 
   @Override
-  public boolean isAlive() {
-    return inner.isAlive();
+  protected void _free() {
   }
 
   static class CountingAccumulator extends ReferenceCountingBase implements BiConsumer<DeltaSet<UUID>, TensorList> {
@@ -81,12 +81,12 @@ public class CountingResult extends Result {
       accumulations = new AtomicInteger(0);
     }
 
-    public int increment() {
-      return this.fwdLinks.incrementAndGet();
-    }
-
     public int getCount() {
       return this.fwdLinks.get();
+    }
+
+    public int increment() {
+      return this.fwdLinks.incrementAndGet();
     }
 
     @Override
@@ -95,7 +95,6 @@ public class CountingResult extends Result {
       assertAlive();
       data.assertAlive();
       if (1 >= fwdLinks.get()) {
-        //data.addRef();
         inner.accumulate(buffer, data);
       } else {
         @Nonnull
@@ -107,14 +106,12 @@ public class CountingResult extends Result {
             Stream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
-            //x.addRef();
             @Nonnull
             TensorList compacted = stream.reduce((a, b) -> {
               TensorList c;
               c = a.addAndFree(b);
               return c;
             }).get();
-            //passbackBuffers.stream().distinct().filter((TensorList x) -> x != reduced).forEach(t -> t.freeRef());
             passbackBuffers.clear();
             passbackBuffers.add(compacted);
             assert passbackBuffers.stream().allMatch(x -> x.assertAlive());

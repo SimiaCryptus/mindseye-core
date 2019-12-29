@@ -187,8 +187,7 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           alpha = maxAlpha;
           return point;
         }
-        LineSearchPoint newValue = cursor.step(alpha, monitor);
-        lastStep = newValue;
+        lastStep = cursor.step(alpha, monitor);
         double lastValue = lastStep.point.getMean();
         if (bestValue > lastValue) {
           bestAlpha = alpha;

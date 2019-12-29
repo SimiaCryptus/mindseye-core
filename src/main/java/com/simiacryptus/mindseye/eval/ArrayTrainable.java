@@ -59,31 +59,31 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     return trainingData;
   }
 
-  @Override
-  public ArrayTrainable setVerbose(final boolean verbose) {
-    return (ArrayTrainable) super.setVerbose(verbose);
-  }
-
-  @Override
-  protected void _free() {
-    super._free();
-  }
-
   @Nonnull
   @Override
-  public Trainable setData(@Nonnull final List<Tensor[]> tensors) {
-    trainingData = tensors.toArray(new Tensor[][] {});
-    return this;
+  public ArrayTrainable setMask(boolean... mask) {
+    return (ArrayTrainable) super.setMask(mask);
   }
 
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
     this.trainingData = tensors;
   }
 
+  @Override
+  public ArrayTrainable setVerbose(final boolean verbose) {
+    return (ArrayTrainable) super.setVerbose(verbose);
+  }
+
   @Nonnull
   @Override
-  public ArrayTrainable setMask(boolean... mask) {
-    return (ArrayTrainable) super.setMask(mask);
+  public Trainable setData(@Nonnull final List<Tensor[]> tensors) {
+    trainingData = tensors.toArray(new Tensor[][]{});
+    return this;
+  }
+
+  @Override
+  protected void _free() {
+    super._free();
   }
 
 }

@@ -20,10 +20,11 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.PlaceholderLayer;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,9 +43,32 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   boolean[] mask = null;
   private int verbosity = 0;
 
-  public TensorListTrainable(final Layer network, final TensorList... data) {
+  public TensorListTrainable(final Layer network, @org.jetbrains.annotations.Nullable final TensorList... data) {
     this.network = network;
     this.data = data;
+  }
+
+  @Nonnull
+  public TensorList[] getData() {
+    return data;
+  }
+
+  @NotNull
+  @Override
+  public Layer getLayer() {
+    return network;
+  }
+
+  @Nullable
+  @Override
+  public boolean[] getMask() {
+    return mask;
+  }
+
+  @Nonnull
+  public TensorListTrainable setVerbosity(final int verbose) {
+    verbosity = verbose;
+    return this;
   }
 
   public static Result[] getNNContext(@Nullable final TensorList[] data, @Nullable final boolean[] mask) {
@@ -58,18 +82,16 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
       final Tensor[] tensors = IntStream.range(0, items).mapToObj(row -> data[col].get(row))
           .toArray(i -> new Tensor[i]);
       @Nonnull
-      TensorArray tensorArray = TensorArray.create(tensors);
+      TensorArray tensorArray = new TensorArray(tensors);
       if (null == mask || col >= mask.length || !mask[col]) {
         return new ConstantResult(tensorArray);
       } else {
         return new Result(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
           for (int index = 0; index < delta.length(); index++) {
             final Tensor dt = delta.get(index);
-            @Nullable
-            final double[] d = dt.getData();
+            @Nullable final double[] d = dt.getData();
             final Tensor t = tensors[index];
-            @Nullable
-            final double[] p = t.getData();
+            @Nullable final double[] p = t.getData();
             @Nonnull
             PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
             buffer.get(layer.getId(), p).addInPlace(d);
@@ -85,69 +107,13 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     }).toArray(x1 -> new Result[x1]);
   }
 
-  @Nonnull
-  protected PointSample eval(@Nonnull final TensorList[] list, @Nullable final TrainingMonitor monitor) {
-    int inputs = data.length;
-    assert 0 < inputs;
-    int items = data[0].length();
-    assert 0 < items;
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
-      final Result[] nnContext = TensorListTrainable.getNNContext(list, mask);
-      final Result result = network.eval(nnContext);
-      for (@Nonnull
-      Result nnResult : nnContext) {
-        nnResult.getData();
-      }
-      final TensorList resultData = result.getData();
-      final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
-        double[] array = Arrays.stream(x.getData()).toArray();
-        return Arrays.stream(array);
-      }).summaryStatistics();
-      final double sum = statistics.getSum();
-      @Nonnull
-      final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
-      @Nonnull
-      PointSample pointSample;
-      {
-        result.accumulate(deltaSet);
-        //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
-        @Nonnull
-        StateSet<UUID> stateSet = new StateSet<>(deltaSet);
-        pointSample = new PointSample(deltaSet, stateSet, sum, 0.0, items);
-      }
-      return pointSample;
-    });
-    if (null != monitor && verbosity() > 0) {
-      monitor.log(String.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
-    }
-    return timedResult.result.normalize();
-  }
-
-  @Nonnull
-  public TensorList[] getData() {
-    return data;
-  }
-
-  @Nullable
-  @Override
-  public boolean[] getMask() {
-    return mask;
-  }
-
-  @Override
-  public Layer getLayer() {
-    return network;
-  }
-
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     int inputs = data.length;
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
       monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9,
@@ -174,14 +140,45 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return this;
   }
 
-  @Nonnull
-  public TensorListTrainable setVerbosity(final int verbose) {
-    verbosity = verbose;
-    return this;
-  }
-
   public int verbosity() {
     return verbosity;
+  }
+
+  @Nonnull
+  protected PointSample eval(@Nonnull final TensorList[] list, @Nullable final TrainingMonitor monitor) {
+    int inputs = data.length;
+    assert 0 < inputs;
+    int items = data[0].length();
+    assert 0 < items;
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+      final Result[] nnContext = TensorListTrainable.getNNContext(list, mask);
+      final Result result = network.eval(nnContext);
+      for (@Nonnull
+          Result nnResult : nnContext) {
+        nnResult.getData();
+      }
+      final TensorList resultData = result.getData();
+      final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
+        double[] array = Arrays.stream(x.getData()).toArray();
+        return Arrays.stream(array);
+      }).summaryStatistics();
+      final double sum = statistics.getSum();
+      @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+      @Nonnull
+      PointSample pointSample;
+      {
+        result.accumulate(deltaSet);
+        //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
+        @Nonnull
+        StateSet<UUID> stateSet = new StateSet<>(deltaSet);
+        pointSample = new PointSample(deltaSet, stateSet, sum, 0.0, items);
+      }
+      return pointSample;
+    });
+    if (null != monitor && verbosity() > 0) {
+      monitor.log(String.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
+    }
+    return timedResult.result.normalize();
   }
 
   @Override

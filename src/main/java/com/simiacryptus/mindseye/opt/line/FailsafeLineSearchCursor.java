@@ -32,10 +32,15 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   private PointSample best;
 
   public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
-      final TrainingMonitor monitor) {
+                                  final TrainingMonitor monitor) {
     this.direction = direction;
     best = previousPoint.copyFull();
     this.monitor = monitor;
+  }
+
+  @Override
+  public CharSequence getDirectionType() {
+    return direction.getDirectionType();
   }
 
   @Override
@@ -58,11 +63,6 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
       best.weights.restore();
     }
     return best;
-  }
-
-  @Override
-  public CharSequence getDirectionType() {
-    return direction.getDirectionType();
   }
 
   @Override

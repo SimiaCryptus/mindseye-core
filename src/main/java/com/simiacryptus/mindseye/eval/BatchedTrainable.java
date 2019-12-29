@@ -50,17 +50,24 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
     return batchSize;
   }
 
+  public boolean isVerbose() {
+    return verbose;
+  }
+
+  public BatchedTrainable setVerbose(final boolean verbose) {
+    this.verbose = verbose;
+    return this;
+  }
+
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull
-    final List<Tensor[]> tensors = Arrays.asList(getData());
+    @Nonnull final List<Tensor[]> tensors = Arrays.asList(getData());
     TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       DataTrainable inner = getInner();
       if (batchSize < tensors.size()) {
         final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
         final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-        @Nonnull
-        final List<List<Tensor[]>> collection = Lists.partition(tensors, evenBatchSize);
+        @Nonnull final List<List<Tensor[]>> collection = Lists.partition(tensors, evenBatchSize);
         return collection.stream().map(trainingData -> {
           if (batchSize < trainingData.size()) {
             throw new RuntimeException();
@@ -84,14 +91,5 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
           timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     return timedResult.result;
-  }
-
-  public boolean isVerbose() {
-    return verbose;
-  }
-
-  public BatchedTrainable setVerbose(final boolean verbose) {
-    this.verbose = verbose;
-    return this;
   }
 }

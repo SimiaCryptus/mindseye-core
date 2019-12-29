@@ -35,7 +35,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
   private String type = "";
 
   public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin,
-      final DeltaSet<UUID> direction) {
+                                final DeltaSet<UUID> direction) {
     this.origin = origin.copyFull();
     this.direction = direction;
     this.subject = subject;
@@ -71,8 +71,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     if (0.0 != alpha) {
       direction.accumulate(alpha);
     }
-    @Nonnull
-    final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
+    @Nonnull final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
     final double dot = direction.dot(sample.delta);
     return new LineSearchPoint(sample, dot);
   }

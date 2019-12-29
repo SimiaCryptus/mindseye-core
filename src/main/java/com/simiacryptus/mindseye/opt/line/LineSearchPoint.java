@@ -19,8 +19,8 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.PointSample;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 
@@ -42,8 +42,7 @@ public class LineSearchPoint extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull
-    final StringBuffer sb = new StringBuffer("LineSearchPoint{");
+    @Nonnull final StringBuffer sb = new StringBuffer("LineSearchPoint{");
     sb.append("point=").append(point);
     sb.append(", derivative=").append(derivative);
     sb.append('}');

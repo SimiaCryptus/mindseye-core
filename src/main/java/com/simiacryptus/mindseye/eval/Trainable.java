@@ -19,14 +19,17 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 
 public interface Trainable extends ReferenceCounting {
+  @Nonnull
+  Layer getLayer();
+
   default CachedTrainable<? extends Trainable> cached() {
     return new CachedTrainable<>(this);
   }
@@ -36,8 +39,5 @@ public interface Trainable extends ReferenceCounting {
   default boolean reseed(final long seed) {
     return false;
   }
-
-  @Nonnull
-  Layer getLayer();
 
 }

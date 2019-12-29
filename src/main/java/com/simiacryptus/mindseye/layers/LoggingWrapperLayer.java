@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.mindseye.lang.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,17 +43,9 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     super(inner);
   }
 
+  @SuppressWarnings("unused")
   public static LoggingWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new LoggingWrapperLayer(json, rs);
-  }
-
-  @Override
-  public Result evalAndFree(Result... array) {
-    assertAlive();
-    Result result = eval(array);
-    Arrays.stream(array).map(Result::getData).forEach(ReferenceCounting::freeRef);
-    Arrays.stream(array).forEach(ReferenceCounting::freeRef);
-    return result;
   }
 
   @Override
@@ -63,44 +54,38 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       final Result inputToWrap = inObj[i];
       return new Result(inputToWrap.getData(),
           (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-            @Nonnull
-            final String formatted = data.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
+            @Nonnull final String formatted = data.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
             log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, getInner().getName(),
                 formatted.replaceAll("\n", "\n\t")));
             inputToWrap.accumulate(buffer, data);
           }) {
 
         @Override
-        protected void _free() {
+        public boolean isAlive() {
+          return inputToWrap.isAlive();
         }
 
         @Override
-        public boolean isAlive() {
-          return inputToWrap.isAlive();
+        protected void _free() {
         }
       };
     }).toArray(i -> new Result[i]);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
-      @Nonnull
-      final String formatted = tensorList.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
+      @Nonnull final String formatted = tensorList.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
       log.info(
           String.format("Input %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
-    @Nullable
-    final Result output = getInner().eval(wrappedInput);
-    Arrays.stream(wrappedInput).forEach(ReferenceCounting::freeRef);
+    @Nullable final Result output = getInner().eval(wrappedInput);
     {
       final TensorList tensorList = output.getData();
-      @Nonnull
-      final String formatted = tensorList.stream().map(x -> {
+      @Nonnull final String formatted = tensorList.stream().map(x -> {
         return getString(x);
       }).reduce((a, b) -> a + "\n" + b).get();
       log.info(String.format("Output for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
     return new Result(output.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      @Nonnull
-      final String formatted = data.stream().map(x -> {
+      @Nonnull final String formatted = data.stream().map(x -> {
         return getString(x);
       }).reduce((a, b) -> a + "\n" + b).get();
       log.info(
@@ -109,12 +94,12 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     }) {
 
       @Override
-      protected void _free() {
+      public boolean isAlive() {
+        return output.isAlive();
       }
 
       @Override
-      public boolean isAlive() {
-        return output.isAlive();
+      protected void _free() {
       }
     };
   }

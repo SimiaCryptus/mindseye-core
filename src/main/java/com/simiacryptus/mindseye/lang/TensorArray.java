@@ -19,8 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.ReferenceCounting;
-
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -30,7 +28,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   @Nonnull
   private final Tensor[] data;
 
-  private TensorArray(@Nonnull final Tensor... data) {
+  public TensorArray(@Nonnull final Tensor... data) {
     if (null == data)
       throw new IllegalArgumentException();
     if (0 >= data.length)
@@ -38,24 +36,23 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     this.data = Arrays.copyOf(data, data.length);
     assert null != this.getData();
     for (@Nonnull
-    Tensor tensor : this.getData()) {
+        Tensor tensor : this.getData()) {
       assert Arrays.equals(tensor.getDimensions(),
           this.getData()[0].getDimensions()) : Arrays.toString(tensor.getDimensions()) + " != "
-              + Arrays.toString(tensor.getDimensions());
+          + Arrays.toString(tensor.getDimensions());
     }
     register();
   }
 
-  public static TensorArray create(final Tensor... data) {
-    return new TensorArray(data);
+  @Nonnull
+  public Tensor[] getData() {
+    return data;
   }
 
   @Nonnull
-  public static TensorArray wrap(@Nonnull final Tensor... data) {
-    @Nonnull
-    TensorArray tensorArray = TensorArray.create(data);
-    Arrays.stream(data).forEach(ReferenceCounting::freeRef);
-    return tensorArray;
+  @Override
+  public int[] getDimensions() {
+    return getData()[0].getDimensions();
   }
 
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
@@ -74,12 +71,6 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     return getData()[i];
   }
 
-  @Nonnull
-  @Override
-  public int[] getDimensions() {
-    return getData()[0].getDimensions();
-  }
-
   @Override
   public int length() {
     return getData().length;
@@ -88,9 +79,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   @Nonnull
   @Override
   public Stream<Tensor> stream() {
-    return Arrays.stream(getData()).map(x -> {
-      return x;
-    });
+    return Arrays.stream(getData());
   }
 
   @Override
@@ -107,10 +96,5 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     } catch (@Nonnull final Throwable e) {
       throw new RuntimeException(e);
     }
-  }
-
-  @Nonnull
-  public Tensor[] getData() {
-    return data;
   }
 }

@@ -19,9 +19,9 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import java.util.UUID;
 

@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.lang.TimedResult;
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.IterativeStopException;
 import com.simiacryptus.mindseye.lang.PointSample;
@@ -31,6 +30,7 @@ import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchStrategy;
 import com.simiacryptus.mindseye.opt.orient.LBFGS;
 import com.simiacryptus.mindseye.opt.orient.OrientationStrategy;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,10 +64,6 @@ public class IterativeTrainer extends ReferenceCountingBase {
     this.subject = subject;
     timeout = Duration.of(5, ChronoUnit.MINUTES);
     terminateThreshold = 0;
-  }
-
-  public static IterativeTrainer wrap(Trainable trainable) {
-    return new IterativeTrainer(trainable);
   }
 
   public AtomicInteger getCurrentIteration() {
@@ -182,14 +178,6 @@ public class IterativeTrainer extends ReferenceCountingBase {
     }
   }
 
-  public double runAndFree() {
-    try {
-      return run();
-    } finally {
-      freeRef();
-    }
-  }
-
   public double run() {
     long startTime = System.currentTimeMillis();
     final long timeoutMs = startTime + timeout.toMillis();
@@ -198,12 +186,13 @@ public class IterativeTrainer extends ReferenceCountingBase {
     @Nullable
     PointSample currentPoint = measure();
     try {
-      mainLoop: while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
+mainLoop:
+      while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
           && maxIterations > currentIteration.get()) {
         shuffle();
         currentPoint = null;
         currentPoint = measure();
-        subiterationLoop: for (int subiteration = 0; subiteration < iterationsPerSample
+        for (int subiteration = 0; subiteration < iterationsPerSample
             || iterationsPerSample <= 0; subiteration++) {
           if (timeoutMs < System.currentTimeMillis()) {
             break mainLoop;
@@ -213,18 +202,14 @@ public class IterativeTrainer extends ReferenceCountingBase {
           }
           currentPoint = null;
           currentPoint = measure();
-          @Nullable
-          final PointSample _currentPoint = currentPoint;
-          @Nonnull
-          final TimedResult<LineSearchCursor> timedOrientation = TimedResult
+          @Nullable final PointSample _currentPoint = currentPoint;
+          @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
               .time(() -> orientation.orient(subject, _currentPoint, monitor));
           final LineSearchCursor direction = timedOrientation.result;
           final CharSequence directionType = direction.getDirectionType();
-          @Nullable
-          final PointSample previous = currentPoint;
+          @Nullable final PointSample previous = currentPoint;
           {
-            @Nonnull
-            final TimedResult<PointSample> timedLineSearch = TimedResult
+            @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult
                 .time(() -> step(direction, directionType, previous));
             currentPoint = null;
             currentPoint = timedLineSearch.result;
@@ -248,7 +233,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
               if (monitor.onStepFail(new Step(currentPoint, currentIteration.get()))) {
                 monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
 
-                break subiterationLoop;
+                break;
               } else {
                 monitor.log(String.format("Optimization terminated %s", currentIteration.get()));
                 break mainLoop;
@@ -287,7 +272,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType,
-      @Nonnull final PointSample previous) {
+                          @Nonnull final PointSample previous) {
     PointSample currentPoint;
     LineSearchStrategy lineSearchStrategy;
     if (lineSearchStrategyMap.containsKey(directionType)) {
@@ -297,8 +282,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
       lineSearchStrategy = lineSearchFactory.apply(direction.getDirectionType());
       lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull
-    final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
+    @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
     lineSearchStrategy.step(wrapped, monitor);
     currentPoint = wrapped.getBest(monitor);
     return currentPoint;

@@ -27,6 +27,13 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public interface TensorList extends ReferenceCounting {
+  @Nonnull
+  int[] getDimensions();
+
+  default int getElements() {
+    return length() * Tensor.length(getDimensions());
+  }
+
   @Override
   TensorList addRef();
 
@@ -36,7 +43,7 @@ public interface TensorList extends ReferenceCounting {
     if (length() == 0)
       throw new IllegalArgumentException();
     assert length() == right.length();
-    return TensorArray.wrap(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
       Tensor b = right.get(i);
       return get(i).addAndFree(b);
     }).toArray(i -> new Tensor[i]));
@@ -45,9 +52,7 @@ public interface TensorList extends ReferenceCounting {
   default TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
     right.assertAlive();
-    TensorList add = add(right);
-    freeRef();
-    return add;
+    return add(right);
   }
 
   @Nonnull
@@ -57,7 +62,7 @@ public interface TensorList extends ReferenceCounting {
     if (length() == 0)
       throw new IllegalArgumentException();
     assert length() == right.length();
-    return TensorArray.wrap(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
       @Nullable
       Tensor a = get(i);
       @Nullable
@@ -67,7 +72,7 @@ public interface TensorList extends ReferenceCounting {
   }
 
   default TensorList copy() {
-    return TensorArray.wrap(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
       @Nullable
       Tensor element = get(i);
       return element.copy();
@@ -77,30 +82,8 @@ public interface TensorList extends ReferenceCounting {
   @Nonnull
   Tensor get(int i);
 
-  @Nonnull
-  int[] getDimensions();
-
   int length();
 
   Stream<Tensor> stream();
-
-  @Nonnull
-  default CharSequence prettyPrint() {
-    return stream().map(t -> {
-      return t.prettyPrint();
-    }).reduce((a, b) -> a + "\n" + b).get();
-  }
-
-  @Nonnull
-  default Tensor getAndFree(int i) {
-    @Nullable
-    Tensor tensor = get(i);
-    freeRef();
-    return tensor;
-  }
-
-  default int getElements() {
-    return length() * Tensor.length(getDimensions());
-  }
 
 }

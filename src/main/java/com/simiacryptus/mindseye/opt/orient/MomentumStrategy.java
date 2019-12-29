@@ -42,10 +42,6 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     this.inner = inner;
   }
 
-  @Override
-  protected void _free() {
-  }
-
   public double getCarryOver() {
     return carryOver;
   }
@@ -59,11 +55,10 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
   @Nonnull
   @Override
   public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      final TrainingMonitor monitor) {
+                                       final TrainingMonitor monitor) {
     final LineSearchCursor orient = inner.orient(subject, measurement, monitor);
     final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) orient).direction;
-    @Nonnull
-    final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
+    @Nonnull final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
     direction.getMap().forEach((layer, delta) -> {
       final DoubleBuffer<UUID> prevBuffer = prevDelta.get(layer, delta.target);
       newDelta.get(layer, delta.target)
@@ -76,5 +71,9 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
   @Override
   public void reset() {
     inner.reset();
+  }
+
+  @Override
+  protected void _free() {
   }
 }

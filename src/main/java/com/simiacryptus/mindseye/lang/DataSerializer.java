@@ -23,11 +23,15 @@ import javax.annotation.Nonnull;
 
 public interface DataSerializer {
 
+  int getElementSize();
+
+  default int getHeaderSize() {
+    return 0;
+  }
+
   void copy(double[] from, byte[] to);
 
   void copy(byte[] from, double[] to);
-
-  int getElementSize();
 
   @Nonnull
   default byte[] toBytes(@Nonnull double[] from) {
@@ -40,10 +44,6 @@ public interface DataSerializer {
     long size = (long) from.length * getElementSize() + getHeaderSize();
     if (size > Integer.MAX_VALUE) throw new IllegalStateException();
     return (int) size;
-  }
-
-  default int getHeaderSize() {
-    return 0;
   }
 
   @Nonnull

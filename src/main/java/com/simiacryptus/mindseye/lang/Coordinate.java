@@ -38,6 +38,24 @@ public final class Coordinate implements Serializable {
     this.coords = coords;
   }
 
+  public int[] getCoords() {
+    return coords;
+  }
+
+  @Nonnull
+  void setCoords(final int[] coords) {
+    this.coords = coords;
+  }
+
+  public int getIndex() {
+    return index;
+  }
+
+  @Nonnull
+  void setIndex(final int index) {
+    this.index = index;
+  }
+
   @Nonnull
   public static int[] add(@Nonnull final int[] a, @Nonnull final int[] b) {
     @Nonnull final int[] r = new int[Math.max(a.length, b.length)];
@@ -66,26 +84,6 @@ public final class Coordinate implements Serializable {
       return false;
     }
     return index == ((Coordinate) obj).index;
-  }
-
-  public int[] getCoords() {
-    return coords;
-  }
-
-  @Nonnull
-  Coordinate setCoords(final int[] coords) {
-    this.coords = coords;
-    return this;
-  }
-
-  public int getIndex() {
-    return index;
-  }
-
-  @Nonnull
-  Coordinate setIndex(final int index) {
-    this.index = index;
-    return this;
   }
 
   @Override

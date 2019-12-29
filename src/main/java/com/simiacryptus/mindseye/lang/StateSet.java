@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -52,8 +53,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     super(collect);
   }
 
+  public boolean isDifferent() {
+    return stream().parallel().anyMatch(x -> !x.areEqual());
+  }
+
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
-      @Nonnull final DoubleBufferSet<K, State<K>> right) {
+                                      @Nonnull final DoubleBufferSet<K, State<K>> right) {
     final Map<K, State<K>> collect = Stream.concat(left.map.entrySet().stream(), right.map.entrySet().stream())
         .collect(Collectors.groupingBy((@Nonnull final Map.Entry<K, State<K>> e1) -> e1.getKey(), Collectors.mapping(
             (@Nonnull final Map.Entry<K, State<K>> x) -> x.getValue(),
@@ -67,8 +72,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
-    @Nonnull
-    final DeltaSet<K> deltas = new DeltaSet<K>();
+    @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
     map.forEach((@Nonnull final K layer, @Nonnull final State<K> buffer) -> {
       deltas.get(layer, buffer.target).set(buffer.getDelta());
     });
@@ -80,8 +84,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public DeltaSet<K> asVector() {
-    @Nonnull
-    final HashMap<K, Delta<K>> newMap = new HashMap<>();
+    @Nonnull final HashMap<K, Delta<K>> newMap = new HashMap<>();
     map.forEach((layer, state) -> newMap.put(layer,
         new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
     return new DeltaSet<>(newMap);
@@ -94,43 +97,17 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   @Nonnull
-  public StateSet<K> backupCopy() {
-    return map(l -> l.backupCopy());
-  }
-
-  @Nonnull
-  public StateSet<K> backup() {
-    Stream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
-    if (map.size() > 100) {
-      stream = stream.parallel();
-    }
-    stream.forEach(e -> e.getValue().backup());
-    return this;
-  }
-
-  @Nonnull
-  public StateSet<K> restore() {
+  public void restore() {
     Stream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
     stream.forEach(e -> e.getValue().restore());
-    return this;
   }
 
   @Nonnull
   @Override
-  protected State<K> factory(@Nonnull final K layer, final double[] target) {
-    return new State<K>(layer, target);
-  }
-
-  public boolean isDifferent() {
-    return stream().parallel().anyMatch(x -> !x.areEqual());
-  }
-
-  @Nonnull
-  @Override
-  public StateSet<K> map(@Nonnull final Function<State<K>, State<K>> mapper) {
+  public StateSet<K> map(@NotNull @Nonnull final Function<State<K>, State<K>> mapper) {
     Stream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
     if (map.size() > 100) {
       stream = stream.parallel();
@@ -155,6 +132,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return add.asVector();
   }
 
+  @Override
+  public StateSet<K> addRef() {
+    return (StateSet<K>) super.addRef();
+  }
+
   //  /**
   //   * Union evalInputDelta setByCoord.
   //   *
@@ -166,8 +148,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   //    return StateSet.union(this, right);
   //  }
 
+  @Nonnull
   @Override
-  public StateSet<K> addRef() {
-    return (StateSet<K>) super.addRef();
+  protected State<K> factory(@Nonnull final K layer, final double[] target) {
+    return new State<K>(layer, target);
   }
 }

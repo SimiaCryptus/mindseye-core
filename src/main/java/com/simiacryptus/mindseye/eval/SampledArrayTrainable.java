@@ -41,12 +41,12 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   private int trainingSize;
 
   public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network,
-      final int trainingSize) {
+                               final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
   public SampledArrayTrainable(@Nonnull final List<? extends Supplier<Tensor[]>> trainingData, final Layer network,
-      final int trainingSize, final int batchSize) {
+                               final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(null, network, batchSize));
     if (0 == trainingData.size())
       throw new IllegalArgumentException();
@@ -60,7 +60,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   }
 
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize,
-      final int batchSize) {
+                               final int batchSize) {
     super(new ArrayTrainable(network, batchSize));
     getInner();
     if (0 == trainingData.length)
@@ -69,12 +69,6 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
         .collect(Collectors.toList());
     this.trainingSize = trainingSize;
     reseed(System.nanoTime());
-  }
-
-  @Nonnull
-  @Override
-  public SampledCachedTrainable<? extends SampledTrainable> cached() {
-    return new SampledCachedTrainable<>(this);
   }
 
   public int getMinSamples() {
@@ -92,20 +86,17 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     return Math.max(minSamples, Math.min(trainingData.size(), trainingSize));
   }
 
-  protected void refreshSampledData() {
-    assert 0 < trainingData.size();
-    Tensor[][] trainingData;
-    if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
-      @Nonnull
-      final Random random = new Random(seed);
-      trainingData = IntStream.generate(() -> random.nextInt(this.trainingData.size())).distinct()
-          .mapToObj(i -> this.trainingData.get(i)).filter(x -> x != null && x.get() != null).limit(getTrainingSize())
-          .map(x -> x.get()).toArray(i -> new Tensor[i][]);
-    } else {
-      trainingData = this.trainingData.stream().filter(x -> x != null && x.get() != null).limit(getTrainingSize())
-          .map(x -> x.get()).toArray(i -> new Tensor[i][]);
-    }
-    getInner().setTrainingData(trainingData);
+  private void setSeed(final int newValue) {
+    if (seed == newValue)
+      return;
+    seed = newValue;
+    refreshSampledData();
+  }
+
+  @Nonnull
+  @Override
+  public SampledCachedTrainable<? extends SampledTrainable> cached() {
+    return new SampledCachedTrainable<>(this);
   }
 
   @Override
@@ -116,18 +107,25 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     return true;
   }
 
-  private void setSeed(final int newValue) {
-    if (seed == newValue)
-      return;
-    seed = newValue;
+  @Nonnull
+  @Override
+  public void setTrainingSize(final int trainingSize) {
+    this.trainingSize = trainingSize;
     refreshSampledData();
   }
 
-  @Nonnull
-  @Override
-  public SampledTrainable setTrainingSize(final int trainingSize) {
-    this.trainingSize = trainingSize;
-    refreshSampledData();
-    return this;
+  protected void refreshSampledData() {
+    assert 0 < trainingData.size();
+    Tensor[][] trainingData;
+    if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
+      @Nonnull final Random random = new Random(seed);
+      trainingData = IntStream.generate(() -> random.nextInt(this.trainingData.size())).distinct()
+          .mapToObj(i -> this.trainingData.get(i)).filter(x -> x != null && x.get() != null).limit(getTrainingSize())
+          .map(x -> x.get()).toArray(i -> new Tensor[i][]);
+    } else {
+      trainingData = this.trainingData.stream().filter(x -> x != null && x.get() != null).limit(getTrainingSize())
+          .map(x -> x.get()).toArray(i -> new Tensor[i][]);
+    }
+    getInner().setTrainingData(trainingData);
   }
 }

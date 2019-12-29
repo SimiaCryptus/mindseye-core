@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.lang;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
@@ -36,6 +35,17 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
       throw new IllegalArgumentException(Arrays.toString(inner.getDimensions()) + " != " + Arrays.toString(toDim));
     this.inner = inner;
     this.dims = toDim;
+  }
+
+  @Nonnull
+  @Override
+  public int[] getDimensions() {
+    return Arrays.copyOf(dims, dims.length);
+  }
+
+  @Nonnull
+  public TensorList getInner() {
+    return inner;
   }
 
   @Override
@@ -52,12 +62,6 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     return tensor.reshapeCast(dims);
   }
 
-  @Nonnull
-  @Override
-  public int[] getDimensions() {
-    return Arrays.copyOf(dims, dims.length);
-  }
-
   @Override
   public int length() {
     return inner.length();
@@ -72,10 +76,5 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
 
   @Override
   protected void _free() {
-  }
-
-  @Nonnull
-  public TensorList getInner() {
-    return inner;
   }
 }

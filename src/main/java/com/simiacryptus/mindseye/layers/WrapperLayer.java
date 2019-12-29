@@ -44,25 +44,8 @@ public abstract class WrapperLayer extends LayerBase {
     this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
   }
 
-  public WrapperLayer(final Layer inner) {
+  public WrapperLayer(@org.jetbrains.annotations.Nullable final Layer inner) {
     this.inner = inner;
-  }
-
-  @Override
-  protected void _free() {
-    super._free();
-  }
-
-  @Nullable
-  @Override
-  public Result eval(final Result... array) {
-    return inner.eval(array);
-  }
-
-  @Nullable
-  @Override
-  public Result evalAndFree(final Result... array) {
-    return inner.evalAndFree(array);
   }
 
   @Nullable
@@ -78,20 +61,26 @@ public abstract class WrapperLayer extends LayerBase {
     return this;
   }
 
-  @Nonnull
-  @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
-    json.add("inner", getInner().getJson(resources, dataSerializer));
-    return json;
-  }
-
   @Override
   public boolean isFrozen() {
     if (null == inner)
       return true;
     return inner.isFrozen();
+  }
+
+  @Nullable
+  @Override
+  public Result eval(final Result... array) {
+    return inner.eval(array);
+  }
+
+
+  @Nonnull
+  @Override
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
+    json.add("inner", getInner().getJson(resources, dataSerializer));
+    return json;
   }
 
   @Nonnull
@@ -107,5 +96,10 @@ public abstract class WrapperLayer extends LayerBase {
   @Override
   public List<double[]> state() {
     return inner.state();
+  }
+
+  @Override
+  protected void _free() {
+    super._free();
   }
 }

@@ -39,12 +39,6 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     super(inner);
   }
 
-  @Nonnull
-  @Override
-  public CachedTrainable<? extends Trainable> cached() {
-    return this;
-  }
-
   public int getHistorySize() {
     return historySize;
   }
@@ -62,6 +56,12 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   @Nonnull
   public CachedTrainable<T> setVerbose(final boolean verbose) {
     this.verbose = verbose;
+    return this;
+  }
+
+  @Nonnull
+  @Override
+  public CachedTrainable<? extends Trainable> cached() {
     return this;
   }
 

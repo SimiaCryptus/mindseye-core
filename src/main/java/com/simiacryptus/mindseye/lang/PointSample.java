@@ -34,7 +34,7 @@ public final class PointSample extends ReferenceCountingBase {
   public double rate;
 
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum,
-      final double rate, final int count) {
+                     final double rate, final int count) {
     try {
       assert delta.getMap().size() == weights.getMap().size();
       this.delta = new DeltaSet<>(delta);
@@ -44,12 +44,24 @@ public final class PointSample extends ReferenceCountingBase {
       this.count = count;
       setRate(rate);
     } catch (RuntimeException e) {
-      freeRef();
       throw e;
     } catch (Throwable e) {
-      freeRef();
       throw new RuntimeException(e);
     }
+  }
+
+  public double getMean() {
+    return sum / count;
+  }
+
+  public double getRate() {
+    return rate;
+  }
+
+  @Nonnull
+  public PointSample setRate(final double rate) {
+    this.rate = rate;
+    return this;
   }
 
   public static PointSample add(@Nonnull final PointSample left, @Nonnull final PointSample right) {
@@ -73,10 +85,6 @@ public final class PointSample extends ReferenceCountingBase {
         count + right.count);
   }
 
-  public PointSample copyDelta() {
-    return new PointSample(delta.copy(), weights, sum, rate, count);
-  }
-
   @Nonnull
   public PointSample copyFull() {
     @Nonnull
@@ -84,20 +92,6 @@ public final class PointSample extends ReferenceCountingBase {
     @Nonnull
     StateSet<UUID> weightsCopy = weights.copy();
     return new PointSample(deltaCopy, weightsCopy, sum, rate, count);
-  }
-
-  public double getMean() {
-    return sum / count;
-  }
-
-  public double getRate() {
-    return rate;
-  }
-
-  @Nonnull
-  public PointSample setRate(final double rate) {
-    this.rate = rate;
-    return this;
   }
 
   @Nonnull
@@ -125,19 +119,18 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Override
   public String toString() {
-    @Nonnull
-    final StringBuffer sb = new StringBuffer("PointSample{");
+    @Nonnull final StringBuffer sb = new StringBuffer("PointSample{");
     sb.append("avg=").append(getMean());
     sb.append('}');
     return sb.toString();
   }
 
   @Override
-  protected void _free() {
+  public PointSample addRef() {
+    return (PointSample) super.addRef();
   }
 
   @Override
-  public PointSample addRef() {
-    return (PointSample) super.addRef();
+  protected void _free() {
   }
 }

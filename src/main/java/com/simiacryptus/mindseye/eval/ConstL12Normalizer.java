@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -30,17 +31,6 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
 
   public ConstL12Normalizer(final Trainable inner) {
     super(inner);
-  }
-
-  @Nonnull
-  @Override
-  public SampledCachedTrainable<? extends SampledTrainable> cached() {
-    return new SampledCachedTrainable<>(this);
-  }
-
-  @Override
-  public Layer getLayer() {
-    return inner.getLayer();
   }
 
   public double getFactor_L1() {
@@ -63,15 +53,10 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     return this;
   }
 
+  @NotNull
   @Override
-  protected double getL1(final Layer layer) {
-    if (supress(layer)) return 0;
-    return factor_L1;
-  }
-
-  @Override
-  protected double getL2(final Layer layer) {
-    return factor_L2;
+  public Layer getLayer() {
+    return inner.getLayer();
   }
 
   @Nullable
@@ -87,9 +72,14 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
 
   @Nonnull
   @Override
-  public ConstL12Normalizer setTrainingSize(final int trainingSize) {
+  public void setTrainingSize(final int trainingSize) {
     ((SampledTrainable) inner).setTrainingSize(trainingSize);
-    return this;
+  }
+
+  @Nonnull
+  @Override
+  public SampledCachedTrainable<? extends SampledTrainable> cached() {
+    return new SampledCachedTrainable<>(this);
   }
 
   @Nonnull
@@ -97,6 +87,17 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
   public TrainableDataMask setMask(final boolean... mask) {
     ((TrainableDataMask) inner).setMask(mask);
     return this;
+  }
+
+  @Override
+  protected double getL1(final Layer layer) {
+    if (supress(layer)) return 0;
+    return factor_L1;
+  }
+
+  @Override
+  protected double getL2(final Layer layer) {
+    return factor_L2;
   }
 
   private boolean supress(final Layer layer) {

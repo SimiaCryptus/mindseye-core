@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,18 +60,50 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   @Nonnull
+  public Map<K, T> getMap() {
+    return Collections.unmodifiableMap(map);
+  }
+
+  @Nonnull
   @SuppressWarnings("unchecked")
   public DoubleBufferSet<K, T> copy() {
     return map(x -> (T) x.copy());
   }
-
-  protected abstract T factory(final K layer, final double[] target);
 
   public T get(final K layer, final double[] ptr) {
     final T delta = get(layer, () -> factory(layer, ptr));
     assert delta.key.equals(layer);
     assert delta.target == ptr;
     return delta;
+  }
+
+  public T get(final K layer, @Nonnull final Tensor ptr) {
+    return get(layer, ptr.getData());
+  }
+
+  @Nonnull
+  public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
+    @Nonnull final DoubleBufferSet<K, T> parent = this;
+    Stream<Map.Entry<K, T>> stream = map.entrySet().stream();
+    if (map.size() > 100) {
+      stream = stream.parallel();
+    }
+    final Map<K, T> newMap = stream.collect(Collectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
+    return new Delegate(parent, newMap);
+  }
+
+  public Stream<T> stream() {
+    return map.values().stream().filter(n -> null != n).distinct()
+        .sorted(Comparator.comparing(y -> System.identityHashCode(y.target)));
+  }
+
+  protected abstract T factory(final K layer, final double[] target);
+
+  @Override
+  protected void _free() {
+    map.forEach((k, v) -> {
+    });
+    //    map.clear();
   }
 
   private T get(@Nullable final K layer, @Nullable final Supplier<T> factory) {
@@ -91,39 +122,6 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
         return delta;
       });
     }
-  }
-
-  public T get(final K layer, @Nonnull final Tensor ptr) {
-    return get(layer, ptr.getData());
-  }
-
-  @Nonnull
-  public Map<K, T> getMap() {
-    return Collections.unmodifiableMap(map);
-  }
-
-  @Nonnull
-  public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
-    @Nonnull
-    final DoubleBufferSet<K, T> parent = this;
-    Stream<Map.Entry<K, T>> stream = map.entrySet().stream();
-    if (map.size() > 100) {
-      stream = stream.parallel();
-    }
-    final Map<K, T> newMap = stream.collect(Collectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
-    return new Delegate(parent, newMap);
-  }
-
-  public Stream<T> stream() {
-    return map.values().stream().filter(n -> null != n).distinct()
-        .sorted(Comparator.comparing(y -> System.identityHashCode(y.target)));
-  }
-
-  @Override
-  protected void _free() {
-    map.forEach((k, v) -> {
-    });
-    //    map.clear();
   }
 
   protected class Delegate extends DoubleBufferSet<K, T> {

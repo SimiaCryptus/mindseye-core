@@ -38,19 +38,6 @@ final class InputNode extends LazyResult {
     this.dagNetwork = dagNetwork;
   }
 
-  public DAGNode add(@Nonnull final Layer nextHead) {
-    return dagNetwork.add(nextHead, InputNode.this);
-  }
-
-  @Override
-  protected Result eval(@Nonnull final GraphEvaluationContext context) {
-    assertAlive();
-    this.dagNetwork.assertAlive();
-    synchronized (context) {
-      return context.calculated.get(id).get();
-    }
-  }
-
   @Override
   public <T extends Layer> T getLayer() {
     return null;
@@ -64,6 +51,19 @@ final class InputNode extends LazyResult {
   @Override
   public DAGNetwork getNetwork() {
     return this.dagNetwork;
+  }
+
+  public DAGNode add(@Nonnull final Layer nextHead) {
+    return dagNetwork.add(nextHead, InputNode.this);
+  }
+
+  @Override
+  protected Result eval(@Nonnull final GraphEvaluationContext context) {
+    assertAlive();
+    this.dagNetwork.assertAlive();
+    synchronized (context) {
+      return context.calculated.get(id).get();
+    }
   }
 
   @Override

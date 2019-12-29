@@ -40,6 +40,10 @@ public class CoreSettings extends RefSettings {
     this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 3);
   }
 
+  public boolean isSingleThreaded() {
+    return singleThreaded;
+  }
+
   public static CoreSettings INSTANCE() {
     if (null == INSTANCE) {
       synchronized (CoreSettings.class) {
@@ -50,10 +54,6 @@ public class CoreSettings extends RefSettings {
       }
     }
     return INSTANCE;
-  }
-
-  public boolean isSingleThreaded() {
-    return singleThreaded;
   }
 
 }
