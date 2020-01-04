@@ -25,18 +25,11 @@ import com.simiacryptus.util.Util;
 import com.simiacryptus.util.function.WeakCachedSupplier;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public @com.simiacryptus.ref.lang.RefAware class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
+public @com.simiacryptus.ref.lang.RefAware
+class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     implements SampledTrainable, TrainableDataMask {
 
   private final com.simiacryptus.ref.wrappers.RefList<? extends Supplier<Tensor[]>> trainingData;
@@ -66,7 +59,7 @@ public @com.simiacryptus.ref.lang.RefAware class SampledArrayTrainable extends T
   }
 
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize,
-      final int batchSize) {
+                               final int batchSize) {
     super(new ArrayTrainable(network, batchSize));
     getInner();
     if (0 == trainingData.length)
@@ -92,11 +85,34 @@ public @com.simiacryptus.ref.lang.RefAware class SampledArrayTrainable extends T
     return Math.max(minSamples, Math.min(trainingData.size(), trainingSize));
   }
 
+  @Nonnull
+  @Override
+  public void setTrainingSize(final int trainingSize) {
+    this.trainingSize = trainingSize;
+    refreshSampledData();
+  }
+
   private void setSeed(final int newValue) {
     if (seed == newValue)
       return;
     seed = newValue;
     refreshSampledData();
+  }
+
+  public static @SuppressWarnings("unused")
+  SampledArrayTrainable[] addRefs(SampledArrayTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRef)
+        .toArray((x) -> new SampledArrayTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  SampledArrayTrainable[][] addRefs(SampledArrayTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRefs)
+        .toArray((x) -> new SampledArrayTrainable[x][]);
   }
 
   @Nonnull
@@ -113,19 +129,21 @@ public @com.simiacryptus.ref.lang.RefAware class SampledArrayTrainable extends T
     return true;
   }
 
-  @Nonnull
-  @Override
-  public void setTrainingSize(final int trainingSize) {
-    this.trainingSize = trainingSize;
-    refreshSampledData();
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  SampledArrayTrainable addRef() {
+    return (SampledArrayTrainable) super.addRef();
   }
 
   protected void refreshSampledData() {
     assert 0 < trainingData.size();
     Tensor[][] trainingData;
     if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
-      @Nonnull
-      final Random random = new Random(seed);
+      @Nonnull final Random random = new Random(seed);
       trainingData = com.simiacryptus.ref.wrappers.RefIntStream.generate(() -> random.nextInt(this.trainingData.size()))
           .distinct().mapToObj(i -> this.trainingData.get(i)).filter(x -> x != null && x.get() != null)
           .limit(getTrainingSize()).map(x -> x.get()).toArray(i -> new Tensor[i][]);
@@ -134,26 +152,5 @@ public @com.simiacryptus.ref.lang.RefAware class SampledArrayTrainable extends T
           .map(x -> x.get()).toArray(i -> new Tensor[i][]);
     }
     getInner().setTrainingData(trainingData);
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") SampledArrayTrainable addRef() {
-    return (SampledArrayTrainable) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") SampledArrayTrainable[] addRefs(SampledArrayTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRef)
-        .toArray((x) -> new SampledArrayTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") SampledArrayTrainable[][] addRefs(SampledArrayTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRefs)
-        .toArray((x) -> new SampledArrayTrainable[x][]);
   }
 }

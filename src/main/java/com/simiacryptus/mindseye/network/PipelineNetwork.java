@@ -30,16 +30,11 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetwork {
+public @com.simiacryptus.ref.lang.RefAware
+class PipelineNetwork extends DAGNetwork {
   @Nullable
   private DAGNode head;
 
@@ -55,10 +50,9 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
   }
 
   protected PipelineNetwork(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
-    @Nonnull
-    final UUID headId = UUID.fromString(json.get("head").getAsString());
+    @Nonnull final UUID headId = UUID.fromString(json.get("head").getAsString());
     if (!inputHandles.contains(headId)) {
       assert null != headId;
       DAGNode node = getNodeById(headId);
@@ -86,9 +80,16 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
     }
   }
 
+  @Nonnull
+  public void setHead(final DAGNode obj) {
+    if (obj != head) {
+      head = obj;
+    }
+  }
+
   @SuppressWarnings("unused")
   public static PipelineNetwork fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new PipelineNetwork(json, rs);
   }
 
@@ -160,6 +161,22 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
     return pipelineNetwork;
   }
 
+  public static @SuppressWarnings("unused")
+  PipelineNetwork[] addRefs(PipelineNetwork[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRef)
+        .toArray((x) -> new PipelineNetwork[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  PipelineNetwork[][] addRefs(PipelineNetwork[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRefs)
+        .toArray((x) -> new PipelineNetwork[x][]);
+  }
+
   @Nonnull
   @Override
   public PipelineNetwork copy(final SerialPrecision precision) {
@@ -183,8 +200,7 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
   @Nullable
   @Override
   public InnerNode add(@Nullable final Layer nextHead, @Nonnull final DAGNode... head) {
-    @Nullable
-    final InnerNode node = super.add(nextHead, head);
+    @Nullable final InnerNode node = super.add(nextHead, head);
     setHead(node);
     return node;
   }
@@ -209,7 +225,7 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
 
   @Nullable
   public DAGNode constValue(final Tensor tensor) {
-    return add(new ValueLayer(tensor), new DAGNode[] {});
+    return add(new ValueLayer(tensor), new DAGNode[]{});
   }
 
   @Nullable
@@ -217,16 +233,9 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
     return constValue(tensor);
   }
 
-  @Nonnull
-  public void setHead(final DAGNode obj) {
-    if (obj != head) {
-      head = obj;
-    }
-  }
-
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
+                            DataSerializer dataSerializer) {
     assertConsistent();
     final JsonObject json = super.getJson(resources, dataSerializer);
     json.addProperty("head", getHeadId().toString());
@@ -255,22 +264,10 @@ public @com.simiacryptus.ref.lang.RefAware class PipelineNetwork extends DAGNetw
     }
   }
 
-  public @Override @SuppressWarnings("unused") PipelineNetwork addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  PipelineNetwork addRef() {
     return (PipelineNetwork) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") PipelineNetwork[] addRefs(PipelineNetwork[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRef)
-        .toArray((x) -> new PipelineNetwork[x]);
-  }
-
-  public static @SuppressWarnings("unused") PipelineNetwork[][] addRefs(PipelineNetwork[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRefs)
-        .toArray((x) -> new PipelineNetwork[x][]);
   }
 
 }

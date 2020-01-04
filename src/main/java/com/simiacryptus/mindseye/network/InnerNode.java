@@ -26,14 +26,11 @@ import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefStream;
 
 @SuppressWarnings("serial")
-public final @com.simiacryptus.ref.lang.RefAware class InnerNode extends LazyResult {
+public final @com.simiacryptus.ref.lang.RefAware
+class InnerNode extends LazyResult {
   @SuppressWarnings("unused")
   public final CharSequence[] createdBy = Util.currentStack();
   private final DAGNetwork dagNetwork;
@@ -49,13 +46,13 @@ public final @com.simiacryptus.ref.lang.RefAware class InnerNode extends LazyRes
 
   @SafeVarargs
   InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key,
-      @Nonnull final DAGNode... inputNodes) {
+            @Nonnull final DAGNode... inputNodes) {
     super(key);
     this.dagNetwork = dagNetwork;
     assert null != inputNodes;
     setLayer(layer);
     if (0 == inputNodes.length) {
-      this.inputNodes = new DAGNode[] {};
+      this.inputNodes = new DAGNode[]{};
     } else {
       this.inputNodes = com.simiacryptus.ref.wrappers.RefArrays.copyOf(inputNodes, inputNodes.length);
       assert com.simiacryptus.ref.wrappers.RefArrays.stream(inputNodes).parallel().allMatch(x -> x != null);
@@ -102,21 +99,20 @@ public final @com.simiacryptus.ref.lang.RefAware class InnerNode extends LazyRes
     return this;
   }
 
-  @Nullable
-  @Override
-  protected Result eval(final GraphEvaluationContext ctx) {
-    assertAlive();
-    @Nonnull
-    final Layer innerLayer = getLayer();
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(inputNodes).allMatch(x -> x != null);
-    @Nonnull
-    com.simiacryptus.ref.wrappers.RefStream<DAGNode> stream = com.simiacryptus.ref.wrappers.RefArrays
-        .stream(inputNodes);
-    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-      stream = stream.parallel();
-    final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(in).allMatch(x -> x != null);
-    return innerLayer.eval(in);
+  public static @SuppressWarnings("unused")
+  InnerNode[] addRefs(InnerNode[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRef)
+        .toArray((x) -> new InnerNode[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  InnerNode[][] addRefs(InnerNode[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRefs)
+        .toArray((x) -> new InnerNode[x][]);
   }
 
   public void _free() {
@@ -127,21 +123,25 @@ public final @com.simiacryptus.ref.lang.RefAware class InnerNode extends LazyRes
     this.layer = null;
   }
 
-  public @Override @SuppressWarnings("unused") InnerNode addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  InnerNode addRef() {
     return (InnerNode) super.addRef();
   }
 
-  public static @SuppressWarnings("unused") InnerNode[] addRefs(InnerNode[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRef)
-        .toArray((x) -> new InnerNode[x]);
-  }
-
-  public static @SuppressWarnings("unused") InnerNode[][] addRefs(InnerNode[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRefs)
-        .toArray((x) -> new InnerNode[x][]);
+  @Nullable
+  @Override
+  protected Result eval(final GraphEvaluationContext ctx) {
+    assertAlive();
+    @Nonnull final Layer innerLayer = getLayer();
+    assert com.simiacryptus.ref.wrappers.RefArrays.stream(inputNodes).allMatch(x -> x != null);
+    @Nonnull
+    com.simiacryptus.ref.wrappers.RefStream<DAGNode> stream = com.simiacryptus.ref.wrappers.RefArrays
+        .stream(inputNodes);
+    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      stream = stream.parallel();
+    final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
+    assert com.simiacryptus.ref.wrappers.RefArrays.stream(in).allMatch(x -> x != null);
+    return innerLayer.eval(in);
   }
 }

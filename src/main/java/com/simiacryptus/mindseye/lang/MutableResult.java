@@ -20,12 +20,11 @@
 package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import com.simiacryptus.ref.wrappers.RefArrays;
 
-public @com.simiacryptus.ref.lang.RefAware class MutableResult extends Result {
+public @com.simiacryptus.ref.lang.RefAware
+class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
     this(com.simiacryptus.ref.wrappers.RefArrays.stream(tensors).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
@@ -40,6 +39,22 @@ public @com.simiacryptus.ref.lang.RefAware class MutableResult extends Result {
     return true;
   }
 
+  public static @SuppressWarnings("unused")
+  MutableResult[] addRefs(MutableResult[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRef)
+        .toArray((x) -> new MutableResult[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  MutableResult[][] addRefs(MutableResult[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRefs)
+        .toArray((x) -> new MutableResult[x][]);
+  }
+
   private static BiConsumer<DeltaSet<UUID>, TensorList> handler(final Tensor[] tensors, UUID[] objectId) {
     return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
       for (int index = 0; index < delta.length(); index++) {
@@ -48,24 +63,13 @@ public @com.simiacryptus.ref.lang.RefAware class MutableResult extends Result {
     };
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") MutableResult addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  MutableResult addRef() {
     return (MutableResult) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") MutableResult[] addRefs(MutableResult[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRef)
-        .toArray((x) -> new MutableResult[x]);
-  }
-
-  public static @SuppressWarnings("unused") MutableResult[][] addRefs(MutableResult[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRefs)
-        .toArray((x) -> new MutableResult[x][]);
   }
 }

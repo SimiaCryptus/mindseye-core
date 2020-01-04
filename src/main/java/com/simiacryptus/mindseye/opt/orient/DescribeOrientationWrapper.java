@@ -26,17 +26,11 @@ import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public @com.simiacryptus.ref.lang.RefAware class DescribeOrientationWrapper
+public @com.simiacryptus.ref.lang.RefAware
+class DescribeOrientationWrapper
     extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
@@ -51,11 +45,9 @@ public @com.simiacryptus.ref.lang.RefAware class DescribeOrientationWrapper
   }
 
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
-      @Nonnull final DoubleBuffer<UUID> dirDelta) {
-    @Nonnull
-    final CharSequence weightString = com.simiacryptus.ref.wrappers.RefArrays.toString(weightDelta.getDelta());
-    @Nonnull
-    final CharSequence deltaString = com.simiacryptus.ref.wrappers.RefArrays.toString(dirDelta.getDelta());
+                                    @Nonnull final DoubleBuffer<UUID> dirDelta) {
+    @Nonnull final CharSequence weightString = com.simiacryptus.ref.wrappers.RefArrays.toString(weightDelta.getDelta());
+    @Nonnull final CharSequence deltaString = com.simiacryptus.ref.wrappers.RefArrays.toString(dirDelta.getDelta());
     return String.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
@@ -79,14 +71,30 @@ public @com.simiacryptus.ref.lang.RefAware class DescribeOrientationWrapper
         .map(str -> str.replaceAll("\n", "\n\t")).reduce((a, b) -> a + "\n" + b).orElse("");
   }
 
+  public static @SuppressWarnings("unused")
+  DescribeOrientationWrapper[] addRefs(DescribeOrientationWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
+        .toArray((x) -> new DescribeOrientationWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  DescribeOrientationWrapper[][] addRefs(
+      DescribeOrientationWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
+        .toArray((x) -> new DescribeOrientationWrapper[x][]);
+  }
+
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
+                                 @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull
-      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
       final CharSequence asString = DescribeOrientationWrapper.render(weights, direction);
       monitor.log(String.format("Orientation Details: %s", asString));
     } else {
@@ -103,22 +111,9 @@ public @com.simiacryptus.ref.lang.RefAware class DescribeOrientationWrapper
   public void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") DescribeOrientationWrapper addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  DescribeOrientationWrapper addRef() {
     return (DescribeOrientationWrapper) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") DescribeOrientationWrapper[] addRefs(DescribeOrientationWrapper[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
-        .toArray((x) -> new DescribeOrientationWrapper[x]);
-  }
-
-  public static @SuppressWarnings("unused") DescribeOrientationWrapper[][] addRefs(
-      DescribeOrientationWrapper[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
-        .toArray((x) -> new DescribeOrientationWrapper[x][]);
   }
 }

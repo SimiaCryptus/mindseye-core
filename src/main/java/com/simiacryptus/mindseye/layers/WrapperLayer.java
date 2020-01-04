@@ -27,13 +27,10 @@ import com.simiacryptus.mindseye.lang.Result;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import java.util.Map;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public abstract @com.simiacryptus.ref.lang.RefAware class WrapperLayer extends LayerBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class WrapperLayer extends LayerBase {
   @Nullable
   private Layer inner;
 
@@ -70,6 +67,22 @@ public abstract @com.simiacryptus.ref.lang.RefAware class WrapperLayer extends L
     return inner.isFrozen();
   }
 
+  public static @SuppressWarnings("unused")
+  WrapperLayer[] addRefs(WrapperLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef)
+        .toArray((x) -> new WrapperLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  WrapperLayer[][] addRefs(WrapperLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
+        .toArray((x) -> new WrapperLayer[x][]);
+  }
+
   @Nullable
   @Override
   public Result eval(final Result... array) {
@@ -79,9 +92,8 @@ public abstract @com.simiacryptus.ref.lang.RefAware class WrapperLayer extends L
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     json.add("inner", getInner().getJson(resources, dataSerializer));
     return json;
   }
@@ -105,21 +117,9 @@ public abstract @com.simiacryptus.ref.lang.RefAware class WrapperLayer extends L
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") WrapperLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  WrapperLayer addRef() {
     return (WrapperLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") WrapperLayer[] addRefs(WrapperLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef)
-        .toArray((x) -> new WrapperLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") WrapperLayer[][] addRefs(WrapperLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
-        .toArray((x) -> new WrapperLayer[x][]);
   }
 }

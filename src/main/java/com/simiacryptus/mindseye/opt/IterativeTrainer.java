@@ -40,15 +40,12 @@ import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
-import com.simiacryptus.ref.wrappers.RefHashMap;
-import com.simiacryptus.ref.wrappers.RefMap;
 
-public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware
+class IterativeTrainer extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(IterativeTrainer.class);
 
   private final com.simiacryptus.ref.wrappers.RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
@@ -148,6 +145,22 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends Refere
     return this;
   }
 
+  public static @SuppressWarnings("unused")
+  IterativeTrainer[] addRefs(IterativeTrainer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRef)
+        .toArray((x) -> new IterativeTrainer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  IterativeTrainer[][] addRefs(IterativeTrainer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRefs)
+        .toArray((x) -> new IterativeTrainer[x][]);
+  }
+
   @Nullable
   public PointSample measure() {
     @Nullable
@@ -188,7 +201,8 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends Refere
     @Nullable
     PointSample currentPoint = measure();
     try {
-      mainLoop: while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
+mainLoop:
+      while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
           && maxIterations > currentIteration.get()) {
         shuffle();
         currentPoint = null;
@@ -202,18 +216,14 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends Refere
           }
           currentPoint = null;
           currentPoint = measure();
-          @Nullable
-          final PointSample _currentPoint = currentPoint;
-          @Nonnull
-          final TimedResult<LineSearchCursor> timedOrientation = TimedResult
+          @Nullable final PointSample _currentPoint = currentPoint;
+          @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
               .time(() -> orientation.orient(subject, _currentPoint, monitor));
           final LineSearchCursor direction = timedOrientation.result;
           final CharSequence directionType = direction.getDirectionType();
-          @Nullable
-          final PointSample previous = currentPoint;
+          @Nullable final PointSample previous = currentPoint;
           {
-            @Nonnull
-            final TimedResult<PointSample> timedLineSearch = TimedResult
+            @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult
                 .time(() -> step(direction, directionType, previous));
             currentPoint = null;
             currentPoint = timedLineSearch.result;
@@ -276,7 +286,7 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends Refere
   }
 
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType,
-      @Nonnull final PointSample previous) {
+                          @Nonnull final PointSample previous) {
     PointSample currentPoint;
     LineSearchStrategy lineSearchStrategy;
     if (lineSearchStrategyMap.containsKey(directionType)) {
@@ -286,8 +296,7 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends Refere
       lineSearchStrategy = lineSearchFactory.apply(direction.getDirectionType());
       lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull
-    final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
+    @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
     lineSearchStrategy.step(wrapped, monitor);
     currentPoint = wrapped.getBest(monitor);
     return currentPoint;
@@ -296,21 +305,9 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends Refere
   public void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") IterativeTrainer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  IterativeTrainer addRef() {
     return (IterativeTrainer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") IterativeTrainer[] addRefs(IterativeTrainer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRef)
-        .toArray((x) -> new IterativeTrainer[x]);
-  }
-
-  public static @SuppressWarnings("unused") IterativeTrainer[][] addRefs(IterativeTrainer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRefs)
-        .toArray((x) -> new IterativeTrainer[x][]);
   }
 }

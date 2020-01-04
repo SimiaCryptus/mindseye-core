@@ -31,7 +31,8 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
-abstract @com.simiacryptus.ref.lang.RefAware class LazyResult extends ReferenceCountingBase implements DAGNode {
+abstract @com.simiacryptus.ref.lang.RefAware
+class LazyResult extends ReferenceCountingBase implements DAGNode {
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
   public final UUID id;
 
@@ -47,6 +48,22 @@ abstract @com.simiacryptus.ref.lang.RefAware class LazyResult extends ReferenceC
   @Override
   public final UUID getId() {
     return id;
+  }
+
+  public static @SuppressWarnings("unused")
+  LazyResult[] addRefs(LazyResult[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef)
+        .toArray((x) -> new LazyResult[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  LazyResult[][] addRefs(LazyResult[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs)
+        .toArray((x) -> new LazyResult[x][]);
   }
 
   @Nullable
@@ -102,28 +119,17 @@ abstract @com.simiacryptus.ref.lang.RefAware class LazyResult extends ReferenceC
     return nnResult;
   }
 
-  @Nullable
-  protected abstract Result eval(GraphEvaluationContext t);
-
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") LazyResult addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  LazyResult addRef() {
     return (LazyResult) super.addRef();
   }
 
-  public static @SuppressWarnings("unused") LazyResult[] addRefs(LazyResult[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef)
-        .toArray((x) -> new LazyResult[x]);
-  }
-
-  public static @SuppressWarnings("unused") LazyResult[][] addRefs(LazyResult[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs)
-        .toArray((x) -> new LazyResult[x][]);
-  }
+  @Nullable
+  protected abstract Result eval(GraphEvaluationContext t);
 
 }

@@ -23,13 +23,30 @@ import com.simiacryptus.mindseye.lang.Layer;
 
 import java.util.Random;
 
-public @com.simiacryptus.ref.lang.RefAware interface StochasticComponent extends Layer {
+public @com.simiacryptus.ref.lang.RefAware
+interface StochasticComponent extends Layer {
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
     @Override
     protected Random initialValue() {
       return new Random();
     }
   };
+
+  public static @SuppressWarnings("unused")
+  StochasticComponent[] addRefs(StochasticComponent[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
+        .toArray((x) -> new StochasticComponent[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  StochasticComponent[][] addRefs(StochasticComponent[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)
+        .toArray((x) -> new StochasticComponent[x][]);
+  }
 
   void shuffle(final long seed);
 
@@ -38,18 +55,4 @@ public @com.simiacryptus.ref.lang.RefAware interface StochasticComponent extends
   public void _free();
 
   public StochasticComponent addRef();
-
-  public static @SuppressWarnings("unused") StochasticComponent[] addRefs(StochasticComponent[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
-        .toArray((x) -> new StochasticComponent[x]);
-  }
-
-  public static @SuppressWarnings("unused") StochasticComponent[][] addRefs(StochasticComponent[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)
-        .toArray((x) -> new StochasticComponent[x][]);
-  }
 }

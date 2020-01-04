@@ -33,12 +33,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import java.util.*;
+import java.util.Base64;
+import java.util.Spliterator;
+import java.util.UUID;
 import java.util.function.*;
-import java.util.stream.*;
 
 @SuppressWarnings("serial")
-public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceCountingBase
+public final @com.simiacryptus.ref.lang.RefAware
+class Tensor extends ReferenceCountingBase
     implements Serializable, ZipSerializable {
   @Nonnull
   public static final DataSerializer json_precision = SerialPrecision.Float;
@@ -73,7 +75,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
       throw new IllegalArgumentException();
     if (null != data && Tensor.length(dims) != data.length)
       throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(dims) + " != " + data.length);
-    dimensions = (null == dims || 0 == dims.length) ? new int[] {}
+    dimensions = (null == dims || 0 == dims.length) ? new int[]{}
         : com.simiacryptus.ref.wrappers.RefArrays.copyOf(dims, dims.length);
     strides = Tensor.getSkips(dims);
     //this.data = data;// Arrays.copyOf(data, data.length);
@@ -89,7 +91,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   }
 
   private Tensor(@org.jetbrains.annotations.Nullable int[] dimensions,
-      @org.jetbrains.annotations.Nullable int[] strides, @Nullable double[] data) {
+                 @org.jetbrains.annotations.Nullable int[] strides, @Nullable double[] data) {
     if (Tensor.length(dimensions) >= Integer.MAX_VALUE)
       throw new IllegalArgumentException();
     assert null == data || data.length == Tensor.length(dimensions);
@@ -183,8 +185,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   }
 
   public Tensor setAll(final double v) {
-    @Nullable
-    final double[] data = getData();
+    @Nullable final double[] data = getData();
     for (int i = 0; i < data.length; i++) {
       data[i] = v;
     }
@@ -208,7 +209,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   @Nullable
   @SuppressWarnings("unused")
   public static Tensor fromJson(@Nullable final JsonElement json,
-      @Nullable com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                                @Nullable com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     if (null == json)
       return null;
     if (json.isJsonArray()) {
@@ -231,22 +232,17 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
             }).map(element -> {
               return Tensor.fromJson(element, resources);
             }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
-        @Nonnull
-        final int[] dimensions = elements.get(0).getDimensions();
+        @Nonnull final int[] dimensions = elements.get(0).getDimensions();
         if (!elements.stream()
             .allMatch(t -> com.simiacryptus.ref.wrappers.RefArrays.equals(dimensions, t.getDimensions()))) {
           throw new IllegalArgumentException();
         }
-        @Nonnull
-        final int[] newDdimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length + 1);
+        @Nonnull final int[] newDdimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length + 1);
         newDdimensions[dimensions.length] = size;
-        @Nonnull
-        final Tensor tensor = new Tensor(newDdimensions);
-        @Nullable
-        final double[] data = tensor.getData();
+        @Nonnull final Tensor tensor = new Tensor(newDdimensions);
+        @Nullable final double[] data = tensor.getData();
         for (int i = 0; i < size; i++) {
-          @Nullable
-          final double[] e = elements.get(i).getData();
+          @Nullable final double[] e = elements.get(i).getData();
           System.arraycopy(e, 0, data, i * e.length, e.length);
         }
         assert tensor.isValid();
@@ -297,11 +293,9 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   public static Tensor fromRGB(@Nonnull final BufferedImage img) {
     final int width = img.getWidth();
     final int height = img.getHeight();
-    @Nonnull
-    final Tensor a = new Tensor(width, height, 3);
+    @Nonnull final Tensor a = new Tensor(width, height, 3);
     com.simiacryptus.ref.wrappers.RefIntStream.range(0, width).parallel().forEach(x -> {
-      @Nonnull
-      final int[] coords = { 0, 0, 0 };
+      @Nonnull final int[] coords = {0, 0, 0};
       com.simiacryptus.ref.wrappers.RefIntStream.range(0, height).forEach(y -> {
         coords[0] = x;
         coords[1] = y;
@@ -317,7 +311,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   }
 
   public static double[] getDoubles(@Nonnull final com.simiacryptus.ref.wrappers.RefDoubleStream stream,
-      final int dim) {
+                                    final int dim) {
     final double[] doubles = RecycleBin.DOUBLES.obtain(dim);
     stream.forEach(new DoubleConsumer() {
       int j = 0;
@@ -335,14 +329,10 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     if (left.length() == 1 && right.length() != 1)
       return Tensor.product(right, left);
     assert left.length() == right.length() || 1 == right.length();
-    @Nonnull
-    final Tensor result = new Tensor(left.getDimensions());
-    @Nullable
-    final double[] resultData = result.getData();
-    @Nullable
-    final double[] leftData = left.getData();
-    @Nullable
-    final double[] rightData = right.getData();
+    @Nonnull final Tensor result = new Tensor(left.getDimensions());
+    @Nullable final double[] resultData = result.getData();
+    @Nullable final double[] leftData = left.getData();
+    @Nullable final double[] rightData = right.getData();
     for (int i = 0; i < resultData.length; i++) {
       final double l = leftData[i];
       final double r = rightData[1 == rightData.length ? 0 : i];
@@ -443,6 +433,20 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     };
   }
 
+  public static @SuppressWarnings("unused")
+  Tensor[] addRefs(Tensor[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRef).toArray((x) -> new Tensor[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  Tensor[][] addRefs(Tensor[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRefs).toArray((x) -> new Tensor[x][]);
+  }
+
   private static double bound8bit(final double value) {
     final int max = 0xFF;
     final int min = 0;
@@ -457,8 +461,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nonnull
   private static int[] getSkips(@Nonnull final int[] dims) {
-    @Nonnull
-    final int[] skips = new int[dims.length];
+    @Nonnull final int[] skips = new int[dims.length];
     for (int i = 0; i < skips.length; i++) {
       if (i == 0) {
         skips[0] = 1;
@@ -497,7 +500,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   public void addInPlace(@Nonnull final Tensor tensor) {
     assert com.simiacryptus.ref.wrappers.RefArrays.equals(getDimensions(),
         tensor.getDimensions()) : com.simiacryptus.ref.wrappers.RefArrays.toString(getDimensions()) + " != "
-            + com.simiacryptus.ref.wrappers.RefArrays.toString(tensor.getDimensions());
+        + com.simiacryptus.ref.wrappers.RefArrays.toString(tensor.getDimensions());
     double[] toAdd = tensor.getData();
     double[] data = getData();
     int length = length();
@@ -557,13 +560,13 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     return com.simiacryptus.ref.wrappers.RefStreamSupport.stream(com.simiacryptus.ref.wrappers.RefSpliterators
         .spliterator(new com.simiacryptus.ref.wrappers.RefIteratorBase<Coordinate>() {
 
-          int cnt = 0;
           @Nonnull
           final Coordinate coordinate = new Coordinate();
           @Nonnull
           final int[] val = new int[dimensions.length];
           @Nonnull
           final int[] safeCopy = new int[dimensions.length];
+          int cnt = 0;
 
           @Override
           public boolean hasNext() {
@@ -588,7 +591,8 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
             return parallel ? coordinate.copy() : coordinate;
           }
 
-          public @SuppressWarnings("unused") void _free() {
+          public @SuppressWarnings("unused")
+          void _free() {
           }
         }, length(), Spliterator.ORDERED), parallel);
   }
@@ -620,8 +624,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     if (getClass() != obj.getClass()) {
       return false;
     }
-    @Nullable
-    final Tensor other = (Tensor) obj;
+    @Nullable final Tensor other = (Tensor) obj;
     if (0 == currentRefCount())
       return false;
     if (0 == other.currentRefCount())
@@ -747,11 +750,9 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nullable
   public Tensor map(@Nonnull final DoubleUnaryOperator f, boolean parallel) {
-    @Nullable
-    final double[] data = getData();
+    @Nullable final double[] data = getData();
     Tensor tensor = new Tensor(dimensions);
-    @Nonnull
-    final double[] cpy = tensor.getData();
+    @Nonnull final double[] cpy = tensor.getData();
     com.simiacryptus.ref.wrappers.RefIntStream stream = com.simiacryptus.ref.wrappers.RefIntStream.range(0,
         data.length);
     if (parallel)
@@ -784,8 +785,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nullable
   public Tensor mapParallel(@Nonnull final DoubleUnaryOperator f) {
-    @Nullable
-    final double[] data = getData();
+    @Nullable final double[] data = getData();
     return new Tensor(Tensor.getDoubles(
         com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToDouble(i -> f.applyAsDouble(data[i])),
         length()), dimensions);
@@ -797,12 +797,9 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
       throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(getDimensions()) + " != "
           + com.simiacryptus.ref.wrappers.RefArrays.toString(right.getDimensions()));
     }
-    @Nonnull
-    final Tensor copy = new Tensor(getDimensions());
-    @Nullable
-    final double[] thisData = getData();
-    @Nullable
-    final double[] rightData = right.getData();
+    @Nonnull final Tensor copy = new Tensor(getDimensions());
+    @Nullable final double[] thisData = getData();
+    @Nullable final double[] rightData = right.getData();
     com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(copy.getData(),
         i -> (thisData[i] == rightData[i]) ? 0 : (thisData[i] - rightData[i]));
     return copy;
@@ -814,12 +811,9 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nonnull
   public Tensor multiply(final double d) {
-    @Nonnull
-    final Tensor tensor = new Tensor(getDimensions());
-    @Nullable
-    final double[] resultData = tensor.getData();
-    @Nullable
-    final double[] thisData = getData();
+    @Nonnull final Tensor tensor = new Tensor(getDimensions());
+    @Nullable final double[] resultData = tensor.getData();
+    @Nullable final double[] thisData = getData();
     for (int i = 0; i < thisData.length; i++) {
       resultData[i] = d * thisData[i];
     }
@@ -844,10 +838,8 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
       throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(right.getDimensions())
           + " != " + com.simiacryptus.ref.wrappers.RefArrays.toString(getDimensions()));
     }
-    @Nullable
-    final double[] dataL = getData();
-    @Nullable
-    final double[] dataR = right.getData();
+    @Nullable final double[] dataL = getData();
+    @Nullable final double[] dataR = right.getData();
     return new Tensor(Tensor.getDoubles(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length())
         .mapToDouble(i -> f.applyAsDouble(dataL[i], dataR[i])), length()), dimensions);
   }
@@ -880,8 +872,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   public Tensor scaleInPlace(final double d) {
     if (!Double.isFinite(d))
       throw new IllegalArgumentException();
-    @Nullable
-    final double[] data = getData();
+    @Nullable final double[] data = getData();
     for (int i = 0; i < data.length; i++) {
       data[i] *= d;
     }
@@ -947,8 +938,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   public void set(@Nonnull final Tensor right) {
     assertAlive();
-    @Nullable
-    final double[] src = right.getData();
+    @Nullable final double[] src = right.getData();
     double[] dst = getData();
     if (dst.length != src.length) {
       throw new IllegalArgumentException(dst.length + " != " + src.length);
@@ -994,8 +984,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   public BufferedImage toGrayImage(final int band) {
     final int width = getDimensions()[0];
     final int height = getDimensions()[1];
-    @Nonnull
-    final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+    @Nonnull final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         final double v = get(x, y, band);
@@ -1007,8 +996,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nonnull
   public BufferedImage toImage() {
-    @Nonnull
-    final int[] dims = getDimensions();
+    @Nonnull final int[] dims = getDimensions();
     if (3 == dims.length) {
       if (3 == dims[2]) {
         return toRgbImage();
@@ -1024,14 +1012,12 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nonnull
   public com.simiacryptus.ref.wrappers.RefList<BufferedImage> toImages() {
-    @Nonnull
-    final int[] dims = getDimensions();
+    @Nonnull final int[] dims = getDimensions();
     if (3 == dims.length) {
       if (3 == dims[2]) {
         return com.simiacryptus.ref.wrappers.RefArrays.asList(toRgbImage());
       } else if (0 == dims[2] % 3) {
-        @Nonnull
-        final com.simiacryptus.ref.wrappers.RefArrayList<BufferedImage> list = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+        @Nonnull final com.simiacryptus.ref.wrappers.RefArrayList<BufferedImage> list = new com.simiacryptus.ref.wrappers.RefArrayList<>();
         for (int i = 0; i < dims[2]; i += 3) {
           list.add(toRgbImage(i, i + 1, i + 2));
         }
@@ -1039,8 +1025,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
       } else if (1 == dims[2]) {
         return com.simiacryptus.ref.wrappers.RefArrays.asList(toGrayImage());
       } else {
-        @Nonnull
-        final com.simiacryptus.ref.wrappers.RefArrayList<BufferedImage> list = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+        @Nonnull final com.simiacryptus.ref.wrappers.RefArrayList<BufferedImage> list = new com.simiacryptus.ref.wrappers.RefArrayList<>();
         for (int i = 0; i < dims[2]; i++) {
           list.add(toGrayImage(i));
         }
@@ -1054,7 +1039,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
 
   @Nonnull
   public JsonElement getJson(@Nullable com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
+                             @Nonnull DataSerializer dataSerializer) {
     if (length() > 1024) {
       @Nonnull
       JsonObject obj = new JsonObject();
@@ -1076,7 +1061,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
       }
       return obj;
     } else {
-      return getJson(new int[] {});
+      return getJson(new int[]{});
     }
   }
 
@@ -1099,10 +1084,8 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
   @Nonnull
   public BufferedImage toRgbImage(final int redBand, final int greenBand, final int blueBand) {
     assertAlive();
-    @Nonnull
-    final int[] dims = getDimensions();
-    @Nonnull
-    final BufferedImage img = new BufferedImage(dims[0], dims[1], BufferedImage.TYPE_INT_RGB);
+    @Nonnull final int[] dims = getDimensions();
+    @Nonnull final BufferedImage img = new BufferedImage(dims[0], dims[1], BufferedImage.TYPE_INT_RGB);
     for (int x = 0; x < img.getWidth(); x++) {
       for (int y = 0; y < img.getHeight(); y++) {
         if (getDimensions()[2] == 1) {
@@ -1215,18 +1198,22 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     }
   }
 
+  public @Override
+  @SuppressWarnings("unused")
+  Tensor addRef() {
+    return (Tensor) super.addRef();
+  }
+
   @Nonnull
   private JsonElement getJson(@Nonnull final int[] coords) {
     if (coords.length == dimensions.length) {
       final double d = get(coords);
       return new JsonPrimitive(d);
     } else {
-      @Nonnull
-      final JsonArray jsonArray = new JsonArray();
+      @Nonnull final JsonArray jsonArray = new JsonArray();
       com.simiacryptus.ref.wrappers.RefIntStream.range(0, dimensions[dimensions.length - (coords.length + 1)])
           .mapToObj(i -> {
-            @Nonnull
-            final int[] newCoord = new int[coords.length + 1];
+            @Nonnull final int[] newCoord = new int[coords.length + 1];
             System.arraycopy(coords, 0, newCoord, 1, coords.length);
             newCoord[0] = i;
             return getJson(newCoord);
@@ -1241,8 +1228,7 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     } else {
       com.simiacryptus.ref.wrappers.RefList<CharSequence> list = com.simiacryptus.ref.wrappers.RefIntStream
           .range(0, dimensions[coords.length]).mapToObj(i -> {
-            @Nonnull
-            final int[] newCoord = com.simiacryptus.ref.wrappers.RefArrays.copyOf(coords, coords.length + 1);
+            @Nonnull final int[] newCoord = com.simiacryptus.ref.wrappers.RefArrays.copyOf(coords, coords.length + 1);
             newCoord[coords.length] = i;
             return toString(prettyPrint, newCoord);
           }).limit(15).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
@@ -1266,27 +1252,13 @@ public final @com.simiacryptus.ref.lang.RefAware class Tensor extends ReferenceC
     }
   }
 
-  public @com.simiacryptus.ref.lang.RefAware interface CoordOperator {
+  public @com.simiacryptus.ref.lang.RefAware
+  interface CoordOperator {
     void eval(double value, Coordinate index);
   }
 
-  public @com.simiacryptus.ref.lang.RefAware interface TupleOperator {
+  public @com.simiacryptus.ref.lang.RefAware
+  interface TupleOperator {
     double eval(double value, int index);
-  }
-
-  public @Override @SuppressWarnings("unused") Tensor addRef() {
-    return (Tensor) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") Tensor[] addRefs(Tensor[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRef).toArray((x) -> new Tensor[x]);
-  }
-
-  public static @SuppressWarnings("unused") Tensor[][] addRefs(Tensor[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRefs).toArray((x) -> new Tensor[x][]);
   }
 }

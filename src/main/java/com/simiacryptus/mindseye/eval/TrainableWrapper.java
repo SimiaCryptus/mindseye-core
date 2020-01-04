@@ -27,7 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
+public @com.simiacryptus.ref.lang.RefAware
+class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     implements TrainableDataMask {
 
   private final T inner;
@@ -49,6 +50,22 @@ public @com.simiacryptus.ref.lang.RefAware class TrainableWrapper<T extends Trai
   @Override
   public boolean[] getMask() {
     return ((TrainableDataMask) inner).getMask();
+  }
+
+  public static @SuppressWarnings("unused")
+  TrainableWrapper[] addRefs(TrainableWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
+        .toArray((x) -> new TrainableWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
+        .toArray((x) -> new TrainableWrapper[x][]);
   }
 
   @Override
@@ -78,21 +95,9 @@ public @com.simiacryptus.ref.lang.RefAware class TrainableWrapper<T extends Trai
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") TrainableWrapper<T> addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  TrainableWrapper<T> addRef() {
     return (TrainableWrapper<T>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") TrainableWrapper[] addRefs(TrainableWrapper[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
-        .toArray((x) -> new TrainableWrapper[x]);
-  }
-
-  public static @SuppressWarnings("unused") TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
-        .toArray((x) -> new TrainableWrapper[x][]);
   }
 }

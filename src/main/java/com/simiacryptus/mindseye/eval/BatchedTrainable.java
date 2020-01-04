@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.google.common.collect.Lists;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
@@ -27,15 +26,9 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import com.simiacryptus.ref.wrappers.RefLists;
-import com.simiacryptus.ref.wrappers.RefArrayList;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class BatchedTrainable extends TrainableWrapper<DataTrainable>
+public abstract @com.simiacryptus.ref.lang.RefAware
+class BatchedTrainable extends TrainableWrapper<DataTrainable>
     implements DataTrainable {
 
   protected final int batchSize;
@@ -64,18 +57,32 @@ public abstract @com.simiacryptus.ref.lang.RefAware class BatchedTrainable exten
     return this;
   }
 
+  public static @SuppressWarnings("unused")
+  BatchedTrainable[] addRefs(BatchedTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
+        .toArray((x) -> new BatchedTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  BatchedTrainable[][] addRefs(BatchedTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
+        .toArray((x) -> new BatchedTrainable[x][]);
+  }
+
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull
-    final com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors = com.simiacryptus.ref.wrappers.RefArrays
         .asList(getData());
     TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       DataTrainable inner = getInner();
       if (batchSize < tensors.size()) {
         final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
         final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-        @Nonnull
-        final com.simiacryptus.ref.wrappers.RefList<com.simiacryptus.ref.wrappers.RefList<Tensor[]>> collection = com.simiacryptus.ref.wrappers.RefLists
+        @Nonnull final com.simiacryptus.ref.wrappers.RefList<com.simiacryptus.ref.wrappers.RefList<Tensor[]>> collection = com.simiacryptus.ref.wrappers.RefLists
             .partition(tensors, evenBatchSize);
         return collection.stream().map(trainingData -> {
           if (batchSize < trainingData.size()) {
@@ -102,24 +109,13 @@ public abstract @com.simiacryptus.ref.lang.RefAware class BatchedTrainable exten
     return timedResult.result;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") BatchedTrainable addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  BatchedTrainable addRef() {
     return (BatchedTrainable) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") BatchedTrainable[] addRefs(BatchedTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
-        .toArray((x) -> new BatchedTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") BatchedTrainable[][] addRefs(BatchedTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
-        .toArray((x) -> new BatchedTrainable[x][]);
   }
 }

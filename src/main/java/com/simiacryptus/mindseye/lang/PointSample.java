@@ -24,7 +24,8 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public final @com.simiacryptus.ref.lang.RefAware class PointSample extends ReferenceCountingBase {
+public final @com.simiacryptus.ref.lang.RefAware
+class PointSample extends ReferenceCountingBase {
   public final int count;
   @Nonnull
   public final DeltaSet<UUID> delta;
@@ -34,7 +35,7 @@ public final @com.simiacryptus.ref.lang.RefAware class PointSample extends Refer
   public double rate;
 
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum,
-      final double rate, final int count) {
+                     final double rate, final int count) {
     try {
       assert delta.getMap().size() == weights.getMap().size();
       this.delta = new DeltaSet<>(delta);
@@ -71,6 +72,22 @@ public final @com.simiacryptus.ref.lang.RefAware class PointSample extends Refer
     DeltaSet<UUID> delta = left.delta.add(right.delta);
     StateSet<UUID> stateSet = StateSet.union(left.weights, right.weights);
     return new PointSample(delta, stateSet, left.sum + right.sum, left.rate, left.count + right.count);
+  }
+
+  public static @SuppressWarnings("unused")
+  PointSample[] addRefs(PointSample[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef)
+        .toArray((x) -> new PointSample[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  PointSample[][] addRefs(PointSample[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs)
+        .toArray((x) -> new PointSample[x][]);
   }
 
   public PointSample add(@Nonnull final PointSample right) {
@@ -119,8 +136,7 @@ public final @com.simiacryptus.ref.lang.RefAware class PointSample extends Refer
 
   @Override
   public String toString() {
-    @Nonnull
-    final StringBuffer sb = new StringBuffer("PointSample{");
+    @Nonnull final StringBuffer sb = new StringBuffer("PointSample{");
     sb.append("avg=").append(getMean());
     sb.append('}');
     return sb.toString();
@@ -129,21 +145,9 @@ public final @com.simiacryptus.ref.lang.RefAware class PointSample extends Refer
   public void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") PointSample addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  PointSample addRef() {
     return (PointSample) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") PointSample[] addRefs(PointSample[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef)
-        .toArray((x) -> new PointSample[x]);
-  }
-
-  public static @SuppressWarnings("unused") PointSample[][] addRefs(PointSample[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs)
-        .toArray((x) -> new PointSample[x][]);
   }
 }

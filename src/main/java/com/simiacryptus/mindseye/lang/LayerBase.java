@@ -23,14 +23,11 @@ import com.google.gson.JsonObject;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
 import java.util.UUID;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
 
 @SuppressWarnings("serial")
-public abstract @com.simiacryptus.ref.lang.RefAware class LayerBase extends RegisteredObjectBase implements Layer {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class LayerBase extends RegisteredObjectBase implements Layer {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
   protected boolean frozen = false;
@@ -81,6 +78,22 @@ public abstract @com.simiacryptus.ref.lang.RefAware class LayerBase extends Regi
     return frozen;
   }
 
+  public static @SuppressWarnings("unused")
+  LayerBase[] addRefs(LayerBase[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef)
+        .toArray((x) -> new LayerBase[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  LayerBase[][] addRefs(LayerBase[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs)
+        .toArray((x) -> new LayerBase[x][]);
+  }
+
   @Override
   public final boolean equals(@Nullable final Object obj) {
     if (this == obj) {
@@ -92,8 +105,7 @@ public abstract @com.simiacryptus.ref.lang.RefAware class LayerBase extends Regi
     if (getClass() != obj.getClass()) {
       return false;
     }
-    @Nullable
-    final Layer other = (Layer) obj;
+    @Nullable final Layer other = (Layer) obj;
     if (getId() == null) {
       return other.getId() == null;
     } else
@@ -123,31 +135,19 @@ public abstract @com.simiacryptus.ref.lang.RefAware class LayerBase extends Regi
     return getName();
   }
 
-  @Nonnull
-  protected final Layer self() {
-    return this;
-  }
-
   public void _free() {
 
   }
 
-  public @Override @SuppressWarnings("unused") LayerBase addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  LayerBase addRef() {
     return (LayerBase) super.addRef();
   }
 
-  public static @SuppressWarnings("unused") LayerBase[] addRefs(LayerBase[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef)
-        .toArray((x) -> new LayerBase[x]);
-  }
-
-  public static @SuppressWarnings("unused") LayerBase[][] addRefs(LayerBase[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs)
-        .toArray((x) -> new LayerBase[x][]);
+  @Nonnull
+  protected final Layer self() {
+    return this;
   }
 
 }

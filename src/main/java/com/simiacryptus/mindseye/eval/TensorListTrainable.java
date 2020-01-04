@@ -28,14 +28,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends ReferenceCountingBase
+public @com.simiacryptus.ref.lang.RefAware
+class TensorListTrainable extends ReferenceCountingBase
     implements TrainableDataMask {
 
   protected final Layer network;
@@ -92,11 +89,9 @@ public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends Ref
         return new Result(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
           for (int index = 0; index < delta.length(); index++) {
             final Tensor dt = delta.get(index);
-            @Nullable
-            final double[] d = dt.getData();
+            @Nullable final double[] d = dt.getData();
             final Tensor t = tensors[index];
-            @Nullable
-            final double[] p = t.getData();
+            @Nullable final double[] p = t.getData();
             @Nonnull
             PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
             buffer.get(layer.getId(), p).addInPlace(d);
@@ -108,11 +103,28 @@ public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends Ref
             return true;
           }
 
-          public @SuppressWarnings("unused") void _free() {
+          public @SuppressWarnings("unused")
+          void _free() {
           }
         };
       }
     }).toArray(x1 -> new Result[x1]);
+  }
+
+  public static @SuppressWarnings("unused")
+  TensorListTrainable[] addRefs(TensorListTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRef)
+        .toArray((x) -> new TensorListTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  TensorListTrainable[][] addRefs(TensorListTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRefs)
+        .toArray((x) -> new TensorListTrainable[x][]);
   }
 
   @Override
@@ -121,8 +133,7 @@ public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends Ref
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
       monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9,
@@ -153,18 +164,26 @@ public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends Ref
     return verbosity;
   }
 
+  public void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  TensorListTrainable addRef() {
+    return (TensorListTrainable) super.addRef();
+  }
+
   @Nonnull
   protected PointSample eval(@Nonnull final TensorList[] list, @Nullable final TrainingMonitor monitor) {
     int inputs = data.length;
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = TensorListTrainable.getNNContext(list, mask);
       final Result result = network.eval(nnContext);
       for (@Nonnull
-      Result nnResult : nnContext) {
+          Result nnResult : nnContext) {
         nnResult.getData();
       }
       final TensorList resultData = result.getData();
@@ -173,8 +192,7 @@ public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends Ref
         return com.simiacryptus.ref.wrappers.RefArrays.stream(array);
       }).summaryStatistics();
       final double sum = statistics.getSum();
-      @Nonnull
-      final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+      @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
       @Nonnull
       PointSample pointSample;
       {
@@ -190,26 +208,5 @@ public @com.simiacryptus.ref.lang.RefAware class TensorListTrainable extends Ref
       monitor.log(String.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
     }
     return timedResult.result.normalize();
-  }
-
-  public void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") TensorListTrainable addRef() {
-    return (TensorListTrainable) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") TensorListTrainable[] addRefs(TensorListTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRef)
-        .toArray((x) -> new TensorListTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") TensorListTrainable[][] addRefs(TensorListTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRefs)
-        .toArray((x) -> new TensorListTrainable[x][]);
   }
 }

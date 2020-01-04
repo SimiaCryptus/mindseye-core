@@ -23,19 +23,11 @@ import com.simiacryptus.ref.lang.RecycleBin;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefHashMap;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware class StateSet<K> extends DoubleBufferSet<K, State<K>> {
+public @com.simiacryptus.ref.lang.RefAware
+class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   public StateSet() {
   }
@@ -65,7 +57,7 @@ public @com.simiacryptus.ref.lang.RefAware class StateSet<K> extends DoubleBuffe
   }
 
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
-      @Nonnull final DoubleBufferSet<K, State<K>> right) {
+                                      @Nonnull final DoubleBufferSet<K, State<K>> right) {
     final com.simiacryptus.ref.wrappers.RefMap<K, State<K>> collect = com.simiacryptus.ref.wrappers.RefStream
         .concat(left.map.entrySet().stream(), right.map.entrySet().stream())
         .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(
@@ -82,10 +74,25 @@ public @com.simiacryptus.ref.lang.RefAware class StateSet<K> extends DoubleBuffe
     return new StateSet<K>(collect);
   }
 
+  public static @SuppressWarnings("unused")
+  StateSet[] addRefs(StateSet[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRef)
+        .toArray((x) -> new StateSet[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  StateSet[][] addRefs(StateSet[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRefs)
+        .toArray((x) -> new StateSet[x][]);
+  }
+
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
-    @Nonnull
-    final DeltaSet<K> deltas = new DeltaSet<K>();
+    @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
     map.forEach((@Nonnull final K layer, @Nonnull final State<K> buffer) -> {
       deltas.get(layer, buffer.target).set(buffer.getDelta());
     });
@@ -97,8 +104,7 @@ public @com.simiacryptus.ref.lang.RefAware class StateSet<K> extends DoubleBuffe
 
   @Nonnull
   public DeltaSet<K> asVector() {
-    @Nonnull
-    final com.simiacryptus.ref.wrappers.RefHashMap<K, Delta<K>> newMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    @Nonnull final com.simiacryptus.ref.wrappers.RefHashMap<K, Delta<K>> newMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     map.forEach((layer, state) -> newMap.put(layer,
         new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
     return new DeltaSet<>(newMap);
@@ -131,6 +137,17 @@ public @com.simiacryptus.ref.lang.RefAware class StateSet<K> extends DoubleBuffe
     return new StateSet<>(newMap);
   }
 
+  //  /**
+  //   * Union evalInputDelta setByCoord.
+  //   *
+  //   * @param right the right
+  //   * @return the evalInputDelta setByCoord
+  //   */
+  //  @Nonnull
+  //  public DoubleBufferSet<K, State<K>> union(@Nonnull final DoubleBufferSet<K, State<K>> right) {
+  //    return StateSet.union(this, right);
+  //  }
+
   @Nonnull
   public StateSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     return this.add(right.scale(-1));
@@ -147,41 +164,19 @@ public @com.simiacryptus.ref.lang.RefAware class StateSet<K> extends DoubleBuffe
     return add.asVector();
   }
 
-  //  /**
-  //   * Union evalInputDelta setByCoord.
-  //   *
-  //   * @param right the right
-  //   * @return the evalInputDelta setByCoord
-  //   */
-  //  @Nonnull
-  //  public DoubleBufferSet<K, State<K>> union(@Nonnull final DoubleBufferSet<K, State<K>> right) {
-  //    return StateSet.union(this, right);
-  //  }
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  StateSet<K> addRef() {
+    return (StateSet<K>) super.addRef();
+  }
 
   @Nonnull
   @Override
   protected State<K> factory(@Nonnull final K layer, final double[] target) {
     return new State<K>(layer, target);
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") StateSet<K> addRef() {
-    return (StateSet<K>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") StateSet[] addRefs(StateSet[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRef)
-        .toArray((x) -> new StateSet[x]);
-  }
-
-  public static @SuppressWarnings("unused") StateSet[][] addRefs(StateSet[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRefs)
-        .toArray((x) -> new StateSet[x][]);
   }
 }

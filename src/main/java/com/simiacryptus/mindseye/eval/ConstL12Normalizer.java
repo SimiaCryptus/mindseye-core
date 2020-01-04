@@ -25,7 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public @com.simiacryptus.ref.lang.RefAware class ConstL12Normalizer extends L12Normalizer
+public @com.simiacryptus.ref.lang.RefAware
+class ConstL12Normalizer extends L12Normalizer
     implements SampledTrainable, TrainableDataMask {
   private double factor_L1 = 0.0;
   private double factor_L2 = 0.0;
@@ -77,6 +78,22 @@ public @com.simiacryptus.ref.lang.RefAware class ConstL12Normalizer extends L12N
     ((SampledTrainable) inner).setTrainingSize(trainingSize);
   }
 
+  public static @SuppressWarnings("unused")
+  ConstL12Normalizer[] addRefs(ConstL12Normalizer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
+        .toArray((x) -> new ConstL12Normalizer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ConstL12Normalizer[][] addRefs(ConstL12Normalizer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
+        .toArray((x) -> new ConstL12Normalizer[x][]);
+  }
+
   @Nonnull
   @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
@@ -88,6 +105,16 @@ public @com.simiacryptus.ref.lang.RefAware class ConstL12Normalizer extends L12N
   public TrainableDataMask setMask(final boolean... mask) {
     ((TrainableDataMask) inner).setMask(mask);
     return this;
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ConstL12Normalizer addRef() {
+    return (ConstL12Normalizer) super.addRef();
   }
 
   @Override
@@ -106,26 +133,5 @@ public @com.simiacryptus.ref.lang.RefAware class ConstL12Normalizer extends L12N
     //    if (layer instanceof BiasLayer) return false;
     //    if (layer instanceof ImgBandBiasLayer) return false;
     return false;
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") ConstL12Normalizer addRef() {
-    return (ConstL12Normalizer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ConstL12Normalizer[] addRefs(ConstL12Normalizer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
-        .toArray((x) -> new ConstL12Normalizer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ConstL12Normalizer[][] addRefs(ConstL12Normalizer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
-        .toArray((x) -> new ConstL12Normalizer[x][]);
   }
 }

@@ -22,27 +22,33 @@ package com.simiacryptus.mindseye.opt.orient;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class OrientationStrategyBase<T extends LineSearchCursor>
+public abstract @com.simiacryptus.ref.lang.RefAware
+class OrientationStrategyBase<T extends LineSearchCursor>
     extends ReferenceCountingBase implements OrientationStrategy<T> {
 
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") OrientationStrategyBase<T> addRef() {
-    return (OrientationStrategyBase<T>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") OrientationStrategyBase[] addRefs(OrientationStrategyBase[] array) {
+  public static @SuppressWarnings("unused")
+  OrientationStrategyBase[] addRefs(OrientationStrategyBase[] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRef)
         .toArray((x) -> new OrientationStrategyBase[x]);
   }
 
-  public static @SuppressWarnings("unused") OrientationStrategyBase[][] addRefs(OrientationStrategyBase[][] array) {
+  public static @SuppressWarnings("unused")
+  OrientationStrategyBase[][] addRefs(OrientationStrategyBase[][] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRefs)
         .toArray((x) -> new OrientationStrategyBase[x][]);
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  OrientationStrategyBase<T> addRef() {
+    return (OrientationStrategyBase<T>) super.addRef();
   }
 }

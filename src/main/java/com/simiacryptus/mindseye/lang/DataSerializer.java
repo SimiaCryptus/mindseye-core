@@ -21,7 +21,8 @@ package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware interface DataSerializer {
+public @com.simiacryptus.ref.lang.RefAware
+interface DataSerializer {
 
   int getElementSize();
 

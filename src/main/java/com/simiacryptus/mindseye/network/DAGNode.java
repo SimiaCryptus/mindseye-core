@@ -28,12 +28,13 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware interface DAGNode extends Serializable, ReferenceCounting {
+public @com.simiacryptus.ref.lang.RefAware
+interface DAGNode extends Serializable, ReferenceCounting {
   UUID getId();
 
   @Nonnull
   default DAGNode[] getInputs() {
-    return new DAGNode[] {};
+    return new DAGNode[]{};
   }
 
   @Nullable
@@ -43,24 +44,26 @@ public @com.simiacryptus.ref.lang.RefAware interface DAGNode extends Serializabl
 
   DAGNetwork getNetwork();
 
+  public static @SuppressWarnings("unused")
+  DAGNode[] addRefs(DAGNode[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  DAGNode[][] addRefs(DAGNode[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs)
+        .toArray((x) -> new DAGNode[x][]);
+  }
+
   @Nullable
   Result get(GraphEvaluationContext buildExeCtx);
 
   public void _free();
 
   public DAGNode addRef();
-
-  public static @SuppressWarnings("unused") DAGNode[] addRefs(DAGNode[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
-  }
-
-  public static @SuppressWarnings("unused") DAGNode[][] addRefs(DAGNode[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs)
-        .toArray((x) -> new DAGNode[x][]);
-  }
 
 }

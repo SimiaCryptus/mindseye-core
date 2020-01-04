@@ -24,10 +24,9 @@ import com.simiacryptus.mindseye.lang.Tensor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
-import com.simiacryptus.ref.wrappers.RefList;
 
-public @com.simiacryptus.ref.lang.RefAware class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
+public @com.simiacryptus.ref.lang.RefAware
+class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
 
   @Nullable
   private Tensor[][] trainingData;
@@ -75,10 +74,26 @@ public @com.simiacryptus.ref.lang.RefAware class ArrayTrainable extends BatchedT
     return (ArrayTrainable) super.setVerbose(verbose);
   }
 
+  public static @SuppressWarnings("unused")
+  ArrayTrainable[] addRefs(ArrayTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRef)
+        .toArray((x) -> new ArrayTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ArrayTrainable[][] addRefs(ArrayTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRefs)
+        .toArray((x) -> new ArrayTrainable[x][]);
+  }
+
   @Nonnull
   @Override
   public Trainable setData(@Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors) {
-    trainingData = tensors.toArray(new Tensor[][] {});
+    trainingData = tensors.toArray(new Tensor[][]{});
     return this;
   }
 
@@ -86,22 +101,10 @@ public @com.simiacryptus.ref.lang.RefAware class ArrayTrainable extends BatchedT
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") ArrayTrainable addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ArrayTrainable addRef() {
     return (ArrayTrainable) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ArrayTrainable[] addRefs(ArrayTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRef)
-        .toArray((x) -> new ArrayTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") ArrayTrainable[][] addRefs(ArrayTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRefs)
-        .toArray((x) -> new ArrayTrainable[x][]);
   }
 
 }

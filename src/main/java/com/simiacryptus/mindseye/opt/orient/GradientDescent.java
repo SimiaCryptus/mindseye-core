@@ -28,15 +28,31 @@ import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware class GradientDescent
+public @com.simiacryptus.ref.lang.RefAware
+class GradientDescent
     extends OrientationStrategyBase<SimpleLineSearchCursor> {
+
+  public static @SuppressWarnings("unused")
+  GradientDescent[] addRefs(GradientDescent[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRef)
+        .toArray((x) -> new GradientDescent[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  GradientDescent[][] addRefs(GradientDescent[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRefs)
+        .toArray((x) -> new GradientDescent[x][]);
+  }
 
   @Nonnull
   @Override
   public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
-    @Nonnull
-    final DeltaSet<UUID> direction = measurement.delta.scale(-1);
+                                       @Nonnull final TrainingMonitor monitor) {
+    @Nonnull final DeltaSet<UUID> direction = measurement.delta.scale(-1);
     final double magnitude = direction.getMagnitude();
     if (Math.abs(magnitude) < 1e-10) {
       monitor.log(String.format("Zero gradient: %s", magnitude));
@@ -55,21 +71,9 @@ public @com.simiacryptus.ref.lang.RefAware class GradientDescent
 
   }
 
-  public @Override @SuppressWarnings("unused") GradientDescent addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  GradientDescent addRef() {
     return (GradientDescent) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") GradientDescent[] addRefs(GradientDescent[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRef)
-        .toArray((x) -> new GradientDescent[x]);
-  }
-
-  public static @SuppressWarnings("unused") GradientDescent[][] addRefs(GradientDescent[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRefs)
-        .toArray((x) -> new GradientDescent[x][]);
   }
 }

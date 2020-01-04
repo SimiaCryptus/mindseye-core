@@ -25,26 +25,17 @@ import com.simiacryptus.mindseye.lang.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
+public @com.simiacryptus.ref.lang.RefAware
+class ValueLayer extends LayerBase {
 
   @Nullable
   private Tensor[] data;
 
   protected ValueLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
     data = com.simiacryptus.ref.wrappers.RefIntStream.range(0, values.size())
@@ -68,8 +59,24 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
 
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                    com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  ValueLayer[] addRefs(ValueLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
+        .toArray((x) -> new ValueLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ValueLayer[][] addRefs(ValueLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
+        .toArray((x) -> new ValueLayer[x][]);
   }
 
   @Nonnull
@@ -102,9 +109,8 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+                            @Nonnull DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
     com.simiacryptus.ref.wrappers.RefArrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer))
         .forEach(values::add);
@@ -122,7 +128,14 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
   public void _free() {
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class RefWrapper<T> {
+  public @Override
+  @SuppressWarnings("unused")
+  ValueLayer addRef() {
+    return (ValueLayer) super.addRef();
+  }
+
+  public static @com.simiacryptus.ref.lang.RefAware
+  class RefWrapper<T> {
     public final T obj;
 
     public RefWrapper(T obj) {
@@ -143,23 +156,5 @@ public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
     public int hashCode() {
       return System.identityHashCode(obj);
     }
-  }
-
-  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
-    return (ValueLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
-        .toArray((x) -> new ValueLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
-        .toArray((x) -> new ValueLayer[x][]);
   }
 }

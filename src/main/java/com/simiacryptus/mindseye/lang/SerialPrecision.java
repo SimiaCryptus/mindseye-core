@@ -20,12 +20,10 @@
 package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
-import java.nio.*;
 import java.nio.DoubleBuffer;
-import java.util.Arrays;
+import java.nio.*;
 import java.util.Base64;
 import java.util.DoubleSummaryStatistics;
-import com.simiacryptus.ref.wrappers.RefArrays;
 
 public enum SerialPrecision implements DataSerializer {
   Double(8) {
@@ -276,7 +274,8 @@ public enum SerialPrecision implements DataSerializer {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class Rational {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class Rational {
     public final int numerator;
     public final int denominator;
 

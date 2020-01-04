@@ -25,12 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.List;
-import com.simiacryptus.ref.wrappers.RefArrayList;
-import com.simiacryptus.ref.wrappers.RefList;
 
-public @com.simiacryptus.ref.lang.RefAware class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
+public @com.simiacryptus.ref.lang.RefAware
+class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private static final Logger log = LoggerFactory.getLogger(CachedTrainable.class);
 
   private final com.simiacryptus.ref.wrappers.RefList<PointSample> history = new com.simiacryptus.ref.wrappers.RefArrayList<>();
@@ -61,6 +58,22 @@ public @com.simiacryptus.ref.lang.RefAware class CachedTrainable<T extends Train
     return this;
   }
 
+  public static @SuppressWarnings("unused")
+  CachedTrainable[] addRefs(CachedTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
+        .toArray((x) -> new CachedTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  CachedTrainable[][] addRefs(CachedTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
+        .toArray((x) -> new CachedTrainable[x][]);
+  }
+
   @Nonnull
   @Override
   public CachedTrainable<? extends Trainable> cached() {
@@ -69,8 +82,7 @@ public @com.simiacryptus.ref.lang.RefAware class CachedTrainable<T extends Train
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    for (@Nonnull
-    final PointSample result : history) {
+    for (@Nonnull final PointSample result : history) {
       if (!result.weights.isDifferent()) {
         if (isVerbose()) {
           log.info(String.format("Returning cached value; %s buffers unchanged since %s => %s",
@@ -93,24 +105,13 @@ public @com.simiacryptus.ref.lang.RefAware class CachedTrainable<T extends Train
     return super.reseed(seed);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") CachedTrainable<T> addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  CachedTrainable<T> addRef() {
     return (CachedTrainable<T>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") CachedTrainable[] addRefs(CachedTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
-        .toArray((x) -> new CachedTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") CachedTrainable[][] addRefs(CachedTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
-        .toArray((x) -> new CachedTrainable[x][]);
   }
 }

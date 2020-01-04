@@ -41,17 +41,14 @@ import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware
+class ValidatingTrainer extends ReferenceCountingBase {
 
   private final AtomicInteger disappointments = new AtomicInteger(0);
   @Nonnull
@@ -80,7 +77,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
   private double trainingTarget = 0.7;
 
   public ValidatingTrainer(@Nonnull final SampledTrainable trainingSubject,
-      @Nonnull final Trainable validationSubject) {
+                           @Nonnull final Trainable validationSubject) {
     regimen = new com.simiacryptus.ref.wrappers.RefArrayList<TrainingPhase>(com.simiacryptus.ref.wrappers.RefArrays
         .asList(new TrainingPhase(new PerformanceWrapper(trainingSubject, ValidatingTrainer.this))));
     this.validationSubject = new TrainableBase() {
@@ -92,8 +89,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
 
       @Override
       public PointSample measure(final TrainingMonitor monitor) {
-        @Nonnull
-        final TimedResult<PointSample> time = TimedResult.time(() -> validationSubject.measure(monitor));
+        @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> validationSubject.measure(monitor));
         validatingMeasurementTime.addAndGet(time.timeNanos);
         return time.result;
       }
@@ -311,6 +307,22 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
     return this;
   }
 
+  public static @SuppressWarnings("unused")
+  ValidatingTrainer[] addRefs(ValidatingTrainer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRef)
+        .toArray((x) -> new ValidatingTrainer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ValidatingTrainer[][] addRefs(ValidatingTrainer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRefs)
+        .toArray((x) -> new ValidatingTrainer[x][]);
+  }
+
   @Nonnull
   private static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
     return x.key.toString();
@@ -325,8 +337,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
             ((StochasticComponent) layer).clearNoise();
         });
       }
-      @Nonnull
-      final EpochParams epochParams = new EpochParams(timeoutAt, epochIterations, getTrainingSize(),
+      @Nonnull final EpochParams epochParams = new EpochParams(timeoutAt, epochIterations, getTrainingSize(),
           validationSubject.measure(monitor));
       int epochNumber = 0;
       int iterationNumber = 0;
@@ -338,8 +349,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
           break;
         }
         monitor.log(String.format("Epoch parameters: %s, %s", epochParams.trainingSize, epochParams.iterations));
-        @Nonnull
-        final com.simiacryptus.ref.wrappers.RefList<TrainingPhase> regimen = getRegimen();
+        @Nonnull final com.simiacryptus.ref.wrappers.RefList<TrainingPhase> regimen = getRegimen();
         final long seed = System.nanoTime();
         final com.simiacryptus.ref.wrappers.RefList<EpochResult> epochResults = com.simiacryptus.ref.wrappers.RefIntStream
             .range(0, regimen.size()).mapToObj(i -> {
@@ -437,9 +447,19 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
     return setTimeout(number, Util.cvt(units));
   }
 
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ValidatingTrainer addRef() {
+    return (ValidatingTrainer) super.addRef();
+  }
+
   @Nonnull
   protected EpochResult runPhase(@Nonnull final EpochParams epochParams, @Nonnull final TrainingPhase phase,
-      final int i, final long seed) {
+                                 final int i, final long seed) {
     monitor.log(String.format("Phase %d: %s", i, phase));
     phase.trainingSubject.setTrainingSize(epochParams.trainingSize);
     monitor.log(String.format("resetAndMeasure; trainingSize=%s", epochParams.trainingSize));
@@ -454,8 +474,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
       final long startTime = System.nanoTime();
       final long prevGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
-      @Nonnull
-      final StepResult epoch = runStep(currentPoint, phase);
+      @Nonnull final StepResult epoch = runStep(currentPoint, phase);
       final long newGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
       final long endTime = System.nanoTime();
@@ -480,8 +499,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
   @Nonnull
   protected StepResult runStep(@Nonnull final PointSample previousPoint, @Nonnull final TrainingPhase phase) {
     currentIteration.incrementAndGet();
-    @Nonnull
-    final TimedResult<LineSearchCursor> timedOrientation = TimedResult
+    @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
         .time(() -> phase.orientation.orient(phase.trainingSubject, previousPoint, monitor));
     final LineSearchCursor direction = timedOrientation.result;
     final CharSequence directionType = direction.getDirectionType();
@@ -493,10 +511,8 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
       lineSearchStrategy = phase.lineSearchFactory.apply(direction.getDirectionType());
       phase.lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull
-    final TimedResult<PointSample> timedLineSearch = TimedResult.time(() -> {
-      @Nonnull
-      final FailsafeLineSearchCursor cursor = new FailsafeLineSearchCursor(direction, previousPoint, monitor);
+    @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult.time(() -> {
+      @Nonnull final FailsafeLineSearchCursor cursor = new FailsafeLineSearchCursor(direction, previousPoint, monitor);
       lineSearchStrategy.step(cursor, monitor);
       //cursor.step(restore.rate, monitor);
       return cursor.getBest(monitor).restore();
@@ -507,7 +523,7 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
     }
     monitor.log(compare(previousPoint, bestPoint));
     return new StepResult(previousPoint, bestPoint,
-        new double[] { timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9 });
+        new double[]{timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9});
   }
 
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
@@ -524,26 +540,24 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
   }
 
   private String compare(@Nonnull final PointSample previousPoint, @Nonnull final PointSample nextPoint) {
-    @Nonnull
-    final StateSet<UUID> nextWeights = nextPoint.weights;
-    @Nonnull
-    final StateSet<UUID> prevWeights = previousPoint.weights;
+    @Nonnull final StateSet<UUID> nextWeights = nextPoint.weights;
+    @Nonnull final StateSet<UUID> prevWeights = previousPoint.weights;
     return String.format("Overall network state change: %s",
         prevWeights.stream()
             .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> x,
                 com.simiacryptus.ref.wrappers.RefCollectors.toList()))
             .entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(x -> x.getKey(), list -> {
-              final com.simiacryptus.ref.wrappers.RefList<Double> doubleList = list.getValue().stream()
-                  .map(prevWeight -> {
-                    final DoubleBuffer<UUID> dirDelta = nextWeights.getMap().get(prevWeight.key);
-                    final double numerator = prevWeight.deltaStatistics().rms();
-                    final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
-                    return numerator / (0 == denominator ? 1 : denominator);
-                  }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
-              if (1 == doubleList.size())
-                return Double.toString(doubleList.get(0));
-              return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
-            })));
+          final com.simiacryptus.ref.wrappers.RefList<Double> doubleList = list.getValue().stream()
+              .map(prevWeight -> {
+                final DoubleBuffer<UUID> dirDelta = nextWeights.getMap().get(prevWeight.key);
+                final double numerator = prevWeight.deltaStatistics().rms();
+                final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
+                return numerator / (0 == denominator ? 1 : denominator);
+              }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+          if (1 == doubleList.size())
+            return Double.toString(doubleList.get(0));
+          return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
+        })));
   }
 
   private PointSample measure(@Nonnull final TrainingPhase phase) {
@@ -570,7 +584,8 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
     return this;
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware class TrainingPhase extends ReferenceCountingBase {
+  public static @com.simiacryptus.ref.lang.RefAware
+  class TrainingPhase extends ReferenceCountingBase {
     private Function<CharSequence, LineSearchStrategy> lineSearchFactory = (s) -> new ArmijoWolfeSearch();
     private com.simiacryptus.ref.wrappers.RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     private OrientationStrategy<?> orientation = new LBFGS();
@@ -620,58 +635,68 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
       this.trainingSubject = trainingSubject;
     }
 
+    public static @SuppressWarnings("unused")
+    TrainingPhase[] addRefs(TrainingPhase[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainingPhase::addRef)
+          .toArray((x) -> new TrainingPhase[x]);
+    }
+
     @Nonnull
     @Override
     public String toString() {
       return "TrainingPhase{" + "trainingSubject=" + trainingSubject + ", orientation=" + orientation + '}';
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") TrainingPhase addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    TrainingPhase addRef() {
       return (TrainingPhase) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") TrainingPhase[] addRefs(TrainingPhase[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainingPhase::addRef)
-          .toArray((x) -> new TrainingPhase[x]);
     }
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware class EpochParams extends ReferenceCountingBase {
-    int iterations;
+  private static @com.simiacryptus.ref.lang.RefAware
+  class EpochParams extends ReferenceCountingBase {
     final long timeoutMs;
+    int iterations;
     int trainingSize;
     PointSample validation;
 
     private EpochParams(final long timeoutMs, final int iterations, final int trainingSize,
-        final PointSample validation) {
+                        final PointSample validation) {
       this.timeoutMs = timeoutMs;
       this.iterations = iterations;
       this.trainingSize = trainingSize;
       this.validation = validation;
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") EpochParams addRef() {
-      return (EpochParams) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") EpochParams[] addRefs(EpochParams[] array) {
+    public static @SuppressWarnings("unused")
+    EpochParams[] addRefs(EpochParams[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(EpochParams::addRef)
           .toArray((x) -> new EpochParams[x]);
     }
 
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    EpochParams addRef() {
+      return (EpochParams) super.addRef();
+    }
+
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware class EpochResult extends ReferenceCountingBase {
+  private static @com.simiacryptus.ref.lang.RefAware
+  class EpochResult extends ReferenceCountingBase {
 
     final boolean continueTraining;
     final PointSample currentPoint;
@@ -679,30 +704,35 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
     final double priorMean;
 
     public EpochResult(final boolean continueTraining, final double priorMean, final PointSample currentPoint,
-        final int iterations) {
+                       final int iterations) {
       this.priorMean = priorMean;
       this.currentPoint = currentPoint;
       this.continueTraining = continueTraining;
       this.iterations = iterations;
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") EpochResult addRef() {
-      return (EpochResult) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") EpochResult[] addRefs(EpochResult[] array) {
+    public static @SuppressWarnings("unused")
+    EpochResult[] addRefs(EpochResult[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(EpochResult::addRef)
           .toArray((x) -> new EpochResult[x]);
     }
 
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    EpochResult addRef() {
+      return (EpochResult) super.addRef();
+    }
+
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware class PerformanceWrapper extends TrainableWrapper<SampledTrainable>
+  private static @com.simiacryptus.ref.lang.RefAware
+  class PerformanceWrapper extends TrainableWrapper<SampledTrainable>
       implements SampledTrainable {
 
     private final ValidatingTrainer parent;
@@ -719,41 +749,45 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
 
     @Nonnull
     @Override
-    public SampledCachedTrainable<? extends SampledTrainable> cached() {
-      return new SampledCachedTrainable<>(this);
-    }
-
-    @Override
-    public PointSample measure(final TrainingMonitor monitor) {
-      @Nonnull
-      final TimedResult<PointSample> time = TimedResult.time(() -> getInner().measure(monitor));
-      parent.trainingMeasurementTime.addAndGet(time.timeNanos);
-      return time.result;
-    }
-
-    @Nonnull
-    @Override
     public void setTrainingSize(final int trainingSize) {
       getInner().setTrainingSize(trainingSize);
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") PerformanceWrapper addRef() {
-      return (PerformanceWrapper) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") PerformanceWrapper[] addRefs(PerformanceWrapper[] array) {
+    public static @SuppressWarnings("unused")
+    PerformanceWrapper[] addRefs(PerformanceWrapper[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(PerformanceWrapper::addRef)
           .toArray((x) -> new PerformanceWrapper[x]);
     }
 
+    @Nonnull
+    @Override
+    public SampledCachedTrainable<? extends SampledTrainable> cached() {
+      return new SampledCachedTrainable<>(this);
+    }
+
+    @Override
+    public PointSample measure(final TrainingMonitor monitor) {
+      @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> getInner().measure(monitor));
+      parent.trainingMeasurementTime.addAndGet(time.timeNanos);
+      return time.result;
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
+
+    public @Override
+    @SuppressWarnings("unused")
+    PerformanceWrapper addRef() {
+      return (PerformanceWrapper) super.addRef();
+    }
+
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware class StepResult extends ReferenceCountingBase {
+  private static @com.simiacryptus.ref.lang.RefAware
+  class StepResult extends ReferenceCountingBase {
     final PointSample currentPoint;
     final double[] performance;
     final PointSample previous;
@@ -764,40 +798,23 @@ public @com.simiacryptus.ref.lang.RefAware class ValidatingTrainer extends Refer
       this.performance = performance;
     }
 
-    public @SuppressWarnings("unused") void _free() {
-    }
-
-    public @Override @SuppressWarnings("unused") StepResult addRef() {
-      return (StepResult) super.addRef();
-    }
-
-    public static @SuppressWarnings("unused") StepResult[] addRefs(StepResult[] array) {
+    public static @SuppressWarnings("unused")
+    StepResult[] addRefs(StepResult[] array) {
       if (array == null)
         return null;
       return java.util.Arrays.stream(array).filter((x) -> x != null).map(StepResult::addRef)
           .toArray((x) -> new StepResult[x]);
     }
 
-  }
+    public @SuppressWarnings("unused")
+    void _free() {
+    }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
+    public @Override
+    @SuppressWarnings("unused")
+    StepResult addRef() {
+      return (StepResult) super.addRef();
+    }
 
-  public @Override @SuppressWarnings("unused") ValidatingTrainer addRef() {
-    return (ValidatingTrainer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ValidatingTrainer[] addRefs(ValidatingTrainer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRef)
-        .toArray((x) -> new ValidatingTrainer[x]);
-  }
-
-  public static @SuppressWarnings("unused") ValidatingTrainer[][] addRefs(ValidatingTrainer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRefs)
-        .toArray((x) -> new ValidatingTrainer[x][]);
   }
 }

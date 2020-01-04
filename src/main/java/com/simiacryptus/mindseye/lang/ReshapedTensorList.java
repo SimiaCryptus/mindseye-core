@@ -22,12 +22,9 @@ package com.simiacryptus.mindseye.lang;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware class ReshapedTensorList extends ReferenceCountingBase
+public @com.simiacryptus.ref.lang.RefAware
+class ReshapedTensorList extends ReferenceCountingBase
     implements TensorList {
   @Nonnull
   private final TensorList inner;
@@ -50,6 +47,22 @@ public @com.simiacryptus.ref.lang.RefAware class ReshapedTensorList extends Refe
   @Nonnull
   public TensorList getInner() {
     return inner;
+  }
+
+  public static @SuppressWarnings("unused")
+  ReshapedTensorList[] addRefs(ReshapedTensorList[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
+        .toArray((x) -> new ReshapedTensorList[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  ReshapedTensorList[][] addRefs(ReshapedTensorList[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
+        .toArray((x) -> new ReshapedTensorList[x][]);
   }
 
   @Nonnull
@@ -76,21 +89,9 @@ public @com.simiacryptus.ref.lang.RefAware class ReshapedTensorList extends Refe
   public void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ReshapedTensorList addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  ReshapedTensorList addRef() {
     return (ReshapedTensorList) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ReshapedTensorList[] addRefs(ReshapedTensorList[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
-        .toArray((x) -> new ReshapedTensorList[x]);
-  }
-
-  public static @SuppressWarnings("unused") ReshapedTensorList[][] addRefs(ReshapedTensorList[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
-        .toArray((x) -> new ReshapedTensorList[x][]);
   }
 }

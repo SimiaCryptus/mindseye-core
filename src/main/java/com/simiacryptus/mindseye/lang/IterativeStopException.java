@@ -20,7 +20,8 @@
 package com.simiacryptus.mindseye.lang;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class IterativeStopException extends RuntimeException {
+public @com.simiacryptus.ref.lang.RefAware
+class IterativeStopException extends RuntimeException {
 
   public IterativeStopException() {
   }
@@ -34,7 +35,7 @@ public @com.simiacryptus.ref.lang.RefAware class IterativeStopException extends 
   }
 
   public IterativeStopException(final String message, final Throwable cause, final boolean enableSuppression,
-      final boolean writableStackTrace) {
+                                final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 

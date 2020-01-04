@@ -22,12 +22,11 @@ package com.simiacryptus.mindseye.lang;
 import com.simiacryptus.ref.lang.RecycleBin;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
-import com.simiacryptus.ref.wrappers.RefArrays;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public @com.simiacryptus.ref.lang.RefAware class State<K> extends DoubleBuffer<K> {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public @com.simiacryptus.ref.lang.RefAware
+class State<K> extends DoubleBuffer<K> {
 
   public State(@Nonnull final K layer, final double[] target) {
     super(layer, target);
@@ -35,6 +34,20 @@ public @com.simiacryptus.ref.lang.RefAware class State<K> extends DoubleBuffer<K
 
   public State(@Nonnull final K layer, final double[] target, final double[] delta) {
     super(layer, target, delta);
+  }
+
+  public static @SuppressWarnings("unused")
+  State[] addRefs(State[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  State[][] addRefs(State[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
   }
 
   public boolean areEqual() {
@@ -67,23 +80,14 @@ public @com.simiacryptus.ref.lang.RefAware class State<K> extends DoubleBuffer<K
     return this;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") State<K> addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  State<K> addRef() {
     return (State<K>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") State[] addRefs(State[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
-  }
-
-  public static @SuppressWarnings("unused") State[][] addRefs(State[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
   }
 
 }

@@ -19,13 +19,10 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
-import java.util.stream.DoubleStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefDoubleStream;
 
-public @com.simiacryptus.ref.lang.RefAware class DoubleArrayStatsFacade {
+public @com.simiacryptus.ref.lang.RefAware
+class DoubleArrayStatsFacade {
   private final double[] data;
 
   public DoubleArrayStatsFacade(final double[] data) {

@@ -20,7 +20,8 @@
 package com.simiacryptus.mindseye.lang;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware class ComponentException extends RuntimeException {
+public @com.simiacryptus.ref.lang.RefAware
+class ComponentException extends RuntimeException {
 
   public ComponentException() {
   }
@@ -34,7 +35,7 @@ public @com.simiacryptus.ref.lang.RefAware class ComponentException extends Runt
   }
 
   public ComponentException(final String message, final Throwable cause, final boolean enableSuppression,
-      final boolean writableStackTrace) {
+                            final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 

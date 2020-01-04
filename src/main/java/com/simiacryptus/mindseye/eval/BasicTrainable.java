@@ -21,18 +21,17 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefIntStream;
+import java.util.DoubleSummaryStatistics;
+import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware class BasicTrainable extends ReferenceCountingBase
+public @com.simiacryptus.ref.lang.RefAware
+class BasicTrainable extends ReferenceCountingBase
     implements DataTrainable, TrainableDataMask {
 
   protected final Layer network;
@@ -51,7 +50,7 @@ public @com.simiacryptus.ref.lang.RefAware class BasicTrainable extends Referenc
   @Nonnull
   @Override
   public Tensor[][] getData() {
-    return data.toArray(new Tensor[][] {});
+    return data.toArray(new Tensor[][]{});
   }
 
   @Nonnull
@@ -87,7 +86,7 @@ public @com.simiacryptus.ref.lang.RefAware class BasicTrainable extends Referenc
   }
 
   public static Result[] getNNContext(@Nullable final com.simiacryptus.ref.wrappers.RefList<Tensor[]> data,
-      @Nullable final boolean[] mask) {
+                                      @Nullable final boolean[] mask) {
     if (null == data)
       throw new IllegalArgumentException();
     if (0 >= data.size())
@@ -104,11 +103,26 @@ public @com.simiacryptus.ref.lang.RefAware class BasicTrainable extends Referenc
     }).toArray(x1 -> new Result[x1]);
   }
 
+  public static @SuppressWarnings("unused")
+  BasicTrainable[] addRefs(BasicTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRef)
+        .toArray((x) -> new BasicTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  BasicTrainable[][] addRefs(BasicTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRefs)
+        .toArray((x) -> new BasicTrainable[x][]);
+  }
+
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert !data.isEmpty();
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(data, monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
       monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", data.size(), timedResult.timeNanos / 1e9,
@@ -122,16 +136,23 @@ public @com.simiacryptus.ref.lang.RefAware class BasicTrainable extends Referenc
     return verbosity;
   }
 
+  public void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  BasicTrainable addRef() {
+    return (BasicTrainable) super.addRef();
+  }
+
   @Nonnull
   protected PointSample eval(@Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> list,
-      @Nullable final TrainingMonitor monitor) {
-    @Nonnull
-    final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
+                             @Nullable final TrainingMonitor monitor) {
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = BasicTrainable.getNNContext(list, mask);
       final Result result = network.eval(nnContext);
       final TensorList resultData = result.getData();
-      @Nonnull
-      final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+      @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
       @Nonnull
       StateSet<UUID> stateSet = null;
       try {
@@ -163,27 +184,6 @@ public @com.simiacryptus.ref.lang.RefAware class BasicTrainable extends Referenc
       monitor.log(String.format("Device completed %s items in %.3f sec", list.size(), timedResult.timeNanos / 1e9));
     }
     return timedResult.result.normalize();
-  }
-
-  public void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") BasicTrainable addRef() {
-    return (BasicTrainable) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") BasicTrainable[] addRefs(BasicTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRef)
-        .toArray((x) -> new BasicTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") BasicTrainable[][] addRefs(BasicTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRefs)
-        .toArray((x) -> new BasicTrainable[x][]);
   }
 
 }

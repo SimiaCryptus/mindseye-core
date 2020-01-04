@@ -22,11 +22,26 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Tensor;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import com.simiacryptus.ref.wrappers.RefList;
 
-public @com.simiacryptus.ref.lang.RefAware interface DataTrainable extends Trainable {
+public @com.simiacryptus.ref.lang.RefAware
+interface DataTrainable extends Trainable {
   Tensor[][] getData();
+
+  public static @SuppressWarnings("unused")
+  DataTrainable[] addRefs(DataTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRef)
+        .toArray((x) -> new DataTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  DataTrainable[][] addRefs(DataTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRefs)
+        .toArray((x) -> new DataTrainable[x][]);
+  }
 
   @Nonnull
   Trainable setData(com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors);
@@ -34,18 +49,4 @@ public @com.simiacryptus.ref.lang.RefAware interface DataTrainable extends Train
   public void _free();
 
   public DataTrainable addRef();
-
-  public static @SuppressWarnings("unused") DataTrainable[] addRefs(DataTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRef)
-        .toArray((x) -> new DataTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") DataTrainable[][] addRefs(DataTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRefs)
-        .toArray((x) -> new DataTrainable[x][]);
-  }
 }

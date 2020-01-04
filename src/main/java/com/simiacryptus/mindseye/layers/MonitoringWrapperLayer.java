@@ -29,11 +29,12 @@ import com.simiacryptus.util.data.ScalarStatistics;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-@SuppressWarnings({ "serial", "FieldCanBeLocal" })
-public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer extends WrapperLayer
+@SuppressWarnings({"serial", "FieldCanBeLocal"})
+public final @com.simiacryptus.ref.lang.RefAware
+class MonitoringWrapperLayer extends WrapperLayer
     implements MonitoredItem {
 
   private final PercentileStatistics backwardPerformance = new PercentileStatistics();
@@ -46,7 +47,7 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
   private int totalItems = 0;
 
   protected MonitoringWrapperLayer(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                   com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     if (json.has("forwardPerf")) {
       forwardPerformance.readJson(json.getAsJsonObject("forwardPerf"));
@@ -92,8 +93,7 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
   @Nonnull
   @Override
   public com.simiacryptus.ref.wrappers.RefMap<CharSequence, Object> getMetrics() {
-    @Nonnull
-    final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    @Nonnull final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     map.put("class", getInner().getClass().getName());
     map.put("totalBatches", totalBatches);
     map.put("totalItems", totalItems);
@@ -110,19 +110,15 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
     final double backpropMedian = backwardPerformance.getPercentile(0.5);
     map.put("avgMsPerItem_Backward", 1000 * batchesPerItem * backpropMean);
     map.put("medianMsPerItem_Backward", 1000 * batchesPerItem * backpropMedian);
-    @Nullable
-    final com.simiacryptus.ref.wrappers.RefList<double[]> state = state();
-    @Nonnull
-    final ScalarStatistics statistics = new PercentileStatistics();
-    for (@Nonnull
-    final double[] s : state) {
+    @Nullable final com.simiacryptus.ref.wrappers.RefList<double[]> state = state();
+    @Nonnull final ScalarStatistics statistics = new PercentileStatistics();
+    for (@Nonnull final double[] s : state) {
       for (final double v : s) {
         statistics.add(v);
       }
     }
     if (statistics.getCount() > 0) {
-      @Nonnull
-      final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> weightStats = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+      @Nonnull final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> weightStats = new com.simiacryptus.ref.wrappers.RefHashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
       map.put("weights", weightStats);
@@ -138,8 +134,24 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
 
   @SuppressWarnings("unused")
   public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json,
-      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
+  }
+
+  public static @SuppressWarnings("unused")
+  MonitoringWrapperLayer[] addRefs(MonitoringWrapperLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
+        .toArray((x) -> new MonitoringWrapperLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  MonitoringWrapperLayer[][] addRefs(MonitoringWrapperLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
+        .toArray((x) -> new MonitoringWrapperLayer[x][]);
   }
 
   @Nonnull
@@ -156,8 +168,7 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    @Nonnull
-    final AtomicLong passbackNanos = new AtomicLong(0);
+    @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
     final Result[] wrappedInput = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(result -> {
       return new Result(result.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
         passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
@@ -211,9 +222,8 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
   @Nonnull
   @Override
   public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJson(resources, dataSerializer);
+                            DataSerializer dataSerializer) {
+    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     //json.fn("forwardPerf",forwardPerf.getJson());
     //json.fn("backwardPerf",backwardPerf.getJson());
     json.addProperty("totalBatches", totalBatches);
@@ -237,24 +247,13 @@ public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer ex
     return this;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") MonitoringWrapperLayer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  MonitoringWrapperLayer addRef() {
     return (MonitoringWrapperLayer) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") MonitoringWrapperLayer[] addRefs(MonitoringWrapperLayer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
-        .toArray((x) -> new MonitoringWrapperLayer[x]);
-  }
-
-  public static @SuppressWarnings("unused") MonitoringWrapperLayer[][] addRefs(MonitoringWrapperLayer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
-        .toArray((x) -> new MonitoringWrapperLayer[x][]);
   }
 }

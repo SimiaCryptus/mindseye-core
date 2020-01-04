@@ -20,13 +20,10 @@
 package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.UUID;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public final @com.simiacryptus.ref.lang.RefAware class ConstantResult extends Result {
+public final @com.simiacryptus.ref.lang.RefAware
+class ConstantResult extends Result {
 
   public ConstantResult(final Tensor... data) {
     this(new TensorArray(data));
@@ -67,25 +64,30 @@ public final @com.simiacryptus.ref.lang.RefAware class ConstantResult extends Re
         .map((@Nonnull final Tensor[] x) -> new ConstantResult(new TensorArray(x))).toArray(i -> new Result[i]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") ConstantResult addRef() {
-    return (ConstantResult) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") ConstantResult[] addRefs(ConstantResult[] array) {
+  public static @SuppressWarnings("unused")
+  ConstantResult[] addRefs(ConstantResult[] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
         .toArray((x) -> new ConstantResult[x]);
   }
 
-  public static @SuppressWarnings("unused") ConstantResult[][] addRefs(ConstantResult[][] array) {
+  public static @SuppressWarnings("unused")
+  ConstantResult[][] addRefs(ConstantResult[][] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
         .toArray((x) -> new ConstantResult[x][]);
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  ConstantResult addRef() {
+    return (ConstantResult) super.addRef();
   }
 
 }

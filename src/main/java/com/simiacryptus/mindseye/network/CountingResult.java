@@ -28,15 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefLinkedList;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware class CountingResult extends Result {
+public @com.simiacryptus.ref.lang.RefAware
+class CountingResult extends Result {
   protected static final Logger logger = LoggerFactory.getLogger(CountingResult.class);
 
   @Nonnull
@@ -63,10 +60,33 @@ public @com.simiacryptus.ref.lang.RefAware class CountingResult extends Result {
     return inner.isAlive();
   }
 
+  public static @SuppressWarnings("unused")
+  CountingResult[] addRefs(CountingResult[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
+        .toArray((x) -> new CountingResult[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  CountingResult[][] addRefs(CountingResult[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
+        .toArray((x) -> new CountingResult[x][]);
+  }
+
   public void _free() {
   }
 
-  static @com.simiacryptus.ref.lang.RefAware class CountingAccumulator extends ReferenceCountingBase
+  public @Override
+  @SuppressWarnings("unused")
+  CountingResult addRef() {
+    return (CountingResult) super.addRef();
+  }
+
+  static @com.simiacryptus.ref.lang.RefAware
+  class CountingAccumulator extends ReferenceCountingBase
       implements BiConsumer<DeltaSet<UUID>, TensorList> {
     @Nonnull
     private final AtomicInteger fwdLinks;
@@ -85,6 +105,14 @@ public @com.simiacryptus.ref.lang.RefAware class CountingResult extends Result {
 
     public int getCount() {
       return this.fwdLinks.get();
+    }
+
+    public static @SuppressWarnings("unused")
+    CountingAccumulator[] addRefs(CountingAccumulator[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
+          .toArray((x) -> new CountingAccumulator[x]);
     }
 
     public int increment() {
@@ -144,34 +172,11 @@ public @com.simiacryptus.ref.lang.RefAware class CountingResult extends Result {
       }
     }
 
-    public @Override @SuppressWarnings("unused") CountingAccumulator addRef() {
+    public @Override
+    @SuppressWarnings("unused")
+    CountingAccumulator addRef() {
       return (CountingAccumulator) super.addRef();
     }
 
-    public static @SuppressWarnings("unused") CountingAccumulator[] addRefs(CountingAccumulator[] array) {
-      if (array == null)
-        return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
-          .toArray((x) -> new CountingAccumulator[x]);
-    }
-
-  }
-
-  public @Override @SuppressWarnings("unused") CountingResult addRef() {
-    return (CountingResult) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") CountingResult[] addRefs(CountingResult[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
-        .toArray((x) -> new CountingResult[x]);
-  }
-
-  public static @SuppressWarnings("unused") CountingResult[][] addRefs(CountingResult[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
-        .toArray((x) -> new CountingResult[x][]);
   }
 }

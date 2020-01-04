@@ -22,15 +22,11 @@ package com.simiacryptus.mindseye.lang;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
+public @com.simiacryptus.ref.lang.RefAware
+class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   public DeltaSet() {
   }
@@ -57,6 +53,22 @@ public @com.simiacryptus.ref.lang.RefAware class DeltaSet<K> extends DoubleBuffe
     return Math.sqrt(com.simiacryptus.ref.wrappers.RefArrays.stream(elementArray).sum());
   }
 
+  public static @SuppressWarnings("unused")
+  DeltaSet[] addRefs(DeltaSet[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRef)
+        .toArray((x) -> new DeltaSet[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  DeltaSet[][] addRefs(DeltaSet[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRefs)
+        .toArray((x) -> new DeltaSet[x][]);
+  }
+
   @Nonnull
   public void accumulate(final double alpha) {
     stream().forEach(d -> d.accumulate(alpha));
@@ -77,8 +89,7 @@ public @com.simiacryptus.ref.lang.RefAware class DeltaSet<K> extends DoubleBuffe
 
   @Nonnull
   public StateSet<K> asState() {
-    @Nonnull
-    final StateSet<K> returnValue = new StateSet<>();
+    @Nonnull final StateSet<K> returnValue = new StateSet<>();
     map.forEach((layer, delta) -> {
       delta.assertAlive();
       State<K> kState = returnValue.get(layer, delta.target);
@@ -134,31 +145,20 @@ public @com.simiacryptus.ref.lang.RefAware class DeltaSet<K> extends DoubleBuffe
     return scale(1.0 / getMagnitude());
   }
 
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  DeltaSet<K> addRef() {
+    return (DeltaSet<K>) super.addRef();
+  }
+
   @Nonnull
   @Override
   protected Delta<K> factory(@Nonnull final K layer, final double[] target) {
     return new Delta<K>(layer, target);
-  }
-
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") DeltaSet<K> addRef() {
-    return (DeltaSet<K>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") DeltaSet[] addRefs(DeltaSet[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRef)
-        .toArray((x) -> new DeltaSet[x]);
-  }
-
-  public static @SuppressWarnings("unused") DeltaSet[][] addRefs(DeltaSet[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRefs)
-        .toArray((x) -> new DeltaSet[x][]);
   }
 
 }

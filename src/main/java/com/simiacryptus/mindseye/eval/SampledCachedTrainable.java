@@ -21,7 +21,8 @@ package com.simiacryptus.mindseye.eval;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware class SampledCachedTrainable<T extends SampledTrainable>
+public @com.simiacryptus.ref.lang.RefAware
+class SampledCachedTrainable<T extends SampledTrainable>
     extends CachedTrainable<T> implements SampledTrainable {
 
   private long seed;
@@ -37,6 +38,31 @@ public @com.simiacryptus.ref.lang.RefAware class SampledCachedTrainable<T extend
 
   @Nonnull
   @Override
+  public void setTrainingSize(final int trainingSize) {
+    if (trainingSize != getTrainingSize()) {
+      getInner().setTrainingSize(trainingSize);
+      reseed(seed);
+    }
+  }
+
+  public static @SuppressWarnings("unused")
+  SampledCachedTrainable[] addRefs(SampledCachedTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRef)
+        .toArray((x) -> new SampledCachedTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  SampledCachedTrainable[][] addRefs(SampledCachedTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRefs)
+        .toArray((x) -> new SampledCachedTrainable[x][]);
+  }
+
+  @Nonnull
+  @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
     return new SampledCachedTrainable<>(this);
   }
@@ -47,34 +73,14 @@ public @com.simiacryptus.ref.lang.RefAware class SampledCachedTrainable<T extend
     return super.reseed(seed);
   }
 
-  @Nonnull
-  @Override
-  public void setTrainingSize(final int trainingSize) {
-    if (trainingSize != getTrainingSize()) {
-      getInner().setTrainingSize(trainingSize);
-      reseed(seed);
-    }
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") SampledCachedTrainable<T> addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  SampledCachedTrainable<T> addRef() {
     return (SampledCachedTrainable<T>) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") SampledCachedTrainable[] addRefs(SampledCachedTrainable[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRef)
-        .toArray((x) -> new SampledCachedTrainable[x]);
-  }
-
-  public static @SuppressWarnings("unused") SampledCachedTrainable[][] addRefs(SampledCachedTrainable[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRefs)
-        .toArray((x) -> new SampledCachedTrainable[x][]);
   }
 
 }

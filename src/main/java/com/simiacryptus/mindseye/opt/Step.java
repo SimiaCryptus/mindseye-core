@@ -22,7 +22,8 @@ package com.simiacryptus.mindseye.opt;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
-public @com.simiacryptus.ref.lang.RefAware class Step extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware
+class Step extends ReferenceCountingBase {
   public final long iteration;
   public final PointSample point;
   public final long time = System.currentTimeMillis();
@@ -32,22 +33,27 @@ public @com.simiacryptus.ref.lang.RefAware class Step extends ReferenceCountingB
     this.iteration = iteration;
   }
 
-  public @SuppressWarnings("unused") void _free() {
-  }
-
-  public @Override @SuppressWarnings("unused") Step addRef() {
-    return (Step) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") Step[] addRefs(Step[] array) {
+  public static @SuppressWarnings("unused")
+  Step[] addRefs(Step[] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(Step::addRef).toArray((x) -> new Step[x]);
   }
 
-  public static @SuppressWarnings("unused") Step[][] addRefs(Step[][] array) {
+  public static @SuppressWarnings("unused")
+  Step[][] addRefs(Step[][] array) {
     if (array == null)
       return null;
     return java.util.Arrays.stream(array).filter((x) -> x != null).map(Step::addRefs).toArray((x) -> new Step[x][]);
+  }
+
+  public @SuppressWarnings("unused")
+  void _free() {
+  }
+
+  public @Override
+  @SuppressWarnings("unused")
+  Step addRef() {
+    return (Step) super.addRef();
   }
 }

@@ -32,15 +32,12 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.UUID;
 import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipFile;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
+public @com.simiacryptus.ref.lang.RefAware
+interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   com.simiacryptus.ref.wrappers.RefList<Layer> getChildren();
 
   @Nullable
@@ -53,8 +50,7 @@ public @com.simiacryptus.ref.lang.RefAware interface Layer extends ReferenceCoun
   @Nonnull
   default JsonObject getJsonStub() {
     assertAlive();
-    @Nonnull
-    final JsonObject json = new JsonObject();
+    @Nonnull final JsonObject json = new JsonObject();
     json.addProperty("class", getClass().getCanonicalName());
     json.addProperty("id", getId().toString());
     json.addProperty("isFrozen", isFrozen());
@@ -107,6 +103,20 @@ public @com.simiacryptus.ref.lang.RefAware interface Layer extends ReferenceCoun
         | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static @SuppressWarnings("unused")
+  Layer[] addRefs(Layer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Layer::addRef).toArray((x) -> new Layer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  Layer[][] addRefs(Layer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Layer::addRefs).toArray((x) -> new Layer[x][]);
   }
 
   default int[] evalDims(int[] inputDims) {
@@ -208,16 +218,4 @@ public @com.simiacryptus.ref.lang.RefAware interface Layer extends ReferenceCoun
   public void _free();
 
   public Layer addRef();
-
-  public static @SuppressWarnings("unused") Layer[] addRefs(Layer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Layer::addRef).toArray((x) -> new Layer[x]);
-  }
-
-  public static @SuppressWarnings("unused") Layer[][] addRefs(Layer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Layer::addRefs).toArray((x) -> new Layer[x][]);
-  }
 }

@@ -30,21 +30,33 @@ import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
 import com.simiacryptus.util.data.DoubleStatistics;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public @com.simiacryptus.ref.lang.RefAware class QuantifyOrientationWrapper
+public @com.simiacryptus.ref.lang.RefAware
+class QuantifyOrientationWrapper
     extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
   public QuantifyOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
     this.inner = inner;
+  }
+
+  public static @SuppressWarnings("unused")
+  QuantifyOrientationWrapper[] addRefs(QuantifyOrientationWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRef)
+        .toArray((x) -> new QuantifyOrientationWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  QuantifyOrientationWrapper[][] addRefs(
+      QuantifyOrientationWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRefs)
+        .toArray((x) -> new QuantifyOrientationWrapper[x][]);
   }
 
   @Nonnull
@@ -54,12 +66,11 @@ public @com.simiacryptus.ref.lang.RefAware class QuantifyOrientationWrapper
 
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
+                                 @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull
-      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
       final com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence> dataMap = weights.stream()
           .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> getId(x),
               com.simiacryptus.ref.wrappers.RefCollectors.toList()))
@@ -90,23 +101,10 @@ public @com.simiacryptus.ref.lang.RefAware class QuantifyOrientationWrapper
   public void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") QuantifyOrientationWrapper addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  QuantifyOrientationWrapper addRef() {
     return (QuantifyOrientationWrapper) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") QuantifyOrientationWrapper[] addRefs(QuantifyOrientationWrapper[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRef)
-        .toArray((x) -> new QuantifyOrientationWrapper[x]);
-  }
-
-  public static @SuppressWarnings("unused") QuantifyOrientationWrapper[][] addRefs(
-      QuantifyOrientationWrapper[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRefs)
-        .toArray((x) -> new QuantifyOrientationWrapper[x][]);
   }
 
 }

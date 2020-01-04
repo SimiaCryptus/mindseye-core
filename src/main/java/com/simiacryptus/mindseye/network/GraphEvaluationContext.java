@@ -21,12 +21,8 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 
 @com.simiacryptus.ref.lang.RefAware
 class GraphEvaluationContext extends ReferenceCountingBase {
@@ -34,6 +30,22 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   final com.simiacryptus.ref.wrappers.RefMap<UUID, Long> expectedCounts = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
 
   final com.simiacryptus.ref.wrappers.RefMap<UUID, Supplier<CountingResult>> calculated = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+
+  public static @SuppressWarnings("unused")
+  GraphEvaluationContext[] addRefs(GraphEvaluationContext[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
+        .toArray((x) -> new GraphEvaluationContext[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  GraphEvaluationContext[][] addRefs(GraphEvaluationContext[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
+        .toArray((x) -> new GraphEvaluationContext[x][]);
+  }
 
   public void _free() {
     calculated.entrySet().stream().filter(entry -> {
@@ -55,21 +67,9 @@ class GraphEvaluationContext extends ReferenceCountingBase {
     calculated.clear();
   }
 
-  public @Override @SuppressWarnings("unused") GraphEvaluationContext addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  GraphEvaluationContext addRef() {
     return (GraphEvaluationContext) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") GraphEvaluationContext[] addRefs(GraphEvaluationContext[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
-        .toArray((x) -> new GraphEvaluationContext[x]);
-  }
-
-  public static @SuppressWarnings("unused") GraphEvaluationContext[][] addRefs(GraphEvaluationContext[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
-        .toArray((x) -> new GraphEvaluationContext[x][]);
   }
 }

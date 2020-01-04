@@ -25,7 +25,8 @@ import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public @com.simiacryptus.ref.lang.RefAware class CoreSettings extends RefSettings {
+public @com.simiacryptus.ref.lang.RefAware
+class CoreSettings extends RefSettings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
   private static transient CoreSettings INSTANCE = null;

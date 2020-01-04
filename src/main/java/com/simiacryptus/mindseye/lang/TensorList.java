@@ -23,17 +23,30 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware interface TensorList extends ReferenceCounting {
+public @com.simiacryptus.ref.lang.RefAware
+interface TensorList extends ReferenceCounting {
   @Nonnull
   int[] getDimensions();
 
   default int getElements() {
     return length() * Tensor.length(getDimensions());
+  }
+
+  public static @SuppressWarnings("unused")
+  TensorList[] addRefs(TensorList[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRef)
+        .toArray((x) -> new TensorList[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  TensorList[][] addRefs(TensorList[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRefs)
+        .toArray((x) -> new TensorList[x][]);
   }
 
   default TensorList add(@Nonnull final TensorList right) {
@@ -88,19 +101,5 @@ public @com.simiacryptus.ref.lang.RefAware interface TensorList extends Referenc
   public void _free();
 
   public TensorList addRef();
-
-  public static @SuppressWarnings("unused") TensorList[] addRefs(TensorList[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRef)
-        .toArray((x) -> new TensorList[x]);
-  }
-
-  public static @SuppressWarnings("unused") TensorList[][] addRefs(TensorList[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRefs)
-        .toArray((x) -> new TensorList[x][]);
-  }
 
 }

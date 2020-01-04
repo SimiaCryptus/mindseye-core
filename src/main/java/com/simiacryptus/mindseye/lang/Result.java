@@ -22,14 +22,11 @@ package com.simiacryptus.mindseye.lang;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.stream.IntStream;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public @com.simiacryptus.ref.lang.RefAware class Result extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware
+class Result extends ReferenceCountingBase {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
   protected final TensorList data;
@@ -70,6 +67,20 @@ public @com.simiacryptus.ref.lang.RefAware class Result extends ReferenceCountin
     return null != getAccumulator();
   }
 
+  public static @SuppressWarnings("unused")
+  Result[] addRefs(Result[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  Result[][] addRefs(Result[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
+  }
+
   public double[] copy(double[] delta) {
     delta = com.simiacryptus.ref.wrappers.RefArrays.copyOf(delta, delta.length);
     return delta;
@@ -89,22 +100,13 @@ public @com.simiacryptus.ref.lang.RefAware class Result extends ReferenceCountin
     getAccumulator().accept(buffer, delta);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") Result addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  Result addRef() {
     return (Result) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") Result[] addRefs(Result[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
-  }
-
-  public static @SuppressWarnings("unused") Result[][] addRefs(Result[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
   }
 }

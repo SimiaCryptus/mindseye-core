@@ -25,7 +25,8 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public @com.simiacryptus.ref.lang.RefAware class ArmijoWolfeSearch implements LineSearchStrategy {
+public @com.simiacryptus.ref.lang.RefAware
+class ArmijoWolfeSearch implements LineSearchStrategy {
 
   private double absoluteTolerance = 1e-15;
   private double alpha = 1.0;

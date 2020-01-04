@@ -22,7 +22,8 @@ package com.simiacryptus.mindseye.opt.line;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
-public @com.simiacryptus.ref.lang.RefAware interface LineSearchStrategy {
+public @com.simiacryptus.ref.lang.RefAware
+interface LineSearchStrategy {
 
   PointSample step(LineSearchCursor cursor, TrainingMonitor monitor);
 }

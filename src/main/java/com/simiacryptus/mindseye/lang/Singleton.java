@@ -25,7 +25,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-public @com.simiacryptus.ref.lang.RefAware class Singleton<T> implements Supplier<T> {
+public @com.simiacryptus.ref.lang.RefAware
+class Singleton<T> implements Supplier<T> {
   private final BlockingDeque<T> deque = new LinkedBlockingDeque<>();
 
   public Singleton() {

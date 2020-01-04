@@ -24,7 +24,8 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware class BisectionSearch implements LineSearchStrategy {
+public @com.simiacryptus.ref.lang.RefAware
+class BisectionSearch implements LineSearchStrategy {
 
   private double maxRate = 1e20;
   private double currentRate = 1.0;
@@ -116,7 +117,7 @@ public @com.simiacryptus.ref.lang.RefAware class BisectionSearch implements Line
   }
 
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
-      double leftX, double rightX) {
+                                 double leftX, double rightX) {
     LineSearchPoint searchPoint = null;
     int loopCount = 0;
     while (true) {

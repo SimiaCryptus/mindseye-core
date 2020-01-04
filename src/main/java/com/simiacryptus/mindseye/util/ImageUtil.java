@@ -36,10 +36,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -47,30 +44,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import com.simiacryptus.ref.wrappers.RefWeakReference;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefHashMap;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefStream;
 
-public @com.simiacryptus.ref.lang.RefAware class ImageUtil {
-  private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
+public @com.simiacryptus.ref.lang.RefAware
+class ImageUtil {
   public static final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1,
       new ThreadFactoryBuilder().setDaemon(true).build());
+  private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
   public static com.simiacryptus.ref.wrappers.RefStream<BufferedImage> renderToImages(@Nonnull final Tensor tensor,
-      final boolean normalize) {
+                                                                                      final boolean normalize) {
     final DoubleStatistics[] statistics = com.simiacryptus.ref.wrappers.RefIntStream.range(0, tensor.getDimensions()[2])
         .mapToObj(band -> {
           return new DoubleStatistics().accept(tensor.coordStream(false).filter(x -> x.getCoords()[2] == band)
               .mapToDouble(c -> tensor.get(c)).toArray());
         }).toArray(i -> new DoubleStatistics[i]);
-    @Nonnull
-    final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
+    @Nonnull final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
       final double width = Math.sqrt(2) * stats.getStandardDeviation();
       final double centered = value - stats.getAverage();
       final double distance = Math.abs(value - stats.getAverage());
@@ -94,8 +82,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImageUtil {
     };
     tensor.coordStream(true).collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> x.getCoords()[2],
         com.simiacryptus.ref.wrappers.RefCollectors.toList()));
-    @Nullable
-    final Tensor normal = tensor.mapCoords((c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]))
+    @Nullable final Tensor normal = tensor.mapCoords((c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]))
         .map(v -> Math.min(0xFF, Math.max(0, v)));
     return (normalize ? normal : tensor).toImages().stream();
   }
@@ -134,10 +121,8 @@ public @com.simiacryptus.ref.lang.RefAware class ImageUtil {
 
   @Nonnull
   public static BufferedImage resize(BufferedImage source, int width, int height) {
-    @Nonnull
-    final BufferedImage image = new BufferedImage(width, height, source.getType());
-    @Nonnull
-    final Graphics2D graphics = (Graphics2D) image.getGraphics();
+    @Nonnull final BufferedImage image = new BufferedImage(width, height, source.getType());
+    @Nonnull final Graphics2D graphics = (Graphics2D) image.getGraphics();
     com.simiacryptus.ref.wrappers.RefHashMap<Object, Object> hints = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     hints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
@@ -153,7 +138,7 @@ public @com.simiacryptus.ref.lang.RefAware class ImageUtil {
   }
 
   public static void monitorImage(final Tensor input, final boolean exitOnClose, final int period,
-      final boolean normalize) {
+                                  final boolean normalize) {
     if (GraphicsEnvironment.isHeadless() || !Desktop.isDesktopSupported()
         || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
       return;

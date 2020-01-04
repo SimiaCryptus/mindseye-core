@@ -25,10 +25,27 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import java.util.UUID;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class LineSearchCursorBase extends ReferenceCountingBase
+public abstract @com.simiacryptus.ref.lang.RefAware
+class LineSearchCursorBase extends ReferenceCountingBase
     implements LineSearchCursor {
 
   public abstract CharSequence getDirectionType();
+
+  public static @SuppressWarnings("unused")
+  LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
+        .toArray((x) -> new LineSearchCursorBase[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
+        .toArray((x) -> new LineSearchCursorBase[x][]);
+  }
 
   public abstract DeltaSet<UUID> position(double alpha);
 
@@ -38,21 +55,9 @@ public abstract @com.simiacryptus.ref.lang.RefAware class LineSearchCursorBase e
 
   public abstract void _free();
 
-  public @Override @SuppressWarnings("unused") LineSearchCursorBase addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  LineSearchCursorBase addRef() {
     return (LineSearchCursorBase) super.addRef();
-  }
-
-  public static @SuppressWarnings("unused") LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
-        .toArray((x) -> new LineSearchCursorBase[x]);
-  }
-
-  public static @SuppressWarnings("unused") LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
-        .toArray((x) -> new LineSearchCursorBase[x][]);
   }
 }

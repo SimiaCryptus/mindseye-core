@@ -27,18 +27,31 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Collection;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import com.simiacryptus.ref.wrappers.RefCollection;
-import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public abstract @com.simiacryptus.ref.lang.RefAware class L12Normalizer extends TrainableBase {
+public abstract @com.simiacryptus.ref.lang.RefAware
+class L12Normalizer extends TrainableBase {
   public final Trainable inner;
   private final boolean hideAdj = false;
 
   public L12Normalizer(final Trainable inner) {
     this.inner = inner;
+  }
+
+  public static @SuppressWarnings("unused")
+  L12Normalizer[] addRefs(L12Normalizer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRef)
+        .toArray((x) -> new L12Normalizer[x]);
+  }
+
+  public static @SuppressWarnings("unused")
+  L12Normalizer[][] addRefs(L12Normalizer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRefs)
+        .toArray((x) -> new L12Normalizer[x][]);
   }
 
   public Layer toLayer(UUID id) {
@@ -56,14 +69,11 @@ public abstract @com.simiacryptus.ref.lang.RefAware class L12Normalizer extends 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     final PointSample innerMeasure = inner.measure(monitor);
-    @Nonnull
-    final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
+    @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
     double valueAdj = 0;
-    for (@Nonnull
-    final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
+    for (@Nonnull final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
       final double[] weights = innerMeasure.delta.getMap().get(layer.getId()).target;
-      @Nullable
-      final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
+      @Nullable final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
       final double factor_L1 = getL1(layer);
       final double factor_L2 = getL2(layer);
       assert null != gradientAdj;
@@ -87,26 +97,14 @@ public abstract @com.simiacryptus.ref.lang.RefAware class L12Normalizer extends 
   public void _free() {
   }
 
-  protected abstract double getL1(Layer layer);
-
-  protected abstract double getL2(Layer layer);
-
-  public @Override @SuppressWarnings("unused") L12Normalizer addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  L12Normalizer addRef() {
     return (L12Normalizer) super.addRef();
   }
 
-  public static @SuppressWarnings("unused") L12Normalizer[] addRefs(L12Normalizer[] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRef)
-        .toArray((x) -> new L12Normalizer[x]);
-  }
+  protected abstract double getL1(Layer layer);
 
-  public static @SuppressWarnings("unused") L12Normalizer[][] addRefs(L12Normalizer[][] array) {
-    if (array == null)
-      return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRefs)
-        .toArray((x) -> new L12Normalizer[x][]);
-  }
+  protected abstract double getL2(Layer layer);
 
 }

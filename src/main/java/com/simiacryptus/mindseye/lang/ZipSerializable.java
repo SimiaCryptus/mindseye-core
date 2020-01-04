@@ -28,15 +28,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
-import com.simiacryptus.ref.wrappers.RefHashMap;
-import com.simiacryptus.ref.wrappers.RefMap;
 
-public @com.simiacryptus.ref.lang.RefAware interface ZipSerializable {
+public @com.simiacryptus.ref.lang.RefAware
+interface ZipSerializable {
 
   default JsonElement getJson() {
     return getJson(null, SerialPrecision.Double);
@@ -61,7 +58,7 @@ public @com.simiacryptus.ref.lang.RefAware interface ZipSerializable {
   }
 
   JsonElement getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
-      DataSerializer dataSerializer);
+                      DataSerializer dataSerializer);
 
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);
@@ -69,7 +66,7 @@ public @com.simiacryptus.ref.lang.RefAware interface ZipSerializable {
 
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull
-    ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
+         ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
       writeZip(zipOutputStream, precision, new com.simiacryptus.ref.wrappers.RefHashMap<>(), "model.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -77,7 +74,7 @@ public @com.simiacryptus.ref.lang.RefAware interface ZipSerializable {
   }
 
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
-      com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources, String fileName) {
+                        com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources, String fileName) {
     try {
       JsonElement json = getJson(resources, precision);
       out.putNextEntry(new ZipEntry(fileName));
