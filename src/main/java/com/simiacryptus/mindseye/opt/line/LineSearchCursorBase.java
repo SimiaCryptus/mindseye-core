@@ -25,7 +25,8 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import java.util.UUID;
 
-public abstract class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
+public abstract @com.simiacryptus.ref.lang.RefAware class LineSearchCursorBase extends ReferenceCountingBase
+    implements LineSearchCursor {
 
   public abstract CharSequence getDirectionType();
 
@@ -35,5 +36,23 @@ public abstract class LineSearchCursorBase extends ReferenceCountingBase impleme
 
   public abstract LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
-  protected abstract void _free();
+  public abstract void _free();
+
+  public @Override @SuppressWarnings("unused") LineSearchCursorBase addRef() {
+    return (LineSearchCursorBase) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
+        .toArray((x) -> new LineSearchCursorBase[x]);
+  }
+
+  public static @SuppressWarnings("unused") LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
+        .toArray((x) -> new LineSearchCursorBase[x][]);
+  }
 }

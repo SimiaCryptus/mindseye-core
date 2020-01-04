@@ -27,7 +27,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
-public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase implements TrainableDataMask {
+public @com.simiacryptus.ref.lang.RefAware class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
+    implements TrainableDataMask {
 
   private final T inner;
 
@@ -73,8 +74,25 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return getClass().getSimpleName() + "{" + "heapCopy=" + inner + '}';
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") TrainableWrapper<T> addRef() {
+    return (TrainableWrapper<T>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") TrainableWrapper[] addRefs(TrainableWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
+        .toArray((x) -> new TrainableWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused") TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
+        .toArray((x) -> new TrainableWrapper[x][]);
   }
 }

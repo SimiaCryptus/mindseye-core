@@ -25,8 +25,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public interface TensorList extends ReferenceCounting {
+public @com.simiacryptus.ref.lang.RefAware interface TensorList extends ReferenceCounting {
   @Nonnull
   int[] getDimensions();
 
@@ -34,16 +36,13 @@ public interface TensorList extends ReferenceCounting {
     return length() * Tensor.length(getDimensions());
   }
 
-  @Override
-  TensorList addRef();
-
   default TensorList add(@Nonnull final TensorList right) {
     if (right.length() == 0)
       return this;
     if (length() == 0)
       throw new IllegalArgumentException();
     assert length() == right.length();
-    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToObj(i -> {
       Tensor b = right.get(i);
       return get(i).addAndFree(b);
     }).toArray(i -> new Tensor[i]));
@@ -62,7 +61,7 @@ public interface TensorList extends ReferenceCounting {
     if (length() == 0)
       throw new IllegalArgumentException();
     assert length() == right.length();
-    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToObj(i -> {
       @Nullable
       Tensor a = get(i);
       @Nullable
@@ -72,7 +71,7 @@ public interface TensorList extends ReferenceCounting {
   }
 
   default TensorList copy() {
-    return new TensorArray(IntStream.range(0, length()).mapToObj(i -> {
+    return new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToObj(i -> {
       @Nullable
       Tensor element = get(i);
       return element.copy();
@@ -84,6 +83,24 @@ public interface TensorList extends ReferenceCounting {
 
   int length();
 
-  Stream<Tensor> stream();
+  com.simiacryptus.ref.wrappers.RefStream<Tensor> stream();
+
+  public void _free();
+
+  public TensorList addRef();
+
+  public static @SuppressWarnings("unused") TensorList[] addRefs(TensorList[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRef)
+        .toArray((x) -> new TensorList[x]);
+  }
+
+  public static @SuppressWarnings("unused") TensorList[][] addRefs(TensorList[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRefs)
+        .toArray((x) -> new TensorList[x][]);
+  }
 
 }

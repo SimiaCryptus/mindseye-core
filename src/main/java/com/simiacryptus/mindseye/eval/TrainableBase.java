@@ -21,6 +21,28 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
-public abstract class TrainableBase extends ReferenceCountingBase implements Trainable {
+public abstract @com.simiacryptus.ref.lang.RefAware class TrainableBase extends ReferenceCountingBase
+    implements Trainable {
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") TrainableBase addRef() {
+    return (TrainableBase) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") TrainableBase[] addRefs(TrainableBase[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableBase::addRef)
+        .toArray((x) -> new TrainableBase[x]);
+  }
+
+  public static @SuppressWarnings("unused") TrainableBase[][] addRefs(TrainableBase[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableBase::addRefs)
+        .toArray((x) -> new TrainableBase[x][]);
+  }
 
 }

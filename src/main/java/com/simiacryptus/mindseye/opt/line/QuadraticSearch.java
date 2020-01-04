@@ -28,7 +28,7 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class QuadraticSearch implements LineSearchStrategy {
+public @com.simiacryptus.ref.lang.RefAware class QuadraticSearch implements LineSearchStrategy {
 
   private final double initialDerivFactor = 0.95;
   private double absoluteTolerance = 1e-12;
@@ -107,8 +107,9 @@ public class QuadraticSearch implements LineSearchStrategy {
       return leftPoint.point;
     }
 
-    @Nonnull final LocateInitialRightPoint locateInitialRightPoint = new LocateInitialRightPoint(cursor, monitor, leftPoint)
-        .apply();
+    @Nonnull
+    final LocateInitialRightPoint locateInitialRightPoint = new LocateInitialRightPoint(cursor, monitor, leftPoint,
+        QuadraticSearch.this).apply();
     @Nonnull
     LineSearchPoint rightPoint = locateInitialRightPoint.getRightPoint();
     double rightX = locateInitialRightPoint.getRightX();
@@ -216,10 +217,11 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   protected boolean isSame(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
-                           @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
+      @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
     if (isSame(a.point.rate, b.point.rate, 1.0)) {
       if (!isSame(a.point.getMean(), b.point.getMean(), 10.0)) {
-        @Nonnull final String diagnose = diagnose(cursor, monitor, a, b);
+        @Nonnull
+        final String diagnose = diagnose(cursor, monitor, a, b);
         monitor.log(diagnose);
         throw new IterativeStopException(diagnose);
       }
@@ -230,7 +232,7 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   private String diagnose(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
-                          @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
+      @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
     final LineSearchPoint verifyA = cursor.step(a.point.rate, monitor);
     final boolean validA = isSame(a.point.getMean(), verifyA.point.getMean(), 1.0);
     monitor.log(String.format("Verify %s: %s (%s)", a.point.rate, verifyA.point.getMean(), validA));
@@ -255,7 +257,7 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   private PointSample filter(@Nonnull final LineSearchCursor cursor, @Nonnull final PointSample point,
-                             final TrainingMonitor monitor) {
+      final TrainingMonitor monitor) {
     if (stepSize == 1.0) {
       return point;
     } else {
@@ -264,7 +266,7 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
-  private class LocateInitialRightPoint extends ReferenceCountingBase {
+  private static @com.simiacryptus.ref.lang.RefAware class LocateInitialRightPoint extends ReferenceCountingBase {
     @Nonnull
     private final LineSearchCursor cursor;
     @Nonnull
@@ -273,13 +275,15 @@ public class QuadraticSearch implements LineSearchStrategy {
     private final TrainingMonitor monitor;
     private LineSearchPoint thisPoint;
     private double thisX;
+    private final QuadraticSearch parent;
 
     public LocateInitialRightPoint(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
-                                   @Nonnull final LineSearchPoint leftPoint) {
+        @Nonnull final LineSearchPoint leftPoint, QuadraticSearch parent) {
       this.cursor = cursor;
       this.monitor = monitor;
       initialPoint = leftPoint;
-      thisX = getCurrentRate() > 0 ? getCurrentRate()
+      this.parent = parent;
+      thisX = parent.getCurrentRate() > 0 ? parent.getCurrentRate()
           : Math.abs(leftPoint.point.getMean() * 1e-4 / leftPoint.derivative);
       thisPoint = cursor.step(thisX, monitor);
       monitor.log(String.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint,
@@ -303,12 +307,13 @@ public class QuadraticSearch implements LineSearchStrategy {
         int loops = 0;
         while (true) {
           lastPoint = thisPoint;
-          if (isSame(cursor, monitor, initialPoint, thisPoint)) {
+          if (parent.isSame(cursor, monitor, initialPoint, thisPoint)) {
             monitor.log(String.format("%s ~= %s", initialPoint.point.rate, thisX));
             return this;
-          } else if (thisPoint.point.getMean() > initialPoint.point.getMean() && thisX > minRate) {
+          } else if (thisPoint.point.getMean() > initialPoint.point.getMean() && thisX > parent.minRate) {
             thisX = thisX / 13;
-          } else if (thisPoint.derivative < initialDerivFactor * thisPoint.derivative && thisX < maxRate) {
+          } else if (thisPoint.derivative < parent.initialDerivFactor * thisPoint.derivative
+              && thisX < parent.maxRate) {
             thisX = thisX * 7;
           } else {
             monitor.log(String.format("%s <= %s", thisPoint.point.getMean(), initialPoint.point.getMean()));
@@ -316,7 +321,7 @@ public class QuadraticSearch implements LineSearchStrategy {
           }
 
           thisPoint = cursor.step(thisX, monitor);
-          if (isSame(cursor, monitor, lastPoint, thisPoint)) {
+          if (parent.isSame(cursor, monitor, lastPoint, thisPoint)) {
             monitor.log(String.format("%s ~= %s", lastPoint.point.rate, thisX));
             return this;
           }
@@ -330,8 +335,18 @@ public class QuadraticSearch implements LineSearchStrategy {
       }
     }
 
-    @Override
-    protected void _free() {
+    public void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") LocateInitialRightPoint addRef() {
+      return (LocateInitialRightPoint) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") LocateInitialRightPoint[] addRefs(LocateInitialRightPoint[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(LocateInitialRightPoint::addRef)
+          .toArray((x) -> new LocateInitialRightPoint[x]);
     }
   }
 }

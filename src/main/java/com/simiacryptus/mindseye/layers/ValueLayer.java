@@ -31,23 +31,29 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
 @SuppressWarnings("serial")
-public class ValueLayer extends LayerBase {
+public @com.simiacryptus.ref.lang.RefAware class ValueLayer extends LayerBase {
 
   @Nullable
   private Tensor[] data;
 
-  protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
+  protected ValueLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
-    data = IntStream.range(0, values.size()).mapToObj(i -> Tensor.fromJson(values.get(i), resources))
-        .toArray(i -> new Tensor[i]);
+    data = com.simiacryptus.ref.wrappers.RefIntStream.range(0, values.size())
+        .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
   }
 
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
-    this.data = Arrays.copyOf(data, data.length);
+    this.data = com.simiacryptus.ref.wrappers.RefArrays.copyOf(data, data.length);
     this.frozen = true;
   }
 
@@ -61,7 +67,8 @@ public class ValueLayer extends LayerBase {
   }
 
   @SuppressWarnings("unused")
-  public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static ValueLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
@@ -87,33 +94,35 @@ public class ValueLayer extends LayerBase {
         return !ValueLayer.this.isFrozen();
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
     };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      @Nonnull DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
-    Arrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer)).forEach(values::add);
+    com.simiacryptus.ref.wrappers.RefArrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer))
+        .forEach(values::add);
     json.add("values", values);
     return json;
   }
 
   @Nonnull
   @Override
-  public List<double[]> state() {
-    return Arrays.stream(data).map(x -> x.getData()).collect(Collectors.toList());
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+    return com.simiacryptus.ref.wrappers.RefArrays.stream(data).map(x -> x.getData())
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
   }
 
-  public static class RefWrapper<T> {
+  public static @com.simiacryptus.ref.lang.RefAware class RefWrapper<T> {
     public final T obj;
 
     public RefWrapper(T obj) {
@@ -134,5 +143,23 @@ public class ValueLayer extends LayerBase {
     public int hashCode() {
       return System.identityHashCode(obj);
     }
+  }
+
+  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
+    return (ValueLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
+        .toArray((x) -> new ValueLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
+        .toArray((x) -> new ValueLayer[x][]);
   }
 }

@@ -29,9 +29,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public abstract class WrapperLayer extends LayerBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class WrapperLayer extends LayerBase {
   @Nullable
   private Layer inner;
 
@@ -39,7 +41,7 @@ public abstract class WrapperLayer extends LayerBase {
     inner = null;
   }
 
-  public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public WrapperLayer(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
     this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
   }
@@ -74,11 +76,12 @@ public abstract class WrapperLayer extends LayerBase {
     return inner.eval(array);
   }
 
-
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     json.add("inner", getInner().getJson(resources, dataSerializer));
     return json;
   }
@@ -94,12 +97,29 @@ public abstract class WrapperLayer extends LayerBase {
 
   @Nullable
   @Override
-  public List<double[]> state() {
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
     return inner.state();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") WrapperLayer addRef() {
+    return (WrapperLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") WrapperLayer[] addRefs(WrapperLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef)
+        .toArray((x) -> new WrapperLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") WrapperLayer[][] addRefs(WrapperLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
+        .toArray((x) -> new WrapperLayer[x][]);
   }
 }

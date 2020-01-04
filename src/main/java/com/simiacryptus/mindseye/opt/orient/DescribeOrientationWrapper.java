@@ -31,8 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
+public @com.simiacryptus.ref.lang.RefAware class DescribeOrientationWrapper
+    extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
@@ -46,38 +51,42 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
-                                    @Nonnull final DoubleBuffer<UUID> dirDelta) {
-    @Nonnull final CharSequence weightString = Arrays.toString(weightDelta.getDelta());
-    @Nonnull final CharSequence deltaString = Arrays.toString(dirDelta.getDelta());
+      @Nonnull final DoubleBuffer<UUID> dirDelta) {
+    @Nonnull
+    final CharSequence weightString = com.simiacryptus.ref.wrappers.RefArrays.toString(weightDelta.getDelta());
+    @Nonnull
+    final CharSequence deltaString = com.simiacryptus.ref.wrappers.RefArrays.toString(dirDelta.getDelta());
     return String.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
-    final Map<CharSequence, CharSequence> data = weights.stream()
-        .collect(Collectors.groupingBy(x -> DescribeOrientationWrapper.getId(x), Collectors.toList())).entrySet()
-        .stream()
-        .collect(Collectors.toMap(x -> x.getKey(), (@Nonnull final Map.Entry<CharSequence, List<State<UUID>>> list) -> {
-          final List<State<UUID>> deltaList = list.getValue();
-          if (1 == deltaList.size()) {
-            final State<UUID> weightDelta = deltaList.get(0);
-            return DescribeOrientationWrapper.render(weightDelta, direction.getMap().get(weightDelta.key));
-          } else {
-            return deltaList.stream().map(weightDelta -> {
-              return DescribeOrientationWrapper.render(weightDelta, direction.getMap().get(weightDelta.key));
-            }).limit(10).reduce((a, b) -> a + "\n" + b).orElse("");
-          }
-        }));
+    final com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence> data = weights.stream()
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> DescribeOrientationWrapper.getId(x),
+            com.simiacryptus.ref.wrappers.RefCollectors.toList()))
+        .entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(x -> x.getKey(),
+            (@Nonnull final Map.Entry<CharSequence, com.simiacryptus.ref.wrappers.RefList<State<UUID>>> list) -> {
+              final com.simiacryptus.ref.wrappers.RefList<State<UUID>> deltaList = list.getValue();
+              if (1 == deltaList.size()) {
+                final State<UUID> weightDelta = deltaList.get(0);
+                return DescribeOrientationWrapper.render(weightDelta, direction.getMap().get(weightDelta.key));
+              } else {
+                return deltaList.stream().map(weightDelta -> {
+                  return DescribeOrientationWrapper.render(weightDelta, direction.getMap().get(weightDelta.key));
+                }).limit(10).reduce((a, b) -> a + "\n" + b).orElse("");
+              }
+            }));
     return data.entrySet().stream().map(e -> String.format("%s = %s", e.getKey(), e.getValue()))
         .map(str -> str.replaceAll("\n", "\n\t")).reduce((a, b) -> a + "\n" + b).orElse("");
   }
 
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-                                 @Nonnull final TrainingMonitor monitor) {
+      @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      @Nonnull
+      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
       final CharSequence asString = DescribeOrientationWrapper.render(weights, direction);
       monitor.log(String.format("Orientation Details: %s", asString));
     } else {
@@ -91,7 +100,25 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     inner.reset();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") DescribeOrientationWrapper addRef() {
+    return (DescribeOrientationWrapper) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") DescribeOrientationWrapper[] addRefs(DescribeOrientationWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
+        .toArray((x) -> new DescribeOrientationWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused") DescribeOrientationWrapper[][] addRefs(
+      DescribeOrientationWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
+        .toArray((x) -> new DescribeOrientationWrapper[x][]);
   }
 }

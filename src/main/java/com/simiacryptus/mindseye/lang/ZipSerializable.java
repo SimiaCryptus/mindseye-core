@@ -33,17 +33,20 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import com.simiacryptus.ref.wrappers.RefHashMap;
+import com.simiacryptus.ref.wrappers.RefMap;
 
-public interface ZipSerializable {
+public @com.simiacryptus.ref.lang.RefAware interface ZipSerializable {
 
   default JsonElement getJson() {
     return getJson(null, SerialPrecision.Double);
   }
 
   @NotNull
-  static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
+  static com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
     Enumeration<? extends ZipEntry> entries = zipfile.entries();
-    @Nonnull HashMap<CharSequence, byte[]> resources = new HashMap<>();
+    @Nonnull
+    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     while (entries.hasMoreElements()) {
       ZipEntry zipEntry = entries.nextElement();
       CharSequence name = zipEntry.getName();
@@ -57,25 +60,29 @@ public interface ZipSerializable {
     return resources;
   }
 
-  JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
+  JsonElement getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer);
 
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);
   }
 
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
-    try (@Nonnull ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
-      writeZip(zipOutputStream, precision, new HashMap<>(), "model.json");
+    try (@Nonnull
+    ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
+      writeZip(zipOutputStream, precision, new com.simiacryptus.ref.wrappers.RefHashMap<>(), "model.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision, HashMap<CharSequence, byte[]> resources, String fileName) {
+  default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
+      com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources, String fileName) {
     try {
       JsonElement json = getJson(resources, precision);
       out.putNextEntry(new ZipEntry(fileName));
-      @Nonnull JsonWriter writer = new JsonWriter(new OutputStreamWriter(out));
+      @Nonnull
+      JsonWriter writer = new JsonWriter(new OutputStreamWriter(out));
       writer.setIndent("  ");
       writer.setHtmlSafe(true);
       writer.setSerializeNulls(false);

@@ -26,8 +26,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
+import com.simiacryptus.ref.wrappers.RefArrays;
 
-public class Delta<K> extends DoubleBuffer<K> {
+public @com.simiacryptus.ref.lang.RefAware class Delta<K> extends DoubleBuffer<K> {
   @Nullable
   protected double[] deltaCompensation;
 
@@ -40,7 +41,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta,
-                  @org.jetbrains.annotations.Nullable final double[] deltaCompensation) {
+      @org.jetbrains.annotations.Nullable final double[] deltaCompensation) {
     super(layer, target, delta);
     if (null == target)
       throw new IllegalArgumentException();
@@ -50,7 +51,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   public static void accumulate(@Nonnull final double[] data, final double[] delta,
-                                @Nullable final double[] dataCompensation) {
+      @Nullable final double[] dataCompensation) {
     synchronized (data) {
       for (int i = 0; i < data.length; i++) {
         final double sum = data[i];
@@ -81,14 +82,15 @@ public class Delta<K> extends DoubleBuffer<K> {
 
   public final void accumulate(final double factor) {
     synchronized (target) {
-      assert Arrays.stream(target).allMatch(Double::isFinite);
-      @Nullable final double[] delta = getDelta();
+      assert com.simiacryptus.ref.wrappers.RefArrays.stream(target).allMatch(Double::isFinite);
+      @Nullable
+      final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
         target[i] += delta[i] * factor;
         if (!Double.isFinite(target[i]))
           target[i] = 0;
       }
-      assert Arrays.stream(target).allMatch(Double::isFinite);
+      assert com.simiacryptus.ref.wrappers.RefArrays.stream(target).allMatch(Double::isFinite);
     }
   }
 
@@ -118,7 +120,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   @Nonnull
   @Override
   public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new Delta<K>(key, target, Arrays.stream(getDelta()).map(mapper).toArray());
+    return new Delta<K>(key, target, com.simiacryptus.ref.wrappers.RefArrays.stream(getDelta()).map(mapper).toArray());
   }
 
   @Nonnull
@@ -132,8 +134,7 @@ public class Delta<K> extends DoubleBuffer<K> {
     super.set(data);
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
     if (null != deltaCompensation) {
       if (RecycleBin.DOUBLES.want(deltaCompensation.length)) {
@@ -141,5 +142,21 @@ public class Delta<K> extends DoubleBuffer<K> {
       }
       deltaCompensation = null;
     }
+  }
+
+  public @Override @SuppressWarnings("unused") Delta<K> addRef() {
+    return (Delta<K>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") Delta[] addRefs(Delta[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Delta::addRef).toArray((x) -> new Delta[x]);
+  }
+
+  public static @SuppressWarnings("unused") Delta[][] addRefs(Delta[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Delta::addRefs).toArray((x) -> new Delta[x][]);
   }
 }

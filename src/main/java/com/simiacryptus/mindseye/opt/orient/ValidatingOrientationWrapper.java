@@ -30,7 +30,8 @@ import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
+public @com.simiacryptus.ref.lang.RefAware class ValidatingOrientationWrapper
+    extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
@@ -41,7 +42,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
   @Nonnull
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-                                 final TrainingMonitor monitor) {
+      final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     return new ValidatingLineSearchCursor(cursor);
   }
@@ -51,11 +52,10 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     inner.reset();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
   }
 
-  private static class ValidatingLineSearchCursor extends LineSearchCursorBase {
+  private static @com.simiacryptus.ref.lang.RefAware class ValidatingLineSearchCursor extends LineSearchCursorBase {
     private final LineSearchCursor cursor;
 
     public ValidatingLineSearchCursor(final LineSearchCursor cursor) {
@@ -94,7 +94,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
-                     final double probeSize) {
+        final double probeSize) {
       final double alpha = primaryPoint.point.rate;
       double probeAlpha = alpha + primaryPoint.point.sum * probeSize / primaryPoint.derivative;
       if (!Double.isFinite(probeAlpha) || probeAlpha == alpha) {
@@ -108,8 +108,38 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
           probePoint.derivative, probeSize));
     }
 
-    @Override
-    protected void _free() {
+    public void _free() {
     }
+
+    public @Override @SuppressWarnings("unused") ValidatingLineSearchCursor addRef() {
+      return (ValidatingLineSearchCursor) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") ValidatingLineSearchCursor[] addRefs(ValidatingLineSearchCursor[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingLineSearchCursor::addRef)
+          .toArray((x) -> new ValidatingLineSearchCursor[x]);
+    }
+  }
+
+  public @Override @SuppressWarnings("unused") ValidatingOrientationWrapper addRef() {
+    return (ValidatingOrientationWrapper) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ValidatingOrientationWrapper[] addRefs(
+      ValidatingOrientationWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRef)
+        .toArray((x) -> new ValidatingOrientationWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused") ValidatingOrientationWrapper[][] addRefs(
+      ValidatingOrientationWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRefs)
+        .toArray((x) -> new ValidatingOrientationWrapper[x][]);
   }
 }

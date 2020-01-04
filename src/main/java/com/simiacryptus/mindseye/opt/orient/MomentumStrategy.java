@@ -31,7 +31,8 @@ import com.simiacryptus.util.ArrayUtil;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCursor> {
+public @com.simiacryptus.ref.lang.RefAware class MomentumStrategy
+    extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   public final OrientationStrategy<SimpleLineSearchCursor> inner;
   @Nonnull
@@ -55,10 +56,11 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
   @Nonnull
   @Override
   public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-                                       final TrainingMonitor monitor) {
+      final TrainingMonitor monitor) {
     final LineSearchCursor orient = inner.orient(subject, measurement, monitor);
     final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) orient).direction;
-    @Nonnull final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
+    @Nonnull
+    final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
     direction.getMap().forEach((layer, delta) -> {
       final DoubleBuffer<UUID> prevBuffer = prevDelta.get(layer, delta.target);
       newDelta.get(layer, delta.target)
@@ -73,7 +75,24 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     inner.reset();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") MomentumStrategy addRef() {
+    return (MomentumStrategy) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") MomentumStrategy[] addRefs(MomentumStrategy[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRef)
+        .toArray((x) -> new MomentumStrategy[x]);
+  }
+
+  public static @SuppressWarnings("unused") MomentumStrategy[][] addRefs(MomentumStrategy[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRefs)
+        .toArray((x) -> new MomentumStrategy[x][]);
   }
 }

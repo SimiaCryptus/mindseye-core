@@ -19,14 +19,13 @@
 
 package com.simiacryptus.mindseye.lang;
 
-
 import javax.annotation.Nonnull;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-public class Singleton<T> implements Supplier<T> {
+public @com.simiacryptus.ref.lang.RefAware class Singleton<T> implements Supplier<T> {
   private final BlockingDeque<T> deque = new LinkedBlockingDeque<>();
 
   public Singleton() {
@@ -37,7 +36,8 @@ public class Singleton<T> implements Supplier<T> {
   }
 
   public synchronized T getOrInit(Supplier<T> fn) {
-    if (deque.isEmpty()) set(fn.get());
+    if (deque.isEmpty())
+      set(fn.get());
     return get();
   }
 

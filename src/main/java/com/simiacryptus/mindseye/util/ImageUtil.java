@@ -50,18 +50,27 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefWeakReference;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefHashMap;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public class ImageUtil {
+public @com.simiacryptus.ref.lang.RefAware class ImageUtil {
   private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
-  public static final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder().setDaemon(true).build());
+  public static final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1,
+      new ThreadFactoryBuilder().setDaemon(true).build());
 
-  public static Stream<BufferedImage> renderToImages(@Nonnull final Tensor tensor, final boolean normalize) {
-    final DoubleStatistics[] statistics = IntStream.range(0, tensor.getDimensions()[2]).mapToObj(band -> {
-      return new DoubleStatistics().accept(tensor.coordStream(false)
-          .filter(x -> x.getCoords()[2] == band)
-          .mapToDouble(c -> tensor.get(c)).toArray());
-    }).toArray(i -> new DoubleStatistics[i]);
-    @Nonnull final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
+  public static com.simiacryptus.ref.wrappers.RefStream<BufferedImage> renderToImages(@Nonnull final Tensor tensor,
+      final boolean normalize) {
+    final DoubleStatistics[] statistics = com.simiacryptus.ref.wrappers.RefIntStream.range(0, tensor.getDimensions()[2])
+        .mapToObj(band -> {
+          return new DoubleStatistics().accept(tensor.coordStream(false).filter(x -> x.getCoords()[2] == band)
+              .mapToDouble(c -> tensor.get(c)).toArray());
+        }).toArray(i -> new DoubleStatistics[i]);
+    @Nonnull
+    final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
       final double width = Math.sqrt(2) * stats.getStandardDeviation();
       final double centered = value - stats.getAverage();
       final double distance = Math.abs(value - stats.getAverage());
@@ -83,8 +92,10 @@ public class ImageUtil {
       }
       return 0xFF * unitValue;
     };
-    tensor.coordStream(true).collect(Collectors.groupingBy(x -> x.getCoords()[2], Collectors.toList()));
-    @Nullable final Tensor normal = tensor.mapCoords((c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]))
+    tensor.coordStream(true).collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> x.getCoords()[2],
+        com.simiacryptus.ref.wrappers.RefCollectors.toList()));
+    @Nullable
+    final Tensor normal = tensor.mapCoords((c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]))
         .map(v -> Math.min(0xFF, Math.max(0, v)));
     return (normalize ? normal : tensor).toImages().stream();
   }
@@ -96,7 +107,8 @@ public class ImageUtil {
 
   @Nonnull
   public static BufferedImage resize(@Nonnull final BufferedImage source, final int size, boolean preserveAspect) {
-    if (size <= 0) return source;
+    if (size <= 0)
+      return source;
     double zoom = (double) size / source.getWidth();
     int steps = (int) Math.ceil(Math.abs(Math.log(zoom)) / Math.log(1.5));
     BufferedImage img = source;
@@ -104,14 +116,16 @@ public class ImageUtil {
       double pos = ((double) i / steps);
       double z = Math.pow(zoom, pos);
       int targetWidth = (int) (source.getWidth() * z);
-      int targetHeight = (int) ((source.getWidth() == source.getHeight()) ? targetWidth : ((preserveAspect ? source.getHeight() : source.getWidth()) * z));
+      int targetHeight = (int) ((source.getWidth() == source.getHeight()) ? targetWidth
+          : ((preserveAspect ? source.getHeight() : source.getWidth()) * z));
       img = resize(img, targetWidth, targetHeight);
     }
     return img;
   }
 
   public static BufferedImage resizePx(@Nonnull final BufferedImage source, final long size) {
-    if (size < 0) return source;
+    if (size < 0)
+      return source;
     double scale = Math.sqrt(size / ((double) source.getHeight() * source.getWidth()));
     int width = (int) (scale * source.getWidth());
     int height = (int) (scale * source.getHeight());
@@ -120,9 +134,11 @@ public class ImageUtil {
 
   @Nonnull
   public static BufferedImage resize(BufferedImage source, int width, int height) {
-    @Nonnull final BufferedImage image = new BufferedImage(width, height, source.getType());
-    @Nonnull final Graphics2D graphics = (Graphics2D) image.getGraphics();
-    HashMap<Object, Object> hints = new HashMap<>();
+    @Nonnull
+    final BufferedImage image = new BufferedImage(width, height, source.getType());
+    @Nonnull
+    final Graphics2D graphics = (Graphics2D) image.getGraphics();
+    com.simiacryptus.ref.wrappers.RefHashMap<Object, Object> hints = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     hints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
     hints.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
@@ -136,19 +152,23 @@ public class ImageUtil {
     monitorImage(input, exitOnClose, 30, normalize);
   }
 
-  public static void monitorImage(final Tensor input, final boolean exitOnClose, final int period, final boolean normalize) {
-    if (GraphicsEnvironment.isHeadless() || !Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
+  public static void monitorImage(final Tensor input, final boolean exitOnClose, final int period,
+      final boolean normalize) {
+    if (GraphicsEnvironment.isHeadless() || !Desktop.isDesktopSupported()
+        || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE))
       return;
     JLabel label = new JLabel(new ImageIcon(input.toImage()));
     final AtomicReference<JDialog> dialog = new AtomicReference<JDialog>();
-    WeakReference<JLabel> labelWeakReference = new WeakReference<>(label);
+    com.simiacryptus.ref.wrappers.RefWeakReference<JLabel> labelWeakReference = new com.simiacryptus.ref.wrappers.RefWeakReference<>(
+        label);
     ScheduledFuture<?> updater = scheduledThreadPool.scheduleAtFixedRate(() -> {
       try {
         JLabel jLabel = labelWeakReference.get();
         if (null != jLabel && !input.isFinalized()) {
           BufferedImage image = (normalize ? normalizeBands(input) : input).toImage();
           int width = jLabel.getWidth();
-          if (width > 0) resize(image, width, jLabel.getHeight());
+          if (width > 0)
+            resize(image, width, jLabel.getHeight());
           jLabel.setIcon(new ImageIcon(image));
           return;
         }
@@ -161,7 +181,7 @@ public class ImageUtil {
     }, 0, period, TimeUnit.SECONDS);
     new Thread(() -> {
       Window window = JOptionPane.getRootFrame();
-      String title = "Image: " + Arrays.toString(input.getDimensions());
+      String title = "Image: " + com.simiacryptus.ref.wrappers.RefArrays.toString(input.getDimensions());
       if (window instanceof Frame) {
         dialog.set(new JDialog((Frame) window, title, true));
       } else {
@@ -197,7 +217,8 @@ public class ImageUtil {
               if (!selectedFile.getName().toUpperCase().endsWith(".PNG"))
                 selectedFile = new File(selectedFile.getParent(), selectedFile.getName() + ".png");
               BufferedImage image = (normalize ? normalizeBands(input) : input).toImage();
-              if (!ImageIO.write(image, "PNG", selectedFile)) throw new IllegalArgumentException();
+              if (!ImageIO.write(image, "PNG", selectedFile))
+                throw new IllegalArgumentException();
             } catch (IOException e1) {
               throw new RuntimeException(e1);
             }
@@ -227,7 +248,8 @@ public class ImageUtil {
           super.componentResized(e);
           BufferedImage image = input.toImage();
           int width = e.getComponent().getWidth();
-          if (width > 0) resize(image, width, e.getComponent().getHeight());
+          if (width > 0)
+            resize(image, width, e.getComponent().getHeight());
           label.setIcon(new ImageIcon(image));
           dialog.get().pack();
         }
@@ -262,7 +284,8 @@ public class ImageUtil {
   }
 
   public static Tensor normalizeBands(final Tensor image, final int max) {
-    DoubleStatistics[] statistics = IntStream.range(0, image.getDimensions()[2]).mapToObj(i -> new DoubleStatistics()).toArray(i -> new DoubleStatistics[i]);
+    DoubleStatistics[] statistics = com.simiacryptus.ref.wrappers.RefIntStream.range(0, image.getDimensions()[2])
+        .mapToObj(i -> new DoubleStatistics()).toArray(i -> new DoubleStatistics[i]);
     image.coordStream(false).forEach(c -> {
       double value = image.get(c);
       statistics[c.getCoords()[2]].accept(value);
@@ -289,7 +312,8 @@ public class ImageUtil {
     if (fileStr.startsWith("http")) {
       try {
         BufferedImage read = ImageIO.read(new URL(fileStr));
-        if (null == read) throw new IllegalArgumentException("Error reading " + file);
+        if (null == read)
+          throw new IllegalArgumentException("Error reading " + file);
         return Tensor.fromRGB(read);
       } catch (Throwable e) {
         throw new RuntimeException("Error reading " + file, e);
@@ -298,7 +322,8 @@ public class ImageUtil {
     if (fileStr.startsWith("file:///")) {
       try {
         BufferedImage read = ImageIO.read(new File(fileStr.substring(8)));
-        if (null == read) throw new IllegalArgumentException("Error reading " + file);
+        if (null == read)
+          throw new IllegalArgumentException("Error reading " + file);
         return Tensor.fromRGB(read);
       } catch (Throwable e) {
         throw new RuntimeException("Error reading " + file, e);

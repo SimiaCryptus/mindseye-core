@@ -23,8 +23,10 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public final class ConstantResult extends Result {
+public final @com.simiacryptus.ref.lang.RefAware class ConstantResult extends Result {
 
   public ConstantResult(final Tensor... data) {
     this(new TensorArray(data));
@@ -48,20 +50,42 @@ public final class ConstantResult extends Result {
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
     if (null == input)
       throw new IllegalArgumentException();
-    return IntStream.range(0, input[0].length)
-        .mapToObj(x -> IntStream.range(0, input.length).mapToObj(y -> input[y][x]).toArray(i -> new Tensor[i]))
+    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, input[0].length)
+        .mapToObj(x -> com.simiacryptus.ref.wrappers.RefIntStream.range(0, input.length).mapToObj(y -> input[y][x])
+            .toArray(i -> new Tensor[i]))
         .map(tensors -> new TensorArray(tensors)).map(tensorArray -> new ConstantResult(tensorArray))
         .toArray(x -> new Result[x]);
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
-    return Arrays.stream(input).map((@Nonnull final Tensor x) -> new ConstantResult(new TensorArray(x)))
-        .toArray(i -> new Result[i]);
+    return com.simiacryptus.ref.wrappers.RefArrays.stream(input)
+        .map((@Nonnull final Tensor x) -> new ConstantResult(new TensorArray(x))).toArray(i -> new Result[i]);
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
-    return Arrays.stream(input).map((@Nonnull final Tensor[] x) -> new ConstantResult(new TensorArray(x)))
-        .toArray(i -> new Result[i]);
+    return com.simiacryptus.ref.wrappers.RefArrays.stream(input)
+        .map((@Nonnull final Tensor[] x) -> new ConstantResult(new TensorArray(x))).toArray(i -> new Result[i]);
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") ConstantResult addRef() {
+    return (ConstantResult) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") ConstantResult[] addRefs(ConstantResult[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
+        .toArray((x) -> new ConstantResult[x]);
+  }
+
+  public static @SuppressWarnings("unused") ConstantResult[][] addRefs(ConstantResult[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
+        .toArray((x) -> new ConstantResult[x][]);
   }
 
 }

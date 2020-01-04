@@ -26,8 +26,10 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public class Result extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware class Result extends ReferenceCountingBase {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
   protected final TensorList data;
@@ -69,7 +71,7 @@ public class Result extends ReferenceCountingBase {
   }
 
   public double[] copy(double[] delta) {
-    delta = Arrays.copyOf(delta, delta.length);
+    delta = com.simiacryptus.ref.wrappers.RefArrays.copyOf(delta, delta.length);
     return delta;
   }
 
@@ -79,15 +81,30 @@ public class Result extends ReferenceCountingBase {
 
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
 
-    accumulate(buffer, new TensorArray(IntStream.range(0, dataLength).mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
+    accumulate(buffer, new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, dataLength)
+        .mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
 
   public void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
     getAccumulator().accept(buffer, delta);
   }
 
-  @Override
-  public Result addRef() {
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") Result addRef() {
     return (Result) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") Result[] addRefs(Result[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
+  }
+
+  public static @SuppressWarnings("unused") Result[][] addRefs(Result[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
   }
 }

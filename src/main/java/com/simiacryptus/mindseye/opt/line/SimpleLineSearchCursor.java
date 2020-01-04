@@ -27,7 +27,7 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public class SimpleLineSearchCursor extends LineSearchCursorBase {
+public @com.simiacryptus.ref.lang.RefAware class SimpleLineSearchCursor extends LineSearchCursorBase {
   public final DeltaSet<UUID> direction;
   @Nonnull
   public final PointSample origin;
@@ -35,7 +35,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
   private String type = "";
 
   public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin,
-                                final DeltaSet<UUID> direction) {
+      final DeltaSet<UUID> direction) {
     this.origin = origin.copyFull();
     this.direction = direction;
     this.subject = subject;
@@ -71,12 +71,30 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     if (0.0 != alpha) {
       direction.accumulate(alpha);
     }
-    @Nonnull final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
+    @Nonnull
+    final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
     final double dot = direction.dot(sample.delta);
     return new LineSearchPoint(sample, dot);
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") SimpleLineSearchCursor addRef() {
+    return (SimpleLineSearchCursor) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") SimpleLineSearchCursor[] addRefs(SimpleLineSearchCursor[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRef)
+        .toArray((x) -> new SimpleLineSearchCursor[x]);
+  }
+
+  public static @SuppressWarnings("unused") SimpleLineSearchCursor[][] addRefs(SimpleLineSearchCursor[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRefs)
+        .toArray((x) -> new SimpleLineSearchCursor[x][]);
   }
 }

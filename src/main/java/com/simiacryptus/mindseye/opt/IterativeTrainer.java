@@ -45,11 +45,13 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import com.simiacryptus.ref.wrappers.RefHashMap;
+import com.simiacryptus.ref.wrappers.RefMap;
 
-public class IterativeTrainer extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware class IterativeTrainer extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(IterativeTrainer.class);
 
-  private final Map<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new HashMap<>();
+  private final com.simiacryptus.ref.wrappers.RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
   private final Trainable subject;
   private AtomicInteger currentIteration = new AtomicInteger(0);
   private int iterationsPerSample = 100;
@@ -186,14 +188,12 @@ public class IterativeTrainer extends ReferenceCountingBase {
     @Nullable
     PointSample currentPoint = measure();
     try {
-mainLoop:
-      while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
+      mainLoop: while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
           && maxIterations > currentIteration.get()) {
         shuffle();
         currentPoint = null;
         currentPoint = measure();
-        for (int subiteration = 0; subiteration < iterationsPerSample
-            || iterationsPerSample <= 0; subiteration++) {
+        for (int subiteration = 0; subiteration < iterationsPerSample || iterationsPerSample <= 0; subiteration++) {
           if (timeoutMs < System.currentTimeMillis()) {
             break mainLoop;
           }
@@ -202,14 +202,18 @@ mainLoop:
           }
           currentPoint = null;
           currentPoint = measure();
-          @Nullable final PointSample _currentPoint = currentPoint;
-          @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
+          @Nullable
+          final PointSample _currentPoint = currentPoint;
+          @Nonnull
+          final TimedResult<LineSearchCursor> timedOrientation = TimedResult
               .time(() -> orientation.orient(subject, _currentPoint, monitor));
           final LineSearchCursor direction = timedOrientation.result;
           final CharSequence directionType = direction.getDirectionType();
-          @Nullable final PointSample previous = currentPoint;
+          @Nullable
+          final PointSample previous = currentPoint;
           {
-            @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult
+            @Nonnull
+            final TimedResult<PointSample> timedLineSearch = TimedResult
                 .time(() -> step(direction, directionType, previous));
             currentPoint = null;
             currentPoint = timedLineSearch.result;
@@ -272,7 +276,7 @@ mainLoop:
   }
 
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType,
-                          @Nonnull final PointSample previous) {
+      @Nonnull final PointSample previous) {
     PointSample currentPoint;
     LineSearchStrategy lineSearchStrategy;
     if (lineSearchStrategyMap.containsKey(directionType)) {
@@ -282,13 +286,31 @@ mainLoop:
       lineSearchStrategy = lineSearchFactory.apply(direction.getDirectionType());
       lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
+    @Nonnull
+    final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
     lineSearchStrategy.step(wrapped, monitor);
     currentPoint = wrapped.getBest(monitor);
     return currentPoint;
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") IterativeTrainer addRef() {
+    return (IterativeTrainer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") IterativeTrainer[] addRefs(IterativeTrainer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRef)
+        .toArray((x) -> new IterativeTrainer[x]);
+  }
+
+  public static @SuppressWarnings("unused") IterativeTrainer[][] addRefs(IterativeTrainer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRefs)
+        .toArray((x) -> new IterativeTrainer[x][]);
   }
 }

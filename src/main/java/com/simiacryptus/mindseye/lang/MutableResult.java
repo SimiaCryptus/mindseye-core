@@ -23,11 +23,12 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import com.simiacryptus.ref.wrappers.RefArrays;
 
-public class MutableResult extends Result {
+public @com.simiacryptus.ref.lang.RefAware class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
-    this(Arrays.stream(tensors).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
+    this(com.simiacryptus.ref.wrappers.RefArrays.stream(tensors).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
   }
 
   public MutableResult(UUID[] objectId, final Tensor... tensors) {
@@ -45,5 +46,26 @@ public class MutableResult extends Result {
         buffer.get(objectId[index], tensors[index].getData()).addInPlace(delta.get(index).getData());
       }
     };
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") MutableResult addRef() {
+    return (MutableResult) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") MutableResult[] addRefs(MutableResult[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRef)
+        .toArray((x) -> new MutableResult[x]);
+  }
+
+  public static @SuppressWarnings("unused") MutableResult[][] addRefs(MutableResult[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRefs)
+        .toArray((x) -> new MutableResult[x][]);
   }
 }

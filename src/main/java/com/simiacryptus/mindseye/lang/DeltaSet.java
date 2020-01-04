@@ -26,8 +26,11 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
+public @com.simiacryptus.ref.lang.RefAware class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   public DeltaSet() {
   }
@@ -37,13 +40,13 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     assert stream().allMatch(x -> x instanceof Delta);
   }
 
-  public DeltaSet(@Nonnull final Map<K, ? extends Delta<K>> collect) {
+  public DeltaSet(@Nonnull final com.simiacryptus.ref.wrappers.RefMap<K, ? extends Delta<K>> collect) {
     super(collect);
     assert stream().allMatch(x -> x instanceof Delta);
   }
 
   public double getMagnitude() {
-    Stream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
+    com.simiacryptus.ref.wrappers.RefStream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
     if (100 < map.size()) {
       stream = stream.parallel();
     }
@@ -51,7 +54,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
       final DoubleBuffer<K> value = entry.getValue();
       return value.deltaStatistics().sumSq();
     }).toArray();
-    return Math.sqrt(Arrays.stream(elementArray).sum());
+    return Math.sqrt(com.simiacryptus.ref.wrappers.RefArrays.stream(elementArray).sum());
   }
 
   @Nonnull
@@ -74,7 +77,8 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   public StateSet<K> asState() {
-    @Nonnull final StateSet<K> returnValue = new StateSet<>();
+    @Nonnull
+    final StateSet<K> returnValue = new StateSet<>();
     map.forEach((layer, delta) -> {
       delta.assertAlive();
       State<K> kState = returnValue.get(layer, delta.target);
@@ -90,7 +94,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
-    Stream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
+    com.simiacryptus.ref.wrappers.RefStream<Map.Entry<K, Delta<K>>> stream = map.entrySet().stream();
     if (100 < map.size()) {
       stream = stream.parallel();
     }
@@ -130,15 +134,31 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return scale(1.0 / getMagnitude());
   }
 
-  @Override
-  public DeltaSet<K> addRef() {
-    return (DeltaSet<K>) super.addRef();
-  }
-
   @Nonnull
   @Override
   protected Delta<K> factory(@Nonnull final K layer, final double[] target) {
     return new Delta<K>(layer, target);
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") DeltaSet<K> addRef() {
+    return (DeltaSet<K>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") DeltaSet[] addRefs(DeltaSet[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRef)
+        .toArray((x) -> new DeltaSet[x]);
+  }
+
+  public static @SuppressWarnings("unused") DeltaSet[][] addRefs(DeltaSet[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRefs)
+        .toArray((x) -> new DeltaSet[x][]);
   }
 
 }

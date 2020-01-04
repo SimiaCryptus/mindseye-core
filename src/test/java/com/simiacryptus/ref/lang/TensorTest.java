@@ -34,48 +34,55 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.simiacryptus.ref.wrappers.RefAssert;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public class TensorTest {
+public @com.simiacryptus.ref.lang.RefAware class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
   @Nullable
   public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
-    @Nullable final Tensor tensor = Tensor.fromJson(json, null);
-    Assert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
+    @Nullable
+    final Tensor tensor = Tensor.fromJson(json, null);
+    com.simiacryptus.ref.wrappers.RefAssert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
   }
 
   public void test(@Nonnull final Tensor t) {
-    @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
-    Assert.assertEquals(Tensor.fromJson(json, null), t);
+    @Nonnull
+    final JsonElement json = t.getJson(null, Tensor.json_precision);
+    com.simiacryptus.ref.wrappers.RefAssert.assertEquals(Tensor.fromJson(json, null), t);
     parse(json.toString());
   }
 
   @Test
   @Category(TestCategories.UnitTest.class)
   public void testCoordStream() {
-    final List<CharSequence> coordinates = new Tensor(2, 2, 2).coordStream(true)
-        .map(c -> String.format("%s - %s", c.getIndex(), Arrays.toString(c.getCoords()))).collect(Collectors.toList());
+    final com.simiacryptus.ref.wrappers.RefList<CharSequence> coordinates = new Tensor(2, 2, 2).coordStream(true).map(
+        c -> String.format("%s - %s", c.getIndex(), com.simiacryptus.ref.wrappers.RefArrays.toString(c.getCoords())))
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
     for (final CharSequence c : coordinates) {
       log.info(c.toString());
     }
   }
-//
-//  /**
-//   * Test shuffle stream.
-//   *
-//   * @throws Exception the exception
-//   */
-//  @Test
-//  @Category(TestCategories.UnitTest.class)
-//  public void testShuffleStream() {
-//    @Nonnull HashSet<Object> ids = new HashSet<>();
-//    int max = 10000;
-//    TestUtil.shuffle(IntStream.range(0, max)).forEach((int i) -> {
-//      if (i >= 0 && i >= max) throw new AssertionError(i);
-//      if (!ids.add(i)) throw new AssertionError(i);
-//    });
-//  }
+  //
+  //  /**
+  //   * Test shuffle stream.
+  //   *
+  //   * @throws Exception the exception
+  //   */
+  //  @Test
+  //  @Category(TestCategories.UnitTest.class)
+  //  public void testShuffleStream() {
+  //    @Nonnull HashSet<Object> ids = new HashSet<>();
+  //    int max = 10000;
+  //    TestUtil.shuffle(IntStream.range(0, max)).forEach((int i) -> {
+  //      if (i >= 0 && i >= max) throw new AssertionError(i);
+  //      if (!ids.add(i)) throw new AssertionError(i);
+  //    });
+  //  }
 
   @Test
   @Category(TestCategories.UnitTest.class)

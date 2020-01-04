@@ -30,8 +30,13 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import com.simiacryptus.ref.wrappers.RefLists;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 
-public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
+public abstract @com.simiacryptus.ref.lang.RefAware class BatchedTrainable extends TrainableWrapper<DataTrainable>
+    implements DataTrainable {
 
   protected final int batchSize;
   private boolean verbose = false;
@@ -61,20 +66,24 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull final List<Tensor[]> tensors = Arrays.asList(getData());
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors = com.simiacryptus.ref.wrappers.RefArrays
+        .asList(getData());
     TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       DataTrainable inner = getInner();
       if (batchSize < tensors.size()) {
         final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
         final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-        @Nonnull final List<List<Tensor[]>> collection = Lists.partition(tensors, evenBatchSize);
+        @Nonnull
+        final com.simiacryptus.ref.wrappers.RefList<com.simiacryptus.ref.wrappers.RefList<Tensor[]>> collection = com.simiacryptus.ref.wrappers.RefLists
+            .partition(tensors, evenBatchSize);
         return collection.stream().map(trainingData -> {
           if (batchSize < trainingData.size()) {
             throw new RuntimeException();
           }
           inner.setData(trainingData);
           PointSample measure = super.measure(monitor);
-          inner.setData(new ArrayList<>());
+          inner.setData(new com.simiacryptus.ref.wrappers.RefArrayList<>());
           return measure;
         }).reduce((a, b) -> {
           return a.add(b);
@@ -82,7 +91,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
       } else {
         inner.setData(tensors);
         PointSample measure = super.measure(monitor);
-        inner.setData(new ArrayList<>());
+        inner.setData(new com.simiacryptus.ref.wrappers.RefArrayList<>());
         return measure;
       }
     });
@@ -91,5 +100,26 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
           timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     return timedResult.result;
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") BatchedTrainable addRef() {
+    return (BatchedTrainable) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") BatchedTrainable[] addRefs(BatchedTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
+        .toArray((x) -> new BatchedTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused") BatchedTrainable[][] addRefs(BatchedTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
+        .toArray((x) -> new BatchedTrainable[x][]);
   }
 }

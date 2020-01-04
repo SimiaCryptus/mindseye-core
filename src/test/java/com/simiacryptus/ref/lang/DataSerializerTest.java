@@ -31,8 +31,10 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.DoubleSupplier;
 import java.util.stream.IntStream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
-public class DataSerializerTest {
+public @com.simiacryptus.ref.lang.RefAware class DataSerializerTest {
   private static final Logger log = LoggerFactory.getLogger(DataSerializerTest.class);
 
   @Test
@@ -71,17 +73,21 @@ public class DataSerializerTest {
   }
 
   public void test(@Nonnull DataSerializer target, @Nonnull DoubleSupplier f, CharSequence name) {
-    @Nonnull double[] source = random(1024, f);
-    @Nonnull double[] result = target.fromBytes(target.toBytes(source));
-    double rms = IntStream.range(0, source.length).mapToDouble(i -> (source[i] - result[i]) / (source[i] + result[i])).map(x -> x * x).average().getAsDouble();
+    @Nonnull
+    double[] source = random(1024, f);
+    @Nonnull
+    double[] result = target.fromBytes(target.toBytes(source));
+    double rms = com.simiacryptus.ref.wrappers.RefIntStream.range(0, source.length)
+        .mapToDouble(i -> (source[i] - result[i]) / (source[i] + result[i])).map(x -> x * x).average().getAsDouble();
     log.info(String.format("%s RMS: %s", name, rms));
     //assert rms < 1e-4;
   }
 
   @Nonnull
   private double[] random(int i, @Nonnull DoubleSupplier f) {
-    @Nonnull double[] doubles = new double[i];
-    Arrays.parallelSetAll(doubles, j -> f.getAsDouble());
+    @Nonnull
+    double[] doubles = new double[i];
+    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(doubles, j -> f.getAsDouble());
     return doubles;
   }
 

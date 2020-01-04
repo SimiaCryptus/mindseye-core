@@ -27,7 +27,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public interface LineSearchCursor extends ReferenceCounting {
+public @com.simiacryptus.ref.lang.RefAware interface LineSearchCursor extends ReferenceCounting {
 
   CharSequence getDirectionType();
 
@@ -40,4 +40,22 @@ public interface LineSearchCursor extends ReferenceCounting {
   void reset();
 
   LineSearchPoint step(double alpha, TrainingMonitor monitor);
+
+  public void _free();
+
+  public LineSearchCursor addRef();
+
+  public static @SuppressWarnings("unused") LineSearchCursor[] addRefs(LineSearchCursor[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRef)
+        .toArray((x) -> new LineSearchCursor[x]);
+  }
+
+  public static @SuppressWarnings("unused") LineSearchCursor[][] addRefs(LineSearchCursor[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRefs)
+        .toArray((x) -> new LineSearchCursor[x][]);
+  }
 }

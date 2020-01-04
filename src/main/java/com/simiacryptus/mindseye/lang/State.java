@@ -24,10 +24,10 @@ import com.simiacryptus.ref.lang.RecycleBin;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
+import com.simiacryptus.ref.wrappers.RefArrays;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class State<K> extends DoubleBuffer<K> {
-
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public @com.simiacryptus.ref.lang.RefAware class State<K> extends DoubleBuffer<K> {
 
   public State(@Nonnull final K layer, final double[] target) {
     super(layer, target);
@@ -57,13 +57,33 @@ public class State<K> extends DoubleBuffer<K> {
   @Nonnull
   @Override
   public State<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new State(key, target, Arrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+    return new State(key, target,
+        com.simiacryptus.ref.wrappers.RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
   @Nonnull
   public final synchronized State<K> restore() {
     System.arraycopy(getDelta(), 0, target, 0, target.length);
     return this;
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") State<K> addRef() {
+    return (State<K>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") State[] addRefs(State[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
+  }
+
+  public static @SuppressWarnings("unused") State[][] addRefs(State[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
   }
 
 }

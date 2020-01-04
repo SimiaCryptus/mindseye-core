@@ -32,8 +32,9 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
-@SuppressWarnings({"serial", "FieldCanBeLocal"})
-public final class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
+@SuppressWarnings({ "serial", "FieldCanBeLocal" })
+public final @com.simiacryptus.ref.lang.RefAware class MonitoringWrapperLayer extends WrapperLayer
+    implements MonitoredItem {
 
   private final PercentileStatistics backwardPerformance = new PercentileStatistics();
   private final ScalarStatistics backwardSignal = new PercentileStatistics();
@@ -44,7 +45,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   private int totalBatches = 0;
   private int totalItems = 0;
 
-  protected MonitoringWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected MonitoringWrapperLayer(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json, rs);
     if (json.has("forwardPerf")) {
       forwardPerformance.readJson(json.getAsJsonObject("forwardPerf"));
@@ -89,8 +91,9 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
   @Nonnull
   @Override
-  public Map<CharSequence, Object> getMetrics() {
-    @Nonnull final HashMap<CharSequence, Object> map = new HashMap<>();
+  public com.simiacryptus.ref.wrappers.RefMap<CharSequence, Object> getMetrics() {
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
     map.put("class", getInner().getClass().getName());
     map.put("totalBatches", totalBatches);
     map.put("totalItems", totalItems);
@@ -107,15 +110,19 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     final double backpropMedian = backwardPerformance.getPercentile(0.5);
     map.put("avgMsPerItem_Backward", 1000 * batchesPerItem * backpropMean);
     map.put("medianMsPerItem_Backward", 1000 * batchesPerItem * backpropMedian);
-    @Nullable final List<double[]> state = state();
-    @Nonnull final ScalarStatistics statistics = new PercentileStatistics();
-    for (@Nonnull final double[] s : state) {
+    @Nullable
+    final com.simiacryptus.ref.wrappers.RefList<double[]> state = state();
+    @Nonnull
+    final ScalarStatistics statistics = new PercentileStatistics();
+    for (@Nonnull
+    final double[] s : state) {
       for (final double v : s) {
         statistics.add(v);
       }
     }
     if (statistics.getCount() > 0) {
-      @Nonnull final HashMap<CharSequence, Object> weightStats = new HashMap<>();
+      @Nonnull
+      final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> weightStats = new com.simiacryptus.ref.wrappers.RefHashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
       map.put("weights", weightStats);
@@ -130,7 +137,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   @SuppressWarnings("unused")
-  public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json,
+      com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
   }
 
@@ -148,8 +156,9 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
-    final Result[] wrappedInput = Arrays.stream(inObj).map(result -> {
+    @Nonnull
+    final AtomicLong passbackNanos = new AtomicLong(0);
+    final Result[] wrappedInput = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(result -> {
       return new Result(result.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
         passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
       }) {
@@ -159,8 +168,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
           return result.isAlive();
         }
 
-        @Override
-        protected void _free() {
+        public void _free() {
         }
       };
     }).toArray(i -> new Result[i]);
@@ -169,7 +177,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     final Result output = timedResult.result;
     forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
     totalBatches++;
-    final int items = Arrays.stream(inObj).mapToInt(x -> x.getData().length()).max().orElse(1);
+    final int items = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).mapToInt(x -> x.getData().length()).max()
+        .orElse(1);
     totalItems += items;
     if (recordSignalMetrics) {
       forwardSignal.clear();
@@ -194,16 +203,17 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
         return output.isAlive();
       }
 
-      @Override
-      protected void _free() {
+      public void _free() {
       }
     };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     //json.fn("forwardPerf",forwardPerf.getJson());
     //json.fn("backwardPerf",backwardPerf.getJson());
     json.addProperty("totalBatches", totalBatches);
@@ -225,5 +235,26 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   public MonitoringWrapperLayer shouldRecordSignalMetrics(final boolean recordSignalMetrics) {
     this.recordSignalMetrics = recordSignalMetrics;
     return this;
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") MonitoringWrapperLayer addRef() {
+    return (MonitoringWrapperLayer) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") MonitoringWrapperLayer[] addRefs(MonitoringWrapperLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
+        .toArray((x) -> new MonitoringWrapperLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") MonitoringWrapperLayer[][] addRefs(MonitoringWrapperLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
+        .toArray((x) -> new MonitoringWrapperLayer[x][]);
   }
 }

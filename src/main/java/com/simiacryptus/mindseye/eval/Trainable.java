@@ -26,7 +26,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 
-public interface Trainable extends ReferenceCounting {
+public @com.simiacryptus.ref.lang.RefAware interface Trainable extends ReferenceCounting {
   @Nonnull
   Layer getLayer();
 
@@ -38,6 +38,24 @@ public interface Trainable extends ReferenceCounting {
 
   default boolean reseed(final long seed) {
     return false;
+  }
+
+  public void _free();
+
+  public Trainable addRef();
+
+  public static @SuppressWarnings("unused") Trainable[] addRefs(Trainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRef)
+        .toArray((x) -> new Trainable[x]);
+  }
+
+  public static @SuppressWarnings("unused") Trainable[][] addRefs(Trainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRefs)
+        .toArray((x) -> new Trainable[x][]);
   }
 
 }

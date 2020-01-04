@@ -27,11 +27,13 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefList;
 
-public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
+public @com.simiacryptus.ref.lang.RefAware class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private static final Logger log = LoggerFactory.getLogger(CachedTrainable.class);
 
-  private final List<PointSample> history = new ArrayList<>();
+  private final com.simiacryptus.ref.wrappers.RefList<PointSample> history = new com.simiacryptus.ref.wrappers.RefArrayList<>();
   private int historySize = 3;
   private boolean verbose = true;
 
@@ -67,7 +69,8 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    for (@Nonnull final PointSample result : history) {
+    for (@Nonnull
+    final PointSample result : history) {
       if (!result.weights.isDifferent()) {
         if (isVerbose()) {
           log.info(String.format("Returning cached value; %s buffers unchanged since %s => %s",
@@ -88,5 +91,26 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   public boolean reseed(final long seed) {
     history.clear();
     return super.reseed(seed);
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") CachedTrainable<T> addRef() {
+    return (CachedTrainable<T>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") CachedTrainable[] addRefs(CachedTrainable[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
+        .toArray((x) -> new CachedTrainable[x]);
+  }
+
+  public static @SuppressWarnings("unused") CachedTrainable[][] addRefs(CachedTrainable[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
+        .toArray((x) -> new CachedTrainable[x][]);
   }
 }

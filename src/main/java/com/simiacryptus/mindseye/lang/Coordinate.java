@@ -23,8 +23,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Arrays;
+import com.simiacryptus.ref.wrappers.RefArrays;
 
-public final class Coordinate implements Serializable {
+public final @com.simiacryptus.ref.lang.RefAware class Coordinate implements Serializable {
   protected int[] coords;
   protected int index;
 
@@ -58,7 +59,8 @@ public final class Coordinate implements Serializable {
 
   @Nonnull
   public static int[] add(@Nonnull final int[] a, @Nonnull final int[] b) {
-    @Nonnull final int[] r = new int[Math.max(a.length, b.length)];
+    @Nonnull
+    final int[] r = new int[Math.max(a.length, b.length)];
     for (int i = 0; i < r.length; i++) {
       r[i] = (a.length <= i ? 0 : a[i]) + (b.length <= i ? 0 : b[i]);
     }
@@ -88,15 +90,15 @@ public final class Coordinate implements Serializable {
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(index) ^ Arrays.hashCode(coords);
+    return Integer.hashCode(index) ^ com.simiacryptus.ref.wrappers.RefArrays.hashCode(coords);
   }
 
   @Override
   public String toString() {
-    return Arrays.toString(coords) + "<" + index + ">";
+    return com.simiacryptus.ref.wrappers.RefArrays.toString(coords) + "<" + index + ">";
   }
 
   public Coordinate copy() {
-    return new Coordinate(index, Arrays.copyOf(coords, coords.length));
+    return new Coordinate(index, com.simiacryptus.ref.wrappers.RefArrays.copyOf(coords, coords.length));
   }
 }

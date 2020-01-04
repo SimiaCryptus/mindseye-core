@@ -33,10 +33,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
+import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
+public @com.simiacryptus.ref.lang.RefAware class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
-  private final TreeSet<PointSample> history = new TreeSet<>(Comparator.comparing(x -> -x.getMean()));
+  private final com.simiacryptus.ref.wrappers.RefTreeSet<PointSample> history = new com.simiacryptus.ref.wrappers.RefTreeSet<>(
+      com.simiacryptus.ref.wrappers.RefComparator.comparingDouble(x -> -x.getMean()));
 
   protected final boolean verbose = true;
   private int maxHistory = 30;
@@ -63,7 +65,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   private static boolean isFinite(@Nonnull final DoubleBufferSet<?, ?> delta) {
-    return delta.stream().parallel().flatMapToDouble(y -> Arrays.stream(y.getDelta()))
+    return delta.stream().parallel().flatMapToDouble(y -> com.simiacryptus.ref.wrappers.RefArrays.stream(y.getDelta()))
         .allMatch(d -> Double.isFinite(d));
   }
 
@@ -79,7 +81,8 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     } else {
       boolean isFound = history.stream().filter(x -> x.getMean() <= measurement.getMean()).findAny().isPresent();
       if (!isFound) {
-        @Nonnull final PointSample copyFull = measurement.copyFull();
+        @Nonnull
+        final PointSample copyFull = measurement.copyFull();
         if (verbose) {
           monitor.log(String.format("Adding measurement %s to history. Total: %s",
               Long.toHexString(System.identityHashCode(copyFull)), history.size()));
@@ -94,7 +97,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Override
   public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-                                       @Nonnull final TrainingMonitor monitor) {
+      @Nonnull final TrainingMonitor monitor) {
 
     //    if (getClass().desiredAssertionStatus()) {
     //      double verify = subject.measureStyle(monitor).getMean();
@@ -105,8 +108,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     //    }
 
     addToHistory(measurement, monitor);
-    @Nonnull final List<PointSample> history = Arrays.asList(this.history.toArray(new PointSample[]{}));
-    @Nullable final DeltaSet<UUID> result = lbfgs(measurement, monitor, history);
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefList<PointSample> history = com.simiacryptus.ref.wrappers.RefArrays
+        .asList(this.history.toArray(new PointSample[] {}));
+    @Nullable
+    final DeltaSet<UUID> result = lbfgs(measurement, monitor, history);
     SimpleLineSearchCursor returnValue;
     if (null == result) {
       @Nonnull
@@ -116,7 +122,8 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       returnValue = cursor(subject, measurement, "LBFGS", result);
     }
     while (this.history.size() > (null == result ? minHistory : maxHistory)) {
-      @Nullable final PointSample remove = this.history.pollFirst();
+      @Nullable
+      final PointSample remove = this.history.pollFirst();
       if (verbose) {
         monitor.log(String.format("Removed measurement %s to history. Total: %s",
             Long.toHexString(System.identityHashCode(remove)), history.size()));
@@ -141,8 +148,9 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Nullable
   protected DeltaSet<UUID> lbfgs(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor,
-                                 @Nonnull final List<PointSample> history) {
-    @Nonnull final DeltaSet<UUID> result = measurement.delta.scale(-1);
+      @Nonnull final com.simiacryptus.ref.wrappers.RefList<PointSample> history) {
+    @Nonnull
+    final DeltaSet<UUID> result = measurement.delta.scale(-1);
     if (history.size() > minHistory) {
       if (lbfgs(measurement, monitor, history, result)) {
         setHistory(monitor, history);
@@ -158,14 +166,13 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     history.clear();
   }
 
   @Nonnull
   private SimpleLineSearchCursor cursor(final Trainable subject, @Nonnull final PointSample measurement,
-                                        final String type, final DeltaSet<UUID> result) {
+      final String type, final DeltaSet<UUID> result) {
     return new SimpleLineSearchCursor(subject, measurement, result) {
       @Override
       public LineSearchPoint step(final double t, @Nonnull final TrainingMonitor monitor) {
@@ -173,10 +180,14 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         addToHistory(measure.point, monitor);
         return measure;
       }
+
+      public @SuppressWarnings("unused") void _free() {
+      }
     }.setDirectionType(type);
   }
 
-  private void setHistory(@Nonnull final TrainingMonitor monitor, @Nonnull final List<PointSample> history) {
+  private void setHistory(@Nonnull final TrainingMonitor monitor,
+      @Nonnull final com.simiacryptus.ref.wrappers.RefList<PointSample> history) {
     if (history.size() == this.history.size() && history.stream().filter(x -> !this.history.contains(x)).count() == 0)
       return;
     if (verbose) {
@@ -189,18 +200,22 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   private boolean lbfgs(@Nonnull PointSample measurement, @Nonnull TrainingMonitor monitor,
-                        @Nonnull List<PointSample> history, @Nonnull DeltaSet<UUID> direction) {
+      @Nonnull com.simiacryptus.ref.wrappers.RefList<PointSample> history, @Nonnull DeltaSet<UUID> direction) {
     @Nonnull
     DeltaSet<UUID> p = null;
     try {
       p = measurement.delta.copy();
-      if (!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
+      if (!p.stream().parallel().allMatch(
+          y -> com.simiacryptus.ref.wrappers.RefArrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
         throw new IllegalStateException("Non-finite value");
       }
-      @Nonnull final double[] alphas = new double[history.size()];
+      @Nonnull
+      final double[] alphas = new double[history.size()];
       for (int i = history.size() - 2; i >= 0; i--) {
-        @Nonnull final DeltaSet<UUID> sd = history.get(i + 1).weights.subtract(history.get(i).weights);
-        @Nonnull final DeltaSet<UUID> yd = history.get(i + 1).delta.subtract(history.get(i).delta);
+        @Nonnull
+        final DeltaSet<UUID> sd = history.get(i + 1).weights.subtract(history.get(i).weights);
+        @Nonnull
+        final DeltaSet<UUID> yd = history.get(i + 1).delta.subtract(history.get(i).delta);
         final double denominator = sd.dot(yd);
         if (0 == denominator) {
           throw new IllegalStateException("Orientation vanished.");
@@ -210,30 +225,37 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         {
           p = p.subtract(scale);
         }
-        if ((!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d))))) {
+        if ((!p.stream().parallel().allMatch(
+            y -> com.simiacryptus.ref.wrappers.RefArrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d))))) {
           throw new IllegalStateException("Non-finite value");
         }
       }
-      @Nonnull final DeltaSet<UUID> sk = history.get(history.size() - 1).weights
+      @Nonnull
+      final DeltaSet<UUID> sk = history.get(history.size() - 1).weights
           .subtract(history.get(history.size() - 2).weights);
-      @Nonnull final DeltaSet<UUID> yk = history.get(history.size() - 1).delta.subtract(history.get(history.size() - 2).delta);
+      @Nonnull
+      final DeltaSet<UUID> yk = history.get(history.size() - 1).delta.subtract(history.get(history.size() - 2).delta);
       {
         double dot = sk.dot(yk);
         double f = dot / yk.dot(yk);
         p = p.scale(f);
       }
-      if (!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
+      if (!p.stream().parallel().allMatch(
+          y -> com.simiacryptus.ref.wrappers.RefArrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
         throw new IllegalStateException("Non-finite value");
       }
       for (int i = 0; i < history.size() - 1; i++) {
-        @Nonnull final DeltaSet<UUID> sd = history.get(i + 1).weights.subtract(history.get(i).weights);
-        @Nonnull final DeltaSet<UUID> yd = history.get(i + 1).delta.subtract(history.get(i).delta);
+        @Nonnull
+        final DeltaSet<UUID> sd = history.get(i + 1).weights.subtract(history.get(i).weights);
+        @Nonnull
+        final DeltaSet<UUID> yd = history.get(i + 1).delta.subtract(history.get(i).delta);
         final double beta = p.dot(yd) / sd.dot(yd);
         {
           DeltaSet<UUID> scale = sd.scale(alphas[i] - beta);
           p = p.add(scale);
         }
-        if (!p.stream().parallel().allMatch(y -> Arrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
+        if (!p.stream().parallel().allMatch(
+            y -> com.simiacryptus.ref.wrappers.RefArrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d)))) {
           throw new IllegalStateException("Non-finite value");
         }
       }
@@ -253,17 +275,19 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   private void copy(@Nonnull DeltaSet<UUID> from, @Nonnull DeltaSet<UUID> to) {
-    for (@Nonnull final Map.Entry<UUID, Delta<UUID>> e : to.getMap().entrySet()) {
-      @Nullable final double[] delta = from.getMap().get(e.getKey()).getDelta();
-      Arrays.setAll(e.getValue().getDelta(), j -> delta[j]);
+    for (@Nonnull
+    final Map.Entry<UUID, Delta<UUID>> e : to.getMap().entrySet()) {
+      @Nullable
+      final double[] delta = from.getMap().get(e.getKey()).getDelta();
+      com.simiacryptus.ref.wrappers.RefArrays.setAll(e.getValue().getDelta(), j -> delta[j]);
     }
   }
 
-  private class Stats {
+  private @com.simiacryptus.ref.lang.RefAware class Stats {
     private final double mag;
     private final double magGrad;
     private final double dot;
-    private final List<CharSequence> anglesPerLayer;
+    private final com.simiacryptus.ref.wrappers.RefList<CharSequence> anglesPerLayer;
 
     public Stats(@Nonnull DeltaSet<UUID> gradient, @Nonnull DeltaSet<UUID> quasinewton) {
       mag = Math.sqrt(quasinewton.dot(quasinewton));
@@ -272,11 +296,13 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       anglesPerLayer = gradient.getMap().entrySet().stream()
           //.filter(e -> !(e.getKey() instanceof PlaceholderLayer)) // This would be too verbose
           .map((@Nonnull final Map.Entry<UUID, Delta<UUID>> e) -> {
-            @Nullable final double[] lbfgsVector = gradient.getMap().get(e.getKey()).getDelta();
+            @Nullable
+            final double[] lbfgsVector = gradient.getMap().get(e.getKey()).getDelta();
             for (int index = 0; index < lbfgsVector.length; index++) {
               lbfgsVector[index] = Double.isFinite(lbfgsVector[index]) ? lbfgsVector[index] : 0;
             }
-            @Nullable final double[] gradientVector = gradient.getMap().get(e.getKey()).getDelta();
+            @Nullable
+            final double[] gradientVector = gradient.getMap().get(e.getKey()).getDelta();
             for (int index = 0; index < gradientVector.length; index++) {
               gradientVector[index] = Double.isFinite(gradientVector[index]) ? gradientVector[index] : 0;
             }
@@ -293,10 +319,10 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
               final double dotP = ArrayUtil.dot(lbfgsVector, gradientVector) / (lbfgsMagnitude * gradientMagnitude);
               return String.format("%s = %.3f/%.3e", layerName, dotP, lbfgsMagnitude / gradientMagnitude);
             }
-          }).collect(Collectors.toList());
+          }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
     }
 
-    public List<CharSequence> getAnglesPerLayer() {
+    public com.simiacryptus.ref.wrappers.RefList<CharSequence> getAnglesPerLayer() {
       return anglesPerLayer;
     }
 
@@ -317,5 +343,21 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       return String.format("LBFGS Orientation magnitude: %.3e, gradient %.3e, dot %.3f; %s", getMag(), getMagGrad(),
           getDot(), getAnglesPerLayer());
     }
+  }
+
+  public @Override @SuppressWarnings("unused") LBFGS addRef() {
+    return (LBFGS) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") LBFGS[] addRefs(LBFGS[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LBFGS::addRef).toArray((x) -> new LBFGS[x]);
+  }
+
+  public static @SuppressWarnings("unused") LBFGS[][] addRefs(LBFGS[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LBFGS::addRefs).toArray((x) -> new LBFGS[x][]);
   }
 }

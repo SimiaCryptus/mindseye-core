@@ -26,13 +26,13 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
-public class FailsafeLineSearchCursor extends LineSearchCursorBase {
+public @com.simiacryptus.ref.lang.RefAware class FailsafeLineSearchCursor extends LineSearchCursorBase {
   private final LineSearchCursor direction;
   private final TrainingMonitor monitor;
   private PointSample best;
 
   public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
-                                  final TrainingMonitor monitor) {
+      final TrainingMonitor monitor) {
     this.direction = direction;
     best = previousPoint.copyFull();
     this.monitor = monitor;
@@ -87,6 +87,24 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     if (null != this.best) {
       this.best = null;
     }
+  }
+
+  public @Override @SuppressWarnings("unused") FailsafeLineSearchCursor addRef() {
+    return (FailsafeLineSearchCursor) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") FailsafeLineSearchCursor[] addRefs(FailsafeLineSearchCursor[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FailsafeLineSearchCursor::addRef)
+        .toArray((x) -> new FailsafeLineSearchCursor[x]);
+  }
+
+  public static @SuppressWarnings("unused") FailsafeLineSearchCursor[][] addRefs(FailsafeLineSearchCursor[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(FailsafeLineSearchCursor::addRefs)
+        .toArray((x) -> new FailsafeLineSearchCursor[x][]);
   }
 
 }

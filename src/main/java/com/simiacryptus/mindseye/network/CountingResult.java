@@ -33,8 +33,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefLinkedList;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public class CountingResult extends Result {
+public @com.simiacryptus.ref.lang.RefAware class CountingResult extends Result {
   protected static final Logger logger = LoggerFactory.getLogger(CountingResult.class);
 
   @Nonnull
@@ -61,23 +63,23 @@ public class CountingResult extends Result {
     return inner.isAlive();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
   }
 
-  static class CountingAccumulator extends ReferenceCountingBase implements BiConsumer<DeltaSet<UUID>, TensorList> {
+  static @com.simiacryptus.ref.lang.RefAware class CountingAccumulator extends ReferenceCountingBase
+      implements BiConsumer<DeltaSet<UUID>, TensorList> {
     @Nonnull
     private final AtomicInteger fwdLinks;
     private final Result inner;
     @Nonnull
-    private final LinkedList<TensorList> passbackBuffers;
+    private final com.simiacryptus.ref.wrappers.RefLinkedList<TensorList> passbackBuffers;
     @Nonnull
     private final AtomicInteger accumulations;
 
     public CountingAccumulator(Result inner) {
       this.inner = inner;
       fwdLinks = new AtomicInteger(0);
-      passbackBuffers = new LinkedList<>();
+      passbackBuffers = new com.simiacryptus.ref.wrappers.RefLinkedList<>();
       accumulations = new AtomicInteger(0);
     }
 
@@ -103,7 +105,7 @@ public class CountingResult extends Result {
           assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           passbackBuffers.add(data);
           if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
-            Stream<TensorList> stream = passbackBuffers.stream();
+            com.simiacryptus.ref.wrappers.RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
             @Nonnull
@@ -117,7 +119,7 @@ public class CountingResult extends Result {
             assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           }
           if (accumulations.incrementAndGet() == fwdLinks.get()) {
-            Stream<TensorList> stream = passbackBuffers.stream();
+            com.simiacryptus.ref.wrappers.RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
             reduced = stream.reduce((a, b) -> {
@@ -136,12 +138,40 @@ public class CountingResult extends Result {
       }
     }
 
-    @Override
-    protected void _free() {
+    public void _free() {
       synchronized (passbackBuffers) {
         passbackBuffers.clear();
       }
     }
 
+    public @Override @SuppressWarnings("unused") CountingAccumulator addRef() {
+      return (CountingAccumulator) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") CountingAccumulator[] addRefs(CountingAccumulator[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
+          .toArray((x) -> new CountingAccumulator[x]);
+    }
+
+  }
+
+  public @Override @SuppressWarnings("unused") CountingResult addRef() {
+    return (CountingResult) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") CountingResult[] addRefs(CountingResult[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
+        .toArray((x) -> new CountingResult[x]);
+  }
+
+  public static @SuppressWarnings("unused") CountingResult[][] addRefs(CountingResult[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
+        .toArray((x) -> new CountingResult[x][]);
   }
 }

@@ -38,16 +38,19 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefConsumer;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefStream;
 
 @SuppressWarnings("serial")
-public abstract class DAGNetwork extends LayerBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class DAGNetwork extends LayerBase {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(DAGNetwork.class);
-  public final List<UUID> inputHandles = new ArrayList<>();
-  public final LinkedHashMap<UUID, InputNode> inputNodes = new LinkedHashMap<>();
-  protected final LinkedHashMap<CharSequence, UUID> labels = new LinkedHashMap<>();
-  protected final LinkedHashMap<UUID, DAGNode> internalNodes = new LinkedHashMap<>();
+  public final com.simiacryptus.ref.wrappers.RefList<UUID> inputHandles = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+  public final com.simiacryptus.ref.wrappers.RefLinkedHashMap<UUID, InputNode> inputNodes = new com.simiacryptus.ref.wrappers.RefLinkedHashMap<>();
+  protected final com.simiacryptus.ref.wrappers.RefLinkedHashMap<CharSequence, UUID> labels = new com.simiacryptus.ref.wrappers.RefLinkedHashMap<>();
+  protected final com.simiacryptus.ref.wrappers.RefLinkedHashMap<UUID, DAGNode> internalNodes = new com.simiacryptus.ref.wrappers.RefLinkedHashMap<>();
 
   public DAGNetwork(final int inputs, UUID id, String name) {
     super(id, name);
@@ -65,10 +68,12 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
-  protected DAGNetwork(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected DAGNetwork(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
     super(json);
-    for (@Nonnull final JsonElement item : json.getAsJsonArray("inputs")) {
-      @Nonnull final UUID key = UUID.fromString(item.getAsString());
+    for (@Nonnull
+    final JsonElement item : json.getAsJsonArray("inputs")) {
+      @Nonnull
+      final UUID key = UUID.fromString(item.getAsString());
       inputHandles.add(key);
       InputNode replaced = inputNodes.put(key, new InputNode(this, key));
     }
@@ -76,28 +81,40 @@ public abstract class DAGNetwork extends LayerBase {
     final JsonObject jsonLayers = json.getAsJsonObject("layers");
     final JsonObject jsonLinks = json.getAsJsonObject("links");
     final JsonObject jsonLabels = json.getAsJsonObject("labels");
-    @Nonnull final Map<UUID, Layer> source_layersByNodeId = new HashMap<>();
-    @Nonnull final Map<UUID, Layer> source_layersByLayerId = new HashMap<>();
-    for (@Nonnull final Entry<String, JsonElement> e : jsonLayers.entrySet()) {
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefMap<UUID, Layer> source_layersByNodeId = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefMap<UUID, Layer> source_layersByLayerId = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    for (@Nonnull
+    final Entry<String, JsonElement> e : jsonLayers.entrySet()) {
       @Nonnull
       Layer value = Layer.fromJson(e.getValue().getAsJsonObject(), rs);
       source_layersByLayerId.put(UUID.fromString(e.getKey()), value);
     }
-    for (@Nonnull final Entry<String, JsonElement> e : jsonNodes.entrySet()) {
-      @Nonnull final UUID nodeId = UUID.fromString(e.getKey());
-      @Nonnull final UUID layerId = UUID.fromString(e.getValue().getAsString());
+    for (@Nonnull
+    final Entry<String, JsonElement> e : jsonNodes.entrySet()) {
+      @Nonnull
+      final UUID nodeId = UUID.fromString(e.getKey());
+      @Nonnull
+      final UUID layerId = UUID.fromString(e.getValue().getAsString());
       final Layer layer = source_layersByLayerId.get(layerId);
       assert null != layer;
       source_layersByNodeId.put(nodeId, layer);
     }
-    @Nonnull final LinkedHashMap<CharSequence, UUID> labels = new LinkedHashMap<>();
-    for (@Nonnull final Entry<String, JsonElement> e : jsonLabels.entrySet()) {
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefLinkedHashMap<CharSequence, UUID> labels = new com.simiacryptus.ref.wrappers.RefLinkedHashMap<>();
+    for (@Nonnull
+    final Entry<String, JsonElement> e : jsonLabels.entrySet()) {
       labels.put(e.getKey(), UUID.fromString(e.getValue().getAsString()));
     }
-    @Nonnull final Map<UUID, List<UUID>> deserializedLinks = new HashMap<>();
-    for (@Nonnull final Entry<String, JsonElement> e : jsonLinks.entrySet()) {
-      @Nonnull final ArrayList<UUID> linkList = new ArrayList<>();
-      for (@Nonnull final JsonElement linkItem : e.getValue().getAsJsonArray()) {
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefMap<UUID, com.simiacryptus.ref.wrappers.RefList<UUID>> deserializedLinks = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    for (@Nonnull
+    final Entry<String, JsonElement> e : jsonLinks.entrySet()) {
+      @Nonnull
+      final com.simiacryptus.ref.wrappers.RefArrayList<UUID> linkList = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+      for (@Nonnull
+      final JsonElement linkItem : e.getValue().getAsJsonArray()) {
         linkList.add(UUID.fromString(linkItem.getAsString()));
       }
       deserializedLinks.put(UUID.fromString(e.getKey()), linkList);
@@ -108,16 +125,18 @@ public abstract class DAGNetwork extends LayerBase {
     for (final UUID key : source_layersByNodeId.keySet()) {
       initLinks(deserializedLinks, source_layersByNodeId, key);
     }
-    @Nonnull final UUID head = UUID.fromString(json.getAsJsonPrimitive("head").getAsString());
+    @Nonnull
+    final UUID head = UUID.fromString(json.getAsJsonPrimitive("head").getAsString());
     initLinks(deserializedLinks, source_layersByNodeId, head);
     this.labels.putAll(labels);
     assertConsistent();
   }
 
   @Override
-  public List<Layer> getChildren() {
+  public com.simiacryptus.ref.wrappers.RefList<Layer> getChildren() {
     return getLayersById().values().stream().flatMap(l -> l.getChildren().stream()).distinct()
-        .sorted(Comparator.comparing(l -> l.getId().toString())).collect(Collectors.toList());
+        .sorted(com.simiacryptus.ref.wrappers.RefComparator.comparing(l -> l.getId().toString()))
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
   }
 
   @Nullable
@@ -133,20 +152,21 @@ public abstract class DAGNetwork extends LayerBase {
     return this;
   }
 
-  public Map<UUID, Layer> getLayersById() {
-    LinkedHashMap<UUID, Layer> map = new LinkedHashMap<>();
+  public com.simiacryptus.ref.wrappers.RefMap<UUID, Layer> getLayersById() {
+    com.simiacryptus.ref.wrappers.RefLinkedHashMap<UUID, Layer> map = new com.simiacryptus.ref.wrappers.RefLinkedHashMap<>();
     visitLayers(layer -> {
       UUID id = layer.getId();
       Layer previous = map.put(id, layer);
       if (null != previous && previous != layer)
         throw new RuntimeException(String.format("Duplicated key found: %s (%s)", previous, id));
     });
-    return Collections.unmodifiableMap(map);
+    return com.simiacryptus.ref.wrappers.RefCollections.unmodifiableMap(map);
   }
 
-  public List<DAGNode> getNodes() {
-    return Stream.concat(this.internalNodes.values().stream(), inputHandles.stream().map(inputNodes::get))
-        .collect(Collectors.toList());
+  public com.simiacryptus.ref.wrappers.RefList<DAGNode> getNodes() {
+    return com.simiacryptus.ref.wrappers.RefStream
+        .concat(this.internalNodes.values().stream(), inputHandles.stream().map(inputNodes::get))
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
   }
 
   @Nonnull
@@ -181,7 +201,7 @@ public abstract class DAGNetwork extends LayerBase {
       throw new IllegalArgumentException();
     if (null == layer)
       return null;
-    assert Arrays.stream(head)
+    assert com.simiacryptus.ref.wrappers.RefArrays.stream(head)
         .allMatch(x -> x == null || internalNodes.containsKey(x.getId()) || inputNodes.containsKey(x.getId()));
     assert layer.assertAlive();
     if (null == layer)
@@ -190,7 +210,8 @@ public abstract class DAGNetwork extends LayerBase {
     assertAlive();
     assertConsistent();
     assert null != inputHandles;
-    @Nonnull final InnerNode node = new InnerNode(this, layer, head);
+    @Nonnull
+    final InnerNode node = new InnerNode(this, layer, head);
     DAGNode replaced = internalNodes.put(node.getId(), node);
     if (null != label)
       labels.put(label, node.getId());
@@ -200,7 +221,8 @@ public abstract class DAGNetwork extends LayerBase {
 
   @Nonnull
   public void addInput() {
-    @Nonnull final UUID key = UUID.randomUUID();
+    @Nonnull
+    final UUID key = UUID.randomUUID();
     inputHandles.add(key);
     InputNode replaced = inputNodes.put(key, new InputNode(this, key));
     if (null != replaced)
@@ -218,7 +240,8 @@ public abstract class DAGNetwork extends LayerBase {
   @Nonnull
   public GraphEvaluationContext buildExeCtx(@Nonnull final Result... inputs) {
     assert inputs.length == inputHandles.size() : inputs.length + " != " + inputHandles.size();
-    @Nonnull final GraphEvaluationContext context = new GraphEvaluationContext();
+    @Nonnull
+    final GraphEvaluationContext context = new GraphEvaluationContext();
     for (int i = 0; i < inputs.length; i++) {
       UUID key = inputHandles.get(i);
       Result input = inputs[i];
@@ -228,8 +251,9 @@ public abstract class DAGNetwork extends LayerBase {
       }
     }
     context.expectedCounts.putAll(getNodes().stream().flatMap(t -> {
-      return Arrays.stream(t.getInputs()).map(n -> n.getId());
-    }).filter(x -> !inputHandles.contains(x)).collect(Collectors.groupingBy(x -> x, Collectors.counting())));
+      return com.simiacryptus.ref.wrappers.RefArrays.stream(t.getInputs()).map(n -> n.getId());
+    }).filter(x -> !inputHandles.contains(x)).collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> x,
+        com.simiacryptus.ref.wrappers.RefCollectors.counting())));
     return context;
   }
 
@@ -265,21 +289,30 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
     assertAlive();
-    @Nonnull final JsonObject json = super.getJsonStub();
-    @Nonnull final JsonArray inputs = new JsonArray();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonArray inputs = new JsonArray();
     json.add("inputs", inputs);
     inputHandles.forEach(uuid -> inputs.add(new JsonPrimitive(uuid.toString())));
-    @Nonnull final JsonObject layerMap = new JsonObject();
-    @Nonnull final JsonObject nodeMap = new JsonObject();
-    @Nonnull final JsonObject links = new JsonObject();
+    @Nonnull
+    final JsonObject layerMap = new JsonObject();
+    @Nonnull
+    final JsonObject nodeMap = new JsonObject();
+    @Nonnull
+    final JsonObject links = new JsonObject();
     this.internalNodes.values().forEach(node -> {
-      @Nonnull final JsonArray linkArray = new JsonArray();
-      Arrays.stream(node.getInputs())
+      @Nonnull
+      final JsonArray linkArray = new JsonArray();
+      com.simiacryptus.ref.wrappers.RefArrays.stream(node.getInputs())
           .forEach((@Nonnull final DAGNode input) -> linkArray.add(new JsonPrimitive(input.getId().toString())));
-      @Nullable final Layer layer = node.getLayer();
-      @Nonnull final String nodeId = node.getId().toString();
+      @Nullable
+      final Layer layer = node.getLayer();
+      @Nonnull
+      final String nodeId = node.getId().toString();
       final String layerId = layer.getId().toString();
       nodeMap.addProperty(nodeId, layerId);
       layerMap.add(layerId, layer.getJson(resources, dataSerializer));
@@ -288,7 +321,8 @@ public abstract class DAGNetwork extends LayerBase {
     json.add("nodes", nodeMap);
     json.add("layers", layerMap);
     json.add("links", links);
-    @Nonnull final JsonObject labels = new JsonObject();
+    @Nonnull
+    final JsonObject labels = new JsonObject();
     this.labels.forEach((k, v) -> {
       labels.addProperty(k.toString(), v.toString());
     });
@@ -303,12 +337,12 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   @Override
-  public List<double[]> state() {
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
     return getChildren().stream().filter(x -> !x.isFrozen()).flatMap(l -> l.state().stream()).distinct()
-        .collect(Collectors.toList());
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
   }
 
-  public void visitLayers(@Nonnull final Consumer<Layer> visitor) {
+  public void visitLayers(@Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<Layer> visitor) {
     visitNodes(node -> {
       Layer layer = node.getLayer();
       Layer unwrapped = layer;
@@ -326,11 +360,11 @@ public abstract class DAGNetwork extends LayerBase {
     });
   }
 
-  public void visitNodes(@Nonnull final Consumer<DAGNode> visitor) {
+  public void visitNodes(@Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<DAGNode> visitor) {
     visitNodes(true, visitor);
   }
 
-  public void visitNodes(boolean recurse, @Nonnull final Consumer<DAGNode> visitor) {
+  public void visitNodes(boolean recurse, @Nonnull final com.simiacryptus.ref.wrappers.RefConsumer<DAGNode> visitor) {
     assertAlive();
     this.internalNodes.values().forEach(node -> {
       node.assertAlive();
@@ -346,8 +380,7 @@ public abstract class DAGNetwork extends LayerBase {
     });
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
     this.inputNodes.clear();
   }
@@ -355,16 +388,19 @@ public abstract class DAGNetwork extends LayerBase {
   protected boolean assertConsistent() {
     assertAlive();
     assert null != inputHandles;
-    for (@Nonnull final Entry<CharSequence, UUID> e : labels.entrySet()) {
+    for (@Nonnull
+    final Entry<CharSequence, UUID> e : labels.entrySet()) {
       assert internalNodes.containsKey(e.getValue());
     }
     return true;
   }
 
-  private DAGNode[] getDependencies(@Nonnull final Map<UUID, List<UUID>> deserializedLinks, final UUID e) {
-    final List<UUID> links = deserializedLinks.get(e);
+  private DAGNode[] getDependencies(
+      @Nonnull final com.simiacryptus.ref.wrappers.RefMap<UUID, com.simiacryptus.ref.wrappers.RefList<UUID>> deserializedLinks,
+      final UUID e) {
+    final com.simiacryptus.ref.wrappers.RefList<UUID> links = deserializedLinks.get(e);
     if (null == links)
-      return new DAGNode[]{};
+      return new DAGNode[] {};
     return links.stream().map(id -> getNode(id)).toArray(i -> new DAGNode[i]);
   }
 
@@ -376,9 +412,10 @@ public abstract class DAGNetwork extends LayerBase {
     return returnValue;
   }
 
-  private synchronized void initLinks(@Nonnull final Map<UUID, List<UUID>> nodeLinks,
-                                      @Nonnull final Map<UUID, Layer> layersByNodeId, final UUID newNodeId) {
-    Map<UUID, Layer> layersById = getLayersById();
+  private synchronized void initLinks(
+      @Nonnull final com.simiacryptus.ref.wrappers.RefMap<UUID, com.simiacryptus.ref.wrappers.RefList<UUID>> nodeLinks,
+      @Nonnull final com.simiacryptus.ref.wrappers.RefMap<UUID, Layer> layersByNodeId, final UUID newNodeId) {
+    com.simiacryptus.ref.wrappers.RefMap<UUID, Layer> layersById = getLayersById();
     if (layersById.containsKey(newNodeId))
       return;
     if (inputNodes.containsKey(newNodeId))
@@ -387,15 +424,34 @@ public abstract class DAGNetwork extends LayerBase {
     if (layer == null) {
       throw new IllegalArgumentException(String.format("%s is linked to but not defined", newNodeId));
     }
-    final List<UUID> links = nodeLinks.get(newNodeId);
+    final com.simiacryptus.ref.wrappers.RefList<UUID> links = nodeLinks.get(newNodeId);
     if (null != links) {
       for (final UUID link : links) {
         initLinks(nodeLinks, layersByNodeId, link);
       }
     }
     assertConsistent();
-    @Nonnull final InnerNode node = new InnerNode(this, layer, newNodeId, getDependencies(nodeLinks, newNodeId));
+    @Nonnull
+    final InnerNode node = new InnerNode(this, layer, newNodeId, getDependencies(nodeLinks, newNodeId));
     DAGNode replaced = internalNodes.put(node.getId(), node);
     assertConsistent();
+  }
+
+  public @Override @SuppressWarnings("unused") DAGNetwork addRef() {
+    return (DAGNetwork) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") DAGNetwork[] addRefs(DAGNetwork[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNetwork::addRef)
+        .toArray((x) -> new DAGNetwork[x]);
+  }
+
+  public static @SuppressWarnings("unused") DAGNetwork[][] addRefs(DAGNetwork[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNetwork::addRefs)
+        .toArray((x) -> new DAGNetwork[x][]);
   }
 }

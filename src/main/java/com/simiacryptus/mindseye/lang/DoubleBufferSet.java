@@ -33,12 +33,19 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import com.simiacryptus.ref.wrappers.RefCollections;
+import com.simiacryptus.ref.wrappers.RefComparator;
+import com.simiacryptus.ref.wrappers.RefHashMap;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefStream;
 
-public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
+public abstract @com.simiacryptus.ref.lang.RefAware class DoubleBufferSet<K, T extends DoubleBuffer<K>>
+    extends ReferenceCountingBase {
   static final Logger log = LoggerFactory.getLogger(DoubleBufferSet.class);
 
   @Nonnull
-  protected final HashMap<K, T> map = new HashMap<>();
+  protected final com.simiacryptus.ref.wrappers.RefHashMap<K, T> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
 
   public DoubleBufferSet() {
   }
@@ -47,7 +54,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     this(toCopy.map);
   }
 
-  public DoubleBufferSet(@Nonnull final Map<K, ? extends T> collect) {
+  public DoubleBufferSet(@Nonnull final com.simiacryptus.ref.wrappers.RefMap<K, ? extends T> collect) {
     collect.forEach((k, v) -> {
       assert null != k;
       assert null != v;
@@ -60,8 +67,8 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   @Nonnull
-  public Map<K, T> getMap() {
-    return Collections.unmodifiableMap(map);
+  public com.simiacryptus.ref.wrappers.RefMap<K, T> getMap() {
+    return com.simiacryptus.ref.wrappers.RefCollections.unmodifiableMap(map);
   }
 
   @Nonnull
@@ -83,24 +90,25 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
 
   @Nonnull
   public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
-    @Nonnull final DoubleBufferSet<K, T> parent = this;
-    Stream<Map.Entry<K, T>> stream = map.entrySet().stream();
+    @Nonnull
+    final DoubleBufferSet<K, T> parent = this;
+    com.simiacryptus.ref.wrappers.RefStream<Map.Entry<K, T>> stream = map.entrySet().stream();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
-    final Map<K, T> newMap = stream.collect(Collectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
+    final com.simiacryptus.ref.wrappers.RefMap<K, T> newMap = stream
+        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
     return new Delegate(parent, newMap);
   }
 
-  public Stream<T> stream() {
+  public com.simiacryptus.ref.wrappers.RefStream<T> stream() {
     return map.values().stream().filter(n -> null != n).distinct()
-        .sorted(Comparator.comparing(y -> System.identityHashCode(y.target)));
+        .sorted(com.simiacryptus.ref.wrappers.RefComparator.comparing(y -> System.identityHashCode(y.target)));
   }
 
   protected abstract T factory(final K layer, final double[] target);
 
-  @Override
-  protected void _free() {
+  public void _free() {
     map.forEach((k, v) -> {
     });
     //    map.clear();
@@ -124,14 +132,16 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     }
   }
 
-  protected class Delegate extends DoubleBufferSet<K, T> {
+  protected static @com.simiacryptus.ref.lang.RefAware class Delegate<K, T extends DoubleBuffer<K>>
+      extends DoubleBufferSet<K, T> {
     private final DoubleBufferSet<K, T> parent;
 
     public Delegate(final DoubleBufferSet<K, T> parent) {
-      this(parent, new HashMap<>());
+      this(parent, new com.simiacryptus.ref.wrappers.RefHashMap<>());
     }
 
-    public Delegate(final DoubleBufferSet<K, T> parent, @Nonnull final Map<K, T> newMap) {
+    public Delegate(final DoubleBufferSet<K, T> parent,
+        @Nonnull final com.simiacryptus.ref.wrappers.RefMap<K, T> newMap) {
       super(newMap);
       this.parent = parent;
     }
@@ -140,5 +150,37 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     protected T factory(final K layer, final double[] target) {
       return parent.factory(layer, target);
     }
+
+    public @SuppressWarnings("unused") void _free() {
+    }
+
+    public @Override @SuppressWarnings("unused") Delegate<K, T> addRef() {
+      return (Delegate<K, T>) super.addRef();
+    }
+
+    public static @SuppressWarnings("unused") Delegate[] addRefs(Delegate[] array) {
+      if (array == null)
+        return null;
+      return java.util.Arrays.stream(array).filter((x) -> x != null).map(Delegate::addRef)
+          .toArray((x) -> new Delegate[x]);
+    }
+  }
+
+  public @Override @SuppressWarnings("unused") DoubleBufferSet<K, T> addRef() {
+    return (DoubleBufferSet<K, T>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") DoubleBufferSet[] addRefs(DoubleBufferSet[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRef)
+        .toArray((x) -> new DoubleBufferSet[x]);
+  }
+
+  public static @SuppressWarnings("unused") DoubleBufferSet[][] addRefs(DoubleBufferSet[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRefs)
+        .toArray((x) -> new DoubleBufferSet[x][]);
   }
 }

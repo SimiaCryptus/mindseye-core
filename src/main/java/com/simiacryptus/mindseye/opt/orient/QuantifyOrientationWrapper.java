@@ -34,8 +34,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefCollectors;
 
-public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
+public @com.simiacryptus.ref.lang.RefAware class QuantifyOrientationWrapper
+    extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
@@ -50,20 +54,23 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
 
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-                                 @Nonnull final TrainingMonitor monitor) {
+      @Nonnull final TrainingMonitor monitor) {
     final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
-      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
-      final Map<CharSequence, CharSequence> dataMap = weights.stream()
-          .collect(Collectors.groupingBy(x -> getId(x), Collectors.toList())).entrySet().stream()
-          .collect(Collectors.toMap(x -> x.getKey(), list -> {
-            final List<Double> doubleList = list.getValue().stream().map(weightDelta -> {
-              final DoubleBuffer<UUID> dirDelta = direction.getMap().get(weightDelta.key);
-              final double denominator = weightDelta.deltaStatistics().rms();
-              final double numerator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
-              return numerator / (0 == denominator ? 1 : denominator);
-            }).collect(Collectors.toList());
+      @Nonnull
+      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
+      final com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence> dataMap = weights.stream()
+          .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> getId(x),
+              com.simiacryptus.ref.wrappers.RefCollectors.toList()))
+          .entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(x -> x.getKey(), list -> {
+            final com.simiacryptus.ref.wrappers.RefList<Double> doubleList = list.getValue().stream()
+                .map(weightDelta -> {
+                  final DoubleBuffer<UUID> dirDelta = direction.getMap().get(weightDelta.key);
+                  final double denominator = weightDelta.deltaStatistics().rms();
+                  final double numerator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
+                  return numerator / (0 == denominator ? 1 : denominator);
+                }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
             if (1 == doubleList.size())
               return Double.toString(doubleList.get(0));
             return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
@@ -80,8 +87,26 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
     inner.reset();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") QuantifyOrientationWrapper addRef() {
+    return (QuantifyOrientationWrapper) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") QuantifyOrientationWrapper[] addRefs(QuantifyOrientationWrapper[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRef)
+        .toArray((x) -> new QuantifyOrientationWrapper[x]);
+  }
+
+  public static @SuppressWarnings("unused") QuantifyOrientationWrapper[][] addRefs(
+      QuantifyOrientationWrapper[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRefs)
+        .toArray((x) -> new QuantifyOrientationWrapper[x][]);
   }
 
 }

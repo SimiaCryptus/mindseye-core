@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-final class InputNode extends LazyResult {
+final @com.simiacryptus.ref.lang.RefAware class InputNode extends LazyResult {
   private final DAGNetwork dagNetwork;
 
   InputNode(final DAGNetwork dagNetwork) {
@@ -66,8 +66,25 @@ final class InputNode extends LazyResult {
     }
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") InputNode addRef() {
+    return (InputNode) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") InputNode[] addRefs(InputNode[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef)
+        .toArray((x) -> new InputNode[x]);
+  }
+
+  public static @SuppressWarnings("unused") InputNode[][] addRefs(InputNode[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs)
+        .toArray((x) -> new InputNode[x][]);
   }
 }

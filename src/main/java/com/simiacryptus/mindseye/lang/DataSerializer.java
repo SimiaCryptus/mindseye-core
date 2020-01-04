@@ -21,7 +21,7 @@ package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
 
-public interface DataSerializer {
+public @com.simiacryptus.ref.lang.RefAware interface DataSerializer {
 
   int getElementSize();
 
@@ -35,20 +35,23 @@ public interface DataSerializer {
 
   @Nonnull
   default byte[] toBytes(@Nonnull double[] from) {
-    @Nonnull byte[] to = new byte[encodedSize(from)];
+    @Nonnull
+    byte[] to = new byte[encodedSize(from)];
     copy(from, to);
     return to;
   }
 
   default int encodedSize(@Nonnull double[] from) {
     long size = (long) from.length * getElementSize() + getHeaderSize();
-    if (size > Integer.MAX_VALUE) throw new IllegalStateException();
+    if (size > Integer.MAX_VALUE)
+      throw new IllegalStateException();
     return (int) size;
   }
 
   @Nonnull
   default double[] fromBytes(@Nonnull byte[] from) {
-    @Nonnull double[] to = new double[decodedSize(from)];
+    @Nonnull
+    double[] to = new double[decodedSize(from)];
     copy(from, to);
     return to;
   }

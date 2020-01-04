@@ -25,7 +25,7 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class StaticLearningRate implements LineSearchStrategy {
+public @com.simiacryptus.ref.lang.RefAware class StaticLearningRate implements LineSearchStrategy {
 
   private double minimumRate = 1e-12;
   private double rate = 1e-4;

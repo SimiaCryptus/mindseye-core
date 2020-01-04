@@ -30,9 +30,11 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 @SuppressWarnings("serial")
-public final class PlaceholderLayer<T> extends LayerBase {
+public final @com.simiacryptus.ref.lang.RefAware class PlaceholderLayer<T> extends LayerBase {
 
   @Nullable
   private final T key;
@@ -67,21 +69,39 @@ public final class PlaceholderLayer<T> extends LayerBase {
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
+  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+      DataSerializer dataSerializer) {
     throw new UnsupportedOperationException();
   }
 
   @Nonnull
   @Override
-  public List<double[]> state() {
+  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
     throw new UnsupportedOperationException();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
     if (this.getKey() instanceof ReferenceCounting) {
       this.getKey();
     }
     super._free();
+  }
+
+  public @Override @SuppressWarnings("unused") PlaceholderLayer<T> addRef() {
+    return (PlaceholderLayer<T>) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") PlaceholderLayer[] addRefs(PlaceholderLayer[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRef)
+        .toArray((x) -> new PlaceholderLayer[x]);
+  }
+
+  public static @SuppressWarnings("unused") PlaceholderLayer[][] addRefs(PlaceholderLayer[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRefs)
+        .toArray((x) -> new PlaceholderLayer[x][]);
   }
 }

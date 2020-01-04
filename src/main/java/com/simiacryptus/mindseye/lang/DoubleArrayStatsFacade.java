@@ -22,14 +22,15 @@ package com.simiacryptus.mindseye.lang;
 import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.stream.DoubleStream;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefDoubleStream;
 
-public class DoubleArrayStatsFacade {
+public @com.simiacryptus.ref.lang.RefAware class DoubleArrayStatsFacade {
   private final double[] data;
 
   public DoubleArrayStatsFacade(final double[] data) {
     this.data = data;
   }
-
 
   public int length() {
     return data.length;
@@ -40,12 +41,13 @@ public class DoubleArrayStatsFacade {
   }
 
   public double sum() {
-    final DoubleSummaryStatistics statistics = Arrays.stream(data).summaryStatistics();
+    final DoubleSummaryStatistics statistics = com.simiacryptus.ref.wrappers.RefArrays.stream(data).summaryStatistics();
     return statistics.getSum();
   }
 
   public double sumSq() {
-    final DoubleStream doubleStream = Arrays.stream(data).map((final double x) -> x * x);
+    final com.simiacryptus.ref.wrappers.RefDoubleStream doubleStream = com.simiacryptus.ref.wrappers.RefArrays
+        .stream(data).map((final double x) -> x * x);
     final DoubleSummaryStatistics statistics = doubleStream.summaryStatistics();
     return statistics.getSum();
   }

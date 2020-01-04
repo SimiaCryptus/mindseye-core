@@ -24,7 +24,7 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 
-public class LineSearchPoint extends ReferenceCountingBase {
+public @com.simiacryptus.ref.lang.RefAware class LineSearchPoint extends ReferenceCountingBase {
 
   public final double derivative;
   public final PointSample point;
@@ -34,22 +34,35 @@ public class LineSearchPoint extends ReferenceCountingBase {
     this.derivative = derivative;
   }
 
-  @Override
-  public LineSearchPoint addRef() {
-    return (LineSearchPoint) super.addRef();
-  }
-
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final StringBuffer sb = new StringBuffer("LineSearchPoint{");
+    @Nonnull
+    final StringBuffer sb = new StringBuffer("LineSearchPoint{");
     sb.append("point=").append(point);
     sb.append(", derivative=").append(derivative);
     sb.append('}');
     return sb.toString();
   }
 
-  @Override
-  protected void _free() {
+  public void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") LineSearchPoint addRef() {
+    return (LineSearchPoint) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") LineSearchPoint[] addRefs(LineSearchPoint[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRef)
+        .toArray((x) -> new LineSearchPoint[x]);
+  }
+
+  public static @SuppressWarnings("unused") LineSearchPoint[][] addRefs(LineSearchPoint[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRefs)
+        .toArray((x) -> new LineSearchPoint[x][]);
   }
 }

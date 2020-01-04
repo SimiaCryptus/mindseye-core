@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings("serial")
-public class SimpleLossNetwork extends SupervisedNetwork {
+public @com.simiacryptus.ref.lang.RefAware class SimpleLossNetwork extends SupervisedNetwork {
 
   @Nullable
   public final DAGNode lossNode;
@@ -41,5 +41,26 @@ public class SimpleLossNetwork extends SupervisedNetwork {
   @Override
   public DAGNode getHead() {
     return lossNode;
+  }
+
+  public @SuppressWarnings("unused") void _free() {
+  }
+
+  public @Override @SuppressWarnings("unused") SimpleLossNetwork addRef() {
+    return (SimpleLossNetwork) super.addRef();
+  }
+
+  public static @SuppressWarnings("unused") SimpleLossNetwork[] addRefs(SimpleLossNetwork[] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRef)
+        .toArray((x) -> new SimpleLossNetwork[x]);
+  }
+
+  public static @SuppressWarnings("unused") SimpleLossNetwork[][] addRefs(SimpleLossNetwork[][] array) {
+    if (array == null)
+      return null;
+    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRefs)
+        .toArray((x) -> new SimpleLossNetwork[x][]);
   }
 }
