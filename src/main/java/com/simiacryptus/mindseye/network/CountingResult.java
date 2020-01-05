@@ -42,13 +42,24 @@ class CountingResult extends Result {
   private final Result inner;
 
   public CountingResult(@Nonnull final Result inner) {
-    super(inner.getData(), new CountingAccumulator(inner));
-    this.inner = inner;
+    super(inner.getData(), new CountingAccumulator(inner == null ? null : inner.addRef()));
+    {
+      Result temp_09_0001 = inner == null ? null : inner.addRef();
+      this.inner = temp_09_0001 == null ? null : temp_09_0001.addRef();
+      if (null != temp_09_0001)
+        temp_09_0001.freeRef();
+    }
+    inner.freeRef();
   }
 
   public CountingResult(final Result r, final int samples) {
     this(r);
-    getAccumulator().fwdLinks.set(samples);
+    if (null != r)
+      r.freeRef();
+    CountingResult.CountingAccumulator temp_09_0007 = getAccumulator();
+    temp_09_0007.fwdLinks.set(samples);
+    if (null != temp_09_0007)
+      temp_09_0007.freeRef();
   }
 
   @Nonnull
@@ -79,6 +90,7 @@ class CountingResult extends Result {
   }
 
   public void _free() {
+    inner.freeRef();
   }
 
   public @Override
@@ -98,9 +110,21 @@ class CountingResult extends Result {
     private final AtomicInteger accumulations;
 
     public CountingAccumulator(Result inner) {
-      this.inner = inner;
+      {
+        Result temp_09_0002 = inner == null ? null : inner.addRef();
+        this.inner = temp_09_0002 == null ? null : temp_09_0002.addRef();
+        if (null != temp_09_0002)
+          temp_09_0002.freeRef();
+      }
+      if (null != inner)
+        inner.freeRef();
       fwdLinks = new AtomicInteger(0);
-      passbackBuffers = new RefLinkedList<>();
+      {
+        RefLinkedList<TensorList> temp_09_0003 = new RefLinkedList<>();
+        passbackBuffers = temp_09_0003 == null ? null : temp_09_0003.addRef();
+        if (null != temp_09_0003)
+          temp_09_0003.freeRef();
+      }
       accumulations = new AtomicInteger(0);
     }
 
@@ -126,13 +150,18 @@ class CountingResult extends Result {
       assertAlive();
       data.assertAlive();
       if (1 >= fwdLinks.get()) {
-        inner.accumulate(buffer, data);
+        inner.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
       } else {
         @Nonnull
         TensorList reduced = null;
         synchronized (passbackBuffers) {
-          assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
-          passbackBuffers.add(data);
+          assert passbackBuffers.stream().allMatch(x -> {
+            boolean temp_09_0004 = x.assertAlive();
+            if (null != x)
+              x.freeRef();
+            return temp_09_0004;
+          });
+          passbackBuffers.add(data == null ? null : data.addRef());
           if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
             RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
@@ -140,12 +169,21 @@ class CountingResult extends Result {
             @Nonnull
             TensorList compacted = stream.reduce((a, b) -> {
               TensorList c;
-              c = a.addAndFree(b);
+              c = a.addAndFree(b == null ? null : b.addRef());
+              if (null != b)
+                b.freeRef();
+              if (null != a)
+                a.freeRef();
               return c;
             }).get();
             passbackBuffers.clear();
-            passbackBuffers.add(compacted);
-            assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
+            passbackBuffers.add(compacted == null ? null : compacted);
+            assert passbackBuffers.stream().allMatch(x -> {
+              boolean temp_09_0005 = x.assertAlive();
+              if (null != x)
+                x.freeRef();
+              return temp_09_0005;
+            });
           }
           if (accumulations.incrementAndGet() == fwdLinks.get()) {
             RefStream<TensorList> stream = passbackBuffers.stream();
@@ -153,21 +191,37 @@ class CountingResult extends Result {
               stream = stream.parallel();
             reduced = stream.reduce((a, b) -> {
               TensorList c;
-              c = a.addAndFree(b);
+              c = a.addAndFree(b == null ? null : b.addRef());
+              if (null != b)
+                b.freeRef();
+              if (null != a)
+                a.freeRef();
               return c;
             }).get();
             passbackBuffers.clear();
           }
-          assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
+          assert passbackBuffers.stream().allMatch(x -> {
+            boolean temp_09_0006 = x.assertAlive();
+            if (null != x)
+              x.freeRef();
+            return temp_09_0006;
+          });
         }
         if (null != reduced) {
-          inner.accumulate(buffer, reduced);
+          inner.accumulate(buffer == null ? null : buffer.addRef(), reduced == null ? null : reduced.addRef());
           accumulations.set(0);
         }
+        reduced.freeRef();
       }
+      data.freeRef();
+      if (null != buffer)
+        buffer.freeRef();
     }
 
     public void _free() {
+      passbackBuffers.freeRef();
+      if (null != inner)
+        inner.freeRef();
       synchronized (passbackBuffers) {
         passbackBuffers.clear();
       }

@@ -25,25 +25,34 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public @RefAware
-class SampledCachedTrainable<T extends SampledTrainable>
-    extends CachedTrainable<T> implements SampledTrainable {
+class SampledCachedTrainable<T extends SampledTrainable> extends CachedTrainable<T>
+    implements SampledTrainable {
 
   private long seed;
 
   public SampledCachedTrainable(final T inner) {
     super(inner);
+    if (null != inner)
+      inner.freeRef();
   }
 
   @Override
   public int getTrainingSize() {
-    return getInner().getTrainingSize();
+    T temp_54_0002 = getInner();
+    int temp_54_0001 = temp_54_0002.getTrainingSize();
+    if (null != temp_54_0002)
+      temp_54_0002.freeRef();
+    return temp_54_0001;
   }
 
   @Nonnull
   @Override
   public void setTrainingSize(final int trainingSize) {
     if (trainingSize != getTrainingSize()) {
-      getInner().setTrainingSize(trainingSize);
+      T temp_54_0003 = getInner();
+      temp_54_0003.setTrainingSize(trainingSize);
+      if (null != temp_54_0003)
+        temp_54_0003.freeRef();
       reseed(seed);
     }
   }
@@ -67,7 +76,7 @@ class SampledCachedTrainable<T extends SampledTrainable>
   @Nonnull
   @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
-    return new SampledCachedTrainable<>(this);
+    return new SampledCachedTrainable<>(this.addRef());
   }
 
   @Override

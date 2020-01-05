@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -36,30 +37,61 @@ class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
 
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[]... trainingData) {
     this(inner, trainingData, trainingData.length);
+    ReferenceCounting.freeRefs(trainingData);
+    if (null != inner)
+      inner.freeRef();
   }
 
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[][] trainingData, int batchSize) {
     super(inner, batchSize);
-    this.trainingData = trainingData;
+    if (null != inner)
+      inner.freeRef();
+    {
+      Tensor[][] temp_03_0001 = Tensor
+          .addRefs(trainingData);
+      if (null != this.trainingData)
+        ReferenceCounting.freeRefs(this.trainingData);
+      this.trainingData = Tensor.addRefs(temp_03_0001);
+      if (null != temp_03_0001)
+        ReferenceCounting.freeRefs(temp_03_0001);
+    }
+    ReferenceCounting.freeRefs(trainingData);
   }
 
   public ArrayTrainable(final Layer network, final int batchSize) {
     this(null, network, batchSize);
+    if (null != network)
+      network.freeRef();
   }
 
   public ArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network) {
     this(trainingData, network, trainingData.length);
+    if (null != network)
+      network.freeRef();
+    ReferenceCounting.freeRefs(trainingData);
   }
 
   public ArrayTrainable(@Nullable final Tensor[][] trainingData, final Layer network, final int batchSize) {
     super(network, batchSize);
-    this.trainingData = trainingData;
+    if (null != network)
+      network.freeRef();
+    {
+      Tensor[][] temp_03_0002 = Tensor
+          .addRefs(trainingData);
+      if (null != this.trainingData)
+        ReferenceCounting.freeRefs(this.trainingData);
+      this.trainingData = Tensor.addRefs(temp_03_0002);
+      if (null != temp_03_0002)
+        ReferenceCounting.freeRefs(temp_03_0002);
+    }
+    if (null != trainingData)
+      ReferenceCounting.freeRefs(trainingData);
   }
 
   @Nullable
   @Override
   public Tensor[][] getData() {
-    return trainingData;
+    return Tensor.addRefs(trainingData);
   }
 
   @Nonnull
@@ -69,7 +101,15 @@ class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
   }
 
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
-    this.trainingData = tensors;
+    {
+      Tensor[][] temp_03_0003 = Tensor.addRefs(tensors);
+      if (null != this.trainingData)
+        ReferenceCounting.freeRefs(this.trainingData);
+      this.trainingData = Tensor.addRefs(temp_03_0003);
+      if (null != temp_03_0003)
+        ReferenceCounting.freeRefs(temp_03_0003);
+    }
+    ReferenceCounting.freeRefs(tensors);
   }
 
   @Override
@@ -96,11 +136,22 @@ class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
   @Nonnull
   @Override
   public Trainable setData(@Nonnull final RefList<Tensor[]> tensors) {
-    trainingData = tensors.toArray(new Tensor[][]{});
-    return this;
+    {
+      Tensor[][] temp_03_0004 = tensors.toArray(new Tensor[][]{});
+      if (null != trainingData)
+        ReferenceCounting.freeRefs(trainingData);
+      trainingData = Tensor.addRefs(temp_03_0004);
+      if (null != temp_03_0004)
+        ReferenceCounting.freeRefs(temp_03_0004);
+    }
+    tensors.freeRef();
+    return this.addRef();
   }
 
   public void _free() {
+    if (null != trainingData)
+      ReferenceCounting.freeRefs(trainingData);
+    trainingData = null;
     super._free();
   }
 

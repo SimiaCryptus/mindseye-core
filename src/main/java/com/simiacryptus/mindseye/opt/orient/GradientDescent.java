@@ -31,8 +31,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public @RefAware
-class GradientDescent
-    extends OrientationStrategyBase<SimpleLineSearchCursor> {
+class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   public static @SuppressWarnings("unused")
   GradientDescent[] addRefs(GradientDescent[] array) {
@@ -61,7 +60,15 @@ class GradientDescent
     } else if (Math.abs(magnitude) < 1e-5) {
       monitor.log(String.format("Low gradient: %s", magnitude));
     }
-    return new SimpleLineSearchCursor(subject, measurement, direction).setDirectionType("GD");
+    SimpleLineSearchCursor temp_42_0002 = new SimpleLineSearchCursor(
+        subject == null ? null : subject.addRef(), measurement == null ? null : measurement,
+        direction == null ? null : direction);
+    SimpleLineSearchCursor temp_42_0001 = temp_42_0002.setDirectionType("GD");
+    if (null != temp_42_0002)
+      temp_42_0002.freeRef();
+    if (null != subject)
+      subject.freeRef();
+    return temp_42_0001;
   }
 
   @Override

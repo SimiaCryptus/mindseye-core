@@ -21,12 +21,14 @@ package com.simiacryptus.mindseye.lang;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -43,15 +45,38 @@ class RegisteredObjectBase extends ReferenceCountingBase {
   //    register();
   //  }
 
-  public static <T extends RegisteredObjectBase> RefStream<T> getLivingInstances(
-      final Class<T> k) {
-    return getInstances(k).filter(x -> !x.isFinalized());
+  public static <T extends RegisteredObjectBase> RefStream<T> getLivingInstances(final Class<T> k) {
+    return getInstances(k).filter(x -> {
+      boolean temp_32_0001 = !x.isFinalized();
+      if (null != x)
+        x.freeRef();
+      return temp_32_0001;
+    });
   }
 
-  public static <T extends RegisteredObjectBase> RefStream<T> getInstances(
-      final Class<T> k) {
-    return cache.entrySet().stream().filter(e -> k.isAssignableFrom(e.getKey())).map(x -> x.getValue())
-        .flatMap(ObjectRecords::stream).map(x -> (T) x.get()).filter(x -> x != null);
+  public static <T extends RegisteredObjectBase> RefStream<T> getInstances(final Class<T> k) {
+    RefSet<Map.Entry<Class<? extends RegisteredObjectBase>, RegisteredObjectBase.ObjectRecords<RegisteredObjectBase>>> temp_32_0006 = cache
+        .entrySet();
+    RefStream<T> temp_32_0005 = temp_32_0006.stream().filter(e -> {
+      boolean temp_32_0002 = k.isAssignableFrom(e.getKey());
+      if (null != e)
+        RefUtil.freeRef(e);
+      return temp_32_0002;
+    }).map(x -> {
+      RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0003 = x
+          .getValue();
+      if (null != x)
+        RefUtil.freeRef(x);
+      return temp_32_0003;
+    }).flatMap(ObjectRecords::stream).map(x -> (T) x.get()).filter(x -> {
+      boolean temp_32_0004 = x != null;
+      if (null != x)
+        x.freeRef();
+      return temp_32_0004;
+    });
+    if (null != temp_32_0006)
+      temp_32_0006.freeRef();
+    return temp_32_0005;
   }
 
   public static @SuppressWarnings("unused")
@@ -81,13 +106,16 @@ class RegisteredObjectBase extends ReferenceCountingBase {
   }
 
   protected void register() {
-    cache.computeIfAbsent(getClass(), k -> new ObjectRecords<>())
-        .add(new RefWeakReference<>(this));
+    RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0007 = cache
+        .computeIfAbsent(getClass(), k -> new ObjectRecords<>());
+    temp_32_0007.add(new RefWeakReference<>(this.addRef()));
+    if (null != temp_32_0007)
+      temp_32_0007.freeRef();
   }
 
   private static @RefAware
-  class ObjectRecords<T extends RegisteredObjectBase> extends
-      RefConcurrentLinkedDeque<RefWeakReference<T>> {
+  class ObjectRecords<T extends RegisteredObjectBase>
+      extends RefConcurrentLinkedDeque<RefWeakReference<T>> {
     private volatile boolean dirty = false;
     private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(this::maintain, 1, 1,
         TimeUnit.SECONDS);
@@ -124,7 +152,9 @@ class RegisteredObjectBase extends ReferenceCountingBase {
 
     private void maintain() {
       if (dirty) {
-        this.removeIf(ref -> null == ref.get());
+        this.removeIf(ref -> {
+          return null == ref.get();
+        });
         dirty = false;
       }
     }

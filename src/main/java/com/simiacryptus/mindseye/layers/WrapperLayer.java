@@ -25,6 +25,8 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -39,29 +41,64 @@ class WrapperLayer extends LayerBase {
   private Layer inner;
 
   protected WrapperLayer() {
-    inner = null;
+    {
+      Layer temp_19_0001 = null;
+      if (null != inner)
+        inner.freeRef();
+      inner = temp_19_0001 == null ? null : temp_19_0001.addRef();
+      if (null != temp_19_0001)
+        temp_19_0001.freeRef();
+    }
   }
 
   public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
-    this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
+    {
+      Layer temp_19_0002 = Layer.fromJson(json.getAsJsonObject("inner"), rs);
+      if (null != this.inner)
+        this.inner.freeRef();
+      this.inner = temp_19_0002 == null ? null : temp_19_0002.addRef();
+      if (null != temp_19_0002)
+        temp_19_0002.freeRef();
+    }
   }
 
   public WrapperLayer(@org.jetbrains.annotations.Nullable final Layer inner) {
-    this.inner = inner;
+    {
+      Layer temp_19_0003 = inner == null ? null : inner.addRef();
+      if (null != this.inner)
+        this.inner.freeRef();
+      this.inner = temp_19_0003 == null ? null : temp_19_0003.addRef();
+      if (null != temp_19_0003)
+        temp_19_0003.freeRef();
+    }
+    if (null != inner)
+      inner.freeRef();
   }
 
   @Nullable
   public final Layer getInner() {
-    return inner;
+    return inner == null ? null : inner.addRef();
   }
 
   public WrapperLayer setInner(@Nullable Layer inner) {
-    if (this.getInner() != null)
+    Layer temp_19_0006 = this.getInner();
+    if (temp_19_0006 != null)
       this.getInner();
-    this.inner = inner;
-    this.getInner();
-    return this;
+    if (null != temp_19_0006)
+      temp_19_0006.freeRef();
+    {
+      Layer temp_19_0004 = inner == null ? null : inner.addRef();
+      if (null != this.inner)
+        this.inner.freeRef();
+      this.inner = temp_19_0004 == null ? null : temp_19_0004.addRef();
+      if (null != temp_19_0004)
+        temp_19_0004.freeRef();
+    }
+    if (null != inner)
+      inner.freeRef();
+    RefUtil.freeRef(this.getInner());
+    return this.addRef();
   }
 
   @Override
@@ -90,15 +127,21 @@ class WrapperLayer extends LayerBase {
   @Nullable
   @Override
   public Result eval(final Result... array) {
-    return inner.eval(array);
+    Result temp_19_0005 = inner
+        .eval(Result.addRefs(array));
+    if (null != array)
+      ReferenceCounting.freeRefs(array);
+    return temp_19_0005;
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
-    json.add("inner", getInner().getJson(resources, dataSerializer));
+    Layer temp_19_0007 = getInner();
+    json.add("inner", temp_19_0007.getJson(resources, dataSerializer));
+    if (null != temp_19_0007)
+      temp_19_0007.freeRef();
     return json;
   }
 
@@ -106,9 +149,9 @@ class WrapperLayer extends LayerBase {
   @Override
   public Layer setFrozen(final boolean frozen) {
     if (null == inner)
-      return this;
-    inner.setFrozen(frozen);
-    return this;
+      return this.addRef();
+    RefUtil.freeRef(inner.setFrozen(frozen));
+    return this.addRef();
   }
 
   @Nullable
@@ -118,6 +161,9 @@ class WrapperLayer extends LayerBase {
   }
 
   public void _free() {
+    if (null != inner)
+      inner.freeRef();
+    inner = null;
     super._free();
   }
 

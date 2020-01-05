@@ -26,8 +26,8 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import java.util.Arrays;
 
 public abstract @RefAware
-class OrientationStrategyBase<T extends LineSearchCursor>
-    extends ReferenceCountingBase implements OrientationStrategy<T> {
+class OrientationStrategyBase<T extends LineSearchCursor> extends ReferenceCountingBase
+    implements OrientationStrategy<T> {
 
   public static @SuppressWarnings("unused")
   OrientationStrategyBase[] addRefs(OrientationStrategyBase[] array) {

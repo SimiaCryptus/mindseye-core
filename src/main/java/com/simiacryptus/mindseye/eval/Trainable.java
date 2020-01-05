@@ -50,7 +50,7 @@ interface Trainable extends ReferenceCounting {
   }
 
   default CachedTrainable<? extends Trainable> cached() {
-    return new CachedTrainable<>(this);
+    return new CachedTrainable<>(this.addRef());
   }
 
   PointSample measure(TrainingMonitor monitor);

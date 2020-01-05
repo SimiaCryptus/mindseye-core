@@ -33,7 +33,14 @@ class LineSearchPoint extends ReferenceCountingBase {
   public final PointSample point;
 
   public LineSearchPoint(final PointSample point, final double derivative) {
-    this.point = point;
+    {
+      PointSample temp_04_0001 = point == null ? null : point.addRef();
+      this.point = temp_04_0001 == null ? null : temp_04_0001.addRef();
+      if (null != temp_04_0001)
+        temp_04_0001.freeRef();
+    }
+    if (null != point)
+      point.freeRef();
     this.derivative = derivative;
   }
 
@@ -64,6 +71,8 @@ class LineSearchPoint extends ReferenceCountingBase {
   }
 
   public void _free() {
+    if (null != point)
+      point.freeRef();
   }
 
   public @Override

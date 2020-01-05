@@ -73,10 +73,22 @@ class StaticLearningRate implements LineSearchStrategy {
         monitor.log(String.format("Non-decreasing runStep. %s > %s at " + thisRate, lastValue, startValue));
         thisRate /= 2;
         if (thisRate < getMinimumRate()) {
-          return startPoint.point;
+          PointSample temp_30_0001 = startPoint.point;
+          if (null != startPoint)
+            startPoint.freeRef();
+          if (null != lastStep)
+            lastStep.freeRef();
+          cursor.freeRef();
+          return temp_30_0001;
         }
       } else {
-        return lastStep.point;
+        if (null != startPoint)
+          startPoint.freeRef();
+        PointSample temp_30_0002 = lastStep.point;
+        if (null != lastStep)
+          lastStep.freeRef();
+        cursor.freeRef();
+        return temp_30_0002;
       }
     }
   }

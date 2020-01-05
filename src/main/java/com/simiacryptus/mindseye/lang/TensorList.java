@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefStream;
@@ -27,6 +28,7 @@ import com.simiacryptus.ref.wrappers.RefStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.function.IntFunction;
 
 public @RefAware
 interface TensorList extends ReferenceCounting {
@@ -54,44 +56,74 @@ interface TensorList extends ReferenceCounting {
   }
 
   default TensorList add(@Nonnull final TensorList right) {
-    if (right.length() == 0)
-      return this;
-    if (length() == 0)
+    if (right.length() == 0) {
+      right.freeRef();
+      return this.addRef();
+    }
+    if (length() == 0) {
+      right.freeRef();
       throw new IllegalArgumentException();
+    }
     assert length() == right.length();
-    return new TensorArray(RefIntStream.range(0, length()).mapToObj(i -> {
-      Tensor b = right.get(i);
-      return get(i).addAndFree(b);
-    }).toArray(i -> new Tensor[i]));
+    TensorArray temp_40_0004 = new TensorArray(
+        RefIntStream.range(0, length()).mapToObj(RefUtil
+            .wrapInterface((IntFunction<? extends Tensor>) i -> {
+              Tensor b = right.get(i);
+              Tensor temp_40_0007 = get(i);
+              Tensor temp_40_0001 = temp_40_0007
+                  .addAndFree(b == null ? null : b.addRef());
+              if (null != temp_40_0007)
+                temp_40_0007.freeRef();
+              if (null != b)
+                b.freeRef();
+              return temp_40_0001;
+            }, right == null ? null : right)).toArray(i -> new Tensor[i]));
+    return temp_40_0004;
   }
 
   default TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
     right.assertAlive();
-    return add(right);
+    TensorList temp_40_0005 = add(right == null ? null : right);
+    return temp_40_0005;
   }
 
   @Nonnull
   default TensorList minus(@Nonnull final TensorList right) {
-    if (right.length() == 0)
-      return this;
-    if (length() == 0)
+    if (right.length() == 0) {
+      right.freeRef();
+      return this.addRef();
+    }
+    if (length() == 0) {
+      right.freeRef();
       throw new IllegalArgumentException();
+    }
     assert length() == right.length();
-    return new TensorArray(RefIntStream.range(0, length()).mapToObj(i -> {
-      @Nullable
-      Tensor a = get(i);
-      @Nullable
-      Tensor b = right.get(i);
-      return a.minus(b);
-    }).toArray(i -> new Tensor[i]));
+    TensorArray temp_40_0006 = new TensorArray(
+        RefIntStream.range(0, length()).mapToObj(RefUtil
+            .wrapInterface((IntFunction<? extends Tensor>) i -> {
+              @Nullable
+              Tensor a = get(i);
+              @Nullable
+              Tensor b = right.get(i);
+              Tensor temp_40_0002 = a.minus(b == null ? null : b.addRef());
+              if (null != b)
+                b.freeRef();
+              if (null != a)
+                a.freeRef();
+              return temp_40_0002;
+            }, right == null ? null : right)).toArray(i -> new Tensor[i]));
+    return temp_40_0006;
   }
 
   default TensorList copy() {
     return new TensorArray(RefIntStream.range(0, length()).mapToObj(i -> {
       @Nullable
       Tensor element = get(i);
-      return element.copy();
+      Tensor temp_40_0003 = element.copy();
+      if (null != element)
+        element.freeRef();
+      return temp_40_0003;
     }).toArray(i -> new Tensor[i]));
   }
 

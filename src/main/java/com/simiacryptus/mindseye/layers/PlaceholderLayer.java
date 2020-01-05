@@ -24,6 +24,7 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
@@ -47,12 +48,13 @@ class PlaceholderLayer<T> extends LayerBase {
     if (this.getKey() instanceof ReferenceCounting) {
       this.getKey();
     }
-    setName(getClass().getSimpleName() + "/" + getId());
+    RefUtil.freeRef(setName(getClass().getSimpleName() + "/" + getId()));
   }
 
   @Nullable
   @Override
   public UUID getId() {
+    assertAlive();
     T key = this.getKey();
     return key == null ? UUID.randomUUID() : UUID.nameUUIDFromBytes(key.toString().getBytes());
   }
@@ -81,13 +83,14 @@ class PlaceholderLayer<T> extends LayerBase {
   @Nonnull
   @Override
   public Result eval(final Result... array) {
+    if (null != array)
+      ReferenceCounting.freeRefs(array);
     throw new UnsupportedOperationException();
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     throw new UnsupportedOperationException();
   }
 

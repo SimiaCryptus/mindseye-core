@@ -79,6 +79,8 @@ class BisectionSearch implements LineSearchStrategy {
     final LineSearchPoint searchPoint = cursor.step(leftX, monitor);
     monitor.log(String.format("F(%s) = %s", leftX, searchPoint));
     leftValue = searchPoint.point.sum;
+    if (null != searchPoint)
+      searchPoint.freeRef();
     double rightRight = getMaxRate();
     double rightX;
     double rightLineDeriv;
@@ -99,7 +101,14 @@ class BisectionSearch implements LineSearchStrategy {
       if ((rightRight - leftX) * 2.0 / (leftX + rightRight) < spanTol) {
         monitor.log(String.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
         currentRate = leftX;
-        return cursor.step(leftX, monitor).point;
+        if (null != rightPoint)
+          rightPoint.freeRef();
+        LineSearchPoint temp_49_0003 = cursor.step(leftX, monitor);
+        PointSample temp_49_0002 = temp_49_0003.point;
+        if (null != temp_49_0003)
+          temp_49_0003.freeRef();
+        cursor.freeRef();
+        return temp_49_0002;
       }
       if (rightValue > leftValue) {
         rightRight = rightX;
@@ -113,8 +122,15 @@ class BisectionSearch implements LineSearchStrategy {
         break;
       }
     }
+    if (null != rightPoint)
+      rightPoint.freeRef();
     monitor.log(String.format("Starting bisection search from %s to %s", leftX, rightX));
-    return iterate(cursor, monitor, leftX, rightX).point;
+    LineSearchPoint temp_49_0004 = iterate(cursor == null ? null : cursor, monitor,
+        leftX, rightX);
+    PointSample temp_49_0001 = temp_49_0004.point;
+    if (null != temp_49_0004)
+      temp_49_0004.freeRef();
+    return temp_49_0001;
   }
 
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
@@ -126,12 +142,15 @@ class BisectionSearch implements LineSearchStrategy {
       thisX = (rightX + leftX) / 2;
       searchPoint = cursor.step(thisX, monitor);
       monitor.log(String.format("F(%s) = %s", thisX, searchPoint));
-      if (loopCount++ > 1000)
+      if (loopCount++ > 1000) {
+        cursor.freeRef();
         return searchPoint;
+      }
       if (searchPoint.derivative < -zeroTol) {
         if (leftX == thisX) {
           monitor.log(String.format("End (static left) at %s", thisX));
           currentRate = thisX;
+          cursor.freeRef();
           return searchPoint;
         }
         leftX = thisX;
@@ -150,6 +169,7 @@ class BisectionSearch implements LineSearchStrategy {
       if (Math.log10((rightX - leftX) * 2.0 / (leftX + rightX)) < -1) {
         monitor.log(String.format("End (narrow range) at %s to %s", rightX, leftX));
         currentRate = thisX;
+        cursor.freeRef();
         return searchPoint;
       }
     }

@@ -20,6 +20,8 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 
 import java.util.Arrays;
@@ -29,11 +31,17 @@ public @RefAware
 class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
-    this(RefArrays.stream(tensors).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
+    this(RefArrays.stream(Tensor.addRefs(tensors)).map(Tensor::getId)
+        .toArray(i -> new UUID[i]), tensors);
+    if (null != tensors)
+      ReferenceCounting.freeRefs(tensors);
   }
 
   public MutableResult(UUID[] objectId, final Tensor... tensors) {
-    super(new TensorArray(tensors), handler(tensors, objectId));
+    super(new TensorArray(Tensor.addRefs(tensors)),
+        handler(Tensor.addRefs(tensors), objectId));
+    if (null != tensors)
+      ReferenceCounting.freeRefs(tensors);
   }
 
   @Override
@@ -58,14 +66,40 @@ class MutableResult extends Result {
   }
 
   private static Result.Accumulator handler(final Tensor[] tensors, UUID[] objectId) {
-    return new Accumulator() {
-      @Override
-      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
-        for (int index = 0; index < delta.length(); index++) {
-          buffer.get(objectId[index], tensors[index].getData()).addInPlace(delta.get(index).getData());
+    try {
+      return new Accumulator() {
+        {
+          Tensor.addRefs(tensors);
         }
-      }
-    };
+
+        @Override
+        public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+          for (int index = 0; index < delta.length(); index++) {
+            Delta<UUID> temp_50_0002 = buffer.get(objectId[index],
+                tensors[index].getData());
+            Tensor temp_50_0003 = delta.get(index);
+            RefUtil.freeRef(temp_50_0002.addInPlace(temp_50_0003.getData()));
+            if (null != temp_50_0003)
+              temp_50_0003.freeRef();
+            if (null != temp_50_0002)
+              temp_50_0002.freeRef();
+          }
+          if (null != delta)
+            delta.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
+          if (null != tensors)
+            ReferenceCounting.freeRefs(tensors);
+        }
+      };
+    } finally {
+      if (null != tensors)
+        ReferenceCounting.freeRefs(tensors);
+    }
   }
 
   public @SuppressWarnings("unused")

@@ -20,17 +20,17 @@
 package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.eval.Trainable;
+import com.simiacryptus.mindseye.lang.Delta;
 import com.simiacryptus.mindseye.lang.IterativeStopException;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.network.DAGNetwork;
-import com.simiacryptus.mindseye.opt.line.ArmijoWolfeSearch;
-import com.simiacryptus.mindseye.opt.line.FailsafeLineSearchCursor;
-import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
-import com.simiacryptus.mindseye.opt.line.LineSearchStrategy;
+import com.simiacryptus.mindseye.opt.line.*;
 import com.simiacryptus.mindseye.opt.orient.LBFGS;
 import com.simiacryptus.mindseye.opt.orient.OrientationStrategy;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
@@ -44,6 +44,7 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -64,7 +65,14 @@ class IterativeTrainer extends ReferenceCountingBase {
   private Duration timeout;
 
   public IterativeTrainer(final Trainable subject) {
-    this.subject = subject;
+    {
+      Trainable temp_18_0001 = subject == null ? null : subject.addRef();
+      this.subject = temp_18_0001 == null ? null : temp_18_0001.addRef();
+      if (null != temp_18_0001)
+        temp_18_0001.freeRef();
+    }
+    if (null != subject)
+      subject.freeRef();
     timeout = Duration.of(5, ChronoUnit.MINUTES);
     terminateThreshold = 0;
   }
@@ -76,7 +84,7 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setCurrentIteration(final AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
-    return this;
+    return this.addRef();
   }
 
   public int getIterationsPerSample() {
@@ -86,7 +94,7 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setIterationsPerSample(final int iterationsPerSample) {
     this.iterationsPerSample = iterationsPerSample;
-    return this;
+    return this.addRef();
   }
 
   public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
@@ -96,7 +104,7 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
     this.lineSearchFactory = lineSearchFactory;
-    return this;
+    return this.addRef();
   }
 
   public int getMaxIterations() {
@@ -106,7 +114,7 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setMaxIterations(final int maxIterations) {
     this.maxIterations = maxIterations;
-    return this;
+    return this.addRef();
   }
 
   public TrainingMonitor getMonitor() {
@@ -116,17 +124,27 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setMonitor(final TrainingMonitor monitor) {
     this.monitor = monitor;
-    return this;
+    return this.addRef();
   }
 
   public OrientationStrategy<?> getOrientation() {
-    return orientation;
+    return orientation == null ? null : orientation.addRef();
   }
 
   @Nonnull
   public IterativeTrainer setOrientation(final OrientationStrategy<?> orientation) {
-    this.orientation = orientation;
-    return this;
+    {
+      OrientationStrategy<?> temp_18_0002 = orientation == null ? null
+          : orientation.addRef();
+      if (null != this.orientation)
+        this.orientation.freeRef();
+      this.orientation = temp_18_0002 == null ? null : temp_18_0002.addRef();
+      if (null != temp_18_0002)
+        temp_18_0002.freeRef();
+    }
+    if (null != orientation)
+      orientation.freeRef();
+    return this.addRef();
   }
 
   public double getTerminateThreshold() {
@@ -136,7 +154,7 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setTerminateThreshold(final double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
-    return this;
+    return this.addRef();
   }
 
   public Duration getTimeout() {
@@ -146,7 +164,7 @@ class IterativeTrainer extends ReferenceCountingBase {
   @Nonnull
   public IterativeTrainer setTimeout(final Duration timeout) {
     this.timeout = timeout;
-    return this;
+    return this.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -170,16 +188,26 @@ class IterativeTrainer extends ReferenceCountingBase {
     @Nullable
     PointSample currentPoint = null;
     currentPoint = subject.measure(monitor);
-    if (0 >= currentPoint.delta.getMap().size()) {
+    RefMap<UUID, Delta<UUID>> temp_18_0004 = currentPoint.delta
+        .getMap();
+    if (0 >= temp_18_0004.size()) {
+      if (null != currentPoint)
+        currentPoint.freeRef();
       throw new AssertionError("Nothing to optimize");
     }
+    if (null != temp_18_0004)
+      temp_18_0004.freeRef();
     double mean = currentPoint.getMean();
     if (!Double.isFinite(mean)) {
-      if (monitor.onStepFail(new Step(currentPoint, currentIteration.get()))) {
+      if (monitor.onStepFail(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()))) {
         monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
+        if (null != currentPoint)
+          currentPoint.freeRef();
         return measure();
       } else {
         monitor.log(String.format("Optimization terminated %s", currentIteration.get()));
+        if (null != currentPoint)
+          currentPoint.freeRef();
         throw new IterativeStopException(Double.toString(mean));
       }
 
@@ -220,17 +248,27 @@ mainLoop:
           }
           currentPoint = null;
           currentPoint = measure();
-          @Nullable final PointSample _currentPoint = currentPoint;
+          @Nullable final PointSample _currentPoint = currentPoint == null ? null : currentPoint.addRef();
           @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
-              .time(() -> orientation.orient(subject, _currentPoint, monitor));
-          final LineSearchCursor direction = timedOrientation.result;
+              .time(RefUtil.wrapInterface(
+                  (UncheckedSupplier<LineSearchCursor>) () -> orientation
+                      .orient(subject == null ? null : subject.addRef(),
+                          _currentPoint == null ? null : _currentPoint.addRef(), monitor),
+                  _currentPoint == null ? null : _currentPoint.addRef()));
+          if (null != _currentPoint)
+            _currentPoint.freeRef();
+          final LineSearchCursor direction = timedOrientation.result.addRef();
           final CharSequence directionType = direction.getDirectionType();
-          @Nullable final PointSample previous = currentPoint;
+          @Nullable final PointSample previous = currentPoint == null ? null : currentPoint.addRef();
           {
             @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult
-                .time(() -> step(direction, directionType, previous));
+                .time(RefUtil.wrapInterface(
+                    (UncheckedSupplier<PointSample>) () -> step(
+                        direction == null ? null : direction.addRef(), directionType,
+                        previous == null ? null : previous.addRef()),
+                    previous == null ? null : previous.addRef(), direction == null ? null : direction.addRef()));
             currentPoint = null;
-            currentPoint = timedLineSearch.result;
+            currentPoint = timedLineSearch.result.addRef();
             final long now = System.nanoTime();
             final CharSequence perfString = String.format("Total: %.4f; Orientation: %.4f; Line Search: %.4f",
                 (now - lastIterationTime) / 1e9, timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9);
@@ -240,7 +278,10 @@ mainLoop:
               if (previous.getMean() < currentPoint.getMean()) {
                 monitor.log(String.format("Resetting Iteration %s", perfString));
                 currentPoint = null;
-                currentPoint = direction.step(0, monitor).point;
+                LineSearchPoint temp_18_0005 = direction.step(0, monitor);
+                currentPoint = temp_18_0005.point.addRef();
+                if (null != temp_18_0005)
+                  temp_18_0005.freeRef();
               } else {
                 monitor.log(String.format("Static Iteration %s", perfString));
               }
@@ -248,7 +289,8 @@ mainLoop:
               monitor
                   .log(String.format("Iteration %s failed. Error: %s", currentIteration.get(), currentPoint.getMean()));
               monitor.log(String.format("Previous Error: %s -> %s", previous.getRate(), previous.getMean()));
-              if (monitor.onStepFail(new Step(currentPoint, currentIteration.get()))) {
+              if (monitor
+                  .onStepFail(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()))) {
                 monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
 
                 break;
@@ -260,14 +302,22 @@ mainLoop:
               monitor.log(String.format("Iteration %s complete. Error: %s " + perfString, currentIteration.get(),
                   currentPoint.getMean()));
             }
-            monitor.onStepComplete(new Step(currentPoint, currentIteration.get()));
+            monitor
+                .onStepComplete(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()));
           }
+          if (null != previous)
+            previous.freeRef();
+          if (null != direction)
+            direction.freeRef();
         }
       }
       if (subject.getLayer() instanceof DAGNetwork) {
         ((DAGNetwork) subject.getLayer()).clearNoise();
       }
-      return null == currentPoint ? Double.NaN : currentPoint.getMean();
+      double temp_18_0003 = null == currentPoint ? Double.NaN : currentPoint.getMean();
+      if (null != currentPoint)
+        currentPoint.freeRef();
+      return temp_18_0003;
     } catch (Throwable e) {
       monitor.log(String.format("Error %s", Util.toString(e)));
       throw new RuntimeException(e);
@@ -281,7 +331,7 @@ mainLoop:
   @Nonnull
   public IterativeTrainer setTimeout(final int number, @Nonnull final TemporalUnit units) {
     timeout = Duration.of(number, units);
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
@@ -300,13 +350,23 @@ mainLoop:
       lineSearchStrategy = lineSearchFactory.apply(direction.getDirectionType());
       lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction, previous, monitor);
-    lineSearchStrategy.step(wrapped, monitor);
+    @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction == null ? null : direction,
+        previous == null ? null : previous, monitor);
+    RefUtil
+        .freeRef(lineSearchStrategy.step(wrapped == null ? null : wrapped.addRef(), monitor));
     currentPoint = wrapped.getBest(monitor);
+    wrapped.freeRef();
     return currentPoint;
   }
 
   public void _free() {
+    if (null != orientation)
+      orientation.freeRef();
+    orientation = null;
+    if (null != subject)
+      subject.freeRef();
+    if (null != lineSearchStrategyMap)
+      lineSearchStrategyMap.freeRef();
   }
 
   public @Override

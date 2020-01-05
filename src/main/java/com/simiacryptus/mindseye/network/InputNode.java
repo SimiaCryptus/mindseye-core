@@ -34,11 +34,20 @@ class InputNode extends LazyResult {
 
   InputNode(final DAGNetwork dagNetwork) {
     this(dagNetwork, null);
+    if (null != dagNetwork)
+      dagNetwork.freeRef();
   }
 
   public InputNode(final DAGNetwork dagNetwork, final UUID key) {
     super(key);
-    this.dagNetwork = dagNetwork;
+    {
+      DAGNetwork temp_10_0001 = dagNetwork == null ? null : dagNetwork.addRef();
+      this.dagNetwork = temp_10_0001 == null ? null : temp_10_0001.addRef();
+      if (null != temp_10_0001)
+        temp_10_0001.freeRef();
+    }
+    if (null != dagNetwork)
+      dagNetwork.freeRef();
   }
 
   @Override
@@ -48,6 +57,8 @@ class InputNode extends LazyResult {
 
   @Override
   public void setLayer(final Layer layer) {
+    if (null != layer)
+      layer.freeRef();
     throw new IllegalStateException();
   }
 
@@ -73,10 +84,14 @@ class InputNode extends LazyResult {
   }
 
   public DAGNode add(@Nonnull final Layer nextHead) {
-    return dagNetwork.add(nextHead, InputNode.this);
+    InnerNode temp_10_0002 = dagNetwork.add(nextHead == null ? null : nextHead,
+        InputNode.this.addRef());
+    return temp_10_0002;
   }
 
   public void _free() {
+    if (null != dagNetwork)
+      dagNetwork.freeRef();
     super._free();
   }
 
@@ -91,7 +106,9 @@ class InputNode extends LazyResult {
     assertAlive();
     this.dagNetwork.assertAlive();
     synchronized (context) {
-      return context.calculated.get(id).get();
+      CountingResult temp_10_0003 = context.calculated.get(id).get();
+      context.freeRef();
+      return temp_10_0003;
     }
   }
 }

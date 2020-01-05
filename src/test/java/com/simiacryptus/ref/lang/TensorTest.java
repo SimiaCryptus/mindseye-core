@@ -44,23 +44,30 @@ class TensorTest {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
     @Nullable final Tensor tensor = Tensor.fromJson(json, null);
     RefAssert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
+    if (null != tensor)
+      tensor.freeRef();
   }
 
   public void test(@Nonnull final Tensor t) {
     @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
-    RefAssert.assertEquals(Tensor.fromJson(json, null), t);
+    RefAssert.assertEquals(Tensor.fromJson(json, null), t == null ? null : t);
     parse(json.toString());
   }
 
   @Test
   @Category(TestCategories.UnitTest.class)
   public void testCoordStream() {
-    final RefList<CharSequence> coordinates = new Tensor(2, 2, 2).coordStream(true).map(
-        c -> String.format("%s - %s", c.getIndex(), RefArrays.toString(c.getCoords())))
+    Tensor temp_52_0001 = new Tensor(2, 2, 2);
+    final RefList<CharSequence> coordinates = temp_52_0001.coordStream(true)
+        .map(c -> String.format("%s - %s", c.getIndex(), RefArrays.toString(c.getCoords())))
         .collect(RefCollectors.toList());
+    if (null != temp_52_0001)
+      temp_52_0001.freeRef();
     for (final CharSequence c : coordinates) {
       log.info(c.toString());
     }
+    if (null != coordinates)
+      coordinates.freeRef();
   }
   //
   //  /**
@@ -82,8 +89,14 @@ class TensorTest {
   @Test
   @Category(TestCategories.UnitTest.class)
   public void testToJson() {
-    test(new Tensor(3, 3, 1).map(v -> Math.random()));
-    test(new Tensor(1, 3, 3).map(v -> Math.random()));
+    Tensor temp_52_0002 = new Tensor(3, 3, 1);
+    test(temp_52_0002.map(v -> Math.random()));
+    if (null != temp_52_0002)
+      temp_52_0002.freeRef();
+    Tensor temp_52_0003 = new Tensor(1, 3, 3);
+    test(temp_52_0003.map(v -> Math.random()));
+    if (null != temp_52_0003)
+      temp_52_0003.freeRef();
   }
 
 }

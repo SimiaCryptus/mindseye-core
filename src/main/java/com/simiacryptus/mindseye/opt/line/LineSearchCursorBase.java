@@ -28,8 +28,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public abstract @RefAware
-class LineSearchCursorBase extends ReferenceCountingBase
-    implements LineSearchCursor {
+class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
 
   public abstract CharSequence getDirectionType();
 

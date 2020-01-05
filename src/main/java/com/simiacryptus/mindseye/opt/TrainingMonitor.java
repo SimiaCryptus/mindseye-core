@@ -30,9 +30,13 @@ class TrainingMonitor {
   }
 
   public void onStepComplete(final Step currentPoint) {
+    if (null != currentPoint)
+      currentPoint.freeRef();
   }
 
   public boolean onStepFail(final Step currentPoint) {
+    if (null != currentPoint)
+      currentPoint.freeRef();
     return false;
   }
 }

@@ -20,11 +20,13 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -32,22 +34,26 @@ import com.simiacryptus.ref.wrappers.RefLists;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.function.Function;
 
 public abstract @RefAware
-class BatchedTrainable extends TrainableWrapper<DataTrainable>
-    implements DataTrainable {
+class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
 
   protected final int batchSize;
   private boolean verbose = false;
 
   public BatchedTrainable(final DataTrainable inner, final int batchSize) {
     super(inner);
+    if (null != inner)
+      inner.freeRef();
     this.batchSize = batchSize;
   }
 
   public BatchedTrainable(final Layer network, final int batchSize) {
-    this(new BasicTrainable(network), batchSize);
-    getInner();
+    this(new BasicTrainable(network == null ? null : network.addRef()), batchSize);
+    if (null != network)
+      network.freeRef();
+    RefUtil.freeRef(getInner());
   }
 
   public int getBatchSize() {
@@ -60,7 +66,7 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable>
 
   public BatchedTrainable setVerbose(final boolean verbose) {
     this.verbose = verbose;
-    return this;
+    return this.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -81,37 +87,57 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable>
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull final RefList<Tensor[]> tensors = RefArrays
-        .asList(getData());
-    TimedResult<PointSample> timedResult = TimedResult.time(() -> {
-      DataTrainable inner = getInner();
-      if (batchSize < tensors.size()) {
-        final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
-        final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-        @Nonnull final RefList<RefList<Tensor[]>> collection = RefLists
-            .partition(tensors, evenBatchSize);
-        return collection.stream().map(trainingData -> {
-          if (batchSize < trainingData.size()) {
-            throw new RuntimeException();
+    @Nonnull final RefList<Tensor[]> tensors = RefArrays.asList(getData());
+    TimedResult<PointSample> timedResult = TimedResult.time(RefUtil
+        .wrapInterface((UncheckedSupplier<PointSample>) () -> {
+          DataTrainable inner = getInner();
+          if (batchSize < tensors.size()) {
+            final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
+            final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
+            @Nonnull final RefList<RefList<Tensor[]>> collection = RefLists.partition(tensors == null ? null : tensors.addRef(),
+                evenBatchSize);
+            PointSample temp_36_0001 = collection.stream()
+                .map(RefUtil.wrapInterface(
+                    (Function<? super RefList<Tensor[]>, ? extends PointSample>) trainingData -> {
+                      if (batchSize < trainingData.size()) {
+                        if (null != trainingData)
+                          trainingData.freeRef();
+                        throw new RuntimeException();
+                      }
+                      RefUtil
+                          .freeRef(inner.setData(trainingData == null ? null : trainingData.addRef()));
+                      if (null != trainingData)
+                        trainingData.freeRef();
+                      PointSample measure = super.measure(monitor).addRef();
+                      RefUtil.freeRef(inner.setData(new RefArrayList<>()));
+                      return measure;
+                    }, inner == null ? null : inner.addRef()))
+                .reduce((a, b) -> {
+                  PointSample temp_36_0002 = a.add(b == null ? null : b.addRef());
+                  if (null != b)
+                    b.freeRef();
+                  if (null != a)
+                    a.freeRef();
+                  return temp_36_0002;
+                }).get();
+            collection.freeRef();
+            if (null != inner)
+              inner.freeRef();
+            return temp_36_0001;
+          } else {
+            RefUtil.freeRef(inner.setData(tensors == null ? null : tensors.addRef()));
+            PointSample measure = super.measure(monitor).addRef();
+            RefUtil.freeRef(inner.setData(new RefArrayList<>()));
+            if (null != inner)
+              inner.freeRef();
+            return measure;
           }
-          inner.setData(trainingData);
-          PointSample measure = super.measure(monitor);
-          inner.setData(new RefArrayList<>());
-          return measure;
-        }).reduce((a, b) -> {
-          return a.add(b);
-        }).get();
-      } else {
-        inner.setData(tensors);
-        PointSample measure = super.measure(monitor);
-        inner.setData(new RefArrayList<>());
-        return measure;
-      }
-    });
+        }, tensors == null ? null : tensors.addRef()));
     if (null != monitor && isVerbose()) {
       monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9,
           timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
+    tensors.freeRef();
     return timedResult.result;
   }
 

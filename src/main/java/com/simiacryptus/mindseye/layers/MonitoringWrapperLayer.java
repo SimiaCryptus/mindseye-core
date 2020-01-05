@@ -21,8 +21,12 @@ package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.UncheckedRunnable;
+import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -41,8 +45,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings({"serial", "FieldCanBeLocal"})
 public final @RefAware
-class MonitoringWrapperLayer extends WrapperLayer
-    implements MonitoredItem {
+class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
   private final PercentileStatistics backwardPerformance = new PercentileStatistics();
   private final ScalarStatistics backwardSignal = new PercentileStatistics();
@@ -53,8 +56,7 @@ class MonitoringWrapperLayer extends WrapperLayer
   private int totalBatches = 0;
   private int totalItems = 0;
 
-  protected MonitoringWrapperLayer(@Nonnull final JsonObject json,
-                                   Map<CharSequence, byte[]> rs) {
+  protected MonitoringWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     if (json.has("forwardPerf")) {
       forwardPerformance.readJson(json.getAsJsonObject("forwardPerf"));
@@ -75,6 +77,8 @@ class MonitoringWrapperLayer extends WrapperLayer
 
   public MonitoringWrapperLayer(final Layer inner) {
     super(inner);
+    if (null != inner)
+      inner.freeRef();
   }
 
   @Nonnull
@@ -101,7 +105,10 @@ class MonitoringWrapperLayer extends WrapperLayer
   @Override
   public RefMap<CharSequence, Object> getMetrics() {
     @Nonnull final RefHashMap<CharSequence, Object> map = new RefHashMap<>();
-    map.put("class", getInner().getClass().getName());
+    Layer temp_31_0005 = getInner();
+    map.put("class", temp_31_0005.getClass().getName());
+    if (null != temp_31_0005)
+      temp_31_0005.freeRef();
     map.put("totalBatches", totalBatches);
     map.put("totalItems", totalItems);
     map.put("outputStatistics", forwardSignal.getMetrics());
@@ -128,20 +135,26 @@ class MonitoringWrapperLayer extends WrapperLayer
       @Nonnull final RefHashMap<CharSequence, Object> weightStats = new RefHashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
-      map.put("weights", weightStats);
+      map.put("weights", RefUtil.addRef(weightStats));
+      weightStats.freeRef();
     }
+    if (null != state)
+      state.freeRef();
     return map;
   }
 
   @Nullable
   @Override
   public String getName() {
-    return getInner().getName();
+    Layer temp_31_0007 = getInner();
+    String temp_31_0006 = temp_31_0007.getName();
+    if (null != temp_31_0007)
+      temp_31_0007.freeRef();
+    return temp_31_0006;
   }
 
   @SuppressWarnings("unused")
-  public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json,
-                                                Map<CharSequence, byte[]> rs) {
+  public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
   }
 
@@ -163,79 +176,148 @@ class MonitoringWrapperLayer extends WrapperLayer
 
   @Nonnull
   public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj) {
-    return addTo(obj, getInner().getName());
+    Layer temp_31_0008 = getInner();
+    MonitoringWrapperLayer temp_31_0004 = addTo(obj == null ? null : obj,
+        temp_31_0008.getName());
+    if (null != temp_31_0008)
+      temp_31_0008.freeRef();
+    return temp_31_0004;
   }
 
   @Nonnull
   public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj, final String name) {
-    setName(name);
-    obj.addObj(getName(), this);
-    return this;
+    RefUtil.freeRef(setName(name));
+    RefUtil.freeRef(obj.addObj(getName(), this.addRef()));
+    obj.freeRef();
+    return this.addRef();
   }
 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
-    final Result[] wrappedInput = RefArrays.stream(inObj).map(result -> {
-      return new Result(result.getData(), new Result.Accumulator() {
+    final Result[] wrappedInput = RefArrays.stream(Result.addRefs(inObj)).map(result -> {
+      try {
+        return new Result(result.getData(), new Result.Accumulator() {
+          {
+          }
+
+          @Override
+          public void accept(DeltaSet<UUID> buffer, TensorList data) {
+            passbackNanos.addAndGet(TimedResult.time(RefUtil.wrapInterface(
+                (UncheckedRunnable<Object>) () -> result
+                    .accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef()),
+                result == null ? null : result.addRef(), data == null ? null : data.addRef(),
+                buffer == null ? null : buffer.addRef())).timeNanos);
+            if (null != data)
+              data.freeRef();
+            if (null != buffer)
+              buffer.freeRef();
+          }
+
+          public @SuppressWarnings("unused")
+          void _free() {
+          }
+        }) {
+
+          {
+          }
+
+          @Override
+          public boolean isAlive() {
+            return result.isAlive();
+          }
+
+          public void _free() {
+          }
+        };
+      } finally {
+        if (null != result)
+          result.freeRef();
+      }
+    }).toArray(i -> new Result[i]);
+    @Nonnull
+    TimedResult<Result> timedResult = TimedResult.time(RefUtil
+        .wrapInterface((UncheckedSupplier<Result>) () -> {
+          return getInner().eval(Result.addRefs(wrappedInput));
+        }, Result.addRefs(wrappedInput)));
+    if (null != wrappedInput)
+      ReferenceCounting.freeRefs(wrappedInput);
+    final Result output = timedResult.result.addRef();
+    forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
+    totalBatches++;
+    final int items = RefArrays.stream(Result.addRefs(inObj)).mapToInt(x -> {
+      TensorList temp_31_0009 = x.getData();
+      int temp_31_0003 = temp_31_0009.length();
+      if (null != temp_31_0009)
+        temp_31_0009.freeRef();
+      if (null != x)
+        x.freeRef();
+      return temp_31_0003;
+    }).max().orElse(1);
+    ReferenceCounting.freeRefs(inObj);
+    totalItems += items;
+    if (recordSignalMetrics) {
+      forwardSignal.clear();
+      TensorList temp_31_0010 = output.getData();
+      temp_31_0010.stream().parallel().forEach(t -> {
+        forwardSignal.add(t.getData());
+        if (null != t)
+          t.freeRef();
+      });
+      if (null != temp_31_0010)
+        temp_31_0010.freeRef();
+    }
+    try {
+      return new Result(output.getData(), new Result.Accumulator() {
+        {
+        }
+
         @Override
         public void accept(DeltaSet<UUID> buffer, TensorList data) {
-          passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
+          if (recordSignalMetrics) {
+            backwardSignal.clear();
+            data.stream().parallel().forEach(t -> {
+              backwardSignal.add(t.getData());
+              if (null != t)
+                t.freeRef();
+            });
+          }
+          backwardPerformance.add((TimedResult.time(RefUtil.wrapInterface(
+              (UncheckedRunnable<Object>) () -> output
+                  .accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef()),
+              data == null ? null : data.addRef(), output == null ? null : output.addRef(),
+              buffer == null ? null : buffer.addRef())).timeNanos - passbackNanos.getAndSet(0)) / (items * 1e9));
+          if (null != data)
+            data.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
+
+        public @SuppressWarnings("unused")
+        void _free() {
         }
       }) {
 
+        {
+        }
+
         @Override
         public boolean isAlive() {
-          return result.isAlive();
+          return output.isAlive();
         }
 
         public void _free() {
         }
       };
-    }).toArray(i -> new Result[i]);
-    @Nonnull
-    TimedResult<Result> timedResult = TimedResult.time(() -> getInner().eval(wrappedInput));
-    final Result output = timedResult.result;
-    forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
-    totalBatches++;
-    final int items = RefArrays.stream(inObj).mapToInt(x -> x.getData().length()).max()
-        .orElse(1);
-    totalItems += items;
-    if (recordSignalMetrics) {
-      forwardSignal.clear();
-      output.getData().stream().parallel().forEach(t -> {
-        forwardSignal.add(t.getData());
-      });
+    } finally {
+      if (null != output)
+        output.freeRef();
     }
-    return new Result(output.getData(), new Result.Accumulator() {
-      @Override
-      public void accept(DeltaSet<UUID> buffer, TensorList data) {
-        if (recordSignalMetrics) {
-          backwardSignal.clear();
-          data.stream().parallel().forEach(t -> {
-            backwardSignal.add(t.getData());
-          });
-        }
-        backwardPerformance
-            .add((TimedResult.time(() -> output.accumulate(buffer, data)).timeNanos - passbackNanos.getAndSet(0))
-                / (items * 1e9));
-      }
-    }) {
-
-      @Override
-      public boolean isAlive() {
-        return output.isAlive();
-      }
-
-      public void _free() {
-      }
-    };
   }
 
   @Nonnull
   @Override
-  public JsonObject getJson(Map<CharSequence, byte[]> resources,
-                            DataSerializer dataSerializer) {
+  public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     //json.fn("forwardPerf",forwardPerf.getJson());
     //json.fn("backwardPerf",backwardPerf.getJson());
@@ -248,16 +330,22 @@ class MonitoringWrapperLayer extends WrapperLayer
   @Nonnull
   @Override
   public Layer setName(final String name) {
-    if (null != getInner()) {
-      getInner().setName(name);
+    Layer temp_31_0011 = getInner();
+    if (null != temp_31_0011) {
+      Layer temp_31_0012 = getInner();
+      RefUtil.freeRef(temp_31_0012.setName(name));
+      if (null != temp_31_0012)
+        temp_31_0012.freeRef();
     }
-    return this;
+    if (null != temp_31_0011)
+      temp_31_0011.freeRef();
+    return this.addRef();
   }
 
   @Nonnull
   public MonitoringWrapperLayer shouldRecordSignalMetrics(final boolean recordSignalMetrics) {
     this.recordSignalMetrics = recordSignalMetrics;
-    return this;
+    return this.addRef();
   }
 
   public @SuppressWarnings("unused")

@@ -25,8 +25,7 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import java.util.Arrays;
 
 public abstract @RefAware
-class TrainableBase extends ReferenceCountingBase
-    implements Trainable {
+class TrainableBase extends ReferenceCountingBase implements Trainable {
 
   public static @SuppressWarnings("unused")
   TrainableBase[] addRefs(TrainableBase[] array) {

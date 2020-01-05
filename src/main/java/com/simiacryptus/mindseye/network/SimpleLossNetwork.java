@@ -37,13 +37,27 @@ class SimpleLossNetwork extends SupervisedNetwork {
 
   public SimpleLossNetwork(@Nonnull final Layer student, @Nonnull final Layer loss) {
     super(2);
-    studentNode = add(student, getInput(0));
-    lossNode = add(loss, studentNode, getInput(1));
+    {
+      DAGNode temp_24_0001 = add(student == null ? null : student.addRef(),
+          getInput(0));
+      studentNode = temp_24_0001 == null ? null : temp_24_0001.addRef();
+      if (null != temp_24_0001)
+        temp_24_0001.freeRef();
+    }
+    student.freeRef();
+    {
+      DAGNode temp_24_0002 = add(loss == null ? null : loss.addRef(),
+          studentNode == null ? null : studentNode.addRef(), getInput(1));
+      lossNode = temp_24_0002 == null ? null : temp_24_0002.addRef();
+      if (null != temp_24_0002)
+        temp_24_0002.freeRef();
+    }
+    loss.freeRef();
   }
 
   @Override
   public DAGNode getHead() {
-    return lossNode;
+    return lossNode == null ? null : lossNode.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -64,6 +78,10 @@ class SimpleLossNetwork extends SupervisedNetwork {
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != studentNode)
+      studentNode.freeRef();
+    if (null != lossNode)
+      lossNode.freeRef();
   }
 
   public @Override

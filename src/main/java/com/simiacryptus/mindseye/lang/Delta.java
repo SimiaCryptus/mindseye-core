@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import org.jetbrains.annotations.NotNull;
 
@@ -112,7 +113,11 @@ class Delta<K> extends DoubleBuffer<K> {
   @Nonnull
   public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
-    addInPlace(buffer.delta).addInPlace(buffer.deltaCompensation);
+    Delta<K> temp_55_0001 = addInPlace(buffer.delta);
+    RefUtil.freeRef(temp_55_0001.addInPlace(buffer.deltaCompensation));
+    if (null != temp_55_0001)
+      temp_55_0001.freeRef();
+    buffer.freeRef();
   }
 
   @Nonnull
@@ -121,7 +126,7 @@ class Delta<K> extends DoubleBuffer<K> {
     //assert Arrays.stream(data).allMatch(Double::isFinite);
     Delta.accumulate(getDelta(), data, deltaCompensation);
     //assert Arrays.stream(read()).allMatch(Double::isFinite);
-    return this;
+    return this.addRef();
   }
 
   @Nonnull

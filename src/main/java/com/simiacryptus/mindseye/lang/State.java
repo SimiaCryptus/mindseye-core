@@ -60,7 +60,7 @@ class State<K> extends DoubleBuffer<K> {
   @Nonnull
   public final synchronized State<K> backup() {
     System.arraycopy(target, 0, getDelta(), 0, target.length);
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
@@ -73,14 +73,13 @@ class State<K> extends DoubleBuffer<K> {
   @Nonnull
   @Override
   public State<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new State(key, target,
-        RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+    return new State(key, target, RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
   @Nonnull
   public final synchronized State<K> restore() {
     System.arraycopy(getDelta(), 0, target, 0, target.length);
-    return this;
+    return this.addRef();
   }
 
   public @SuppressWarnings("unused")

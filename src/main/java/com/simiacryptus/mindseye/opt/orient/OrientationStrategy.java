@@ -29,8 +29,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import java.util.Arrays;
 
 public @RefAware
-interface OrientationStrategy<T extends LineSearchCursor>
-    extends ReferenceCounting {
+interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
 
   public static @SuppressWarnings("unused")
   OrientationStrategy[] addRefs(OrientationStrategy[] array) {

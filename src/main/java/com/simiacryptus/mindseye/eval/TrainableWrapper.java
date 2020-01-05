@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,11 +37,18 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   private final T inner;
 
   public TrainableWrapper(final T inner) {
-    this.inner = inner;
+    {
+      T temp_21_0001 = RefUtil.addRef(inner);
+      this.inner = RefUtil.addRef(temp_21_0001);
+      if (null != temp_21_0001)
+        temp_21_0001.freeRef();
+    }
+    if (null != inner)
+      inner.freeRef();
   }
 
   public T getInner() {
-    return inner;
+    return RefUtil.addRef(inner);
   }
 
   @NotNull
@@ -77,14 +85,18 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
 
   @Override
   public boolean reseed(final long seed) {
-    return getInner().reseed(seed);
+    T temp_21_0003 = getInner();
+    boolean temp_21_0002 = temp_21_0003.reseed(seed);
+    if (null != temp_21_0003)
+      temp_21_0003.freeRef();
+    return temp_21_0002;
   }
 
   @Nonnull
   @Override
   public TrainableDataMask setMask(final boolean... mask) {
-    ((TrainableDataMask) inner).setMask(mask);
-    return this;
+    RefUtil.freeRef(((TrainableDataMask) inner).setMask(mask));
+    return this.addRef();
   }
 
   @Nonnull
@@ -94,6 +106,8 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   }
 
   public void _free() {
+    if (null != inner)
+      inner.freeRef();
     super._free();
   }
 

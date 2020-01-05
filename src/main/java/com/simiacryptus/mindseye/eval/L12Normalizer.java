@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.eval;
 
+import com.simiacryptus.mindseye.lang.Delta;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
@@ -27,6 +28,8 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefCollection;
 import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -39,7 +42,14 @@ class L12Normalizer extends TrainableBase {
   private final boolean hideAdj = false;
 
   public L12Normalizer(final Trainable inner) {
-    this.inner = inner;
+    {
+      Trainable temp_01_0001 = inner == null ? null : inner.addRef();
+      this.inner = temp_01_0001 == null ? null : temp_01_0001.addRef();
+      if (null != temp_01_0001)
+        temp_01_0001.freeRef();
+    }
+    if (null != inner)
+      inner.freeRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -59,14 +69,21 @@ class L12Normalizer extends TrainableBase {
   }
 
   public Layer toLayer(UUID id) {
-    return ((DAGNetwork) inner.getLayer()).getLayersById().get(id);
+    RefMap<UUID, Layer> temp_01_0005 = ((DAGNetwork) inner
+        .getLayer()).getLayersById();
+    Layer temp_01_0004 = temp_01_0005.get(id);
+    if (null != temp_01_0005)
+      temp_01_0005.freeRef();
+    return temp_01_0004;
   }
 
-  public RefCollection<Layer> getLayers(
-      @Nonnull final RefCollection<UUID> layers) {
-    return layers.stream().map(this::toLayer)
+  public RefCollection<Layer> getLayers(@Nonnull final RefCollection<UUID> layers) {
+    RefList<Layer> temp_01_0003 = layers.stream()
+        .map(this::toLayer)
         //.filter(layer -> layer instanceof FullyConnectedLayer)
         .collect(RefCollectors.toList());
+    layers.freeRef();
+    return temp_01_0003;
   }
 
   @Nonnull
@@ -75,11 +92,24 @@ class L12Normalizer extends TrainableBase {
     final PointSample innerMeasure = inner.measure(monitor);
     @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
     double valueAdj = 0;
-    for (@Nonnull final Layer layer : getLayers(innerMeasure.delta.getMap().keySet())) {
-      final double[] weights = innerMeasure.delta.getMap().get(layer.getId()).target;
-      @Nullable final double[] gradientAdj = normalizationVector.get(layer.getId(), weights).getDelta();
-      final double factor_L1 = getL1(layer);
-      final double factor_L2 = getL2(layer);
+    RefMap<UUID, Delta<UUID>> temp_01_0006 = innerMeasure.delta
+        .getMap();
+    for (@Nonnull final Layer layer : getLayers(temp_01_0006.keySet())) {
+      RefMap<UUID, Delta<UUID>> temp_01_0007 = innerMeasure.delta
+          .getMap();
+      Delta<UUID> temp_01_0008 = temp_01_0007.get(layer.getId());
+      final double[] weights = temp_01_0008.target;
+      if (null != temp_01_0008)
+        temp_01_0008.freeRef();
+      if (null != temp_01_0007)
+        temp_01_0007.freeRef();
+      Delta<UUID> temp_01_0009 = normalizationVector.get(layer.getId(),
+          weights);
+      @Nullable final double[] gradientAdj = temp_01_0009.getDelta();
+      if (null != temp_01_0009)
+        temp_01_0009.freeRef();
+      final double factor_L1 = getL1(layer == null ? null : layer.addRef());
+      final double factor_L2 = getL2(layer == null ? null : layer.addRef());
       assert null != gradientAdj;
       for (int i = 0; i < gradientAdj.length; i++) {
         final double sign = weights[i] < 0 ? -1.0 : 1.0;
@@ -87,10 +117,20 @@ class L12Normalizer extends TrainableBase {
         valueAdj += (factor_L1 * sign + factor_L2 * weights[i]) * weights[i];
       }
     }
-    final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector);
-    final PointSample pointSample = new PointSample(deltaSet, innerMeasure.weights,
-        innerMeasure.sum + (hideAdj ? 0 : valueAdj), innerMeasure.rate, innerMeasure.count);
-    return pointSample.normalize();
+    if (null != temp_01_0006)
+      temp_01_0006.freeRef();
+    final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector == null ? null : normalizationVector);
+    final PointSample pointSample = new PointSample(deltaSet == null ? null : deltaSet.addRef(),
+        innerMeasure.weights.addRef(), innerMeasure.sum + (hideAdj ? 0 : valueAdj), innerMeasure.rate,
+        innerMeasure.count);
+    if (null != deltaSet)
+      deltaSet.freeRef();
+    if (null != innerMeasure)
+      innerMeasure.freeRef();
+    PointSample temp_01_0002 = pointSample.normalize();
+    if (null != pointSample)
+      pointSample.freeRef();
+    return temp_01_0002;
   }
 
   @Override
@@ -99,6 +139,8 @@ class L12Normalizer extends TrainableBase {
   }
 
   public void _free() {
+    if (null != inner)
+      inner.freeRef();
   }
 
   public @Override

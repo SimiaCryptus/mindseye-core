@@ -20,12 +20,15 @@
 package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefSet;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -53,22 +56,61 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   }
 
   public void _free() {
-    calculated.entrySet().stream().filter(entry -> {
+    if (null != calculated)
+      calculated.freeRef();
+    if (null != expectedCounts)
+      expectedCounts.freeRef();
+    RefSet<Map.Entry<UUID, Supplier<CountingResult>>> temp_43_0004 = calculated
+        .entrySet();
+    temp_43_0004.stream().filter(entry -> {
       ReferenceCounting o = entry.getValue().get();
-      if (o instanceof RuntimeException)
-        throw (RuntimeException) o;
-      if (o instanceof Throwable)
-        throw new RuntimeException((Throwable) o);
+      if (o instanceof RuntimeException) {
+        if (null != entry)
+          RefUtil.freeRef(entry);
+        RuntimeException temp_43_0002 = (RuntimeException) o;
+        if (null != o)
+          o.freeRef();
+        throw temp_43_0002;
+      }
+      if (o instanceof Throwable) {
+        if (null != entry)
+          RefUtil.freeRef(entry);
+        RuntimeException temp_43_0003 = new RuntimeException((Throwable) o);
+        if (null != o)
+          o.freeRef();
+        throw temp_43_0003;
+      }
       CountingResult countingNNResult = (CountingResult) o;
+      if (null != o)
+        o.freeRef();
       if (expectedCounts.containsKey(entry.getKey())) {
-        return expectedCounts.get(entry.getKey()) > countingNNResult.getAccumulator().getCount();
+        CountingResult.CountingAccumulator temp_43_0005 = countingNNResult
+            .getAccumulator();
+        boolean temp_43_0001 = expectedCounts.get(entry.getKey()) > temp_43_0005.getCount();
+        if (null != temp_43_0005)
+          temp_43_0005.freeRef();
+        if (null != entry)
+          RefUtil.freeRef(entry);
+        if (null != countingNNResult)
+          countingNNResult.freeRef();
+        return temp_43_0001;
       } else {
+        if (null != entry)
+          RefUtil.freeRef(entry);
+        if (null != countingNNResult)
+          countingNNResult.freeRef();
         return true;
       }
     }).forEach(entry -> {
       CountingResult result = entry.getValue().get();
-      result.getData();
+      if (null != entry)
+        RefUtil.freeRef(entry);
+      RefUtil.freeRef(result.getData());
+      if (null != result)
+        result.freeRef();
     });
+    if (null != temp_43_0004)
+      temp_43_0004.freeRef();
     calculated.clear();
   }
 

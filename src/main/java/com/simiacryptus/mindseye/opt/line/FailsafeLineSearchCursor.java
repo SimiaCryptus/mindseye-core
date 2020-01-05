@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -36,8 +37,23 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
 
   public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
                                   final TrainingMonitor monitor) {
-    this.direction = direction;
-    best = previousPoint.copyFull();
+    {
+      LineSearchCursor temp_11_0001 = direction == null ? null : direction.addRef();
+      this.direction = temp_11_0001 == null ? null : temp_11_0001.addRef();
+      if (null != temp_11_0001)
+        temp_11_0001.freeRef();
+    }
+    if (null != direction)
+      direction.freeRef();
+    {
+      PointSample temp_11_0002 = previousPoint.copyFull();
+      if (null != best)
+        best.freeRef();
+      best = temp_11_0002 == null ? null : temp_11_0002.addRef();
+      if (null != temp_11_0002)
+        temp_11_0002.freeRef();
+    }
+    previousPoint.freeRef();
     this.monitor = monitor;
   }
 
@@ -65,14 +81,22 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Override
   public synchronized PointSample afterStep(@Nonnull final PointSample step) {
     super.afterStep(step);
-    direction.afterStep(step);
+    RefUtil.freeRef(direction.afterStep(step == null ? null : step.addRef()));
     if (null == best || best.getMean() > step.getMean()) {
       @Nonnull
       PointSample newValue = step.copyFull();
       if (null != this.best) {
         monitor.log(String.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
       }
-      this.best = newValue;
+      {
+        PointSample temp_11_0003 = newValue == null ? null : newValue.addRef();
+        if (null != this.best)
+          this.best.freeRef();
+        this.best = temp_11_0003 == null ? null : temp_11_0003.addRef();
+        if (null != temp_11_0003)
+          temp_11_0003.freeRef();
+      }
+      newValue.freeRef();
     }
     return step;
   }
@@ -81,7 +105,7 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
     if (null != this.best) {
       best.weights.restore();
     }
-    return best;
+    return best == null ? null : best.addRef();
   }
 
   @Override
@@ -97,14 +121,26 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Override
   public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
     final LineSearchPoint step = direction.step(alpha, monitor);
-    afterStep(step.point);
+    RefUtil.freeRef(afterStep(step.point.addRef()));
     return step;
   }
 
   @Override
   public void _free() {
+    if (null != best)
+      best.freeRef();
+    best = null;
+    if (null != direction)
+      direction.freeRef();
     if (null != this.best) {
-      this.best = null;
+      {
+        PointSample temp_11_0004 = null;
+        if (null != this.best)
+          this.best.freeRef();
+        this.best = temp_11_0004 == null ? null : temp_11_0004.addRef();
+        if (null != temp_11_0004)
+          temp_11_0004.freeRef();
+      }
     }
   }
 

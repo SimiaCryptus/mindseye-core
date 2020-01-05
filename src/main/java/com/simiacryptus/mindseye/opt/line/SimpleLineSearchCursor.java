@@ -24,6 +24,7 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -39,9 +40,30 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
 
   public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin,
                                 final DeltaSet<UUID> direction) {
-    this.origin = origin.copyFull();
-    this.direction = direction;
-    this.subject = subject;
+    {
+      PointSample temp_25_0001 = origin.copyFull();
+      this.origin = temp_25_0001 == null ? null : temp_25_0001.addRef();
+      if (null != temp_25_0001)
+        temp_25_0001.freeRef();
+    }
+    origin.freeRef();
+    {
+      DeltaSet<UUID> temp_25_0002 = direction == null ? null
+          : direction.addRef();
+      this.direction = temp_25_0002 == null ? null : temp_25_0002.addRef();
+      if (null != temp_25_0002)
+        temp_25_0002.freeRef();
+    }
+    if (null != direction)
+      direction.freeRef();
+    {
+      Trainable temp_25_0003 = subject == null ? null : subject.addRef();
+      this.subject = temp_25_0003 == null ? null : temp_25_0003.addRef();
+      if (null != temp_25_0003)
+        temp_25_0003.freeRef();
+    }
+    if (null != subject)
+      subject.freeRef();
   }
 
   @Override
@@ -52,7 +74,7 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
   @Nonnull
   public SimpleLineSearchCursor setDirectionType(final String type) {
     this.type = type;
-    return this;
+    return this.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -79,7 +101,7 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
 
   @Override
   public void reset() {
-    origin.restore();
+    RefUtil.freeRef(origin.restore());
   }
 
   @Override
@@ -90,12 +112,22 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
     if (0.0 != alpha) {
       direction.accumulate(alpha);
     }
-    @Nonnull final PointSample sample = afterStep(subject.measure(monitor).setRate(alpha));
-    final double dot = direction.dot(sample.delta);
-    return new LineSearchPoint(sample, dot);
+    PointSample temp_25_0005 = subject.measure(monitor);
+    @Nonnull final PointSample sample = afterStep(temp_25_0005.setRate(alpha));
+    if (null != temp_25_0005)
+      temp_25_0005.freeRef();
+    final double dot = direction.dot(sample.delta.addRef());
+    LineSearchPoint temp_25_0004 = new LineSearchPoint(
+        sample == null ? null : sample, dot);
+    return temp_25_0004;
   }
 
   public void _free() {
+    if (null != subject)
+      subject.freeRef();
+    origin.freeRef();
+    if (null != direction)
+      direction.freeRef();
   }
 
   public @Override

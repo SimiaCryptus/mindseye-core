@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -28,13 +29,14 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public @RefAware
-class ConstL12Normalizer extends L12Normalizer
-    implements SampledTrainable, TrainableDataMask {
+class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, TrainableDataMask {
   private double factor_L1 = 0.0;
   private double factor_L2 = 0.0;
 
   public ConstL12Normalizer(final Trainable inner) {
     super(inner);
+    if (null != inner)
+      inner.freeRef();
   }
 
   public double getFactor_L1() {
@@ -44,7 +46,7 @@ class ConstL12Normalizer extends L12Normalizer
   @Nonnull
   public ConstL12Normalizer setFactor_L1(final double factor_L1) {
     this.factor_L1 = factor_L1;
-    return this;
+    return this.addRef();
   }
 
   public double getFactor_L2() {
@@ -54,7 +56,7 @@ class ConstL12Normalizer extends L12Normalizer
   @Nonnull
   public ConstL12Normalizer setFactor_L2(final double factor_L2) {
     this.factor_L2 = factor_L2;
-    return this;
+    return this.addRef();
   }
 
   @NotNull
@@ -99,14 +101,14 @@ class ConstL12Normalizer extends L12Normalizer
   @Nonnull
   @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
-    return new SampledCachedTrainable<>(this);
+    return new SampledCachedTrainable<>(this.addRef());
   }
 
   @Nonnull
   @Override
   public TrainableDataMask setMask(final boolean... mask) {
-    ((TrainableDataMask) inner).setMask(mask);
-    return this;
+    RefUtil.freeRef(((TrainableDataMask) inner).setMask(mask));
+    return this.addRef();
   }
 
   public @SuppressWarnings("unused")
@@ -121,17 +123,26 @@ class ConstL12Normalizer extends L12Normalizer
 
   @Override
   protected double getL1(final Layer layer) {
-    if (supress(layer))
+    if (supress(layer == null ? null : layer.addRef())) {
+      if (null != layer)
+        layer.freeRef();
       return 0;
+    }
+    if (null != layer)
+      layer.freeRef();
     return factor_L1;
   }
 
   @Override
   protected double getL2(final Layer layer) {
+    if (null != layer)
+      layer.freeRef();
     return factor_L2;
   }
 
   private boolean supress(final Layer layer) {
+    if (null != layer)
+      layer.freeRef();
     //    if (layer instanceof BiasLayer) return false;
     //    if (layer instanceof ImgBandBiasLayer) return false;
     return false;

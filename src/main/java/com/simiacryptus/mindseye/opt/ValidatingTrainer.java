@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.lang.TimedResult;
+import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.eval.*;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.StochasticComponent;
@@ -31,6 +32,7 @@ import com.simiacryptus.mindseye.opt.line.LineSearchStrategy;
 import com.simiacryptus.mindseye.opt.orient.LBFGS;
 import com.simiacryptus.mindseye.opt.orient.OrientationStrategy;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.FastRandom;
@@ -44,11 +46,13 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 
 public @RefAware
 class ValidatingTrainer extends ReferenceCountingBase {
@@ -81,31 +85,52 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   public ValidatingTrainer(@Nonnull final SampledTrainable trainingSubject,
                            @Nonnull final Trainable validationSubject) {
-    regimen = new RefArrayList<TrainingPhase>(RefArrays
-        .asList(new TrainingPhase(new PerformanceWrapper(trainingSubject, ValidatingTrainer.this))));
-    this.validationSubject = new TrainableBase() {
-      @NotNull
-      @Override
-      public Layer getLayer() {
-        return validationSubject.getLayer();
-      }
+    {
+      RefList<ValidatingTrainer.TrainingPhase> temp_07_0001 = new RefArrayList<TrainingPhase>(
+          RefArrays.asList(new TrainingPhase(new PerformanceWrapper(
+              trainingSubject == null ? null : trainingSubject.addRef(), ValidatingTrainer.this.addRef()))));
+      regimen = temp_07_0001 == null ? null : temp_07_0001.addRef();
+      if (null != temp_07_0001)
+        temp_07_0001.freeRef();
+    }
+    {
+      Trainable temp_07_0002 = new TrainableBase() {
+        {
+          validationSubject.addRef();
+        }
 
-      @Override
-      public PointSample measure(final TrainingMonitor monitor) {
-        @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> validationSubject.measure(monitor));
-        validatingMeasurementTime.addAndGet(time.timeNanos);
-        return time.result;
-      }
+        @NotNull
+        @Override
+        public Layer getLayer() {
+          return validationSubject.getLayer();
+        }
 
-      @Override
-      public boolean reseed(final long seed) {
-        return validationSubject.reseed(seed);
-      }
+        @Override
+        public PointSample measure(final TrainingMonitor monitor) {
+          @Nonnull final TimedResult<PointSample> time = TimedResult.time(RefUtil.wrapInterface(
+              (UncheckedSupplier<PointSample>) () -> validationSubject
+                  .measure(monitor),
+              validationSubject == null ? null : validationSubject.addRef()));
+          validatingMeasurementTime.addAndGet(time.timeNanos);
+          return time.result;
+        }
 
-      public void _free() {
-      }
-    };
+        @Override
+        public boolean reseed(final long seed) {
+          return validationSubject.reseed(seed);
+        }
+
+        public void _free() {
+          validationSubject.freeRef();
+        }
+      };
+      this.validationSubject = temp_07_0002 == null ? null : temp_07_0002.addRef();
+      if (null != temp_07_0002)
+        temp_07_0002.freeRef();
+    }
+    validationSubject.freeRef();
     trainingSize = trainingSubject.getTrainingSize();
+    trainingSubject.freeRef();
     timeout = Duration.of(5, ChronoUnit.MINUTES);
     terminateThreshold = Double.NEGATIVE_INFINITY;
   }
@@ -117,7 +142,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setAdjustmentFactor(final double adjustmentFactor) {
     this.adjustmentFactor = adjustmentFactor;
-    return this;
+    return this.addRef();
   }
 
   public double getAdjustmentTolerance() {
@@ -127,7 +152,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setAdjustmentTolerance(final double adjustmentTolerance) {
     this.adjustmentTolerance = adjustmentTolerance;
-    return this;
+    return this.addRef();
   }
 
   public AtomicInteger getCurrentIteration() {
@@ -137,7 +162,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setCurrentIteration(final AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
-    return this;
+    return this.addRef();
   }
 
   public int getDisappointmentThreshold() {
@@ -155,7 +180,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setEpochIterations(final int epochIterations) {
     this.epochIterations = epochIterations;
-    return this;
+    return this.addRef();
   }
 
   public int getImprovmentStaleThreshold() {
@@ -173,7 +198,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setMaxEpochIterations(final int maxEpochIterations) {
     this.maxEpochIterations = maxEpochIterations;
-    return this;
+    return this.addRef();
   }
 
   public int getMaxIterations() {
@@ -183,7 +208,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setMaxIterations(final int maxIterations) {
     this.maxIterations = maxIterations;
-    return this;
+    return this.addRef();
   }
 
   public int getMaxTrainingSize() {
@@ -193,7 +218,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setMaxTrainingSize(final int maxTrainingSize) {
     this.maxTrainingSize = maxTrainingSize;
-    return this;
+    return this.addRef();
   }
 
   public int getMinEpochIterations() {
@@ -203,7 +228,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setMinEpochIterations(final int minEpochIterations) {
     this.minEpochIterations = minEpochIterations;
-    return this;
+    return this.addRef();
   }
 
   public int getMinTrainingSize() {
@@ -213,7 +238,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setMinTrainingSize(final int minTrainingSize) {
     this.minTrainingSize = minTrainingSize;
-    return this;
+    return this.addRef();
   }
 
   public TrainingMonitor getMonitor() {
@@ -223,7 +248,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setMonitor(final TrainingMonitor monitor) {
     this.monitor = monitor;
-    return this;
+    return this.addRef();
   }
 
   public double getOvertrainingTarget() {
@@ -233,7 +258,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setOvertrainingTarget(final double overtrainingTarget) {
     this.overtrainingTarget = overtrainingTarget;
-    return this;
+    return this.addRef();
   }
 
   public double getPessimism() {
@@ -243,12 +268,12 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setPessimism(final double pessimism) {
     this.pessimism = pessimism;
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
   public RefList<TrainingPhase> getRegimen() {
-    return regimen;
+    return regimen == null ? null : regimen.addRef();
   }
 
   public double getTerminateThreshold() {
@@ -258,7 +283,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setTerminateThreshold(final double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
-    return this;
+    return this.addRef();
   }
 
   public Duration getTimeout() {
@@ -268,7 +293,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setTimeout(final Duration timeout) {
     this.timeout = timeout;
-    return this;
+    return this.addRef();
   }
 
   public int getTrainingSize() {
@@ -278,7 +303,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setTrainingSize(final int trainingSize) {
     this.trainingSize = trainingSize;
-    return this;
+    return this.addRef();
   }
 
   public double getTrainingTarget() {
@@ -288,26 +313,41 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setTrainingTarget(final double trainingTarget) {
     this.trainingTarget = trainingTarget;
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
   public Trainable getValidationSubject() {
-    return validationSubject;
+    return validationSubject == null ? null : validationSubject.addRef();
   }
 
   @Nonnull
   @Deprecated
   public ValidatingTrainer setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
-    getRegimen().get(0).setLineSearchFactory(lineSearchFactory);
-    return this;
+    RefList<ValidatingTrainer.TrainingPhase> temp_07_0024 = getRegimen();
+    ValidatingTrainer.TrainingPhase temp_07_0025 = temp_07_0024.get(0);
+    RefUtil.freeRef(temp_07_0025.setLineSearchFactory(lineSearchFactory));
+    if (null != temp_07_0025)
+      temp_07_0025.freeRef();
+    if (null != temp_07_0024)
+      temp_07_0024.freeRef();
+    return this.addRef();
   }
 
   @Nonnull
   @Deprecated
   public ValidatingTrainer setOrientation(final OrientationStrategy<?> orientation) {
-    getRegimen().get(0).setOrientation(orientation);
-    return this;
+    RefList<ValidatingTrainer.TrainingPhase> temp_07_0026 = getRegimen();
+    ValidatingTrainer.TrainingPhase temp_07_0027 = temp_07_0026.get(0);
+    RefUtil
+        .freeRef(temp_07_0027.setOrientation(orientation == null ? null : orientation.addRef()));
+    if (null != temp_07_0027)
+      temp_07_0027.freeRef();
+    if (null != temp_07_0026)
+      temp_07_0026.freeRef();
+    if (null != orientation)
+      orientation.freeRef();
+    return this.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -328,7 +368,9 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   @Nonnull
   private static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
-    return x.key.toString();
+    String temp_07_0023 = x.key.toString();
+    x.freeRef();
+    return temp_07_0023;
   }
 
   public double run() {
@@ -338,6 +380,8 @@ class ValidatingTrainer extends ReferenceCountingBase {
         ((DAGNetwork) validationSubject.getLayer()).visitLayers(layer -> {
           if (layer instanceof StochasticComponent)
             ((StochasticComponent) layer).clearNoise();
+          if (null != layer)
+            layer.freeRef();
         });
       }
       @Nonnull final EpochParams epochParams = new EpochParams(timeoutAt, epochIterations, getTrainingSize(),
@@ -354,18 +398,33 @@ class ValidatingTrainer extends ReferenceCountingBase {
         monitor.log(String.format("Epoch parameters: %s, %s", epochParams.trainingSize, epochParams.iterations));
         @Nonnull final RefList<TrainingPhase> regimen = getRegimen();
         final long seed = System.nanoTime();
-        final RefList<EpochResult> epochResults = RefIntStream
-            .range(0, regimen.size()).mapToObj(i -> {
-              final TrainingPhase phase = getRegimen().get(i);
-              return runPhase(epochParams, phase, i, seed);
-            }).collect(RefCollectors.toList());
+        final RefList<EpochResult> epochResults = RefIntStream.range(0, regimen.size())
+            .mapToObj(RefUtil.wrapInterface(
+                (IntFunction<? extends ValidatingTrainer.EpochResult>) i -> {
+                  RefList<ValidatingTrainer.TrainingPhase> temp_07_0028 = getRegimen();
+                  final TrainingPhase phase = temp_07_0028.get(i);
+                  if (null != temp_07_0028)
+                    temp_07_0028.freeRef();
+                  ValidatingTrainer.EpochResult temp_07_0012 = runPhase(
+                      epochParams == null ? null : epochParams.addRef(), phase == null ? null : phase.addRef(), i,
+                      seed);
+                  if (null != phase)
+                    phase.freeRef();
+                  return temp_07_0012;
+                }, epochParams == null ? null : epochParams.addRef()))
+            .collect(RefCollectors.toList());
+        regimen.freeRef();
         final EpochResult primaryPhase = epochResults.get(0);
+        if (null != epochResults)
+          epochResults.freeRef();
         iterationNumber += primaryPhase.iterations;
         final double trainingDelta = primaryPhase.currentPoint.getMean() / primaryPhase.priorMean;
         if (validationSubject.getLayer() instanceof DAGNetwork) {
           ((DAGNetwork) validationSubject.getLayer()).visitLayers(layer -> {
             if (layer instanceof StochasticComponent)
               ((StochasticComponent) layer).clearNoise();
+            if (null != layer)
+              layer.freeRef();
           });
         }
         final PointSample currentValidation = validationSubject.measure(monitor);
@@ -425,15 +484,23 @@ class ValidatingTrainer extends ReferenceCountingBase {
                   epochParams.trainingSize));
           epochParams.iterations = 1;
         }
-        epochParams.validation = currentValidation;
+        if (null != primaryPhase)
+          primaryPhase.freeRef();
+        epochParams.validation = currentValidation == null ? null : currentValidation.addRef();
+        if (null != currentValidation)
+          currentValidation.freeRef();
       }
       if (validationSubject.getLayer() instanceof DAGNetwork) {
         ((DAGNetwork) validationSubject.getLayer()).visitLayers(layer -> {
           if (layer instanceof StochasticComponent)
             ((StochasticComponent) layer).clearNoise();
+          if (null != layer)
+            layer.freeRef();
         });
       }
-      return epochParams.validation.getMean();
+      double temp_07_0011 = epochParams.validation.getMean();
+      epochParams.freeRef();
+      return temp_07_0011;
     } catch (@Nonnull final Throwable e) {
       throw new RuntimeException(e);
     }
@@ -442,7 +509,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   public ValidatingTrainer setTimeout(final int number, @Nonnull final TemporalUnit units) {
     timeout = Duration.of(number, units);
-    return this;
+    return this.addRef();
   }
 
   @Nonnull
@@ -452,6 +519,8 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    validationSubject.freeRef();
+    regimen.freeRef();
   }
 
   public @Override
@@ -466,18 +535,32 @@ class ValidatingTrainer extends ReferenceCountingBase {
     monitor.log(String.format("Phase %d: %s", i, phase));
     phase.trainingSubject.setTrainingSize(epochParams.trainingSize);
     monitor.log(String.format("resetAndMeasure; trainingSize=%s", epochParams.trainingSize));
-    PointSample currentPoint = reset(phase, seed).measure(phase);
+    ValidatingTrainer temp_07_0029 = reset(phase == null ? null : phase.addRef(), seed);
+    PointSample currentPoint = temp_07_0029.measure(phase == null ? null : phase.addRef());
+    if (null != temp_07_0029)
+      temp_07_0029.freeRef();
     final double pointMean = currentPoint.getMean();
-    assert 0 < currentPoint.delta.getMap().size() : "Nothing to optimize";
+    RefMap<UUID, Delta<UUID>> temp_07_0030 = currentPoint.delta
+        .getMap();
+    assert 0 < temp_07_0030.size() : "Nothing to optimize";
+    if (null != temp_07_0030)
+      temp_07_0030.freeRef();
     int step = 1;
     for (; step <= epochParams.iterations || epochParams.iterations <= 0; step++) {
       if (shouldHalt(monitor, epochParams.timeoutMs)) {
-        return new EpochResult(false, pointMean, currentPoint, step);
+        ValidatingTrainer.EpochResult temp_07_0014 = new EpochResult(false, pointMean,
+            currentPoint == null ? null : currentPoint.addRef(), step);
+        if (null != currentPoint)
+          currentPoint.freeRef();
+        epochParams.freeRef();
+        phase.freeRef();
+        return temp_07_0014;
       }
       final long startTime = System.nanoTime();
       final long prevGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
-      @Nonnull final StepResult epoch = runStep(currentPoint, phase);
+      @Nonnull final StepResult epoch = runStep(currentPoint == null ? null : currentPoint.addRef(),
+          phase == null ? null : phase.addRef());
       final long newGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
       final long endTime = System.nanoTime();
@@ -489,22 +572,39 @@ class ValidatingTrainer extends ReferenceCountingBase {
       if (epoch.previous.getMean() <= epoch.currentPoint.getMean()) {
         monitor.log(String.format("Iteration %s failed, aborting. Error: %s (%s)", currentIteration.get(),
             epoch.currentPoint.getMean(), performance));
-        return new EpochResult(false, pointMean, currentPoint, step);
+        ValidatingTrainer.EpochResult temp_07_0015 = new EpochResult(false, pointMean,
+            currentPoint == null ? null : currentPoint.addRef(), step);
+        if (null != currentPoint)
+          currentPoint.freeRef();
+        epoch.freeRef();
+        epochParams.freeRef();
+        phase.freeRef();
+        return temp_07_0015;
       } else {
         monitor.log(String.format("Iteration %s complete. Error: %s (%s)", currentIteration.get(),
             epoch.currentPoint.getMean(), performance));
       }
-      monitor.onStepComplete(new Step(currentPoint, currentIteration.get()));
+      epoch.freeRef();
+      monitor.onStepComplete(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()));
     }
-    return new EpochResult(true, pointMean, currentPoint, step);
+    phase.freeRef();
+    epochParams.freeRef();
+    ValidatingTrainer.EpochResult temp_07_0013 = new EpochResult(true, pointMean,
+        currentPoint == null ? null : currentPoint.addRef(), step);
+    if (null != currentPoint)
+      currentPoint.freeRef();
+    return temp_07_0013;
   }
 
   @Nonnull
   protected StepResult runStep(@Nonnull final PointSample previousPoint, @Nonnull final TrainingPhase phase) {
     currentIteration.incrementAndGet();
     @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult
-        .time(() -> phase.orientation.orient(phase.trainingSubject, previousPoint, monitor));
-    final LineSearchCursor direction = timedOrientation.result;
+        .time(RefUtil.wrapInterface(
+            (UncheckedSupplier<LineSearchCursor>) () -> phase.orientation
+                .orient(phase.trainingSubject.addRef(), previousPoint == null ? null : previousPoint.addRef(), monitor),
+            previousPoint == null ? null : previousPoint.addRef(), phase == null ? null : phase.addRef()));
+    final LineSearchCursor direction = timedOrientation.result.addRef();
     final CharSequence directionType = direction.getDirectionType();
     LineSearchStrategy lineSearchStrategy;
     if (phase.lineSearchStrategyMap.containsKey(directionType)) {
@@ -514,19 +614,41 @@ class ValidatingTrainer extends ReferenceCountingBase {
       lineSearchStrategy = phase.lineSearchFactory.apply(direction.getDirectionType());
       phase.lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult.time(() -> {
-      @Nonnull final FailsafeLineSearchCursor cursor = new FailsafeLineSearchCursor(direction, previousPoint, monitor);
-      lineSearchStrategy.step(cursor, monitor);
-      //cursor.step(restore.rate, monitor);
-      return cursor.getBest(monitor).restore();
-    });
-    final PointSample bestPoint = timedLineSearch.result;
+    phase.freeRef();
+    @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult.time(RefUtil
+        .wrapInterface((UncheckedSupplier<PointSample>) () -> {
+          @Nonnull final FailsafeLineSearchCursor cursor = new FailsafeLineSearchCursor(
+              direction == null ? null : direction.addRef(), previousPoint == null ? null : previousPoint.addRef(),
+              monitor);
+          RefUtil
+              .freeRef(lineSearchStrategy.step(cursor == null ? null : cursor.addRef(), monitor));
+          PointSample temp_07_0031 = cursor.getBest(monitor);
+          PointSample temp_07_0016 = temp_07_0031.restore();
+          if (null != temp_07_0031)
+            temp_07_0031.freeRef();
+          cursor.freeRef();
+          //cursor.step(restore.rate, monitor);
+          return temp_07_0016;
+        }, previousPoint == null ? null : previousPoint.addRef(), direction == null ? null : direction.addRef()));
+    if (null != direction)
+      direction.freeRef();
+    final PointSample bestPoint = timedLineSearch.result.addRef();
     if (bestPoint.getMean() > previousPoint.getMean()) {
-      throw new IllegalStateException(bestPoint.getMean() + " > " + previousPoint.getMean());
+      IllegalStateException temp_07_0018 = new IllegalStateException(
+          bestPoint.getMean() + " > " + previousPoint.getMean());
+      if (null != bestPoint)
+        bestPoint.freeRef();
+      previousPoint.freeRef();
+      throw temp_07_0018;
     }
-    monitor.log(compare(previousPoint, bestPoint));
-    return new StepResult(previousPoint, bestPoint,
+    monitor.log(
+        compare(previousPoint == null ? null : previousPoint.addRef(), bestPoint == null ? null : bestPoint.addRef()));
+    ValidatingTrainer.StepResult temp_07_0017 = new StepResult(
+        previousPoint == null ? null : previousPoint, bestPoint == null ? null : bestPoint.addRef(),
         new double[]{timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9});
+    if (null != bestPoint)
+      bestPoint.freeRef();
+    return temp_07_0017;
   }
 
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
@@ -543,48 +665,105 @@ class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   private String compare(@Nonnull final PointSample previousPoint, @Nonnull final PointSample nextPoint) {
-    @Nonnull final StateSet<UUID> nextWeights = nextPoint.weights;
-    @Nonnull final StateSet<UUID> prevWeights = previousPoint.weights;
-    return String.format("Overall network state change: %s",
-        prevWeights.stream()
-            .collect(RefCollectors.groupingBy(x -> x,
-                RefCollectors.toList()))
-            .entrySet().stream().collect(RefCollectors.toMap(x -> x.getKey(), list -> {
-          final RefList<Double> doubleList = list.getValue().stream()
-              .map(prevWeight -> {
-                final DoubleBuffer<UUID> dirDelta = nextWeights.getMap().get(prevWeight.key);
-                final double numerator = prevWeight.deltaStatistics().rms();
-                final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
-                return numerator / (0 == denominator ? 1 : denominator);
-              }).collect(RefCollectors.toList());
-          if (1 == doubleList.size())
-            return Double.toString(doubleList.get(0));
-          return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
-        })));
+    @Nonnull final StateSet<UUID> nextWeights = nextPoint.weights.addRef();
+    nextPoint.freeRef();
+    @Nonnull final StateSet<UUID> prevWeights = previousPoint.weights.addRef();
+    previousPoint.freeRef();
+    RefMap<State<UUID>, RefList<State<UUID>>> temp_07_0032 = prevWeights
+        .stream().collect(RefCollectors.groupingBy(x -> {
+          return x;
+        }, RefCollectors.toList()));
+    RefSet<Map.Entry<State<UUID>, RefList<State<UUID>>>> temp_07_0033 = temp_07_0032
+        .entrySet();
+    RefMap<State<UUID>, String> temp_07_0036 = temp_07_0033
+        .stream().collect(RefCollectors.toMap(x -> {
+          State<UUID> temp_07_0020 = x.getKey();
+          if (null != x)
+            RefUtil.freeRef(x);
+          return temp_07_0020;
+        }, RefUtil.wrapInterface(
+            (Function<? super Map.Entry<State<UUID>, RefList<State<UUID>>>, ? extends String>) list -> {
+              RefList<State<UUID>> temp_07_0034 = list
+                  .getValue();
+              final RefList<Double> doubleList = temp_07_0034.stream()
+                  .map(RefUtil.wrapInterface(
+                      (Function<? super State<UUID>, ? extends Double>) prevWeight -> {
+                        RefMap<UUID, State<UUID>> temp_07_0035 = nextWeights
+                            .getMap();
+                        final DoubleBuffer<UUID> dirDelta = temp_07_0035.get(prevWeight.key);
+                        if (null != temp_07_0035)
+                          temp_07_0035.freeRef();
+                        final double numerator = prevWeight.deltaStatistics().rms();
+                        if (null != prevWeight)
+                          prevWeight.freeRef();
+                        final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
+                        if (null != dirDelta)
+                          dirDelta.freeRef();
+                        return numerator / (0 == denominator ? 1 : denominator);
+                      }, nextWeights == null ? null : nextWeights.addRef()))
+                  .collect(RefCollectors.toList());
+              if (null != temp_07_0034)
+                temp_07_0034.freeRef();
+              if (null != list)
+                RefUtil.freeRef(list);
+              if (1 == doubleList.size()) {
+                String temp_07_0022 = Double.toString(doubleList.get(0));
+                if (null != doubleList)
+                  doubleList.freeRef();
+                return temp_07_0022;
+              }
+              String temp_07_0021 = new DoubleStatistics()
+                  .accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
+              if (null != doubleList)
+                doubleList.freeRef();
+              return temp_07_0021;
+            }, nextWeights == null ? null : nextWeights)));
+    String temp_07_0019 = String.format("Overall network state change: %s", temp_07_0036);
+    if (null != temp_07_0036)
+      temp_07_0036.freeRef();
+    if (null != temp_07_0033)
+      temp_07_0033.freeRef();
+    if (null != temp_07_0032)
+      temp_07_0032.freeRef();
+    prevWeights.freeRef();
+    return temp_07_0019;
   }
 
   private PointSample measure(@Nonnull final TrainingPhase phase) {
     int retries = 0;
-    do {
-      if (10 < retries++)
-        throw new IterativeStopException();
-      final PointSample currentPoint = phase.trainingSubject.measure(monitor);
-      if (Double.isFinite(currentPoint.getMean()))
-        return currentPoint;
-      phase.orientation.reset();
-    } while (true);
+    try {
+      do {
+        if (10 < retries++) {
+          phase.freeRef();
+          throw new IterativeStopException();
+        }
+        final PointSample currentPoint = phase.trainingSubject.measure(monitor);
+        if (Double.isFinite(currentPoint.getMean())) {
+          phase.freeRef();
+          return currentPoint;
+        }
+        if (null != currentPoint)
+          currentPoint.freeRef();
+        phase.orientation.reset();
+      } while (true);
+    } finally {
+      phase.freeRef();
+    }
   }
 
   @Nonnull
   private ValidatingTrainer reset(@Nonnull final TrainingPhase phase, final long seed) {
-    if (!phase.trainingSubject.reseed(seed))
+    if (!phase.trainingSubject.reseed(seed)) {
+      phase.freeRef();
       throw new IterativeStopException();
+    }
     phase.orientation.reset();
     phase.trainingSubject.reseed(seed);
     if (phase.trainingSubject.getLayer() instanceof DAGNetwork) {
       ((DAGNetwork) phase.trainingSubject.getLayer()).shuffle(StochasticComponent.random.get().nextLong());
     }
-    return this;
+    phase.freeRef();
+    return this.addRef();
   }
 
   public static @RefAware
@@ -595,7 +774,9 @@ class ValidatingTrainer extends ReferenceCountingBase {
     private SampledTrainable trainingSubject;
 
     public TrainingPhase(final SampledTrainable trainingSubject) {
-      setTrainingSubject(trainingSubject);
+      setTrainingSubject(trainingSubject == null ? null : trainingSubject.addRef());
+      if (null != trainingSubject)
+        trainingSubject.freeRef();
     }
 
     public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
@@ -605,37 +786,68 @@ class ValidatingTrainer extends ReferenceCountingBase {
     @Nonnull
     public TrainingPhase setLineSearchFactory(final Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
       this.lineSearchFactory = lineSearchFactory;
-      return this;
+      return this.addRef();
     }
 
     public RefMap<CharSequence, LineSearchStrategy> getLineSearchStrategyMap() {
-      return lineSearchStrategyMap;
+      return lineSearchStrategyMap == null ? null : lineSearchStrategyMap.addRef();
     }
 
     @Nonnull
     public TrainingPhase setLineSearchStrategyMap(
         final RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap) {
-      this.lineSearchStrategyMap = lineSearchStrategyMap;
-      return this;
+      {
+        RefMap<CharSequence, LineSearchStrategy> temp_07_0003 = lineSearchStrategyMap == null
+            ? null
+            : lineSearchStrategyMap.addRef();
+        if (null != this.lineSearchStrategyMap)
+          this.lineSearchStrategyMap.freeRef();
+        this.lineSearchStrategyMap = temp_07_0003 == null ? null : temp_07_0003.addRef();
+        if (null != temp_07_0003)
+          temp_07_0003.freeRef();
+      }
+      if (null != lineSearchStrategyMap)
+        lineSearchStrategyMap.freeRef();
+      return this.addRef();
     }
 
     public OrientationStrategy<?> getOrientation() {
-      return orientation;
+      return orientation == null ? null : orientation.addRef();
     }
 
     @Nonnull
     public TrainingPhase setOrientation(final OrientationStrategy<?> orientation) {
-      this.orientation = orientation;
-      return this;
+      {
+        OrientationStrategy<?> temp_07_0004 = orientation == null ? null
+            : orientation.addRef();
+        if (null != this.orientation)
+          this.orientation.freeRef();
+        this.orientation = temp_07_0004 == null ? null : temp_07_0004.addRef();
+        if (null != temp_07_0004)
+          temp_07_0004.freeRef();
+      }
+      if (null != orientation)
+        orientation.freeRef();
+      return this.addRef();
     }
 
     public SampledTrainable getTrainingSubject() {
-      return trainingSubject;
+      return trainingSubject == null ? null : trainingSubject.addRef();
     }
 
     @Nonnull
     public void setTrainingSubject(final SampledTrainable trainingSubject) {
-      this.trainingSubject = trainingSubject;
+      {
+        SampledTrainable temp_07_0005 = trainingSubject == null ? null
+            : trainingSubject.addRef();
+        if (null != this.trainingSubject)
+          this.trainingSubject.freeRef();
+        this.trainingSubject = temp_07_0005 == null ? null : temp_07_0005.addRef();
+        if (null != temp_07_0005)
+          temp_07_0005.freeRef();
+      }
+      if (null != trainingSubject)
+        trainingSubject.freeRef();
     }
 
     public static @SuppressWarnings("unused")
@@ -654,6 +866,15 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      if (null != trainingSubject)
+        trainingSubject.freeRef();
+      trainingSubject = null;
+      if (null != orientation)
+        orientation.freeRef();
+      orientation = null;
+      if (null != lineSearchStrategyMap)
+        lineSearchStrategyMap.freeRef();
+      lineSearchStrategyMap = null;
     }
 
     public @Override
@@ -675,7 +896,16 @@ class ValidatingTrainer extends ReferenceCountingBase {
       this.timeoutMs = timeoutMs;
       this.iterations = iterations;
       this.trainingSize = trainingSize;
-      this.validation = validation;
+      {
+        PointSample temp_07_0006 = validation == null ? null : validation.addRef();
+        if (null != this.validation)
+          this.validation.freeRef();
+        this.validation = temp_07_0006 == null ? null : temp_07_0006.addRef();
+        if (null != temp_07_0006)
+          temp_07_0006.freeRef();
+      }
+      if (null != validation)
+        validation.freeRef();
     }
 
     public static @SuppressWarnings("unused")
@@ -688,6 +918,9 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      if (null != validation)
+        validation.freeRef();
+      validation = null;
     }
 
     public @Override
@@ -709,7 +942,14 @@ class ValidatingTrainer extends ReferenceCountingBase {
     public EpochResult(final boolean continueTraining, final double priorMean, final PointSample currentPoint,
                        final int iterations) {
       this.priorMean = priorMean;
-      this.currentPoint = currentPoint;
+      {
+        PointSample temp_07_0007 = currentPoint == null ? null : currentPoint.addRef();
+        this.currentPoint = temp_07_0007 == null ? null : temp_07_0007.addRef();
+        if (null != temp_07_0007)
+          temp_07_0007.freeRef();
+      }
+      if (null != currentPoint)
+        currentPoint.freeRef();
       this.continueTraining = continueTraining;
       this.iterations = iterations;
     }
@@ -724,6 +964,8 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      if (null != currentPoint)
+        currentPoint.freeRef();
     }
 
     public @Override
@@ -742,18 +984,34 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
     public PerformanceWrapper(final SampledTrainable trainingSubject, ValidatingTrainer parent) {
       super(trainingSubject);
-      this.parent = parent;
+      if (null != trainingSubject)
+        trainingSubject.freeRef();
+      {
+        ValidatingTrainer temp_07_0008 = parent == null ? null : parent.addRef();
+        this.parent = temp_07_0008 == null ? null : temp_07_0008.addRef();
+        if (null != temp_07_0008)
+          temp_07_0008.freeRef();
+      }
+      if (null != parent)
+        parent.freeRef();
     }
 
     @Override
     public int getTrainingSize() {
-      return getInner().getTrainingSize();
+      SampledTrainable temp_07_0038 = getInner();
+      int temp_07_0037 = temp_07_0038.getTrainingSize();
+      if (null != temp_07_0038)
+        temp_07_0038.freeRef();
+      return temp_07_0037;
     }
 
     @Nonnull
     @Override
     public void setTrainingSize(final int trainingSize) {
-      getInner().setTrainingSize(trainingSize);
+      SampledTrainable temp_07_0039 = getInner();
+      temp_07_0039.setTrainingSize(trainingSize);
+      if (null != temp_07_0039)
+        temp_07_0039.freeRef();
     }
 
     public static @SuppressWarnings("unused")
@@ -767,18 +1025,22 @@ class ValidatingTrainer extends ReferenceCountingBase {
     @Nonnull
     @Override
     public SampledCachedTrainable<? extends SampledTrainable> cached() {
-      return new SampledCachedTrainable<>(this);
+      return new SampledCachedTrainable<>(this.addRef());
     }
 
     @Override
     public PointSample measure(final TrainingMonitor monitor) {
-      @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> getInner().measure(monitor));
+      @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> {
+        return getInner().measure(monitor);
+      });
       parent.trainingMeasurementTime.addAndGet(time.timeNanos);
       return time.result;
     }
 
     public @SuppressWarnings("unused")
     void _free() {
+      if (null != parent)
+        parent.freeRef();
     }
 
     public @Override
@@ -796,8 +1058,22 @@ class ValidatingTrainer extends ReferenceCountingBase {
     final PointSample previous;
 
     public StepResult(final PointSample previous, final PointSample currentPoint, final double[] performance) {
-      this.currentPoint = currentPoint;
-      this.previous = previous;
+      {
+        PointSample temp_07_0009 = currentPoint == null ? null : currentPoint.addRef();
+        this.currentPoint = temp_07_0009 == null ? null : temp_07_0009.addRef();
+        if (null != temp_07_0009)
+          temp_07_0009.freeRef();
+      }
+      if (null != currentPoint)
+        currentPoint.freeRef();
+      {
+        PointSample temp_07_0010 = previous == null ? null : previous.addRef();
+        this.previous = temp_07_0010 == null ? null : temp_07_0010.addRef();
+        if (null != temp_07_0010)
+          temp_07_0010.freeRef();
+      }
+      if (null != previous)
+        previous.freeRef();
       this.performance = performance;
     }
 
@@ -811,6 +1087,10 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      if (null != previous)
+        previous.freeRef();
+      if (null != currentPoint)
+        currentPoint.freeRef();
     }
 
     public @Override

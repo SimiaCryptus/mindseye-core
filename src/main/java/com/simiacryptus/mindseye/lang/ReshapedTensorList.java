@@ -28,17 +28,26 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 
 public @RefAware
-class ReshapedTensorList extends ReferenceCountingBase
-    implements TensorList {
+class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
   @Nonnull
   private final TensorList inner;
   private final int[] dims;
 
   public ReshapedTensorList(@Nonnull TensorList inner, int[] toDim) {
-    if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim))
-      throw new IllegalArgumentException(RefArrays.toString(inner.getDimensions())
-          + " != " + RefArrays.toString(toDim));
-    this.inner = inner;
+    if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim)) {
+      IllegalArgumentException temp_28_0004 = new IllegalArgumentException(
+          RefArrays.toString(inner.getDimensions()) + " != " + RefArrays.toString(toDim));
+      if (null != inner)
+        inner.freeRef();
+      throw temp_28_0004;
+    }
+    {
+      TensorList temp_28_0001 = inner == null ? null : inner.addRef();
+      this.inner = temp_28_0001 == null ? null : temp_28_0001.addRef();
+      if (null != temp_28_0001)
+        temp_28_0001.freeRef();
+    }
+    inner.freeRef();
     this.dims = toDim;
   }
 
@@ -50,7 +59,7 @@ class ReshapedTensorList extends ReferenceCountingBase
 
   @Nonnull
   public TensorList getInner() {
-    return inner;
+    return inner == null ? null : inner.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -75,7 +84,9 @@ class ReshapedTensorList extends ReferenceCountingBase
     assertAlive();
     @Nonnull
     Tensor tensor = inner.get(i);
-    return tensor.reshapeCast(dims);
+    Tensor temp_28_0002 = tensor.reshapeCast(dims);
+    tensor.freeRef();
+    return temp_28_0002;
   }
 
   @Override
@@ -86,11 +97,15 @@ class ReshapedTensorList extends ReferenceCountingBase
   @Override
   public RefStream<Tensor> stream() {
     return inner.stream().map(t -> {
-      return t.reshapeCast(dims);
+      Tensor temp_28_0003 = t.reshapeCast(dims);
+      if (null != t)
+        t.freeRef();
+      return temp_28_0003;
     });
   }
 
   public void _free() {
+    inner.freeRef();
   }
 
   public @Override

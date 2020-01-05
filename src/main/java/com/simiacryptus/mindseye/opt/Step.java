@@ -32,7 +32,14 @@ class Step extends ReferenceCountingBase {
   public final long time = System.currentTimeMillis();
 
   Step(final PointSample point, final long iteration) {
-    this.point = point;
+    {
+      PointSample temp_22_0001 = point == null ? null : point.addRef();
+      this.point = temp_22_0001 == null ? null : temp_22_0001.addRef();
+      if (null != temp_22_0001)
+        temp_22_0001.freeRef();
+    }
+    if (null != point)
+      point.freeRef();
     this.iteration = iteration;
   }
 
@@ -52,6 +59,8 @@ class Step extends ReferenceCountingBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != point)
+      point.freeRef();
   }
 
   public @Override

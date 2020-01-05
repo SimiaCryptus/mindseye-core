@@ -237,7 +237,10 @@ public enum SerialPrecision implements DataSerializer {
   }
 
   public String base64(Tensor value) {
-    return Base64.getEncoder().encodeToString(toBytes(value.getData()));
+    String temp_48_0001 = Base64.getEncoder().encodeToString(toBytes(value.getData()));
+    if (null != value)
+      value.freeRef();
+    return temp_48_0001;
   }
 
   @Nonnull

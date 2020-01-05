@@ -24,6 +24,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefCollection;
 import com.simiacryptus.ref.wrappers.RefCollectors;
@@ -104,8 +105,10 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
       }
       @Nonnull
       Layer invoke = (Layer) method.invoke(null, json, rs);
-      if (null == invoke)
+      if (null == invoke) {
+        invoke.freeRef();
         throw new IllegalStateException();
+      }
       return invoke;
     } catch (@Nonnull IllegalAccessException | InvocationTargetException | NoSuchMethodException
         | ClassNotFoundException e) {
@@ -129,42 +132,88 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
 
   default int[] evalDims(int[] inputDims) {
     Tensor input = new Tensor(inputDims);
-    Tensor tensor = eval(input).getData().get(0);
-    return tensor.getDimensions();
+    Result temp_34_0013 = eval(input == null ? null : input.addRef());
+    TensorList temp_34_0014 = temp_34_0013.getData();
+    Tensor tensor = temp_34_0014.get(0);
+    if (null != temp_34_0014)
+      temp_34_0014.freeRef();
+    if (null != temp_34_0013)
+      temp_34_0013.freeRef();
+    if (null != input)
+      input.freeRef();
+    int[] temp_34_0001 = tensor.getDimensions();
+    if (null != tensor)
+      tensor.freeRef();
+    return temp_34_0001;
   }
 
   @NotNull
-  default RefList<Tensor> map(
-      RefCollection<? extends Tensor> values) {
-    return values.stream().map(t -> {
-      return eval(t).getData().get(0);
-    }).collect(RefCollectors.toList());
+  default RefList<Tensor> map(RefCollection<? extends Tensor> values) {
+    RefList<Tensor> temp_34_0006 = values.stream()
+        .map(t -> {
+          Result temp_34_0015 = eval(RefUtil.addRef(t));
+          TensorList temp_34_0016 = temp_34_0015.getData();
+          Tensor temp_34_0002 = temp_34_0016.get(0);
+          if (null != temp_34_0016)
+            temp_34_0016.freeRef();
+          if (null != temp_34_0015)
+            temp_34_0015.freeRef();
+          if (null != t)
+            t.freeRef();
+          return temp_34_0002;
+        }).collect(RefCollectors.toList());
+    if (null != values)
+      values.freeRef();
+    return temp_34_0006;
   }
 
   @NotNull
-  default RefStream<Tensor> map(
-      RefStream<? extends Tensor> values) {
+  default RefStream<Tensor> map(RefStream<? extends Tensor> values) {
     return values.map(t -> {
-      return eval(t).getData().get(0);
+      Result temp_34_0017 = eval(RefUtil.addRef(t));
+      TensorList temp_34_0018 = temp_34_0017.getData();
+      Tensor temp_34_0003 = temp_34_0018.get(0);
+      if (null != temp_34_0018)
+        temp_34_0018.freeRef();
+      if (null != temp_34_0017)
+        temp_34_0017.freeRef();
+      if (null != t)
+        t.freeRef();
+      return temp_34_0003;
     });
   }
 
   default PipelineNetwork andThen(Layer append) {
-    return PipelineNetwork.build(1, this, append);
+    PipelineNetwork temp_34_0007 = PipelineNetwork.build(1, this.addRef(),
+        append == null ? null : append.addRef());
+    if (null != append)
+      append.freeRef();
+    return temp_34_0007;
   }
 
   default PipelineNetwork freeAndThen(Layer append) {
-    return andThen(append);
+    PipelineNetwork temp_34_0008 = andThen(append == null ? null : append.addRef());
+    if (null != append)
+      append.freeRef();
+    return temp_34_0008;
   }
 
   default PipelineNetwork andThenWrap(Layer append) {
     assert append.assertAlive();
     assert assertAlive();
-    return PipelineNetwork.build(1, this, append);
+    PipelineNetwork temp_34_0009 = PipelineNetwork.build(1, this.addRef(),
+        append == null ? null : append.addRef());
+    if (null != append)
+      append.freeRef();
+    return temp_34_0009;
   }
 
   default PipelineNetwork freeAndThenWrap(Layer append) {
-    return PipelineNetwork.build(1, this, append);
+    PipelineNetwork temp_34_0010 = PipelineNetwork.build(1, this.addRef(),
+        append == null ? null : append.addRef());
+    if (null != append)
+      append.freeRef();
+    return temp_34_0010;
   }
 
   @Nonnull
@@ -195,18 +244,28 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   @Nullable
   default Result eval(Result... array) {
     assertAlive();
-    return eval(array);
+    Result temp_34_0011 = eval(Result.addRefs(array));
+    if (null != array)
+      ReferenceCounting.freeRefs(array);
+    return temp_34_0011;
   }
 
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
-    Result[] input = ConstantResult.singleResultArray(array);
-    return eval(input);
+    Result[] input = ConstantResult.singleResultArray(Tensor.addRefs(array));
+    ReferenceCounting.freeRefs(array);
+    Result temp_34_0004 = eval(Result.addRefs(input));
+    if (null != input)
+      ReferenceCounting.freeRefs(input);
+    return temp_34_0004;
   }
 
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
-    return eval(ConstantResult.singleResultArray(array));
+    Result temp_34_0012 = eval(
+        ConstantResult.singleResultArray(Tensor.addRefs(array)));
+    ReferenceCounting.freeRefs(array);
+    return temp_34_0012;
   }
 
   @Nonnull
@@ -219,7 +278,16 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
 
   default UnaryOperator<Tensor> asTensorFunction() {
     return input -> {
-      return eval(input).getData().get(0);
+      Result temp_34_0019 = eval(input == null ? null : input.addRef());
+      TensorList temp_34_0020 = temp_34_0019.getData();
+      Tensor temp_34_0005 = temp_34_0020.get(0);
+      if (null != temp_34_0020)
+        temp_34_0020.freeRef();
+      if (null != temp_34_0019)
+        temp_34_0019.freeRef();
+      if (null != input)
+        input.freeRef();
+      return temp_34_0005;
     };
   }
 

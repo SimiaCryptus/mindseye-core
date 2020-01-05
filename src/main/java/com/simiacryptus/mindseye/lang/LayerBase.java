@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.lang;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 
@@ -53,7 +54,7 @@ class LayerBase extends RegisteredObjectBase implements Layer {
       this.frozen = json.get("isFrozen").getAsBoolean();
     }
     if (json.has("name")) {
-      setName(json.get("name").getAsString());
+      RefUtil.freeRef(setName(json.get("name").getAsString()));
     }
     register();
   }
@@ -65,7 +66,7 @@ class LayerBase extends RegisteredObjectBase implements Layer {
   }
 
   public RefList<Layer> getChildren() {
-    return RefArrays.asList(this);
+    return RefArrays.asList(this.addRef());
   }
 
   @Nullable
@@ -111,15 +112,22 @@ class LayerBase extends RegisteredObjectBase implements Layer {
     }
     @Nullable final Layer other = (Layer) obj;
     if (getId() == null) {
-      return other.getId() == null;
-    } else
-      return getId().equals(other.getId());
+      boolean temp_45_0001 = other.getId() == null;
+      if (null != other)
+        other.freeRef();
+      return temp_45_0001;
+    } else {
+      boolean temp_45_0002 = getId().equals(other.getId());
+      if (null != other)
+        other.freeRef();
+      return temp_45_0002;
+    }
   }
 
   @Nonnull
   public Layer setName(final String name) {
     this.name = name;
-    return this;
+    return this.addRef();
   }
 
   @Override
@@ -151,7 +159,7 @@ class LayerBase extends RegisteredObjectBase implements Layer {
 
   @Nonnull
   protected final Layer self() {
-    return this;
+    return this.addRef();
   }
 
 }

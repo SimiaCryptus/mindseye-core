@@ -20,15 +20,19 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.PointSample;
+import com.simiacryptus.mindseye.lang.State;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.UUID;
 
 public @RefAware
 class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
@@ -40,6 +44,8 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
 
   public CachedTrainable(final T inner) {
     super(inner);
+    if (null != inner)
+      inner.freeRef();
   }
 
   public int getHistorySize() {
@@ -49,7 +55,7 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   @Nonnull
   public CachedTrainable<T> setHistorySize(final int historySize) {
     this.historySize = historySize;
-    return this;
+    return this.addRef();
   }
 
   public boolean isVerbose() {
@@ -59,7 +65,7 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   @Nonnull
   public CachedTrainable<T> setVerbose(final boolean verbose) {
     this.verbose = verbose;
-    return this;
+    return this.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -81,7 +87,7 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   @Nonnull
   @Override
   public CachedTrainable<? extends Trainable> cached() {
-    return this;
+    return this.addRef();
   }
 
   @Override
@@ -89,16 +95,20 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     for (@Nonnull final PointSample result : history) {
       if (!result.weights.isDifferent()) {
         if (isVerbose()) {
-          log.info(String.format("Returning cached value; %s buffers unchanged since %s => %s",
-              result.weights.getMap().size(), result.rate, result.getMean()));
+          RefMap<UUID, State<UUID>> temp_53_0001 = result.weights
+              .getMap();
+          log.info(String.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
+              result.rate, result.getMean()));
+          if (null != temp_53_0001)
+            temp_53_0001.freeRef();
         }
         return result.copyFull();
       }
     }
-    final PointSample result = super.measure(monitor);
+    final PointSample result = super.measure(monitor).addRef();
     history.add(result.copyFull());
     while (getHistorySize() < history.size()) {
-      history.remove(0);
+      RefUtil.freeRef(history.remove(0));
     }
     return result;
   }
@@ -111,6 +121,8 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
 
   public @SuppressWarnings("unused")
   void _free() {
+    if (null != history)
+      history.freeRef();
   }
 
   public @Override

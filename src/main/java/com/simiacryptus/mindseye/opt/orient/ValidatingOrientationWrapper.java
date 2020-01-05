@@ -33,13 +33,21 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public @RefAware
-class ValidatingOrientationWrapper
-    extends OrientationStrategyBase<LineSearchCursor> {
+class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
   public ValidatingOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
-    this.inner = inner;
+    {
+      OrientationStrategy<? extends LineSearchCursor> temp_26_0001 = inner == null
+          ? null
+          : inner.addRef();
+      this.inner = temp_26_0001 == null ? null : temp_26_0001.addRef();
+      if (null != temp_26_0001)
+        temp_26_0001.freeRef();
+    }
+    if (null != inner)
+      inner.freeRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -64,8 +72,17 @@ class ValidatingOrientationWrapper
   @Override
   public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
                                  final TrainingMonitor monitor) {
-    final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
-    return new ValidatingLineSearchCursor(cursor);
+    final LineSearchCursor cursor = inner.orient(subject == null ? null : subject.addRef(),
+        measurement == null ? null : measurement.addRef(), monitor);
+    if (null != measurement)
+      measurement.freeRef();
+    if (null != subject)
+      subject.freeRef();
+    ValidatingOrientationWrapper.ValidatingLineSearchCursor temp_26_0003 = new ValidatingLineSearchCursor(
+        cursor == null ? null : cursor.addRef());
+    if (null != cursor)
+      cursor.freeRef();
+    return temp_26_0003;
   }
 
   @Override
@@ -74,6 +91,8 @@ class ValidatingOrientationWrapper
   }
 
   public void _free() {
+    if (null != inner)
+      inner.freeRef();
   }
 
   public @Override
@@ -87,7 +106,14 @@ class ValidatingOrientationWrapper
     private final LineSearchCursor cursor;
 
     public ValidatingLineSearchCursor(final LineSearchCursor cursor) {
-      this.cursor = cursor;
+      {
+        LineSearchCursor temp_26_0002 = cursor == null ? null : cursor.addRef();
+        this.cursor = temp_26_0002 == null ? null : temp_26_0002.addRef();
+        if (null != temp_26_0002)
+          temp_26_0002.freeRef();
+      }
+      if (null != cursor)
+        cursor.freeRef();
     }
 
     @Override
@@ -106,7 +132,8 @@ class ValidatingOrientationWrapper
     @Override
     public PointSample afterStep(@Nonnull PointSample step) {
       super.afterStep(step);
-      return cursor.afterStep(step);
+      PointSample temp_26_0004 = cursor.afterStep(step == null ? null : step);
+      return temp_26_0004;
     }
 
     @Override
@@ -123,9 +150,9 @@ class ValidatingOrientationWrapper
     public LineSearchPoint step(final double alpha, @Nonnull final TrainingMonitor monitor) {
       final LineSearchPoint primaryPoint = cursor.step(alpha, monitor);
       //monitor.log(String.format("f(%s) = %s",alphaList, primaryPoint.point.value));
-      test(monitor, primaryPoint, 1e-3);
-      test(monitor, primaryPoint, 1e-4);
-      test(monitor, primaryPoint, 1e-6);
+      test(monitor, primaryPoint == null ? null : primaryPoint.addRef(), 1e-3);
+      test(monitor, primaryPoint == null ? null : primaryPoint.addRef(), 1e-4);
+      test(monitor, primaryPoint == null ? null : primaryPoint.addRef(), 1e-6);
       return primaryPoint;
     }
 
@@ -142,9 +169,14 @@ class ValidatingOrientationWrapper
       final double measuredDerivative = dy / dx;
       monitor.log(String.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative,
           probePoint.derivative, probeSize));
+      primaryPoint.freeRef();
+      if (null != probePoint)
+        probePoint.freeRef();
     }
 
     public void _free() {
+      if (null != cursor)
+        cursor.freeRef();
     }
 
     public @Override

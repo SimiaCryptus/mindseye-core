@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
 
@@ -28,30 +29,43 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public @RefAware
-class TensorArray extends RegisteredObjectBase
-    implements TensorList, Serializable {
+class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
   @Nonnull
   private final Tensor[] data;
 
   public TensorArray(@Nonnull final Tensor... data) {
-    if (null == data)
+    if (null == data) {
+      ReferenceCounting.freeRefs(data);
       throw new IllegalArgumentException();
-    if (0 >= data.length)
+    }
+    if (0 >= data.length) {
+      ReferenceCounting.freeRefs(data);
       throw new IllegalArgumentException();
-    this.data = RefArrays.copyOf(data, data.length);
-    assert null != this.getData();
+    }
+    {
+      Tensor[] temp_23_0001 = RefArrays
+          .copyOf(Tensor.addRefs(data), data.length);
+      this.data = Tensor.addRefs(temp_23_0001);
+      if (null != temp_23_0001)
+        ReferenceCounting.freeRefs(temp_23_0001);
+    }
+    ReferenceCounting.freeRefs(data);
+    Tensor[] temp_23_0002 = this.getData();
+    assert null != temp_23_0002;
+    if (null != temp_23_0002)
+      ReferenceCounting.freeRefs(temp_23_0002);
     for (@Nonnull
         Tensor tensor : this.getData()) {
       assert RefArrays.equals(tensor.getDimensions(),
-          this.getData()[0].getDimensions()) : RefArrays.toString(tensor.getDimensions())
-          + " != " + RefArrays.toString(tensor.getDimensions());
+          this.getData()[0].getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
+          + RefArrays.toString(tensor.getDimensions());
     }
     register();
   }
 
   @Nonnull
   public Tensor[] getData() {
-    return data;
+    return Tensor.addRefs(data);
   }
 
   @Nonnull
@@ -62,8 +76,8 @@ class TensorArray extends RegisteredObjectBase
 
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
     return (data.length < limit) ? RefArrays.toString(data)
-        : "[" + RefArrays.stream(data).limit(limit).map(x -> x.toString())
-        .reduce((a, b) -> a + ", " + b).get() + ", ...]";
+        : "[" + RefArrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b).get()
+        + ", ...]";
   }
 
   public static @SuppressWarnings("unused")
@@ -90,7 +104,11 @@ class TensorArray extends RegisteredObjectBase
 
   @Override
   public int length() {
-    return getData().length;
+    Tensor[] temp_23_0004 = getData();
+    int temp_23_0003 = temp_23_0004.length;
+    if (null != temp_23_0004)
+      ReferenceCounting.freeRefs(temp_23_0004);
+    return temp_23_0003;
   }
 
   @Nonnull
@@ -105,8 +123,9 @@ class TensorArray extends RegisteredObjectBase
   }
 
   public void _free() {
+    ReferenceCounting.freeRefs(data);
     try {
-      getData();
+      ReferenceCounting.freeRefs(getData());
     } catch (@Nonnull final RuntimeException e) {
       throw e;
     } catch (@Nonnull final Throwable e) {

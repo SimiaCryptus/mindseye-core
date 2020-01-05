@@ -111,18 +111,24 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
 
   public double dot(@Nonnull final DoubleBuffer<K> right) {
     if (this.target != right.target) {
-      throw new IllegalArgumentException(
+      IllegalArgumentException temp_51_0001 = new IllegalArgumentException(
           String.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
+      if (null != right)
+        right.freeRef();
+      throw temp_51_0001;
     }
     if (!this.key.equals(right.key)) {
-      throw new IllegalArgumentException(
+      IllegalArgumentException temp_51_0002 = new IllegalArgumentException(
           String.format("Deltas are not based on same key. %s != %s", this.key, right.key));
+      if (null != right)
+        right.freeRef();
+      throw temp_51_0002;
     }
     @Nullable final double[] l = this.getDelta();
     @Nullable final double[] r = right.getDelta();
+    right.freeRef();
     assert l.length == r.length;
-    final double[] array = RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i])
-        .toArray();
+    final double[] array = RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i]).toArray();
     return RefArrays.stream(array).summaryStatistics().getSum();
   }
 

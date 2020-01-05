@@ -153,7 +153,15 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
       if (0 <= startPoint.derivative) {
         monitor.log(String.format("th(0)=%s;dx=%s (ERROR: Starting derivative negative)", startValue, startLineDeriv));
         LineSearchPoint step = cursor.step(0, monitor);
-        return step.point;
+        if (null != startPoint)
+          startPoint.freeRef();
+        if (null != lastStep)
+          lastStep.freeRef();
+        PointSample temp_39_0001 = step.point;
+        if (null != step)
+          step.freeRef();
+        cursor.freeRef();
+        return temp_39_0001;
       }
       monitor.log(String.format("th(0)=%s;dx=%s", startValue, startLineDeriv));
       int stepBias = 0;
@@ -161,32 +169,52 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
       double bestValue = startPoint.point.getMean();
       while (true) {
         if (!isAlphaValid()) {
-          PointSample point = stepPoint(cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
           monitor.log(String.format("INVALID ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
+          if (null != startPoint)
+            startPoint.freeRef();
+          if (null != lastStep)
+            lastStep.freeRef();
           return point;
         }
         if (mu >= nu - absoluteTolerance) {
           loosenMetaparameters();
-          PointSample point = stepPoint(cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
           monitor.log(String.format("mu >= nu (%s): th(%s)=%s", mu, bestAlpha, point.getMean()));
+          if (null != startPoint)
+            startPoint.freeRef();
+          if (null != lastStep)
+            lastStep.freeRef();
           return point;
         }
         if (nu - mu < nu * relativeTolerance) {
           loosenMetaparameters();
-          PointSample point = stepPoint(cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
           monitor.log(String.format("mu ~= nu (%s): th(%s)=%s", mu, bestAlpha, point.getMean()));
+          if (null != startPoint)
+            startPoint.freeRef();
+          if (null != lastStep)
+            lastStep.freeRef();
           return point;
         }
         if (Math.abs(alpha) < minAlpha) {
-          PointSample point = stepPoint(cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
           monitor.log(String.format("MIN ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           alpha = minAlpha;
+          if (null != startPoint)
+            startPoint.freeRef();
+          if (null != lastStep)
+            lastStep.freeRef();
           return point;
         }
         if (Math.abs(alpha) > maxAlpha) {
-          PointSample point = stepPoint(cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
           monitor.log(String.format("MAX ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           alpha = maxAlpha;
+          if (null != startPoint)
+            startPoint.freeRef();
+          if (null != lastStep)
+            lastStep.freeRef();
           return point;
         }
         lastStep = cursor.step(alpha, monitor);
@@ -234,6 +262,10 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
 
   private PointSample stepPoint(@Nonnull LineSearchCursor cursor, TrainingMonitor monitor, double bestAlpha) {
     LineSearchPoint step = cursor.step(bestAlpha, monitor);
-    return step.point;
+    cursor.freeRef();
+    PointSample temp_39_0002 = step.point;
+    if (null != step)
+      step.freeRef();
+    return temp_39_0002;
   }
 }

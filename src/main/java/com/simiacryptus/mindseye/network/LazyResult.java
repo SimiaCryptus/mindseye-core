@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.network;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,10 +87,16 @@ class LazyResult extends ReferenceCountingBase implements DAGNode {
       if (null != singleton) {
         try {
           @Nullable
-          Result result = eval(context);
-          if (null == result)
+          Result result = eval(context == null ? null : context.addRef());
+          if (null == result) {
+            if (null != result)
+              result.freeRef();
+            context.freeRef();
             throw new IllegalStateException();
-          singleton.set(new CountingResult(result));
+          }
+          singleton.set(new CountingResult(result == null ? null : result.addRef()));
+          if (null != result)
+            result.freeRef();
         } catch (Throwable e) {
           log.warn("Error execuing network component", e);
           singleton.set(e);
@@ -97,27 +104,49 @@ class LazyResult extends ReferenceCountingBase implements DAGNode {
       }
     }
     Supplier resultSupplier = context.calculated.get(id);
-    if (null == resultSupplier)
+    if (null == resultSupplier) {
+      context.freeRef();
       throw new IllegalStateException();
+    }
     Object obj = null == resultSupplier ? null : resultSupplier.get();
-    if (obj != null && obj instanceof Throwable)
+    if (obj != null && obj instanceof Throwable) {
+      context.freeRef();
       throw new RuntimeException((Throwable) obj);
-    if (obj != null && obj instanceof RuntimeException)
+    }
+    if (obj != null && obj instanceof RuntimeException) {
+      context.freeRef();
       throw ((RuntimeException) obj);
+    }
     @Nullable
     CountingResult nnResult = (CountingResult) obj;
-    if (null == nnResult)
+    if (null == nnResult) {
+      if (null != nnResult)
+        nnResult.freeRef();
+      context.freeRef();
       throw new IllegalStateException();
-    int references = nnResult.getAccumulator().increment();
-    if (references <= 0)
+    }
+    CountingResult.CountingAccumulator temp_56_0001 = nnResult.getAccumulator();
+    int references = temp_56_0001.increment();
+    if (null != temp_56_0001)
+      temp_56_0001.freeRef();
+    if (references <= 0) {
+      if (null != nnResult)
+        nnResult.freeRef();
+      context.freeRef();
       throw new IllegalStateException();
-    if (expectedCount >= 0 && references > expectedCount)
+    }
+    if (expectedCount >= 0 && references > expectedCount) {
+      if (null != nnResult)
+        nnResult.freeRef();
+      context.freeRef();
       throw new IllegalStateException();
+    }
     if (expectedCount <= 0 || references < expectedCount) {
-      nnResult.getData();
+      RefUtil.freeRef(nnResult.getData());
     } else {
       context.calculated.remove(id);
     }
+    context.freeRef();
     return nnResult;
   }
 

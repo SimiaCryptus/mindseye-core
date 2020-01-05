@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
@@ -33,8 +34,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract @RefAware
-class DoubleBufferSet<K, T extends DoubleBuffer<K>>
-    extends ReferenceCountingBase {
+class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
   static final Logger log = LoggerFactory.getLogger(DoubleBufferSet.class);
 
   @Nonnull
@@ -45,23 +45,29 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>>
 
   public DoubleBufferSet(@Nonnull final DoubleBufferSet<K, T> toCopy) {
     this(toCopy.map);
+    toCopy.freeRef();
   }
 
   public DoubleBufferSet(@Nonnull final RefMap<K, ? extends T> collect) {
     collect.forEach((k, v) -> {
       assert null != k;
       assert null != v;
+      if (null != v)
+        v.freeRef();
     });
     synchronized (collect) {
-      map.putAll(collect);
+      map.putAll(collect == null ? null : collect.addRef());
       map.forEach((k, v) -> {
+        if (null != v)
+          v.freeRef();
       });
     }
+    collect.freeRef();
   }
 
   @Nonnull
   public RefMap<K, T> getMap() {
-    return RefCollections.unmodifiableMap(map);
+    return RefCollections.unmodifiableMap(RefUtil.addRef(map));
   }
 
   public static @SuppressWarnings("unused")
@@ -83,7 +89,12 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>>
   @Nonnull
   @SuppressWarnings("unchecked")
   public DoubleBufferSet<K, T> copy() {
-    return map(x -> (T) x.copy());
+    return map(x -> {
+      T temp_15_0002 = (T) x.copy();
+      if (null != x)
+        x.freeRef();
+      return temp_15_0002;
+    });
   }
 
   public T get(final K layer, final double[] ptr) {
@@ -94,28 +105,65 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>>
   }
 
   public T get(final K layer, @Nonnull final Tensor ptr) {
-    return get(layer, ptr.getData());
+    T temp_15_0008 = get(layer, ptr.getData());
+    ptr.freeRef();
+    return temp_15_0008;
   }
 
   @Nonnull
   public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
-    @Nonnull final DoubleBufferSet<K, T> parent = this;
-    RefStream<Map.Entry<K, T>> stream = map.entrySet().stream();
+    @Nonnull final DoubleBufferSet<K, T> parent = this.addRef();
+    RefHashSet<Map.Entry<K, T>> temp_15_0009 = map.entrySet();
+    RefStream<Map.Entry<K, T>> stream = temp_15_0009.stream();
+    if (null != temp_15_0009)
+      temp_15_0009.freeRef();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
-    final RefMap<K, T> newMap = stream
-        .collect(RefCollectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
-    return new Delegate(parent, newMap);
+    final RefMap<K, T> newMap = stream.collect(RefCollectors.toMap(e -> {
+      K temp_15_0004 = e.getKey();
+      if (null != e)
+        RefUtil.freeRef(e);
+      return temp_15_0004;
+    }, e -> {
+      T temp_15_0010 = e.getValue();
+      T temp_15_0005 = mapper.apply(temp_15_0010);
+      if (null != temp_15_0010)
+        temp_15_0010.freeRef();
+      if (null != e)
+        RefUtil.freeRef(e);
+      return temp_15_0005;
+    }));
+    DoubleBufferSet.Delegate temp_15_0003 = new Delegate(parent == null ? null : parent,
+        newMap == null ? null : newMap.addRef());
+    if (null != newMap)
+      newMap.freeRef();
+    return temp_15_0003;
   }
 
   public RefStream<T> stream() {
-    return map.values().stream().filter(n -> null != n).distinct()
-        .sorted(RefComparator.comparing(y -> System.identityHashCode(y.target)));
+    RefHashSet<T> temp_15_0012 = map.values();
+    RefStream<T> temp_15_0011 = temp_15_0012.stream().filter(n -> {
+      boolean temp_15_0006 = null != n;
+      if (null != n)
+        n.freeRef();
+      return temp_15_0006;
+    }).distinct().sorted(RefComparator.comparing(y -> {
+      int temp_15_0007 = System.identityHashCode(y.target);
+      if (null != y)
+        y.freeRef();
+      return temp_15_0007;
+    }));
+    if (null != temp_15_0012)
+      temp_15_0012.freeRef();
+    return temp_15_0011;
   }
 
   public void _free() {
+    map.freeRef();
     map.forEach((k, v) -> {
+      if (null != v)
+        v.freeRef();
     });
     //    map.clear();
   }
@@ -147,18 +195,26 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>>
   }
 
   protected static @RefAware
-  class Delegate<K, T extends DoubleBuffer<K>>
-      extends DoubleBufferSet<K, T> {
+  class Delegate<K, T extends DoubleBuffer<K>> extends DoubleBufferSet<K, T> {
     private final DoubleBufferSet<K, T> parent;
 
     public Delegate(final DoubleBufferSet<K, T> parent) {
       this(parent, new RefHashMap<>());
+      if (null != parent)
+        parent.freeRef();
     }
 
-    public Delegate(final DoubleBufferSet<K, T> parent,
-                    @Nonnull final RefMap<K, T> newMap) {
+    public Delegate(final DoubleBufferSet<K, T> parent, @Nonnull final RefMap<K, T> newMap) {
       super(newMap);
-      this.parent = parent;
+      newMap.freeRef();
+      {
+        DoubleBufferSet<K, T> temp_15_0001 = parent == null ? null : parent.addRef();
+        this.parent = temp_15_0001 == null ? null : temp_15_0001.addRef();
+        if (null != temp_15_0001)
+          temp_15_0001.freeRef();
+      }
+      if (null != parent)
+        parent.freeRef();
     }
 
     public static @SuppressWarnings("unused")
@@ -171,6 +227,8 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>>
 
     public @SuppressWarnings("unused")
     void _free() {
+      if (null != parent)
+        parent.freeRef();
     }
 
     public @Override

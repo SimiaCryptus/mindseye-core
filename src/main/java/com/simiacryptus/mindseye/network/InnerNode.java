@@ -23,6 +23,8 @@ import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.util.Util;
@@ -31,6 +33,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
+import java.util.function.Function;
 
 @SuppressWarnings("serial")
 public final @RefAware
@@ -46,28 +49,62 @@ class InnerNode extends LazyResult {
   @SafeVarargs
   InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final DAGNode... inputNodes) {
     this(dagNetwork, layer, UUID.randomUUID(), inputNodes);
+    if (null != inputNodes)
+      ReferenceCounting.freeRefs(inputNodes);
+    layer.freeRef();
+    if (null != dagNetwork)
+      dagNetwork.freeRef();
   }
 
   @SafeVarargs
   InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key,
             @Nonnull final DAGNode... inputNodes) {
     super(key);
-    this.dagNetwork = dagNetwork;
-    assert null != inputNodes;
-    setLayer(layer);
-    if (0 == inputNodes.length) {
-      this.inputNodes = new DAGNode[]{};
-    } else {
-      this.inputNodes = RefArrays.copyOf(inputNodes, inputNodes.length);
-      assert RefArrays.stream(inputNodes).parallel().allMatch(x -> x != null);
-      assert RefArrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
+    {
+      DAGNetwork temp_12_0001 = dagNetwork == null ? null : dagNetwork.addRef();
+      this.dagNetwork = temp_12_0001 == null ? null : temp_12_0001.addRef();
+      if (null != temp_12_0001)
+        temp_12_0001.freeRef();
     }
+    if (null != dagNetwork)
+      dagNetwork.freeRef();
+    assert null != inputNodes;
+    setLayer(layer == null ? null : layer);
+    if (0 == inputNodes.length) {
+      {
+        DAGNode[] temp_12_0002 = new DAGNode[]{};
+        this.inputNodes = DAGNode.addRefs(temp_12_0002);
+        if (null != temp_12_0002)
+          ReferenceCounting.freeRefs(temp_12_0002);
+      }
+    } else {
+      {
+        DAGNode[] temp_12_0003 = RefArrays
+            .copyOf(DAGNode.addRefs(inputNodes), inputNodes.length);
+        this.inputNodes = DAGNode.addRefs(temp_12_0003);
+        if (null != temp_12_0003)
+          ReferenceCounting.freeRefs(temp_12_0003);
+      }
+      assert RefArrays.stream(DAGNode.addRefs(inputNodes)).parallel().allMatch(x -> {
+        boolean temp_12_0006 = x != null;
+        if (null != x)
+          x.freeRef();
+        return temp_12_0006;
+      });
+      assert RefArrays.stream(DAGNode.addRefs(inputNodes)).parallel().allMatch(x -> {
+        boolean temp_12_0007 = x.assertAlive();
+        if (null != x)
+          x.freeRef();
+        return temp_12_0007;
+      });
+    }
+    ReferenceCounting.freeRefs(inputNodes);
   }
 
   @Nonnull
   @Override
   public DAGNode[] getInputs() {
-    return inputNodes;
+    return DAGNode.addRefs(inputNodes);
   }
 
   @Nonnull
@@ -82,16 +119,26 @@ class InnerNode extends LazyResult {
     assertAlive();
     dagNetwork.assertAlive();
     newLayer.assertAlive();
-    Layer prevLayer = this.layer;
+    Layer prevLayer = this.layer.addRef();
     if (newLayer != prevLayer) {
-      this.layer = newLayer;
+      {
+        Layer temp_12_0004 = newLayer == null ? null : newLayer.addRef();
+        if (null != this.layer)
+          this.layer.freeRef();
+        this.layer = temp_12_0004 == null ? null : temp_12_0004.addRef();
+        if (null != temp_12_0004)
+          temp_12_0004.freeRef();
+      }
       dagNetwork.assertConsistent();
     }
+    newLayer.freeRef();
+    if (null != prevLayer)
+      prevLayer.freeRef();
   }
 
   @Override
   public DAGNetwork getNetwork() {
-    return dagNetwork;
+    return dagNetwork == null ? null : dagNetwork.addRef();
   }
 
   public boolean isParallel() {
@@ -100,7 +147,7 @@ class InnerNode extends LazyResult {
 
   public InnerNode setParallel(boolean parallel) {
     this.parallel = parallel;
-    return this;
+    return this.addRef();
   }
 
   public static @SuppressWarnings("unused")
@@ -120,11 +167,24 @@ class InnerNode extends LazyResult {
   }
 
   public void _free() {
+    if (null != layer)
+      layer.freeRef();
+    layer = null;
+    ReferenceCounting.freeRefs(inputNodes);
+    if (null != dagNetwork)
+      dagNetwork.freeRef();
     super._free();
     if (null != this.inputNodes) {
-      RefArrays.fill(this.inputNodes, null);
+      RefArrays.fill(DAGNode.addRefs(this.inputNodes), null);
     }
-    this.layer = null;
+    {
+      Layer temp_12_0005 = null;
+      if (null != this.layer)
+        this.layer.freeRef();
+      this.layer = temp_12_0005 == null ? null : temp_12_0005.addRef();
+      if (null != temp_12_0005)
+        temp_12_0005.freeRef();
+    }
   }
 
   public @Override
@@ -138,14 +198,37 @@ class InnerNode extends LazyResult {
   protected Result eval(final GraphEvaluationContext ctx) {
     assertAlive();
     @Nonnull final Layer innerLayer = getLayer();
-    assert RefArrays.stream(inputNodes).allMatch(x -> x != null);
+    assert RefArrays.stream(DAGNode.addRefs(inputNodes)).allMatch(x -> {
+      boolean temp_12_0009 = x != null;
+      if (null != x)
+        x.freeRef();
+      return temp_12_0009;
+    });
     @Nonnull
-    RefStream<DAGNode> stream = RefArrays
-        .stream(inputNodes);
+    RefStream<DAGNode> stream = RefArrays.stream(DAGNode.addRefs(inputNodes));
     if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
       stream = stream.parallel();
-    final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
-    assert RefArrays.stream(in).allMatch(x -> x != null);
-    return innerLayer.eval(in);
+    final Result[] in = stream.map(RefUtil.wrapInterface(
+        (Function<? super DAGNode, ? extends Result>) x -> {
+          Result temp_12_0010 = x == null ? null
+              : x.get(ctx == null ? null : ctx.addRef());
+          if (null != x)
+            x.freeRef();
+          return temp_12_0010;
+        }, ctx == null ? null : ctx.addRef())).toArray(i -> new Result[i]);
+    if (null != ctx)
+      ctx.freeRef();
+    assert RefArrays.stream(Result.addRefs(in)).allMatch(x -> {
+      boolean temp_12_0011 = x != null;
+      if (null != x)
+        x.freeRef();
+      return temp_12_0011;
+    });
+    Result temp_12_0008 = innerLayer
+        .eval(Result.addRefs(in));
+    if (null != in)
+      ReferenceCounting.freeRefs(in);
+    innerLayer.freeRef();
+    return temp_12_0008;
   }
 }
