@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
@@ -116,6 +115,6 @@ class Result extends ReferenceCountingBase {
   }
 
   @RefAware
-  public interface Accumulator extends BiConsumer<DeltaSet<UUID>, TensorList>, ReferenceCounting {
+  public static abstract class Accumulator extends ReferenceCountingBase implements BiConsumer<DeltaSet<UUID>, TensorList> {
   }
 }

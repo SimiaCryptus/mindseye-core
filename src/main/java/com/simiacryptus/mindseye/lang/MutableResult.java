@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.lang;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefArrays;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -59,9 +58,12 @@ class MutableResult extends Result {
   }
 
   private static Result.Accumulator handler(final Tensor[] tensors, UUID[] objectId) {
-    return (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-      for (int index = 0; index < delta.length(); index++) {
-        buffer.get(objectId[index], tensors[index].getData()).addInPlace(delta.get(index).getData());
+    return new Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        for (int index = 0; index < delta.length(); index++) {
+          buffer.get(objectId[index], tensors[index].getData()).addInPlace(delta.get(index).getData());
+        }
       }
     };
   }

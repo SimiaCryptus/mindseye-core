@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
 import com.simiacryptus.ref.lang.RefAware;
-import com.simiacryptus.ref.wrappers.RefHashMap;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 

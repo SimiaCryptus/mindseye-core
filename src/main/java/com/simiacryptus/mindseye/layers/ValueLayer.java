@@ -90,22 +90,26 @@ class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
+    final ValueLayer valueLayer = ValueLayer.this;
     return new Result(new TensorArray(this.data),
-        (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-          if (!isFrozen()) {
-            assertAlive();
-            assert (1 == ValueLayer.this.data.length || ValueLayer.this.data.length == data.length());
-            for (int i = 0; i < data.length(); i++) {
-              Tensor delta = data.get(i);
-              Tensor value = ValueLayer.this.data[i % ValueLayer.this.data.length];
-              buffer.get(value.getId(), value.getData()).addInPlace(delta.getData());
+        new Result.Accumulator() {
+          @Override
+          public void accept(DeltaSet<UUID> buffer, TensorList data) {
+            if (!ValueLayer.this.isFrozen()) {
+              ValueLayer.this.assertAlive();
+              assert (1 == valueLayer.data.length || valueLayer.data.length == data.length());
+              for (int i = 0; i < data.length(); i++) {
+                Tensor delta = data.get(i);
+                Tensor value = valueLayer.data[i % valueLayer.data.length];
+                buffer.get(value.getId(), value.getData()).addInPlace(delta.getData());
+              }
             }
           }
         }) {
 
       @Override
       public boolean isAlive() {
-        return !ValueLayer.this.isFrozen();
+        return !valueLayer.isFrozen();
       }
 
       public void _free() {

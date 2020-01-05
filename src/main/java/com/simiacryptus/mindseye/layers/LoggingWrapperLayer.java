@@ -71,14 +71,18 @@ class LoggingWrapperLayer extends WrapperLayer {
 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
+    final LoggingWrapperLayer loggingWrapperLayer = this;
     final Result[] wrappedInput = RefIntStream.range(0, inObj.length).mapToObj(i -> {
       final Result inputToWrap = inObj[i];
       return new Result(inputToWrap.getData(),
-          (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-            @Nonnull final String formatted = data.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
-            log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, getInner().getName(),
-                formatted.replaceAll("\n", "\n\t")));
-            inputToWrap.accumulate(buffer, data);
+          new Result.Accumulator() {
+            @Override
+            public void accept(DeltaSet<UUID> buffer, TensorList data) {
+              @Nonnull final String formatted = data.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b).get();
+              log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, LoggingWrapperLayer.this.getInner().getName(),
+                  formatted.replaceAll("\n", "\n\t")));
+              inputToWrap.accumulate(buffer, data);
+            }
           }) {
 
         @Override
@@ -92,7 +96,7 @@ class LoggingWrapperLayer extends WrapperLayer {
     }).toArray(i -> new Result[i]);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
-      @Nonnull final String formatted = tensorList.stream().map(this::getString).reduce((a, b) -> a + "\n" + b).get();
+      @Nonnull final String formatted = tensorList.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b).get();
       log.info(
           String.format("Input %s for key %s: \n\t%s", i, getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
@@ -104,13 +108,16 @@ class LoggingWrapperLayer extends WrapperLayer {
       }).reduce((a, b) -> a + "\n" + b).get();
       log.info(String.format("Output for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
     }
-    return new Result(output.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      @Nonnull final String formatted = data.stream().map(x -> {
-        return getString(x);
-      }).reduce((a, b) -> a + "\n" + b).get();
-      log.info(
-          String.format("Feedback Input for key %s: \n\t%s", getInner().getName(), formatted.replaceAll("\n", "\n\t")));
-      output.accumulate(buffer, data);
+    return new Result(output.getData(), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+        @Nonnull final String formatted = data.stream().map(x -> {
+          return LoggingWrapperLayer.this.getString(x);
+        }).reduce((a, b) -> a + "\n" + b).get();
+        log.info(
+            String.format("Feedback Input for key %s: \n\t%s", LoggingWrapperLayer.this.getInner().getName(), formatted.replaceAll("\n", "\n\t")));
+        output.accumulate(buffer, data);
+      }
     }) {
 
       @Override

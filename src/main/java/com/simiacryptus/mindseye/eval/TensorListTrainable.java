@@ -90,15 +90,18 @@ class TensorListTrainable extends ReferenceCountingBase
       if (null == mask || col >= mask.length || !mask[col]) {
         return new ConstantResult(tensorArray);
       } else {
-        return new Result(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList delta) -> {
-          for (int index = 0; index < delta.length(); index++) {
-            final Tensor dt = delta.get(index);
-            @Nullable final double[] d = dt.getData();
-            final Tensor t = tensors[index];
-            @Nullable final double[] p = t.getData();
-            @Nonnull
-            PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
-            buffer.get(layer.getId(), p).addInPlace(d);
+        return new Result(tensorArray, new Result.Accumulator() {
+          @Override
+          public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+            for (int index = 0; index < delta.length(); index++) {
+              final Tensor dt = delta.get(index);
+              @Nullable final double[] d = dt.getData();
+              final Tensor t = tensors[index];
+              @Nullable final double[] p = t.getData();
+              @Nonnull
+              PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
+              buffer.get(layer.getId(), p).addInPlace(d);
+            }
           }
         }) {
 

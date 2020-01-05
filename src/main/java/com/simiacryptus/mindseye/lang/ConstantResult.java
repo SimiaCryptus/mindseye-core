@@ -35,12 +35,18 @@ class ConstantResult extends Result {
   }
 
   public ConstantResult(TensorArray tensorArray) {
-    super(tensorArray, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
+    super(tensorArray, new Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+      }
     });
   }
 
   public ConstantResult(final TensorList tensorList) {
-    super(tensorList, (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
+    super(tensorList, new Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+      }
     });
   }
 

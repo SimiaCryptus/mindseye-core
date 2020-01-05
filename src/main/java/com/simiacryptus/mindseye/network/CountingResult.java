@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.ref.lang.RefAware;
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefLinkedList;
 import com.simiacryptus.ref.wrappers.RefStream;
 import org.slf4j.Logger;
@@ -89,8 +88,7 @@ class CountingResult extends Result {
   }
 
   static @RefAware
-  class CountingAccumulator extends ReferenceCountingBase
-      implements Result.Accumulator {
+  class CountingAccumulator extends Result.Accumulator {
     @Nonnull
     private final AtomicInteger fwdLinks;
     private final Result inner;

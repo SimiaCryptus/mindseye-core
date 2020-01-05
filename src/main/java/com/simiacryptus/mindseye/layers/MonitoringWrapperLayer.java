@@ -177,8 +177,11 @@ class MonitoringWrapperLayer extends WrapperLayer
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
     final Result[] wrappedInput = RefArrays.stream(inObj).map(result -> {
-      return new Result(result.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-        passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
+      return new Result(result.getData(), new Result.Accumulator() {
+        @Override
+        public void accept(DeltaSet<UUID> buffer, TensorList data) {
+          passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
+        }
       }) {
 
         @Override
@@ -204,16 +207,19 @@ class MonitoringWrapperLayer extends WrapperLayer
         forwardSignal.add(t.getData());
       });
     }
-    return new Result(output.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
-      if (recordSignalMetrics) {
-        backwardSignal.clear();
-        data.stream().parallel().forEach(t -> {
-          backwardSignal.add(t.getData());
-        });
+    return new Result(output.getData(), new Result.Accumulator() {
+      @Override
+      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+        if (recordSignalMetrics) {
+          backwardSignal.clear();
+          data.stream().parallel().forEach(t -> {
+            backwardSignal.add(t.getData());
+          });
+        }
+        backwardPerformance
+            .add((TimedResult.time(() -> output.accumulate(buffer, data)).timeNanos - passbackNanos.getAndSet(0))
+                / (items * 1e9));
       }
-      backwardPerformance
-          .add((TimedResult.time(() -> output.accumulate(buffer, data)).timeNanos - passbackNanos.getAndSet(0))
-              / (items * 1e9));
     }) {
 
       @Override
