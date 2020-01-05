@@ -19,10 +19,15 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefStream;
+
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class TensorArray extends RegisteredObjectBase
     implements TensorList, Serializable {
   @Nonnull
@@ -33,13 +38,13 @@ class TensorArray extends RegisteredObjectBase
       throw new IllegalArgumentException();
     if (0 >= data.length)
       throw new IllegalArgumentException();
-    this.data = com.simiacryptus.ref.wrappers.RefArrays.copyOf(data, data.length);
+    this.data = RefArrays.copyOf(data, data.length);
     assert null != this.getData();
     for (@Nonnull
         Tensor tensor : this.getData()) {
-      assert com.simiacryptus.ref.wrappers.RefArrays.equals(tensor.getDimensions(),
-          this.getData()[0].getDimensions()) : com.simiacryptus.ref.wrappers.RefArrays.toString(tensor.getDimensions())
-          + " != " + com.simiacryptus.ref.wrappers.RefArrays.toString(tensor.getDimensions());
+      assert RefArrays.equals(tensor.getDimensions(),
+          this.getData()[0].getDimensions()) : RefArrays.toString(tensor.getDimensions())
+          + " != " + RefArrays.toString(tensor.getDimensions());
     }
     register();
   }
@@ -56,8 +61,8 @@ class TensorArray extends RegisteredObjectBase
   }
 
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
-    return (data.length < limit) ? com.simiacryptus.ref.wrappers.RefArrays.toString(data)
-        : "[" + com.simiacryptus.ref.wrappers.RefArrays.stream(data).limit(limit).map(x -> x.toString())
+    return (data.length < limit) ? RefArrays.toString(data)
+        : "[" + RefArrays.stream(data).limit(limit).map(x -> x.toString())
         .reduce((a, b) -> a + ", " + b).get() + ", ...]";
   }
 
@@ -65,7 +70,7 @@ class TensorArray extends RegisteredObjectBase
   TensorArray[] addRefs(TensorArray[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRef)
         .toArray((x) -> new TensorArray[x]);
   }
 
@@ -73,7 +78,7 @@ class TensorArray extends RegisteredObjectBase
   TensorArray[][] addRefs(TensorArray[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRefs)
         .toArray((x) -> new TensorArray[x][]);
   }
 
@@ -90,8 +95,8 @@ class TensorArray extends RegisteredObjectBase
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefStream<Tensor> stream() {
-    return com.simiacryptus.ref.wrappers.RefArrays.stream(getData());
+  public RefStream<Tensor> stream() {
+    return RefArrays.stream(getData());
   }
 
   @Override

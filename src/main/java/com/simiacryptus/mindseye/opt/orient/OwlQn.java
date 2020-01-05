@@ -29,12 +29,18 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefCollection;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefSet;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   public final OrientationStrategy<?> inner;
   private double factor_L1 = 0.000;
@@ -72,21 +78,21 @@ class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   OwlQn[] addRefs(OwlQn[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(OwlQn::addRef).toArray((x) -> new OwlQn[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(OwlQn::addRef).toArray((x) -> new OwlQn[x]);
   }
 
   public static @SuppressWarnings("unused")
   OwlQn[][] addRefs(OwlQn[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(OwlQn::addRefs).toArray((x) -> new OwlQn[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(OwlQn::addRefs).toArray((x) -> new OwlQn[x][]);
   }
 
-  public com.simiacryptus.ref.wrappers.RefCollection<Layer> getLayers(
-      @Nonnull final com.simiacryptus.ref.wrappers.RefCollection<Layer> layers) {
+  public RefCollection<Layer> getLayers(
+      @Nonnull final RefCollection<Layer> layers) {
     return layers.stream()
         //        .filter(layer -> layer instanceof FullyConnectedLayer)
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+        .collect(RefCollectors.toList());
   }
 
   @Nonnull
@@ -96,10 +102,10 @@ class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     @Nonnull final SimpleLineSearchCursor gradient = (SimpleLineSearchCursor) inner.orient(subject, measurement, monitor);
     @Nonnull final DeltaSet<UUID> searchDirection = gradient.direction.copy();
     @Nonnull final DeltaSet<UUID> orthant = new DeltaSet<UUID>();
-    com.simiacryptus.ref.wrappers.RefSet<UUID> keySet = gradient.direction.getMap().keySet();
-    com.simiacryptus.ref.wrappers.RefList<Layer> layerSet = keySet.stream()
+    RefSet<UUID> keySet = gradient.direction.getMap().keySet();
+    RefList<Layer> layerSet = keySet.stream()
         .map(id -> ((DAGNetwork) subject.getLayer()).getLayersById().get(id))
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+        .collect(RefCollectors.toList());
     for (@Nonnull final Layer layer : getLayers(layerSet)) {
       gradient.direction.getMap().forEach((layerId, layerDelta) -> {
         final double[] weights = layerDelta.target;

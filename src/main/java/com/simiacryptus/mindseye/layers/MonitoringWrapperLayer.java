@@ -22,6 +22,11 @@ package com.simiacryptus.mindseye.layers;
 import com.google.gson.JsonObject;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefHashMap;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.util.MonitoredItem;
 import com.simiacryptus.util.MonitoredObject;
 import com.simiacryptus.util.data.PercentileStatistics;
@@ -29,11 +34,13 @@ import com.simiacryptus.util.data.ScalarStatistics;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings({"serial", "FieldCanBeLocal"})
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class MonitoringWrapperLayer extends WrapperLayer
     implements MonitoredItem {
 
@@ -47,7 +54,7 @@ class MonitoringWrapperLayer extends WrapperLayer
   private int totalItems = 0;
 
   protected MonitoringWrapperLayer(@Nonnull final JsonObject json,
-                                   com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                   Map<CharSequence, byte[]> rs) {
     super(json, rs);
     if (json.has("forwardPerf")) {
       forwardPerformance.readJson(json.getAsJsonObject("forwardPerf"));
@@ -92,8 +99,8 @@ class MonitoringWrapperLayer extends WrapperLayer
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefMap<CharSequence, Object> getMetrics() {
-    @Nonnull final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> map = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+  public RefMap<CharSequence, Object> getMetrics() {
+    @Nonnull final RefHashMap<CharSequence, Object> map = new RefHashMap<>();
     map.put("class", getInner().getClass().getName());
     map.put("totalBatches", totalBatches);
     map.put("totalItems", totalItems);
@@ -110,7 +117,7 @@ class MonitoringWrapperLayer extends WrapperLayer
     final double backpropMedian = backwardPerformance.getPercentile(0.5);
     map.put("avgMsPerItem_Backward", 1000 * batchesPerItem * backpropMean);
     map.put("medianMsPerItem_Backward", 1000 * batchesPerItem * backpropMedian);
-    @Nullable final com.simiacryptus.ref.wrappers.RefList<double[]> state = state();
+    @Nullable final RefList<double[]> state = state();
     @Nonnull final ScalarStatistics statistics = new PercentileStatistics();
     for (@Nonnull final double[] s : state) {
       for (final double v : s) {
@@ -118,7 +125,7 @@ class MonitoringWrapperLayer extends WrapperLayer
       }
     }
     if (statistics.getCount() > 0) {
-      @Nonnull final com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, Object> weightStats = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+      @Nonnull final RefHashMap<CharSequence, Object> weightStats = new RefHashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
       map.put("weights", weightStats);
@@ -134,7 +141,7 @@ class MonitoringWrapperLayer extends WrapperLayer
 
   @SuppressWarnings("unused")
   public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json,
-                                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                                Map<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
   }
 
@@ -142,7 +149,7 @@ class MonitoringWrapperLayer extends WrapperLayer
   MonitoringWrapperLayer[] addRefs(MonitoringWrapperLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
         .toArray((x) -> new MonitoringWrapperLayer[x]);
   }
 
@@ -150,7 +157,7 @@ class MonitoringWrapperLayer extends WrapperLayer
   MonitoringWrapperLayer[][] addRefs(MonitoringWrapperLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
         .toArray((x) -> new MonitoringWrapperLayer[x][]);
   }
 
@@ -169,7 +176,7 @@ class MonitoringWrapperLayer extends WrapperLayer
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
-    final Result[] wrappedInput = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).map(result -> {
+    final Result[] wrappedInput = RefArrays.stream(inObj).map(result -> {
       return new Result(result.getData(), (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
         passbackNanos.addAndGet(TimedResult.time(() -> result.accumulate(buffer, data)).timeNanos);
       }) {
@@ -188,7 +195,7 @@ class MonitoringWrapperLayer extends WrapperLayer
     final Result output = timedResult.result;
     forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
     totalBatches++;
-    final int items = com.simiacryptus.ref.wrappers.RefArrays.stream(inObj).mapToInt(x -> x.getData().length()).max()
+    final int items = RefArrays.stream(inObj).mapToInt(x -> x.getData().length()).max()
         .orElse(1);
     totalItems += items;
     if (recordSignalMetrics) {
@@ -221,7 +228,7 @@ class MonitoringWrapperLayer extends WrapperLayer
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
     //json.fn("forwardPerf",forwardPerf.getJson());

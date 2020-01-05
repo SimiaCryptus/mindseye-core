@@ -27,12 +27,17 @@ import com.simiacryptus.mindseye.lang.StateSet;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.util.data.DoubleStatistics;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class QuantifyOrientationWrapper
     extends OrientationStrategyBase<LineSearchCursor> {
 
@@ -46,7 +51,7 @@ class QuantifyOrientationWrapper
   QuantifyOrientationWrapper[] addRefs(QuantifyOrientationWrapper[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRef)
         .toArray((x) -> new QuantifyOrientationWrapper[x]);
   }
 
@@ -55,7 +60,7 @@ class QuantifyOrientationWrapper
       QuantifyOrientationWrapper[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(QuantifyOrientationWrapper::addRefs)
         .toArray((x) -> new QuantifyOrientationWrapper[x][]);
   }
 
@@ -71,17 +76,17 @@ class QuantifyOrientationWrapper
     if (cursor instanceof SimpleLineSearchCursor) {
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction;
       @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights;
-      final com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence> dataMap = weights.stream()
-          .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> getId(x),
-              com.simiacryptus.ref.wrappers.RefCollectors.toList()))
-          .entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(x -> x.getKey(), list -> {
-            final com.simiacryptus.ref.wrappers.RefList<Double> doubleList = list.getValue().stream()
+      final RefMap<CharSequence, CharSequence> dataMap = weights.stream()
+          .collect(RefCollectors.groupingBy(x -> getId(x),
+              RefCollectors.toList()))
+          .entrySet().stream().collect(RefCollectors.toMap(x -> x.getKey(), list -> {
+            final RefList<Double> doubleList = list.getValue().stream()
                 .map(weightDelta -> {
                   final DoubleBuffer<UUID> dirDelta = direction.getMap().get(weightDelta.key);
                   final double denominator = weightDelta.deltaStatistics().rms();
                   final double numerator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
                   return numerator / (0 == denominator ? 1 : denominator);
-                }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+                }).collect(RefCollectors.toList());
             if (1 == doubleList.size())
               return Double.toString(doubleList.get(0));
             return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();

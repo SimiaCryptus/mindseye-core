@@ -20,13 +20,17 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.google.gson.JsonObject;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class LayerBase extends RegisteredObjectBase implements Layer {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
@@ -60,8 +64,8 @@ class LayerBase extends RegisteredObjectBase implements Layer {
     register();
   }
 
-  public com.simiacryptus.ref.wrappers.RefList<Layer> getChildren() {
-    return com.simiacryptus.ref.wrappers.RefArrays.asList(this);
+  public RefList<Layer> getChildren() {
+    return RefArrays.asList(this);
   }
 
   @Nullable
@@ -82,7 +86,7 @@ class LayerBase extends RegisteredObjectBase implements Layer {
   LayerBase[] addRefs(LayerBase[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef)
         .toArray((x) -> new LayerBase[x]);
   }
 
@@ -90,7 +94,7 @@ class LayerBase extends RegisteredObjectBase implements Layer {
   LayerBase[][] addRefs(LayerBase[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs)
         .toArray((x) -> new LayerBase[x][]);
   }
 

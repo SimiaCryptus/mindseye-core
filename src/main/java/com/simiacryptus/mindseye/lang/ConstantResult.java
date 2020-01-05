@@ -19,10 +19,15 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class ConstantResult extends Result {
 
   public ConstantResult(final Tensor... data) {
@@ -47,20 +52,20 @@ class ConstantResult extends Result {
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
     if (null == input)
       throw new IllegalArgumentException();
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, input[0].length)
-        .mapToObj(x -> com.simiacryptus.ref.wrappers.RefIntStream.range(0, input.length).mapToObj(y -> input[y][x])
+    return RefIntStream.range(0, input[0].length)
+        .mapToObj(x -> RefIntStream.range(0, input.length).mapToObj(y -> input[y][x])
             .toArray(i -> new Tensor[i]))
         .map(tensors -> new TensorArray(tensors)).map(tensorArray -> new ConstantResult(tensorArray))
         .toArray(x -> new Result[x]);
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
-    return com.simiacryptus.ref.wrappers.RefArrays.stream(input)
+    return RefArrays.stream(input)
         .map((@Nonnull final Tensor x) -> new ConstantResult(new TensorArray(x))).toArray(i -> new Result[i]);
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
-    return com.simiacryptus.ref.wrappers.RefArrays.stream(input)
+    return RefArrays.stream(input)
         .map((@Nonnull final Tensor[] x) -> new ConstantResult(new TensorArray(x))).toArray(i -> new Result[i]);
   }
 
@@ -68,7 +73,7 @@ class ConstantResult extends Result {
   ConstantResult[] addRefs(ConstantResult[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
         .toArray((x) -> new ConstantResult[x]);
   }
 
@@ -76,7 +81,7 @@ class ConstantResult extends Result {
   ConstantResult[][] addRefs(ConstantResult[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
         .toArray((x) -> new ConstantResult[x][]);
   }
 

@@ -25,15 +25,20 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.ValueLayer;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefCollectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class PipelineNetwork extends DAGNetwork {
   @Nullable
   private DAGNode head;
@@ -50,7 +55,7 @@ class PipelineNetwork extends DAGNetwork {
   }
 
   protected PipelineNetwork(@Nonnull final JsonObject json,
-                            com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                            Map<CharSequence, byte[]> rs) {
     super(json, rs);
     @Nonnull final UUID headId = UUID.fromString(json.get("head").getAsString());
     if (!inputHandles.contains(headId)) {
@@ -89,12 +94,12 @@ class PipelineNetwork extends DAGNetwork {
 
   @SuppressWarnings("unused")
   public static PipelineNetwork fromJson(@Nonnull final JsonObject json,
-                                         com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                         Map<CharSequence, byte[]> rs) {
     return new PipelineNetwork(json, rs);
   }
 
   public static PipelineNetwork build(final int inputs, final Layer... layers) {
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(layers).allMatch(ReferenceCounting::assertAlive);
+    assert RefArrays.stream(layers).allMatch(ReferenceCounting::assertAlive);
     PipelineNetwork pipelineNetwork = new PipelineNetwork(inputs);
     for (final Layer layer : layers) {
       pipelineNetwork.add(layer);
@@ -104,7 +109,7 @@ class PipelineNetwork extends DAGNetwork {
 
   public static InnerNode transferNode(PipelineNetwork pipelineNetwork, DAGNode node) {
     {
-      final DAGNode[] dagNodes = com.simiacryptus.ref.wrappers.RefArrays.stream(node.getInputs())
+      final DAGNode[] dagNodes = RefArrays.stream(node.getInputs())
           .map((DAGNode input) -> {
             final PipelineNetwork inputNetwork = (PipelineNetwork) input.getNetwork();
             final UUID inputId = input.getId();
@@ -121,7 +126,7 @@ class PipelineNetwork extends DAGNetwork {
                 return layer.getId().equals(inputLayer.getId());
               }).findFirst().orElseGet(() -> {
                 int inputNumber = inputNetwork.inputNodes.keySet().stream()
-                    .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList()).indexOf(inputId);
+                    .collect(RefCollectors.toList()).indexOf(inputId);
                 if (-1 == inputNumber) {
                   return transferNode(pipelineNetwork, input);
                 } else {
@@ -135,23 +140,23 @@ class PipelineNetwork extends DAGNetwork {
   }
 
   public static PipelineNetwork combine(Layer combiner, PipelineNetwork... networks) {
-    com.simiacryptus.ref.wrappers.RefArrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
+    RefArrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
     if (1 == networks.length)
       return networks[0];
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
-    pipelineNetwork.add(combiner, com.simiacryptus.ref.wrappers.RefArrays.stream(networks).map(network -> {
+    pipelineNetwork.add(combiner, RefArrays.stream(networks).map(network -> {
       return transferNode(pipelineNetwork, network.getHead());
     }).toArray(i -> new DAGNode[i]));
     return pipelineNetwork;
   }
 
   public static PipelineNetwork sequence(PipelineNetwork... networks) {
-    com.simiacryptus.ref.wrappers.RefArrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
+    RefArrays.stream(networks).forEach(ReferenceCountingBase::assertAlive);
     if (1 == networks.length)
       return networks[0];
     if (1 != networks[0].inputHandles.size())
       throw new IllegalArgumentException();
-    if (1 != com.simiacryptus.ref.wrappers.RefArrays.stream(networks).mapToInt(x -> x.inputHandles.size()).distinct()
+    if (1 != RefArrays.stream(networks).mapToInt(x -> x.inputHandles.size()).distinct()
         .count())
       throw new IllegalArgumentException();
     PipelineNetwork pipelineNetwork = new PipelineNetwork(networks[0].inputHandles.size());
@@ -165,7 +170,7 @@ class PipelineNetwork extends DAGNetwork {
   PipelineNetwork[] addRefs(PipelineNetwork[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRef)
         .toArray((x) -> new PipelineNetwork[x]);
   }
 
@@ -173,7 +178,7 @@ class PipelineNetwork extends DAGNetwork {
   PipelineNetwork[][] addRefs(PipelineNetwork[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(PipelineNetwork::addRefs)
         .toArray((x) -> new PipelineNetwork[x][]);
   }
 
@@ -234,7 +239,7 @@ class PipelineNetwork extends DAGNetwork {
   }
 
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     assertConsistent();
     final JsonObject json = super.getJson(resources, dataSerializer);

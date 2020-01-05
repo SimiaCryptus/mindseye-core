@@ -21,6 +21,8 @@ package com.simiacryptus.ref.lang;
 
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.util.test.TestCategories;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -30,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.DoubleSupplier;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class DataSerializerTest {
   private static final Logger log = LoggerFactory.getLogger(DataSerializerTest.class);
 
@@ -74,7 +76,7 @@ class DataSerializerTest {
     double[] source = random(1024, f);
     @Nonnull
     double[] result = target.fromBytes(target.toBytes(source));
-    double rms = com.simiacryptus.ref.wrappers.RefIntStream.range(0, source.length)
+    double rms = RefIntStream.range(0, source.length)
         .mapToDouble(i -> (source[i] - result[i]) / (source[i] + result[i])).map(x -> x * x).average().getAsDouble();
     log.info(String.format("%s RMS: %s", name, rms));
     //assert rms < 1e-4;
@@ -84,7 +86,7 @@ class DataSerializerTest {
   private double[] random(int i, @Nonnull DoubleSupplier f) {
     @Nonnull
     double[] doubles = new double[i];
-    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(doubles, j -> f.getAsDouble());
+    RefArrays.parallelSetAll(doubles, j -> f.getAsDouble());
     return doubles;
   }
 

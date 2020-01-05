@@ -24,11 +24,13 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class GradientDescent
     extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
@@ -36,7 +38,7 @@ class GradientDescent
   GradientDescent[] addRefs(GradientDescent[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRef)
         .toArray((x) -> new GradientDescent[x]);
   }
 
@@ -44,7 +46,7 @@ class GradientDescent
   GradientDescent[][] addRefs(GradientDescent[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRefs)
         .toArray((x) -> new GradientDescent[x][]);
   }
 

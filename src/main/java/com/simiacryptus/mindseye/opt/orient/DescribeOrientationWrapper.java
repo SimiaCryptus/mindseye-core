@@ -24,12 +24,18 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class DescribeOrientationWrapper
     extends OrientationStrategyBase<LineSearchCursor> {
 
@@ -46,18 +52,18 @@ class DescribeOrientationWrapper
 
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
                                     @Nonnull final DoubleBuffer<UUID> dirDelta) {
-    @Nonnull final CharSequence weightString = com.simiacryptus.ref.wrappers.RefArrays.toString(weightDelta.getDelta());
-    @Nonnull final CharSequence deltaString = com.simiacryptus.ref.wrappers.RefArrays.toString(dirDelta.getDelta());
+    @Nonnull final CharSequence weightString = RefArrays.toString(weightDelta.getDelta());
+    @Nonnull final CharSequence deltaString = RefArrays.toString(dirDelta.getDelta());
     return String.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
-    final com.simiacryptus.ref.wrappers.RefMap<CharSequence, CharSequence> data = weights.stream()
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> DescribeOrientationWrapper.getId(x),
-            com.simiacryptus.ref.wrappers.RefCollectors.toList()))
-        .entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(x -> x.getKey(),
-            (@Nonnull final Map.Entry<CharSequence, com.simiacryptus.ref.wrappers.RefList<State<UUID>>> list) -> {
-              final com.simiacryptus.ref.wrappers.RefList<State<UUID>> deltaList = list.getValue();
+    final RefMap<CharSequence, CharSequence> data = weights.stream()
+        .collect(RefCollectors.groupingBy(x -> DescribeOrientationWrapper.getId(x),
+            RefCollectors.toList()))
+        .entrySet().stream().collect(RefCollectors.toMap(x -> x.getKey(),
+            (@Nonnull final Map.Entry<CharSequence, RefList<State<UUID>>> list) -> {
+              final RefList<State<UUID>> deltaList = list.getValue();
               if (1 == deltaList.size()) {
                 final State<UUID> weightDelta = deltaList.get(0);
                 return DescribeOrientationWrapper.render(weightDelta, direction.getMap().get(weightDelta.key));
@@ -75,7 +81,7 @@ class DescribeOrientationWrapper
   DescribeOrientationWrapper[] addRefs(DescribeOrientationWrapper[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
         .toArray((x) -> new DescribeOrientationWrapper[x]);
   }
 
@@ -84,7 +90,7 @@ class DescribeOrientationWrapper
       DescribeOrientationWrapper[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
         .toArray((x) -> new DescribeOrientationWrapper[x][]);
   }
 

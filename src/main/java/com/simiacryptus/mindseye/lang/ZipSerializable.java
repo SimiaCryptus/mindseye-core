@@ -22,17 +22,22 @@ package com.simiacryptus.mindseye.lang;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefHashMap;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import java.io.*;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 interface ZipSerializable {
 
   default JsonElement getJson() {
@@ -40,10 +45,10 @@ interface ZipSerializable {
   }
 
   @NotNull
-  static com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
+  static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
     Enumeration<? extends ZipEntry> entries = zipfile.entries();
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    HashMap<CharSequence, byte[]> resources = new HashMap<>();
     while (entries.hasMoreElements()) {
       ZipEntry zipEntry = entries.nextElement();
       CharSequence name = zipEntry.getName();
@@ -57,7 +62,7 @@ interface ZipSerializable {
     return resources;
   }
 
-  JsonElement getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  JsonElement getJson(Map<CharSequence, byte[]> resources,
                       DataSerializer dataSerializer);
 
   default void writeZip(@Nonnull File out) {
@@ -67,14 +72,14 @@ interface ZipSerializable {
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull
          ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
-      writeZip(zipOutputStream, precision, new com.simiacryptus.ref.wrappers.RefHashMap<>(), "model.json");
+      writeZip(zipOutputStream, precision, new HashMap<>(), "model.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
-                        com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources, String fileName) {
+                        HashMap<CharSequence, byte[]> resources, String fileName) {
     try {
       JsonElement json = getJson(resources, precision);
       out.putNextEntry(new ZipEntry(fileName));
@@ -92,7 +97,7 @@ interface ZipSerializable {
           IOUtils.write(data, out);
           out.flush();
           out.closeEntry();
-        } catch (java.util.zip.ZipException e) {
+        } catch (ZipException e) {
           // Ignore duplicate entry
         } catch (IOException e) {
           throw new RuntimeException(e);

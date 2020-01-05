@@ -20,9 +20,12 @@
 package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.mindseye.lang.PointSample;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
-public @com.simiacryptus.ref.lang.RefAware
+import java.util.Arrays;
+
+public @RefAware
 class Step extends ReferenceCountingBase {
   public final long iteration;
   public final PointSample point;
@@ -37,14 +40,14 @@ class Step extends ReferenceCountingBase {
   Step[] addRefs(Step[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Step::addRef).toArray((x) -> new Step[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Step::addRef).toArray((x) -> new Step[x]);
   }
 
   public static @SuppressWarnings("unused")
   Step[][] addRefs(Step[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Step::addRefs).toArray((x) -> new Step[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Step::addRefs).toArray((x) -> new Step[x][]);
   }
 
   public @SuppressWarnings("unused")

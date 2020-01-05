@@ -21,16 +21,20 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private static final Logger log = LoggerFactory.getLogger(CachedTrainable.class);
 
-  private final com.simiacryptus.ref.wrappers.RefList<PointSample> history = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+  private final RefList<PointSample> history = new RefArrayList<>();
   private int historySize = 3;
   private boolean verbose = true;
 
@@ -62,7 +66,7 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   CachedTrainable[] addRefs(CachedTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
         .toArray((x) -> new CachedTrainable[x]);
   }
 
@@ -70,7 +74,7 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   CachedTrainable[][] addRefs(CachedTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
         .toArray((x) -> new CachedTrainable[x][]);
   }
 

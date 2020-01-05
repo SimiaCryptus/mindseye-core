@@ -25,7 +25,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.simiacryptus.lang.SerializableFunction;
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.FastRandom;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,13 +35,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import java.util.Base64;
-import java.util.Spliterator;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.*;
 
 @SuppressWarnings("serial")
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class Tensor extends ReferenceCountingBase
     implements Serializable, ZipSerializable {
   @Nonnull
@@ -74,9 +74,9 @@ class Tensor extends ReferenceCountingBase
     if (Tensor.length(dims) <= 0)
       throw new IllegalArgumentException();
     if (null != data && Tensor.length(dims) != data.length)
-      throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(dims) + " != " + data.length);
+      throw new IllegalArgumentException(RefArrays.toString(dims) + " != " + data.length);
     dimensions = (null == dims || 0 == dims.length) ? new int[]{}
-        : com.simiacryptus.ref.wrappers.RefArrays.copyOf(dims, dims.length);
+        : RefArrays.copyOf(dims, dims.length);
     strides = Tensor.getSkips(dims);
     //this.data = data;// Arrays.copyOf(data, data.length);
     if (null != data) {
@@ -104,15 +104,15 @@ class Tensor extends ReferenceCountingBase
   public Tensor(@Nullable final float[] data, @Nonnull final int... dims) {
     if (Tensor.length(dims) >= Integer.MAX_VALUE)
       throw new IllegalArgumentException();
-    dimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dims, dims.length);
+    dimensions = RefArrays.copyOf(dims, dims.length);
     strides = Tensor.getSkips(dims);
     if (null != data) {
       this.data = RecycleBin.DOUBLES.obtain(data.length);// Arrays.copyOf(data, data.length);
-      com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(this.data, i -> {
+      RefArrays.parallelSetAll(this.data, i -> {
         final double v = data[i];
         return Double.isFinite(v) ? v : 0;
       });
-      assert com.simiacryptus.ref.wrappers.RefArrays.stream(this.data).allMatch(v -> Double.isFinite(v));
+      assert RefArrays.stream(this.data).allMatch(v -> Double.isFinite(v));
     }
     assert isValid();
     //assert (null == data || Tensor.length(dims) == data.length);
@@ -148,7 +148,7 @@ class Tensor extends ReferenceCountingBase
 
   @Nonnull
   public final int[] getDimensions() {
-    return com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length);
+    return RefArrays.copyOf(dimensions, dimensions.length);
   }
 
   @Nullable
@@ -168,13 +168,13 @@ class Tensor extends ReferenceCountingBase
   }
 
   @Nonnull
-  public com.simiacryptus.ref.wrappers.RefStream<double[]> getPixelStream() {
+  public RefStream<double[]> getPixelStream() {
     int[] dimensions = getDimensions();
     int width = dimensions[0];
     int height = dimensions[1];
     int bands = dimensions[2];
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, width).mapToObj(x -> x).parallel().flatMap(x -> {
-      return com.simiacryptus.ref.wrappers.RefIntStream.range(0, height).mapToObj(y -> y).map(y -> {
+    return RefIntStream.range(0, width).mapToObj(x -> x).parallel().flatMap(x -> {
+      return RefIntStream.range(0, height).mapToObj(y -> y).map(y -> {
         return this.getPixel(x, y, bands);
       });
     });
@@ -203,20 +203,20 @@ class Tensor extends ReferenceCountingBase
   }
 
   public void setParallelByIndex(@Nonnull final IntToDoubleFunction f) {
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).parallel().forEach(c -> set(c, f.applyAsDouble(c)));
+    RefIntStream.range(0, length()).parallel().forEach(c -> set(c, f.applyAsDouble(c)));
   }
 
   @Nullable
   @SuppressWarnings("unused")
   public static Tensor fromJson(@Nullable final JsonElement json,
-                                @Nullable com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                                @Nullable Map<CharSequence, byte[]> resources) {
     if (null == json)
       return null;
     if (json.isJsonArray()) {
       final JsonArray array = json.getAsJsonArray();
       final int size = array.size();
       if (array.get(0).isJsonPrimitive()) {
-        final double[] doubles = com.simiacryptus.ref.wrappers.RefIntStream.range(0, size).mapToObj(i -> {
+        final double[] doubles = RefIntStream.range(0, size).mapToObj(i -> {
           return array.get(i);
         }).mapToDouble(element -> {
           return element.getAsDouble();
@@ -226,18 +226,18 @@ class Tensor extends ReferenceCountingBase
         assert tensor.isValid();
         return tensor;
       } else {
-        final com.simiacryptus.ref.wrappers.RefList<Tensor> elements = com.simiacryptus.ref.wrappers.RefIntStream
+        final RefList<Tensor> elements = RefIntStream
             .range(0, size).mapToObj(i -> {
               return array.get(i);
             }).map(element -> {
               return Tensor.fromJson(element, resources);
-            }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+            }).collect(RefCollectors.toList());
         @Nonnull final int[] dimensions = elements.get(0).getDimensions();
         if (!elements.stream()
-            .allMatch(t -> com.simiacryptus.ref.wrappers.RefArrays.equals(dimensions, t.getDimensions()))) {
+            .allMatch(t -> RefArrays.equals(dimensions, t.getDimensions()))) {
           throw new IllegalArgumentException();
         }
-        @Nonnull final int[] newDdimensions = com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length + 1);
+        @Nonnull final int[] newDdimensions = RefArrays.copyOf(dimensions, dimensions.length + 1);
         newDdimensions[dimensions.length] = size;
         @Nonnull final Tensor tensor = new Tensor(newDdimensions);
         @Nullable final double[] data = tensor.getData();
@@ -281,10 +281,10 @@ class Tensor extends ReferenceCountingBase
   public static int length(@Nonnull int... dims) {
     long total = 1;
     for (final int dim : dims) {
-      assert 0 <= dim : com.simiacryptus.ref.wrappers.RefArrays.toString(dims);
+      assert 0 <= dim : RefArrays.toString(dims);
       total *= dim;
-      assert 0 <= total : com.simiacryptus.ref.wrappers.RefArrays.toString(dims);
-      assert total < Integer.MAX_VALUE : com.simiacryptus.ref.wrappers.RefArrays.toString(dims);
+      assert 0 <= total : RefArrays.toString(dims);
+      assert total < Integer.MAX_VALUE : RefArrays.toString(dims);
     }
     return (int) total;
   }
@@ -294,9 +294,9 @@ class Tensor extends ReferenceCountingBase
     final int width = img.getWidth();
     final int height = img.getHeight();
     @Nonnull final Tensor a = new Tensor(width, height, 3);
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, width).parallel().forEach(x -> {
+    RefIntStream.range(0, width).parallel().forEach(x -> {
       @Nonnull final int[] coords = {0, 0, 0};
-      com.simiacryptus.ref.wrappers.RefIntStream.range(0, height).forEach(y -> {
+      RefIntStream.range(0, height).forEach(y -> {
         coords[0] = x;
         coords[1] = y;
         coords[2] = 0;
@@ -310,7 +310,7 @@ class Tensor extends ReferenceCountingBase
     return a;
   }
 
-  public static double[] getDoubles(@Nonnull final com.simiacryptus.ref.wrappers.RefDoubleStream stream,
+  public static double[] getDoubles(@Nonnull final RefDoubleStream stream,
                                     final int dim) {
     final double[] doubles = RecycleBin.DOUBLES.obtain(dim);
     stream.forEach(new DoubleConsumer() {
@@ -398,7 +398,7 @@ class Tensor extends ReferenceCountingBase
 
   @Nonnull
   public static int[] reverse(@Nonnull int[] dimensions) {
-    return reverseInPlace(com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length));
+    return reverseInPlace(RefArrays.copyOf(dimensions, dimensions.length));
   }
 
   public static int[] reverseInPlace(final int[] array) {
@@ -437,14 +437,14 @@ class Tensor extends ReferenceCountingBase
   Tensor[] addRefs(Tensor[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRef).toArray((x) -> new Tensor[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRef).toArray((x) -> new Tensor[x]);
   }
 
   public static @SuppressWarnings("unused")
   Tensor[][] addRefs(Tensor[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRefs).toArray((x) -> new Tensor[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRefs).toArray((x) -> new Tensor[x][]);
   }
 
   private static double bound8bit(final double value) {
@@ -477,7 +477,7 @@ class Tensor extends ReferenceCountingBase
   }
 
   public double[] getPixel(int x, int y, int bands) {
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, bands).mapToDouble(c -> get(x, y, c)).toArray();
+    return RefIntStream.range(0, bands).mapToDouble(c -> get(x, y, c)).toArray();
   }
 
   @Nonnull
@@ -498,15 +498,15 @@ class Tensor extends ReferenceCountingBase
   }
 
   public void addInPlace(@Nonnull final Tensor tensor) {
-    assert com.simiacryptus.ref.wrappers.RefArrays.equals(getDimensions(),
-        tensor.getDimensions()) : com.simiacryptus.ref.wrappers.RefArrays.toString(getDimensions()) + " != "
-        + com.simiacryptus.ref.wrappers.RefArrays.toString(tensor.getDimensions());
+    assert RefArrays.equals(getDimensions(),
+        tensor.getDimensions()) : RefArrays.toString(getDimensions()) + " != "
+        + RefArrays.toString(tensor.getDimensions());
     double[] toAdd = tensor.getData();
     double[] data = getData();
     int length = length();
     int shards = Math.max(1, Math.min(8, length / 64));
     double shardSize = (double) length / shards;
-    com.simiacryptus.ref.wrappers.RefDoubleStream.iterate(0, x -> x + shardSize).limit(shards).parallel()
+    RefDoubleStream.iterate(0, x -> x + shardSize).limit(shards).parallel()
         .forEach(start -> {
           int end = (int) Math.min(length, Math.floor(start + shardSize));
           for (int i = (int) Math.floor(start); i < end; i++) {
@@ -530,10 +530,10 @@ class Tensor extends ReferenceCountingBase
 
   @Nullable
   public Tensor add(@Nonnull final Tensor right) {
-    assert com.simiacryptus.ref.wrappers.RefArrays.equals(getDimensions(), right.getDimensions());
+    assert RefArrays.equals(getDimensions(), right.getDimensions());
     final double[] data = getData();
     final double[] rightData = right.getData();
-    return new Tensor(getDimensions(), com.simiacryptus.ref.wrappers.RefIntStream.range(0, length())
+    return new Tensor(getDimensions(), RefIntStream.range(0, length())
         .mapToDouble(i -> rightData[i] + data[i]).toArray());
   }
 
@@ -545,20 +545,20 @@ class Tensor extends ReferenceCountingBase
       addInPlace(right);
       return this;
     } else {
-      assert com.simiacryptus.ref.wrappers.RefArrays.equals(getDimensions(), right.getDimensions());
+      assert RefArrays.equals(getDimensions(), right.getDimensions());
       final double[] data = getData();
       final double[] rightData = right.getData();
-      return new Tensor(getDimensions(), com.simiacryptus.ref.wrappers.RefIntStream.range(0, length())
+      return new Tensor(getDimensions(), RefIntStream.range(0, length())
           .mapToDouble(i -> rightData[i] + data[i]).toArray());
     }
   }
 
   @Nonnull
-  public com.simiacryptus.ref.wrappers.RefStream<Coordinate> coordStream(boolean parallel) {
+  public RefStream<Coordinate> coordStream(boolean parallel) {
     //ConcurrentHashSet<Object> distinctBuffer = new ConcurrentHashSet<>();
     //assert distinctBuffer.add(coordinate.copy()) : String.format("Duplicate: %s in %s", coordinate, distinctBuffer);
-    return com.simiacryptus.ref.wrappers.RefStreamSupport.stream(com.simiacryptus.ref.wrappers.RefSpliterators
-        .spliterator(new com.simiacryptus.ref.wrappers.RefIteratorBase<Coordinate>() {
+    return RefStreamSupport.stream(RefSpliterators
+        .spliterator(new RefIteratorBase<Coordinate>() {
 
           @Nonnull
           final Coordinate coordinate = new Coordinate();
@@ -610,7 +610,7 @@ class Tensor extends ReferenceCountingBase
   public Tensor copy() {
     assertAlive();
     return new Tensor(RecycleBin.DOUBLES.copyOf(getData(), getData().length),
-        com.simiacryptus.ref.wrappers.RefArrays.copyOf(dimensions, dimensions.length));
+        RefArrays.copyOf(dimensions, dimensions.length));
   }
 
   @Override
@@ -629,10 +629,10 @@ class Tensor extends ReferenceCountingBase
       return false;
     if (0 == other.currentRefCount())
       return false;
-    if (!com.simiacryptus.ref.wrappers.RefArrays.equals(dimensions, other.dimensions)) {
+    if (!RefArrays.equals(dimensions, other.dimensions)) {
       return false;
     }
-    return com.simiacryptus.ref.wrappers.RefArrays.equals(getData(), other.getData());
+    return RefArrays.equals(getData(), other.getData());
   }
 
   public double get(@Nonnull final Coordinate coords) {
@@ -671,8 +671,8 @@ class Tensor extends ReferenceCountingBase
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + com.simiacryptus.ref.wrappers.RefArrays.hashCode(getData());
-    result = prime * result + com.simiacryptus.ref.wrappers.RefArrays.hashCode(dimensions);
+    result = prime * result + RefArrays.hashCode(getData());
+    result = prime * result + RefArrays.hashCode(dimensions);
     return result;
   }
 
@@ -727,11 +727,11 @@ class Tensor extends ReferenceCountingBase
   }
 
   public double l1() {
-    return com.simiacryptus.ref.wrappers.RefArrays.stream(getData()).sum();
+    return RefArrays.stream(getData()).sum();
   }
 
   public double l2() {
-    return Math.sqrt(com.simiacryptus.ref.wrappers.RefArrays.stream(getData()).map(x -> x * x).sum());
+    return Math.sqrt(RefArrays.stream(getData()).map(x -> x * x).sum());
   }
 
   public int index(@Nonnull final int[] coords) {
@@ -753,7 +753,7 @@ class Tensor extends ReferenceCountingBase
     @Nullable final double[] data = getData();
     Tensor tensor = new Tensor(dimensions);
     @Nonnull final double[] cpy = tensor.getData();
-    com.simiacryptus.ref.wrappers.RefIntStream stream = com.simiacryptus.ref.wrappers.RefIntStream.range(0,
+    RefIntStream stream = RefIntStream.range(0,
         data.length);
     if (parallel)
       stream = stream.parallel();
@@ -775,7 +775,7 @@ class Tensor extends ReferenceCountingBase
   @Nullable
   public Tensor mapIndex(@Nonnull final TupleOperator f) {
     return new Tensor(Tensor.getDoubles(
-        com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToDouble(i -> f.eval(get(i), i)), length()),
+        RefIntStream.range(0, length()).mapToDouble(i -> f.eval(get(i), i)), length()),
         dimensions);
   }
 
@@ -787,20 +787,20 @@ class Tensor extends ReferenceCountingBase
   public Tensor mapParallel(@Nonnull final DoubleUnaryOperator f) {
     @Nullable final double[] data = getData();
     return new Tensor(Tensor.getDoubles(
-        com.simiacryptus.ref.wrappers.RefIntStream.range(0, length()).mapToDouble(i -> f.applyAsDouble(data[i])),
+        RefIntStream.range(0, length()).mapToDouble(i -> f.applyAsDouble(data[i])),
         length()), dimensions);
   }
 
   @Nonnull
   public Tensor minus(@Nonnull final Tensor right) {
-    if (!com.simiacryptus.ref.wrappers.RefArrays.equals(getDimensions(), right.getDimensions())) {
-      throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(getDimensions()) + " != "
-          + com.simiacryptus.ref.wrappers.RefArrays.toString(right.getDimensions()));
+    if (!RefArrays.equals(getDimensions(), right.getDimensions())) {
+      throw new IllegalArgumentException(RefArrays.toString(getDimensions()) + " != "
+          + RefArrays.toString(right.getDimensions()));
     }
     @Nonnull final Tensor copy = new Tensor(getDimensions());
     @Nullable final double[] thisData = getData();
     @Nullable final double[] rightData = right.getData();
-    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(copy.getData(),
+    RefArrays.parallelSetAll(copy.getData(),
         i -> (thisData[i] == rightData[i]) ? 0 : (thisData[i] - rightData[i]));
     return copy;
   }
@@ -834,13 +834,13 @@ class Tensor extends ReferenceCountingBase
 
   @Nullable
   public Tensor reduceParallel(@Nonnull final Tensor right, @Nonnull final DoubleBinaryOperator f) {
-    if (!com.simiacryptus.ref.wrappers.RefArrays.equals(right.getDimensions(), getDimensions())) {
-      throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(right.getDimensions())
-          + " != " + com.simiacryptus.ref.wrappers.RefArrays.toString(getDimensions()));
+    if (!RefArrays.equals(right.getDimensions(), getDimensions())) {
+      throw new IllegalArgumentException(RefArrays.toString(right.getDimensions())
+          + " != " + RefArrays.toString(getDimensions()));
     }
     @Nullable final double[] dataL = getData();
     @Nullable final double[] dataR = right.getData();
-    return new Tensor(Tensor.getDoubles(com.simiacryptus.ref.wrappers.RefIntStream.range(0, length())
+    return new Tensor(Tensor.getDoubles(RefIntStream.range(0, length())
         .mapToDouble(i -> f.applyAsDouble(dataL[i], dataR[i])), length()), dimensions);
   }
 
@@ -895,7 +895,7 @@ class Tensor extends ReferenceCountingBase
 
   @Nonnull
   public Tensor set(@Nonnull final DoubleSupplier f) {
-    com.simiacryptus.ref.wrappers.RefArrays.setAll(getData(), i -> f.getAsDouble());
+    RefArrays.setAll(getData(), i -> f.getAsDouble());
     return this;
   }
 
@@ -920,7 +920,7 @@ class Tensor extends ReferenceCountingBase
     // assert Double.isFinite(value);
     assert index >= 0 : index;
     assert index < length() : String.format("%d>%d (%s)", index, length(),
-        com.simiacryptus.ref.wrappers.RefArrays.toString(dimensions));
+        RefArrays.toString(dimensions));
     getData()[index] = value;
     return this;
   }
@@ -932,7 +932,7 @@ class Tensor extends ReferenceCountingBase
 
   @Nonnull
   public Tensor set(@Nonnull final IntToDoubleFunction f) {
-    com.simiacryptus.ref.wrappers.RefArrays.parallelSetAll(getData(), f);
+    RefArrays.parallelSetAll(getData(), f);
     return this;
   }
 
@@ -1011,21 +1011,21 @@ class Tensor extends ReferenceCountingBase
   }
 
   @Nonnull
-  public com.simiacryptus.ref.wrappers.RefList<BufferedImage> toImages() {
+  public RefList<BufferedImage> toImages() {
     @Nonnull final int[] dims = getDimensions();
     if (3 == dims.length) {
       if (3 == dims[2]) {
-        return com.simiacryptus.ref.wrappers.RefArrays.asList(toRgbImage());
+        return RefArrays.asList(toRgbImage());
       } else if (0 == dims[2] % 3) {
-        @Nonnull final com.simiacryptus.ref.wrappers.RefArrayList<BufferedImage> list = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+        @Nonnull final RefArrayList<BufferedImage> list = new RefArrayList<>();
         for (int i = 0; i < dims[2]; i += 3) {
           list.add(toRgbImage(i, i + 1, i + 2));
         }
         return list;
       } else if (1 == dims[2]) {
-        return com.simiacryptus.ref.wrappers.RefArrays.asList(toGrayImage());
+        return RefArrays.asList(toGrayImage());
       } else {
-        @Nonnull final com.simiacryptus.ref.wrappers.RefArrayList<BufferedImage> list = new com.simiacryptus.ref.wrappers.RefArrayList<>();
+        @Nonnull final RefArrayList<BufferedImage> list = new RefArrayList<>();
         for (int i = 0; i < dims[2]; i++) {
           list.add(toGrayImage(i));
         }
@@ -1033,12 +1033,12 @@ class Tensor extends ReferenceCountingBase
       }
     } else {
       assert 2 == dims.length : "order: " + dims.length;
-      return com.simiacryptus.ref.wrappers.RefArrays.asList(toGrayImage());
+      return RefArrays.asList(toGrayImage());
     }
   }
 
   @Nonnull
-  public JsonElement getJson(@Nullable com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonElement getJson(@Nullable Map<CharSequence, byte[]> resources,
                              @Nonnull DataSerializer dataSerializer) {
     if (length() > 1024) {
       @Nonnull
@@ -1117,7 +1117,7 @@ class Tensor extends ReferenceCountingBase
   public Tensor permuteDimensions(int... key) {
     assertAlive();
     int[] inputDims = getDimensions();
-    int[] absKey = com.simiacryptus.ref.wrappers.RefArrays.stream(key)
+    int[] absKey = RefArrays.stream(key)
         .map(a -> a == Integer.MAX_VALUE ? 0 : Math.abs(a)).toArray();
     int[] outputDims = permute(absKey, inputDims, inputDims);
     return rearrange(in -> permute(key, in, inputDims), outputDims);
@@ -1128,7 +1128,7 @@ class Tensor extends ReferenceCountingBase
     if (0 == dims.length)
       throw new IllegalArgumentException();
     if (length(dims) != length())
-      throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(dims) + " != " + length());
+      throw new IllegalArgumentException(RefArrays.toString(dims) + " != " + length());
     double[] data = getData();
     return new Tensor(dims, null == data ? null : RecycleBin.DOUBLES.copyOf(data, data.length));
   }
@@ -1178,11 +1178,11 @@ class Tensor extends ReferenceCountingBase
 
   public Tensor mapPixels(UnaryOperator<double[]> fn) {
     final Tensor copy = new Tensor(dimensions);
-    com.simiacryptus.ref.wrappers.RefIntStream.range(0, dimensions[0]).parallel().forEach(x -> {
-      com.simiacryptus.ref.wrappers.RefIntStream.range(0, dimensions[1]).forEach(y -> {
-        final double[] finalPixel = fn.apply(com.simiacryptus.ref.wrappers.RefIntStream.range(0, dimensions[2])
+    RefIntStream.range(0, dimensions[0]).parallel().forEach(x -> {
+      RefIntStream.range(0, dimensions[1]).forEach(y -> {
+        final double[] finalPixel = fn.apply(RefIntStream.range(0, dimensions[2])
             .mapToDouble(c1 -> get(x, y, c1)).toArray());
-        com.simiacryptus.ref.wrappers.RefIntStream.range(0, dimensions[2])
+        RefIntStream.range(0, dimensions[2])
             .forEach(c -> copy.set(x, y, c, finalPixel[c]));
       });
     });
@@ -1211,7 +1211,7 @@ class Tensor extends ReferenceCountingBase
       return new JsonPrimitive(d);
     } else {
       @Nonnull final JsonArray jsonArray = new JsonArray();
-      com.simiacryptus.ref.wrappers.RefIntStream.range(0, dimensions[dimensions.length - (coords.length + 1)])
+      RefIntStream.range(0, dimensions[dimensions.length - (coords.length + 1)])
           .mapToObj(i -> {
             @Nonnull final int[] newCoord = new int[coords.length + 1];
             System.arraycopy(coords, 0, newCoord, 1, coords.length);
@@ -1226,12 +1226,12 @@ class Tensor extends ReferenceCountingBase
     if (coords.length == dimensions.length) {
       return Double.toString(get(coords));
     } else {
-      com.simiacryptus.ref.wrappers.RefList<CharSequence> list = com.simiacryptus.ref.wrappers.RefIntStream
+      RefList<CharSequence> list = RefIntStream
           .range(0, dimensions[coords.length]).mapToObj(i -> {
-            @Nonnull final int[] newCoord = com.simiacryptus.ref.wrappers.RefArrays.copyOf(coords, coords.length + 1);
+            @Nonnull final int[] newCoord = RefArrays.copyOf(coords, coords.length + 1);
             newCoord[coords.length] = i;
             return toString(prettyPrint, newCoord);
-          }).limit(15).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+          }).limit(15).collect(RefCollectors.toList());
       if (list.size() > 10) {
         list = list.subList(0, 8);
         list.add("...");
@@ -1252,12 +1252,12 @@ class Tensor extends ReferenceCountingBase
     }
   }
 
-  public @com.simiacryptus.ref.lang.RefAware
+  public @RefAware
   interface CoordOperator {
     void eval(double value, Coordinate index);
   }
 
-  public @com.simiacryptus.ref.lang.RefAware
+  public @RefAware
   interface TupleOperator {
     double eval(double value, int index);
   }

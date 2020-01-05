@@ -19,11 +19,15 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefStream;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ReshapedTensorList extends ReferenceCountingBase
     implements TensorList {
   @Nonnull
@@ -32,8 +36,8 @@ class ReshapedTensorList extends ReferenceCountingBase
 
   public ReshapedTensorList(@Nonnull TensorList inner, int[] toDim) {
     if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim))
-      throw new IllegalArgumentException(com.simiacryptus.ref.wrappers.RefArrays.toString(inner.getDimensions())
-          + " != " + com.simiacryptus.ref.wrappers.RefArrays.toString(toDim));
+      throw new IllegalArgumentException(RefArrays.toString(inner.getDimensions())
+          + " != " + RefArrays.toString(toDim));
     this.inner = inner;
     this.dims = toDim;
   }
@@ -41,7 +45,7 @@ class ReshapedTensorList extends ReferenceCountingBase
   @Nonnull
   @Override
   public int[] getDimensions() {
-    return com.simiacryptus.ref.wrappers.RefArrays.copyOf(dims, dims.length);
+    return RefArrays.copyOf(dims, dims.length);
   }
 
   @Nonnull
@@ -53,7 +57,7 @@ class ReshapedTensorList extends ReferenceCountingBase
   ReshapedTensorList[] addRefs(ReshapedTensorList[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
         .toArray((x) -> new ReshapedTensorList[x]);
   }
 
@@ -61,7 +65,7 @@ class ReshapedTensorList extends ReferenceCountingBase
   ReshapedTensorList[][] addRefs(ReshapedTensorList[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
         .toArray((x) -> new ReshapedTensorList[x][]);
   }
 
@@ -80,7 +84,7 @@ class ReshapedTensorList extends ReferenceCountingBase
   }
 
   @Override
-  public com.simiacryptus.ref.wrappers.RefStream<Tensor> stream() {
+  public RefStream<Tensor> stream() {
     return inner.stream().map(t -> {
       return t.reshapeCast(dims);
     });

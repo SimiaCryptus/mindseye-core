@@ -19,6 +19,9 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+
 import javax.annotation.Nonnull;
 import java.nio.DoubleBuffer;
 import java.nio.*;
@@ -76,7 +79,7 @@ public enum SerialPrecision implements DataSerializer {
   Uniform32(4) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
-      DoubleSummaryStatistics statistics = com.simiacryptus.ref.wrappers.RefArrays.stream(from).summaryStatistics();
+      DoubleSummaryStatistics statistics = RefArrays.stream(from).summaryStatistics();
       @Nonnull
       DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
       @Nonnull
@@ -124,7 +127,7 @@ public enum SerialPrecision implements DataSerializer {
   Uniform16(2) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
-      DoubleSummaryStatistics statistics = com.simiacryptus.ref.wrappers.RefArrays.stream(from).summaryStatistics();
+      DoubleSummaryStatistics statistics = RefArrays.stream(from).summaryStatistics();
       @Nonnull
       DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
       @Nonnull
@@ -172,7 +175,7 @@ public enum SerialPrecision implements DataSerializer {
   Uniform8(1) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
-      DoubleSummaryStatistics statistics = com.simiacryptus.ref.wrappers.RefArrays.stream(from).summaryStatistics();
+      DoubleSummaryStatistics statistics = RefArrays.stream(from).summaryStatistics();
       @Nonnull
       DoubleBuffer inBuffer = DoubleBuffer.wrap(from);
       @Nonnull
@@ -274,7 +277,7 @@ public enum SerialPrecision implements DataSerializer {
     }
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class Rational {
     public final int numerator;
     public final int denominator;

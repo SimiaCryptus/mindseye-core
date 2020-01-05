@@ -26,11 +26,13 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursorBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ValidatingOrientationWrapper
     extends OrientationStrategyBase<LineSearchCursor> {
 
@@ -45,7 +47,7 @@ class ValidatingOrientationWrapper
       ValidatingOrientationWrapper[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRef)
         .toArray((x) -> new ValidatingOrientationWrapper[x]);
   }
 
@@ -54,7 +56,7 @@ class ValidatingOrientationWrapper
       ValidatingOrientationWrapper[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRefs)
         .toArray((x) -> new ValidatingOrientationWrapper[x][]);
   }
 
@@ -80,7 +82,7 @@ class ValidatingOrientationWrapper
     return (ValidatingOrientationWrapper) super.addRef();
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class ValidatingLineSearchCursor extends LineSearchCursorBase {
     private final LineSearchCursor cursor;
 
@@ -97,7 +99,7 @@ class ValidatingOrientationWrapper
     ValidatingLineSearchCursor[] addRefs(ValidatingLineSearchCursor[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingLineSearchCursor::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(ValidatingLineSearchCursor::addRef)
           .toArray((x) -> new ValidatingLineSearchCursor[x]);
     }
 

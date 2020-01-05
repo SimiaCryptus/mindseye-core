@@ -19,9 +19,13 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefDoubleStream;
+
 import java.util.DoubleSummaryStatistics;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class DoubleArrayStatsFacade {
   private final double[] data;
 
@@ -38,12 +42,12 @@ class DoubleArrayStatsFacade {
   }
 
   public double sum() {
-    final DoubleSummaryStatistics statistics = com.simiacryptus.ref.wrappers.RefArrays.stream(data).summaryStatistics();
+    final DoubleSummaryStatistics statistics = RefArrays.stream(data).summaryStatistics();
     return statistics.getSum();
   }
 
   public double sumSq() {
-    final com.simiacryptus.ref.wrappers.RefDoubleStream doubleStream = com.simiacryptus.ref.wrappers.RefArrays
+    final RefDoubleStream doubleStream = RefArrays
         .stream(data).map((final double x) -> x * x);
     final DoubleSummaryStatistics statistics = doubleStream.summaryStatistics();
     return statistics.getSum();

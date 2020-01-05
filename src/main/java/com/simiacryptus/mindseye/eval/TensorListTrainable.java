@@ -23,15 +23,19 @@ import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.PlaceholderLayer;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class TensorListTrainable extends ReferenceCountingBase
     implements TrainableDataMask {
 
@@ -78,8 +82,8 @@ class TensorListTrainable extends ReferenceCountingBase
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, inputs).mapToObj(col -> {
-      final Tensor[] tensors = com.simiacryptus.ref.wrappers.RefIntStream.range(0, items)
+    return RefIntStream.range(0, inputs).mapToObj(col -> {
+      final Tensor[] tensors = RefIntStream.range(0, items)
           .mapToObj(row -> data[col].get(row)).toArray(i -> new Tensor[i]);
       @Nonnull
       TensorArray tensorArray = new TensorArray(tensors);
@@ -115,7 +119,7 @@ class TensorListTrainable extends ReferenceCountingBase
   TensorListTrainable[] addRefs(TensorListTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRef)
         .toArray((x) -> new TensorListTrainable[x]);
   }
 
@@ -123,7 +127,7 @@ class TensorListTrainable extends ReferenceCountingBase
   TensorListTrainable[][] addRefs(TensorListTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRefs)
         .toArray((x) -> new TensorListTrainable[x][]);
   }
 
@@ -188,8 +192,8 @@ class TensorListTrainable extends ReferenceCountingBase
       }
       final TensorList resultData = result.getData();
       final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
-        double[] array = com.simiacryptus.ref.wrappers.RefArrays.stream(x.getData()).toArray();
-        return com.simiacryptus.ref.wrappers.RefArrays.stream(array);
+        double[] array = RefArrays.stream(x.getData()).toArray();
+        return RefArrays.stream(array);
       }).summaryStatistics();
       final double sum = statistics.getSum();
       @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();

@@ -23,12 +23,14 @@ import com.simiacryptus.mindseye.lang.IterativeStopException;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.orient.DescribeOrientationWrapper;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class QuadraticSearch implements LineSearchStrategy {
 
   private final double initialDerivFactor = 0.95;
@@ -265,7 +267,7 @@ class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class LocateInitialRightPoint extends ReferenceCountingBase {
     @Nonnull
     private final LineSearchCursor cursor;
@@ -302,7 +304,7 @@ class QuadraticSearch implements LineSearchStrategy {
     LocateInitialRightPoint[] addRefs(LocateInitialRightPoint[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(LocateInitialRightPoint::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(LocateInitialRightPoint::addRef)
           .toArray((x) -> new LocateInitialRightPoint[x]);
     }
 

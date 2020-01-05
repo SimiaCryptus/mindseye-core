@@ -20,10 +20,12 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 
+import java.util.Arrays;
 import java.util.Random;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 interface StochasticComponent extends Layer {
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
     @Override
@@ -36,7 +38,7 @@ interface StochasticComponent extends Layer {
   StochasticComponent[] addRefs(StochasticComponent[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
         .toArray((x) -> new StochasticComponent[x]);
   }
 
@@ -44,7 +46,7 @@ interface StochasticComponent extends Layer {
   StochasticComponent[][] addRefs(StochasticComponent[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)
         .toArray((x) -> new StochasticComponent[x][]);
   }
 

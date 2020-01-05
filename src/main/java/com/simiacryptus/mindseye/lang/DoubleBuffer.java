@@ -20,15 +20,19 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class DoubleBuffer<K> extends ReferenceCountingBase {
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(DoubleBuffer.class);
@@ -82,7 +86,7 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   DoubleBuffer[] addRefs(DoubleBuffer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRef)
         .toArray((x) -> new DoubleBuffer[x]);
   }
 
@@ -90,7 +94,7 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   DoubleBuffer[][] addRefs(DoubleBuffer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRefs)
         .toArray((x) -> new DoubleBuffer[x][]);
   }
 
@@ -117,9 +121,9 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
     @Nullable final double[] l = this.getDelta();
     @Nullable final double[] r = right.getDelta();
     assert l.length == r.length;
-    final double[] array = com.simiacryptus.ref.wrappers.RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i])
+    final double[] array = RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i])
         .toArray();
-    return com.simiacryptus.ref.wrappers.RefArrays.stream(array).summaryStatistics().getSum();
+    return RefArrays.stream(array).summaryStatistics().getSum();
   }
 
   public int length() {
@@ -129,15 +133,15 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
     return new DoubleBuffer<K>(this.key, this.target,
-        com.simiacryptus.ref.wrappers.RefArrays.stream(this.getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+        RefArrays.stream(this.getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
   @Nonnull
   public void set(@Nonnull final double[] data) {
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(data).allMatch(Double::isFinite);
+    assert RefArrays.stream(data).allMatch(Double::isFinite);
     System.arraycopy(data, 0, this.getDelta(), 0, data.length);
     //    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(getDelta()).allMatch(Double::isFinite);
+    assert RefArrays.stream(getDelta()).allMatch(Double::isFinite);
   }
 
   @Nonnull

@@ -22,14 +22,18 @@ package com.simiacryptus.mindseye.network;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class InnerNode extends LazyResult {
   @SuppressWarnings("unused")
   public final CharSequence[] createdBy = Util.currentStack();
@@ -54,9 +58,9 @@ class InnerNode extends LazyResult {
     if (0 == inputNodes.length) {
       this.inputNodes = new DAGNode[]{};
     } else {
-      this.inputNodes = com.simiacryptus.ref.wrappers.RefArrays.copyOf(inputNodes, inputNodes.length);
-      assert com.simiacryptus.ref.wrappers.RefArrays.stream(inputNodes).parallel().allMatch(x -> x != null);
-      assert com.simiacryptus.ref.wrappers.RefArrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
+      this.inputNodes = RefArrays.copyOf(inputNodes, inputNodes.length);
+      assert RefArrays.stream(inputNodes).parallel().allMatch(x -> x != null);
+      assert RefArrays.stream(inputNodes).parallel().allMatch(x -> x.assertAlive());
     }
   }
 
@@ -103,7 +107,7 @@ class InnerNode extends LazyResult {
   InnerNode[] addRefs(InnerNode[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRef)
         .toArray((x) -> new InnerNode[x]);
   }
 
@@ -111,14 +115,14 @@ class InnerNode extends LazyResult {
   InnerNode[][] addRefs(InnerNode[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRefs)
         .toArray((x) -> new InnerNode[x][]);
   }
 
   public void _free() {
     super._free();
     if (null != this.inputNodes) {
-      com.simiacryptus.ref.wrappers.RefArrays.fill(this.inputNodes, null);
+      RefArrays.fill(this.inputNodes, null);
     }
     this.layer = null;
   }
@@ -134,14 +138,14 @@ class InnerNode extends LazyResult {
   protected Result eval(final GraphEvaluationContext ctx) {
     assertAlive();
     @Nonnull final Layer innerLayer = getLayer();
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(inputNodes).allMatch(x -> x != null);
+    assert RefArrays.stream(inputNodes).allMatch(x -> x != null);
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefStream<DAGNode> stream = com.simiacryptus.ref.wrappers.RefArrays
+    RefStream<DAGNode> stream = RefArrays
         .stream(inputNodes);
     if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
       stream = stream.parallel();
     final Result[] in = stream.map(x -> x == null ? null : x.get(ctx)).toArray(i -> new Result[i]);
-    assert com.simiacryptus.ref.wrappers.RefArrays.stream(in).allMatch(x -> x != null);
+    assert RefArrays.stream(in).allMatch(x -> x != null);
     return innerLayer.eval(in);
   }
 }

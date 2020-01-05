@@ -23,7 +23,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.network.PipelineNetwork;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
+import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.JsonUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,13 +34,16 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
 import java.util.zip.ZipFile;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
-  com.simiacryptus.ref.wrappers.RefList<Layer> getChildren();
+  RefList<Layer> getChildren();
 
   @Nullable
   UUID getId();
@@ -77,12 +82,12 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   @Nonnull
   static Layer fromZip(@Nonnull final ZipFile zipfile) {
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources = ZipSerializable.extract(zipfile);
+    HashMap<CharSequence, byte[]> resources = ZipSerializable.extract(zipfile);
     return fromJson(JsonUtil.toJson(resources.get("model.json")), resources);
   }
 
   @Nonnull
-  static Layer fromJson(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+  static Layer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     JsonElement classElement = json.get("class");
     assert null != classElement : json.toString();
     final String className = classElement.getAsString();
@@ -90,7 +95,7 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
       final Class<?> clazz = Class.forName(className);
       if (null == clazz)
         throw new ClassNotFoundException(className);
-      final Method method = clazz.getMethod("fromJson", JsonObject.class, com.simiacryptus.ref.wrappers.RefMap.class);
+      final Method method = clazz.getMethod("fromJson", JsonObject.class, Map.class);
       if (method.getDeclaringClass() == Layer.class) {
         throw new IllegalArgumentException("Cannot find deserialization method for " + className);
       }
@@ -109,14 +114,14 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   Layer[] addRefs(Layer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Layer::addRef).toArray((x) -> new Layer[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Layer::addRef).toArray((x) -> new Layer[x]);
   }
 
   public static @SuppressWarnings("unused")
   Layer[][] addRefs(Layer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Layer::addRefs).toArray((x) -> new Layer[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Layer::addRefs).toArray((x) -> new Layer[x][]);
   }
 
   default int[] evalDims(int[] inputDims) {
@@ -126,16 +131,16 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   }
 
   @NotNull
-  default com.simiacryptus.ref.wrappers.RefList<Tensor> map(
-      com.simiacryptus.ref.wrappers.RefCollection<? extends Tensor> values) {
+  default RefList<Tensor> map(
+      RefCollection<? extends Tensor> values) {
     return values.stream().map(t -> {
       return eval(t).getData().get(0);
-    }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+    }).collect(RefCollectors.toList());
   }
 
   @NotNull
-  default com.simiacryptus.ref.wrappers.RefStream<Tensor> map(
-      com.simiacryptus.ref.wrappers.RefStream<? extends Tensor> values) {
+  default RefStream<Tensor> map(
+      RefStream<? extends Tensor> values) {
     return values.map(t -> {
       return eval(t).getData().get(0);
     });
@@ -163,7 +168,7 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   @SuppressWarnings("unchecked")
   default <T extends Layer> T as(@Nonnull final Class<T> targetClass) {
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    HashMap<CharSequence, byte[]> resources = new HashMap<>();
     final JsonObject json = getJson(resources, SerialPrecision.Double).getAsJsonObject();
     json.remove("class");
     json.addProperty("class", targetClass.getCanonicalName());
@@ -179,7 +184,7 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   default Layer copy(SerialPrecision precision) {
     assertAlive();
     @Nonnull
-    com.simiacryptus.ref.wrappers.RefHashMap<CharSequence, byte[]> resources = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    HashMap<CharSequence, byte[]> resources = new HashMap<>();
     final JsonObject json = getJson(resources, precision).getAsJsonObject();
     return Layer.fromJson(json, resources);
   }
@@ -207,7 +212,7 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   }
 
   @Nullable
-  com.simiacryptus.ref.wrappers.RefList<double[]> state();
+  RefList<double[]> state();
 
   default UnaryOperator<Tensor> asTensorFunction() {
     return input -> {

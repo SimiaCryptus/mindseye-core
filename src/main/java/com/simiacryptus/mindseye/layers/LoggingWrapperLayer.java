@@ -21,20 +21,25 @@ package com.simiacryptus.mindseye.layers;
 
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class LoggingWrapperLayer extends WrapperLayer {
   static final Logger log = LoggerFactory.getLogger(LoggingWrapperLayer.class);
 
   protected LoggingWrapperLayer(@Nonnull final JsonObject json,
-                                com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                Map<CharSequence, byte[]> rs) {
     super(json, rs);
   }
 
@@ -44,7 +49,7 @@ class LoggingWrapperLayer extends WrapperLayer {
 
   @SuppressWarnings("unused")
   public static LoggingWrapperLayer fromJson(@Nonnull final JsonObject json,
-                                             com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                             Map<CharSequence, byte[]> rs) {
     return new LoggingWrapperLayer(json, rs);
   }
 
@@ -52,7 +57,7 @@ class LoggingWrapperLayer extends WrapperLayer {
   LoggingWrapperLayer[] addRefs(LoggingWrapperLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRef)
         .toArray((x) -> new LoggingWrapperLayer[x]);
   }
 
@@ -60,13 +65,13 @@ class LoggingWrapperLayer extends WrapperLayer {
   LoggingWrapperLayer[][] addRefs(LoggingWrapperLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRefs)
         .toArray((x) -> new LoggingWrapperLayer[x][]);
   }
 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    final Result[] wrappedInput = com.simiacryptus.ref.wrappers.RefIntStream.range(0, inObj.length).mapToObj(i -> {
+    final Result[] wrappedInput = RefIntStream.range(0, inObj.length).mapToObj(i -> {
       final Result inputToWrap = inObj[i];
       return new Result(inputToWrap.getData(),
           (@Nonnull final DeltaSet<UUID> buffer, @Nonnull final TensorList data) -> {
@@ -119,7 +124,7 @@ class LoggingWrapperLayer extends WrapperLayer {
   }
 
   public String getString(Tensor x) {
-    return com.simiacryptus.ref.wrappers.RefArrays.toString(x.getDimensions());
+    return RefArrays.toString(x.getDimensions());
   }
 
   public @SuppressWarnings("unused")

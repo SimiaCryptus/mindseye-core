@@ -19,12 +19,14 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class PointSample extends ReferenceCountingBase {
   public final int count;
   @Nonnull
@@ -78,7 +80,7 @@ class PointSample extends ReferenceCountingBase {
   PointSample[] addRefs(PointSample[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef)
         .toArray((x) -> new PointSample[x]);
   }
 
@@ -86,7 +88,7 @@ class PointSample extends ReferenceCountingBase {
   PointSample[][] addRefs(PointSample[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs)
         .toArray((x) -> new PointSample[x][]);
   }
 

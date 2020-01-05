@@ -20,13 +20,16 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class Delta<K> extends DoubleBuffer<K> {
   @Nullable
   protected double[] deltaCompensation;
@@ -83,26 +86,26 @@ class Delta<K> extends DoubleBuffer<K> {
   Delta[] addRefs(Delta[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Delta::addRef).toArray((x) -> new Delta[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Delta::addRef).toArray((x) -> new Delta[x]);
   }
 
   public static @SuppressWarnings("unused")
   Delta[][] addRefs(Delta[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Delta::addRefs).toArray((x) -> new Delta[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Delta::addRefs).toArray((x) -> new Delta[x][]);
   }
 
   public final void accumulate(final double factor) {
     synchronized (target) {
-      assert com.simiacryptus.ref.wrappers.RefArrays.stream(target).allMatch(Double::isFinite);
+      assert RefArrays.stream(target).allMatch(Double::isFinite);
       @Nullable final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
         target[i] += delta[i] * factor;
         if (!Double.isFinite(target[i]))
           target[i] = 0;
       }
-      assert com.simiacryptus.ref.wrappers.RefArrays.stream(target).allMatch(Double::isFinite);
+      assert RefArrays.stream(target).allMatch(Double::isFinite);
     }
   }
 
@@ -132,7 +135,7 @@ class Delta<K> extends DoubleBuffer<K> {
   @Nonnull
   @Override
   public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new Delta<K>(key, target, com.simiacryptus.ref.wrappers.RefArrays.stream(getDelta()).map(mapper).toArray());
+    return new Delta<K>(key, target, RefArrays.stream(getDelta()).map(mapper).toArray());
   }
 
   @Nonnull

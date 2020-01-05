@@ -24,12 +24,16 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefCollection;
+import com.simiacryptus.ref.wrappers.RefCollectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class L12Normalizer extends TrainableBase {
   public final Trainable inner;
   private final boolean hideAdj = false;
@@ -42,7 +46,7 @@ class L12Normalizer extends TrainableBase {
   L12Normalizer[] addRefs(L12Normalizer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRef)
         .toArray((x) -> new L12Normalizer[x]);
   }
 
@@ -50,7 +54,7 @@ class L12Normalizer extends TrainableBase {
   L12Normalizer[][] addRefs(L12Normalizer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRefs)
         .toArray((x) -> new L12Normalizer[x][]);
   }
 
@@ -58,11 +62,11 @@ class L12Normalizer extends TrainableBase {
     return ((DAGNetwork) inner.getLayer()).getLayersById().get(id);
   }
 
-  public com.simiacryptus.ref.wrappers.RefCollection<Layer> getLayers(
-      @Nonnull final com.simiacryptus.ref.wrappers.RefCollection<UUID> layers) {
+  public RefCollection<Layer> getLayers(
+      @Nonnull final RefCollection<UUID> layers) {
     return layers.stream().map(this::toLayer)
         //.filter(layer -> layer instanceof FullyConnectedLayer)
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+        .collect(RefCollectors.toList());
   }
 
   @Nonnull

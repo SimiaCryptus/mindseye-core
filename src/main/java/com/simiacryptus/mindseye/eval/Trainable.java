@@ -22,11 +22,13 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 interface Trainable extends ReferenceCounting {
   @Nonnull
   Layer getLayer();
@@ -35,7 +37,7 @@ interface Trainable extends ReferenceCounting {
   Trainable[] addRefs(Trainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRef)
         .toArray((x) -> new Trainable[x]);
   }
 
@@ -43,7 +45,7 @@ interface Trainable extends ReferenceCounting {
   Trainable[][] addRefs(Trainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRefs)
         .toArray((x) -> new Trainable[x][]);
   }
 

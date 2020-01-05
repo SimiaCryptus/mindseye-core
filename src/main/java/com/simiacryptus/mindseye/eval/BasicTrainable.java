@@ -22,21 +22,27 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefMap;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class BasicTrainable extends ReferenceCountingBase
     implements DataTrainable, TrainableDataMask {
 
   protected final Layer network;
   @Nullable
-  protected com.simiacryptus.ref.wrappers.RefList<Tensor[]> data;
+  protected RefList<Tensor[]> data;
 
   @Nullable
   boolean[] mask = null;
@@ -55,7 +61,7 @@ class BasicTrainable extends ReferenceCountingBase
 
   @Nonnull
   @Override
-  public synchronized BasicTrainable setData(@Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> data) {
+  public synchronized BasicTrainable setData(@Nonnull final RefList<Tensor[]> data) {
     this.data = data;
     return this;
   }
@@ -85,15 +91,15 @@ class BasicTrainable extends ReferenceCountingBase
     return this;
   }
 
-  public static Result[] getNNContext(@Nullable final com.simiacryptus.ref.wrappers.RefList<Tensor[]> data,
+  public static Result[] getNNContext(@Nullable final RefList<Tensor[]> data,
                                       @Nullable final boolean[] mask) {
     if (null == data)
       throw new IllegalArgumentException();
     if (0 >= data.size())
       throw new IllegalArgumentException();
     final int cols = data.get(0).length;
-    return com.simiacryptus.ref.wrappers.RefIntStream.range(0, cols).mapToObj(col -> {
-      final Tensor[] tensors = com.simiacryptus.ref.wrappers.RefIntStream.range(0, data.size())
+    return RefIntStream.range(0, cols).mapToObj(col -> {
+      final Tensor[] tensors = RefIntStream.range(0, data.size())
           .mapToObj(row -> data.get(row)[col]).toArray(i -> new Tensor[i]);
       if (null == mask || col >= mask.length || !mask[col]) {
         return new ConstantResult(new TensorArray(tensors));
@@ -107,7 +113,7 @@ class BasicTrainable extends ReferenceCountingBase
   BasicTrainable[] addRefs(BasicTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRef)
         .toArray((x) -> new BasicTrainable[x]);
   }
 
@@ -115,7 +121,7 @@ class BasicTrainable extends ReferenceCountingBase
   BasicTrainable[][] addRefs(BasicTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRefs)
         .toArray((x) -> new BasicTrainable[x][]);
   }
 
@@ -146,7 +152,7 @@ class BasicTrainable extends ReferenceCountingBase
   }
 
   @Nonnull
-  protected PointSample eval(@Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> list,
+  protected PointSample eval(@Nonnull final RefList<Tensor[]> list,
                              @Nullable final TrainingMonitor monitor) {
     @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       final Result[] nnContext = BasicTrainable.getNNContext(list, mask);
@@ -157,13 +163,13 @@ class BasicTrainable extends ReferenceCountingBase
       StateSet<UUID> stateSet = null;
       try {
         final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
-          double[] array = com.simiacryptus.ref.wrappers.RefArrays.stream(x.getData()).toArray();
-          return com.simiacryptus.ref.wrappers.RefArrays.stream(array);
+          double[] array = RefArrays.stream(x.getData()).toArray();
+          return RefArrays.stream(array);
         }).summaryStatistics();
         final double sum = statistics.getSum();
         result.accumulate(deltaSet);
         stateSet = new StateSet<>(deltaSet);
-        com.simiacryptus.ref.wrappers.RefMap<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
+        RefMap<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
         for (Tensor[] tensors : list) {
           for (Tensor tensor : tensors) {
             if (deltaSetMap.containsKey(tensor.getId()))

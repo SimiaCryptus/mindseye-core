@@ -19,8 +19,12 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.ref.lang.RefAware;
+
+import java.util.Arrays;
+
 @SuppressWarnings("serial")
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class SupervisedNetwork extends DAGNetwork {
   public SupervisedNetwork(final int inputs) {
     super(inputs);
@@ -30,7 +34,7 @@ class SupervisedNetwork extends DAGNetwork {
   SupervisedNetwork[] addRefs(SupervisedNetwork[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRef)
         .toArray((x) -> new SupervisedNetwork[x]);
   }
 
@@ -38,7 +42,7 @@ class SupervisedNetwork extends DAGNetwork {
   SupervisedNetwork[][] addRefs(SupervisedNetwork[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRefs)
         .toArray((x) -> new SupervisedNetwork[x][]);
   }
 

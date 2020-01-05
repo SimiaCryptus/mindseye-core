@@ -21,14 +21,16 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 interface DAGNode extends Serializable, ReferenceCounting {
   UUID getId();
 
@@ -48,14 +50,14 @@ interface DAGNode extends Serializable, ReferenceCounting {
   DAGNode[] addRefs(DAGNode[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
   }
 
   public static @SuppressWarnings("unused")
   DAGNode[][] addRefs(DAGNode[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs)
         .toArray((x) -> new DAGNode[x][]);
   }
 

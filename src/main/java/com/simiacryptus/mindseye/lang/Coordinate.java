@@ -19,11 +19,14 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class Coordinate implements Serializable {
   protected int[] coords;
   protected int index;
@@ -88,15 +91,15 @@ class Coordinate implements Serializable {
 
   @Override
   public int hashCode() {
-    return Integer.hashCode(index) ^ com.simiacryptus.ref.wrappers.RefArrays.hashCode(coords);
+    return Integer.hashCode(index) ^ RefArrays.hashCode(coords);
   }
 
   @Override
   public String toString() {
-    return com.simiacryptus.ref.wrappers.RefArrays.toString(coords) + "<" + index + ">";
+    return RefArrays.toString(coords) + "<" + index + ">";
   }
 
   public Coordinate copy() {
-    return new Coordinate(index, com.simiacryptus.ref.wrappers.RefArrays.copyOf(coords, coords.length));
+    return new Coordinate(index, RefArrays.copyOf(coords, coords.length));
   }
 }

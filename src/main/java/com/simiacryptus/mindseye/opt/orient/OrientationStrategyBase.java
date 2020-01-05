@@ -20,9 +20,12 @@
 package com.simiacryptus.mindseye.opt.orient;
 
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+import java.util.Arrays;
+
+public abstract @RefAware
 class OrientationStrategyBase<T extends LineSearchCursor>
     extends ReferenceCountingBase implements OrientationStrategy<T> {
 
@@ -30,7 +33,7 @@ class OrientationStrategyBase<T extends LineSearchCursor>
   OrientationStrategyBase[] addRefs(OrientationStrategyBase[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRef)
         .toArray((x) -> new OrientationStrategyBase[x]);
   }
 
@@ -38,7 +41,7 @@ class OrientationStrategyBase<T extends LineSearchCursor>
   OrientationStrategyBase[][] addRefs(OrientationStrategyBase[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRefs)
         .toArray((x) -> new OrientationStrategyBase[x][]);
   }
 

@@ -20,12 +20,14 @@
 package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SimpleLossNetwork extends SupervisedNetwork {
 
   @Nullable
@@ -48,7 +50,7 @@ class SimpleLossNetwork extends SupervisedNetwork {
   SimpleLossNetwork[] addRefs(SimpleLossNetwork[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRef)
         .toArray((x) -> new SimpleLossNetwork[x]);
   }
 
@@ -56,7 +58,7 @@ class SimpleLossNetwork extends SupervisedNetwork {
   SimpleLossNetwork[][] addRefs(SimpleLossNetwork[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRefs)
         .toArray((x) -> new SimpleLossNetwork[x][]);
   }
 

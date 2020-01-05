@@ -21,11 +21,12 @@ package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.lang.Settings;
 import com.simiacryptus.ref.RefSettings;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CoreSettings extends RefSettings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);

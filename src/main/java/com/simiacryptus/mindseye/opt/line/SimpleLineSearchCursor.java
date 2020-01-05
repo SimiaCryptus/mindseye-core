@@ -23,11 +23,13 @@ import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SimpleLineSearchCursor extends LineSearchCursorBase {
   public final DeltaSet<UUID> direction;
   @Nonnull
@@ -57,7 +59,7 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
   SimpleLineSearchCursor[] addRefs(SimpleLineSearchCursor[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRef)
         .toArray((x) -> new SimpleLineSearchCursor[x]);
   }
 
@@ -65,7 +67,7 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
   SimpleLineSearchCursor[][] addRefs(SimpleLineSearchCursor[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRefs)
         .toArray((x) -> new SimpleLineSearchCursor[x][]);
   }
 

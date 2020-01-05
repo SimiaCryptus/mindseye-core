@@ -23,16 +23,19 @@ import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefLinkedList;
+import com.simiacryptus.ref.wrappers.RefStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class CountingResult extends Result {
   protected static final Logger logger = LoggerFactory.getLogger(CountingResult.class);
 
@@ -64,7 +67,7 @@ class CountingResult extends Result {
   CountingResult[] addRefs(CountingResult[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
         .toArray((x) -> new CountingResult[x]);
   }
 
@@ -72,7 +75,7 @@ class CountingResult extends Result {
   CountingResult[][] addRefs(CountingResult[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
         .toArray((x) -> new CountingResult[x][]);
   }
 
@@ -85,21 +88,21 @@ class CountingResult extends Result {
     return (CountingResult) super.addRef();
   }
 
-  static @com.simiacryptus.ref.lang.RefAware
+  static @RefAware
   class CountingAccumulator extends ReferenceCountingBase
-      implements BiConsumer<DeltaSet<UUID>, TensorList> {
+      implements Result.Accumulator {
     @Nonnull
     private final AtomicInteger fwdLinks;
     private final Result inner;
     @Nonnull
-    private final com.simiacryptus.ref.wrappers.RefLinkedList<TensorList> passbackBuffers;
+    private final RefLinkedList<TensorList> passbackBuffers;
     @Nonnull
     private final AtomicInteger accumulations;
 
     public CountingAccumulator(Result inner) {
       this.inner = inner;
       fwdLinks = new AtomicInteger(0);
-      passbackBuffers = new com.simiacryptus.ref.wrappers.RefLinkedList<>();
+      passbackBuffers = new RefLinkedList<>();
       accumulations = new AtomicInteger(0);
     }
 
@@ -111,7 +114,7 @@ class CountingResult extends Result {
     CountingAccumulator[] addRefs(CountingAccumulator[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
           .toArray((x) -> new CountingAccumulator[x]);
     }
 
@@ -133,7 +136,7 @@ class CountingResult extends Result {
           assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           passbackBuffers.add(data);
           if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
-            com.simiacryptus.ref.wrappers.RefStream<TensorList> stream = passbackBuffers.stream();
+            RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
             @Nonnull
@@ -147,7 +150,7 @@ class CountingResult extends Result {
             assert passbackBuffers.stream().allMatch(x -> x.assertAlive());
           }
           if (accumulations.incrementAndGet() == fwdLinks.get()) {
-            com.simiacryptus.ref.wrappers.RefStream<TensorList> stream = passbackBuffers.stream();
+            RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
             reduced = stream.reduce((a, b) -> {

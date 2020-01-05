@@ -21,10 +21,11 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class BisectionSearch implements LineSearchStrategy {
 
   private double maxRate = 1e20;

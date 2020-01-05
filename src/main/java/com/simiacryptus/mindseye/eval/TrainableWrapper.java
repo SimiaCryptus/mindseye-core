@@ -22,12 +22,14 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     implements TrainableDataMask {
 
@@ -56,7 +58,7 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   TrainableWrapper[] addRefs(TrainableWrapper[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
         .toArray((x) -> new TrainableWrapper[x]);
   }
 
@@ -64,7 +66,7 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
         .toArray((x) -> new TrainableWrapper[x][]);
   }
 

@@ -21,30 +21,36 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.Util;
 import com.simiacryptus.util.function.WeakCachedSupplier;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Supplier;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     implements SampledTrainable, TrainableDataMask {
 
-  private final com.simiacryptus.ref.wrappers.RefList<? extends Supplier<Tensor[]>> trainingData;
+  private final RefList<? extends Supplier<Tensor[]>> trainingData;
   private int minSamples = 0;
   private long seed = Util.R.get().nextInt();
   private int trainingSize;
 
   public SampledArrayTrainable(
-      @Nonnull final com.simiacryptus.ref.wrappers.RefList<? extends Supplier<Tensor[]>> trainingData,
+      @Nonnull final RefList<? extends Supplier<Tensor[]>> trainingData,
       final Layer network, final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
   public SampledArrayTrainable(
-      @Nonnull final com.simiacryptus.ref.wrappers.RefList<? extends Supplier<Tensor[]>> trainingData,
+      @Nonnull final RefList<? extends Supplier<Tensor[]>> trainingData,
       final Layer network, final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(null, network, batchSize));
     if (0 == trainingData.size())
@@ -64,8 +70,8 @@ class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     getInner();
     if (0 == trainingData.length)
       throw new IllegalArgumentException();
-    this.trainingData = com.simiacryptus.ref.wrappers.RefArrays.stream(trainingData)
-        .map(obj -> new WeakCachedSupplier<>(() -> obj)).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+    this.trainingData = RefArrays.stream(trainingData)
+        .map(obj -> new WeakCachedSupplier<>(() -> obj)).collect(RefCollectors.toList());
     this.trainingSize = trainingSize;
     reseed(System.nanoTime());
   }
@@ -103,7 +109,7 @@ class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   SampledArrayTrainable[] addRefs(SampledArrayTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRef)
         .toArray((x) -> new SampledArrayTrainable[x]);
   }
 
@@ -111,7 +117,7 @@ class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   SampledArrayTrainable[][] addRefs(SampledArrayTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRefs)
         .toArray((x) -> new SampledArrayTrainable[x][]);
   }
 
@@ -144,7 +150,7 @@ class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     Tensor[][] trainingData;
     if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
       @Nonnull final Random random = new Random(seed);
-      trainingData = com.simiacryptus.ref.wrappers.RefIntStream.generate(() -> random.nextInt(this.trainingData.size()))
+      trainingData = RefIntStream.generate(() -> random.nextInt(this.trainingData.size()))
           .distinct().mapToObj(i -> this.trainingData.get(i)).filter(x -> x != null && x.get() != null)
           .limit(getTrainingSize()).map(x -> x.get()).toArray(i -> new Tensor[i][]);
     } else {

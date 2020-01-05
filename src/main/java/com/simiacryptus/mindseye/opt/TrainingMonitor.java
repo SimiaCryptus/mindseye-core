@@ -19,7 +19,9 @@
 
 package com.simiacryptus.mindseye.opt;
 
-public @com.simiacryptus.ref.lang.RefAware
+import com.simiacryptus.ref.lang.RefAware;
+
+public @RefAware
 class TrainingMonitor {
   public void clear() {
   }

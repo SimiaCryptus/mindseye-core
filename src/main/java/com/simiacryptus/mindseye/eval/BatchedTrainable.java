@@ -24,10 +24,16 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrayList;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefLists;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class BatchedTrainable extends TrainableWrapper<DataTrainable>
     implements DataTrainable {
 
@@ -61,7 +67,7 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable>
   BatchedTrainable[] addRefs(BatchedTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
         .toArray((x) -> new BatchedTrainable[x]);
   }
 
@@ -69,20 +75,20 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable>
   BatchedTrainable[][] addRefs(BatchedTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
         .toArray((x) -> new BatchedTrainable[x][]);
   }
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors = com.simiacryptus.ref.wrappers.RefArrays
+    @Nonnull final RefList<Tensor[]> tensors = RefArrays
         .asList(getData());
     TimedResult<PointSample> timedResult = TimedResult.time(() -> {
       DataTrainable inner = getInner();
       if (batchSize < tensors.size()) {
         final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
         final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-        @Nonnull final com.simiacryptus.ref.wrappers.RefList<com.simiacryptus.ref.wrappers.RefList<Tensor[]>> collection = com.simiacryptus.ref.wrappers.RefLists
+        @Nonnull final RefList<RefList<Tensor[]>> collection = RefLists
             .partition(tensors, evenBatchSize);
         return collection.stream().map(trainingData -> {
           if (batchSize < trainingData.size()) {
@@ -90,7 +96,7 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable>
           }
           inner.setData(trainingData);
           PointSample measure = super.measure(monitor);
-          inner.setData(new com.simiacryptus.ref.wrappers.RefArrayList<>());
+          inner.setData(new RefArrayList<>());
           return measure;
         }).reduce((a, b) -> {
           return a.add(b);
@@ -98,7 +104,7 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable>
       } else {
         inner.setData(tensors);
         PointSample measure = super.measure(monitor);
-        inner.setData(new com.simiacryptus.ref.wrappers.RefArrayList<>());
+        inner.setData(new RefArrayList<>());
         return measure;
       }
     });

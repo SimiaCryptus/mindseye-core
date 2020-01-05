@@ -21,11 +21,14 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
 
   @Nullable
@@ -78,7 +81,7 @@ class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
   ArrayTrainable[] addRefs(ArrayTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRef)
         .toArray((x) -> new ArrayTrainable[x]);
   }
 
@@ -86,13 +89,13 @@ class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
   ArrayTrainable[][] addRefs(ArrayTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRefs)
         .toArray((x) -> new ArrayTrainable[x][]);
   }
 
   @Nonnull
   @Override
-  public Trainable setData(@Nonnull final com.simiacryptus.ref.wrappers.RefList<Tensor[]> tensors) {
+  public Trainable setData(@Nonnull final RefList<Tensor[]> tensors) {
     trainingData = tensors.toArray(new Tensor[][]{});
     return this;
   }

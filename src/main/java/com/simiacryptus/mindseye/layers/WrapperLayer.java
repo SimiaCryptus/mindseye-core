@@ -24,12 +24,16 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 
 @SuppressWarnings("serial")
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class WrapperLayer extends LayerBase {
   @Nullable
   private Layer inner;
@@ -38,7 +42,7 @@ class WrapperLayer extends LayerBase {
     inner = null;
   }
 
-  public WrapperLayer(@Nonnull final JsonObject json, com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+  public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
   }
@@ -71,7 +75,7 @@ class WrapperLayer extends LayerBase {
   WrapperLayer[] addRefs(WrapperLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef)
         .toArray((x) -> new WrapperLayer[x]);
   }
 
@@ -79,7 +83,7 @@ class WrapperLayer extends LayerBase {
   WrapperLayer[][] addRefs(WrapperLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
         .toArray((x) -> new WrapperLayer[x][]);
   }
 
@@ -91,7 +95,7 @@ class WrapperLayer extends LayerBase {
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.add("inner", getInner().getJson(resources, dataSerializer));
@@ -109,7 +113,7 @@ class WrapperLayer extends LayerBase {
 
   @Nullable
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+  public RefList<double[]> state() {
     return inner.state();
   }
 

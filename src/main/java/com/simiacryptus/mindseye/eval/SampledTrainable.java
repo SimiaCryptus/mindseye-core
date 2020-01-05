@@ -19,9 +19,12 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import javax.annotation.Nonnull;
+import com.simiacryptus.ref.lang.RefAware;
 
-public @com.simiacryptus.ref.lang.RefAware
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+
+public @RefAware
 interface SampledTrainable extends Trainable {
   int getTrainingSize();
 
@@ -32,7 +35,7 @@ interface SampledTrainable extends Trainable {
   SampledTrainable[] addRefs(SampledTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SampledTrainable::addRef)
         .toArray((x) -> new SampledTrainable[x]);
   }
 
@@ -40,7 +43,7 @@ interface SampledTrainable extends Trainable {
   SampledTrainable[][] addRefs(SampledTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SampledTrainable::addRefs)
         .toArray((x) -> new SampledTrainable[x][]);
   }
 

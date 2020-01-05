@@ -20,19 +20,22 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class RegisteredObjectBase extends ReferenceCountingBase {
   private static final Logger logger = LoggerFactory.getLogger(RegisteredObjectBase.class);
-  private static final com.simiacryptus.ref.wrappers.RefMap<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>> cache = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  private static final RefMap<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>> cache = new RefConcurrentHashMap<>();
   private static final ScheduledExecutorService maintenanceThread = Executors.newScheduledThreadPool(1,
       new ThreadFactoryBuilder().setDaemon(true).build());
 
@@ -40,12 +43,12 @@ class RegisteredObjectBase extends ReferenceCountingBase {
   //    register();
   //  }
 
-  public static <T extends RegisteredObjectBase> com.simiacryptus.ref.wrappers.RefStream<T> getLivingInstances(
+  public static <T extends RegisteredObjectBase> RefStream<T> getLivingInstances(
       final Class<T> k) {
     return getInstances(k).filter(x -> !x.isFinalized());
   }
 
-  public static <T extends RegisteredObjectBase> com.simiacryptus.ref.wrappers.RefStream<T> getInstances(
+  public static <T extends RegisteredObjectBase> RefStream<T> getInstances(
       final Class<T> k) {
     return cache.entrySet().stream().filter(e -> k.isAssignableFrom(e.getKey())).map(x -> x.getValue())
         .flatMap(ObjectRecords::stream).map(x -> (T) x.get()).filter(x -> x != null);
@@ -55,7 +58,7 @@ class RegisteredObjectBase extends ReferenceCountingBase {
   RegisteredObjectBase[] addRefs(RegisteredObjectBase[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRef)
         .toArray((x) -> new RegisteredObjectBase[x]);
   }
 
@@ -63,7 +66,7 @@ class RegisteredObjectBase extends ReferenceCountingBase {
   RegisteredObjectBase[][] addRefs(RegisteredObjectBase[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRefs)
         .toArray((x) -> new RegisteredObjectBase[x][]);
   }
 
@@ -79,12 +82,12 @@ class RegisteredObjectBase extends ReferenceCountingBase {
 
   protected void register() {
     cache.computeIfAbsent(getClass(), k -> new ObjectRecords<>())
-        .add(new com.simiacryptus.ref.wrappers.RefWeakReference<>(this));
+        .add(new RefWeakReference<>(this));
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class ObjectRecords<T extends RegisteredObjectBase> extends
-      com.simiacryptus.ref.wrappers.RefConcurrentLinkedDeque<com.simiacryptus.ref.wrappers.RefWeakReference<T>> {
+      RefConcurrentLinkedDeque<RefWeakReference<T>> {
     private volatile boolean dirty = false;
     private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(this::maintain, 1, 1,
         TimeUnit.SECONDS);
@@ -93,18 +96,18 @@ class RegisteredObjectBase extends ReferenceCountingBase {
     ObjectRecords[] addRefs(ObjectRecords[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(ObjectRecords::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(ObjectRecords::addRef)
           .toArray((x) -> new ObjectRecords[x]);
     }
 
     @Override
-    public boolean add(final com.simiacryptus.ref.wrappers.RefWeakReference<T> tWeakReference) {
+    public boolean add(final RefWeakReference<T> tWeakReference) {
       dirty = true;
       return super.add(tWeakReference);
     }
 
     @Override
-    public com.simiacryptus.ref.wrappers.RefStream<com.simiacryptus.ref.wrappers.RefWeakReference<T>> stream() {
+    public RefStream<RefWeakReference<T>> stream() {
       dirty = true;
       return super.stream();
     }

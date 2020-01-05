@@ -20,13 +20,16 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   public StateSet() {
@@ -34,12 +37,12 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   public StateSet(@Nonnull final DeltaSet<K> toCopy) {
     assert toCopy.stream()
-        .allMatch(x -> com.simiacryptus.ref.wrappers.RefArrays.stream(x.getDelta()).allMatch(Double::isFinite));
+        .allMatch(x -> RefArrays.stream(x.getDelta()).allMatch(Double::isFinite));
     toCopy.getMap().forEach((layer, layerDelta) -> {
       this.get(layer, layerDelta.target).backup();
     });
     assert stream()
-        .allMatch(x -> com.simiacryptus.ref.wrappers.RefArrays.stream(x.getDelta()).allMatch(Double::isFinite));
+        .allMatch(x -> RefArrays.stream(x.getDelta()).allMatch(Double::isFinite));
     assert stream().allMatch(x -> x instanceof State);
   }
 
@@ -48,7 +51,7 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     assert stream().allMatch(x -> x instanceof State);
   }
 
-  public StateSet(@Nonnull final com.simiacryptus.ref.wrappers.RefMap<K, State<K>> collect) {
+  public StateSet(@Nonnull final RefMap<K, State<K>> collect) {
     super(collect);
   }
 
@@ -58,14 +61,14 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
                                       @Nonnull final DoubleBufferSet<K, State<K>> right) {
-    final com.simiacryptus.ref.wrappers.RefMap<K, State<K>> collect = com.simiacryptus.ref.wrappers.RefStream
+    final RefMap<K, State<K>> collect = RefStream
         .concat(left.map.entrySet().stream(), right.map.entrySet().stream())
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(
+        .collect(RefCollectors.groupingBy(
             (@Nonnull final Map.Entry<K, State<K>> e1) -> e1.getKey(),
-            com.simiacryptus.ref.wrappers.RefCollectors.mapping(
+            RefCollectors.mapping(
                 (@Nonnull final Map.Entry<K, State<K>> x) -> x.getValue(),
-                com.simiacryptus.ref.wrappers.RefCollectors
-                    .collectingAndThen(com.simiacryptus.ref.wrappers.RefCollectors
+                RefCollectors
+                    .collectingAndThen(RefCollectors
                         .reducing((@Nonnull final State<K> a, @Nonnull final State<K> b) -> {
                           assert a.target == b.target;
                           assert a.key.equals(b.key);
@@ -78,7 +81,7 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   StateSet[] addRefs(StateSet[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRef)
         .toArray((x) -> new StateSet[x]);
   }
 
@@ -86,7 +89,7 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   StateSet[][] addRefs(StateSet[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRefs)
         .toArray((x) -> new StateSet[x][]);
   }
 
@@ -104,7 +107,7 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public DeltaSet<K> asVector() {
-    @Nonnull final com.simiacryptus.ref.wrappers.RefHashMap<K, Delta<K>> newMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    @Nonnull final RefHashMap<K, Delta<K>> newMap = new RefHashMap<>();
     map.forEach((layer, state) -> newMap.put(layer,
         new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
     return new DeltaSet<>(newMap);
@@ -118,7 +121,7 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public void restore() {
-    com.simiacryptus.ref.wrappers.RefStream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
+    RefStream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
@@ -128,12 +131,12 @@ class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   @Nonnull
   @Override
   public StateSet<K> map(@NotNull @Nonnull final Function<State<K>, State<K>> mapper) {
-    com.simiacryptus.ref.wrappers.RefStream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
+    RefStream<Map.Entry<K, State<K>>> stream = map.entrySet().stream();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
-    final com.simiacryptus.ref.wrappers.RefMap<K, State<K>> newMap = stream
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
+    final RefMap<K, State<K>> newMap = stream
+        .collect(RefCollectors.toMap(e -> e.getKey(), e -> mapper.apply(e.getValue())));
     return new StateSet<>(newMap);
   }
 

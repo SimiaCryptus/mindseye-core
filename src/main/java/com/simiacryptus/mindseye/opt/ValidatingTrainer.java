@@ -30,7 +30,9 @@ import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchStrategy;
 import com.simiacryptus.mindseye.opt.orient.LBFGS;
 import com.simiacryptus.mindseye.opt.orient.OrientationStrategy;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.FastRandom;
 import com.simiacryptus.util.Util;
 import com.simiacryptus.util.data.DoubleStatistics;
@@ -41,18 +43,19 @@ import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ValidatingTrainer extends ReferenceCountingBase {
 
   private final AtomicInteger disappointments = new AtomicInteger(0);
   @Nonnull
-  private final com.simiacryptus.ref.wrappers.RefList<TrainingPhase> regimen;
+  private final RefList<TrainingPhase> regimen;
   private final AtomicLong trainingMeasurementTime = new AtomicLong(0);
   private final AtomicLong validatingMeasurementTime = new AtomicLong(0);
   @Nonnull
@@ -78,7 +81,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   public ValidatingTrainer(@Nonnull final SampledTrainable trainingSubject,
                            @Nonnull final Trainable validationSubject) {
-    regimen = new com.simiacryptus.ref.wrappers.RefArrayList<TrainingPhase>(com.simiacryptus.ref.wrappers.RefArrays
+    regimen = new RefArrayList<TrainingPhase>(RefArrays
         .asList(new TrainingPhase(new PerformanceWrapper(trainingSubject, ValidatingTrainer.this))));
     this.validationSubject = new TrainableBase() {
       @NotNull
@@ -244,7 +247,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   @Nonnull
-  public com.simiacryptus.ref.wrappers.RefList<TrainingPhase> getRegimen() {
+  public RefList<TrainingPhase> getRegimen() {
     return regimen;
   }
 
@@ -311,7 +314,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   ValidatingTrainer[] addRefs(ValidatingTrainer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRef)
         .toArray((x) -> new ValidatingTrainer[x]);
   }
 
@@ -319,7 +322,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
   ValidatingTrainer[][] addRefs(ValidatingTrainer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ValidatingTrainer::addRefs)
         .toArray((x) -> new ValidatingTrainer[x][]);
   }
 
@@ -349,13 +352,13 @@ class ValidatingTrainer extends ReferenceCountingBase {
           break;
         }
         monitor.log(String.format("Epoch parameters: %s, %s", epochParams.trainingSize, epochParams.iterations));
-        @Nonnull final com.simiacryptus.ref.wrappers.RefList<TrainingPhase> regimen = getRegimen();
+        @Nonnull final RefList<TrainingPhase> regimen = getRegimen();
         final long seed = System.nanoTime();
-        final com.simiacryptus.ref.wrappers.RefList<EpochResult> epochResults = com.simiacryptus.ref.wrappers.RefIntStream
+        final RefList<EpochResult> epochResults = RefIntStream
             .range(0, regimen.size()).mapToObj(i -> {
               final TrainingPhase phase = getRegimen().get(i);
               return runPhase(epochParams, phase, i, seed);
-            }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+            }).collect(RefCollectors.toList());
         final EpochResult primaryPhase = epochResults.get(0);
         iterationNumber += primaryPhase.iterations;
         final double trainingDelta = primaryPhase.currentPoint.getMean() / primaryPhase.priorMean;
@@ -544,16 +547,16 @@ class ValidatingTrainer extends ReferenceCountingBase {
     @Nonnull final StateSet<UUID> prevWeights = previousPoint.weights;
     return String.format("Overall network state change: %s",
         prevWeights.stream()
-            .collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> x,
-                com.simiacryptus.ref.wrappers.RefCollectors.toList()))
-            .entrySet().stream().collect(com.simiacryptus.ref.wrappers.RefCollectors.toMap(x -> x.getKey(), list -> {
-          final com.simiacryptus.ref.wrappers.RefList<Double> doubleList = list.getValue().stream()
+            .collect(RefCollectors.groupingBy(x -> x,
+                RefCollectors.toList()))
+            .entrySet().stream().collect(RefCollectors.toMap(x -> x.getKey(), list -> {
+          final RefList<Double> doubleList = list.getValue().stream()
               .map(prevWeight -> {
                 final DoubleBuffer<UUID> dirDelta = nextWeights.getMap().get(prevWeight.key);
                 final double numerator = prevWeight.deltaStatistics().rms();
                 final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();
                 return numerator / (0 == denominator ? 1 : denominator);
-              }).collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+              }).collect(RefCollectors.toList());
           if (1 == doubleList.size())
             return Double.toString(doubleList.get(0));
           return new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray()).toString();
@@ -584,10 +587,10 @@ class ValidatingTrainer extends ReferenceCountingBase {
     return this;
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class TrainingPhase extends ReferenceCountingBase {
     private Function<CharSequence, LineSearchStrategy> lineSearchFactory = (s) -> new ArmijoWolfeSearch();
-    private com.simiacryptus.ref.wrappers.RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    private RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new RefHashMap<>();
     private OrientationStrategy<?> orientation = new LBFGS();
     private SampledTrainable trainingSubject;
 
@@ -605,13 +608,13 @@ class ValidatingTrainer extends ReferenceCountingBase {
       return this;
     }
 
-    public com.simiacryptus.ref.wrappers.RefMap<CharSequence, LineSearchStrategy> getLineSearchStrategyMap() {
+    public RefMap<CharSequence, LineSearchStrategy> getLineSearchStrategyMap() {
       return lineSearchStrategyMap;
     }
 
     @Nonnull
     public TrainingPhase setLineSearchStrategyMap(
-        final com.simiacryptus.ref.wrappers.RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap) {
+        final RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap) {
       this.lineSearchStrategyMap = lineSearchStrategyMap;
       return this;
     }
@@ -639,7 +642,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     TrainingPhase[] addRefs(TrainingPhase[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(TrainingPhase::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(TrainingPhase::addRef)
           .toArray((x) -> new TrainingPhase[x]);
     }
 
@@ -660,7 +663,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class EpochParams extends ReferenceCountingBase {
     final long timeoutMs;
     int iterations;
@@ -679,7 +682,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     EpochParams[] addRefs(EpochParams[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(EpochParams::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(EpochParams::addRef)
           .toArray((x) -> new EpochParams[x]);
     }
 
@@ -695,7 +698,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class EpochResult extends ReferenceCountingBase {
 
     final boolean continueTraining;
@@ -715,7 +718,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     EpochResult[] addRefs(EpochResult[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(EpochResult::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(EpochResult::addRef)
           .toArray((x) -> new EpochResult[x]);
     }
 
@@ -731,7 +734,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class PerformanceWrapper extends TrainableWrapper<SampledTrainable>
       implements SampledTrainable {
 
@@ -757,7 +760,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     PerformanceWrapper[] addRefs(PerformanceWrapper[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(PerformanceWrapper::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(PerformanceWrapper::addRef)
           .toArray((x) -> new PerformanceWrapper[x]);
     }
 
@@ -786,7 +789,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   }
 
-  private static @com.simiacryptus.ref.lang.RefAware
+  private static @RefAware
   class StepResult extends ReferenceCountingBase {
     final PointSample currentPoint;
     final double[] performance;
@@ -802,7 +805,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     StepResult[] addRefs(StepResult[] array) {
       if (array == null)
         return null;
-      return java.util.Arrays.stream(array).filter((x) -> x != null).map(StepResult::addRef)
+      return Arrays.stream(array).filter((x) -> x != null).map(StepResult::addRef)
           .toArray((x) -> new StepResult[x]);
     }
 

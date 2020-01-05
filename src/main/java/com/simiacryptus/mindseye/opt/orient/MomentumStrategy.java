@@ -26,12 +26,14 @@ import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.util.ArrayUtil;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class MomentumStrategy
     extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
@@ -58,7 +60,7 @@ class MomentumStrategy
   MomentumStrategy[] addRefs(MomentumStrategy[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRef)
         .toArray((x) -> new MomentumStrategy[x]);
   }
 
@@ -66,7 +68,7 @@ class MomentumStrategy
   MomentumStrategy[][] addRefs(MomentumStrategy[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRefs)
         .toArray((x) -> new MomentumStrategy[x][]);
   }
 

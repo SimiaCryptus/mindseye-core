@@ -21,17 +21,19 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
-abstract @com.simiacryptus.ref.lang.RefAware
+abstract @RefAware
 class LazyResult extends ReferenceCountingBase implements DAGNode {
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
   public final UUID id;
@@ -54,7 +56,7 @@ class LazyResult extends ReferenceCountingBase implements DAGNode {
   LazyResult[] addRefs(LazyResult[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef)
         .toArray((x) -> new LazyResult[x]);
   }
 
@@ -62,7 +64,7 @@ class LazyResult extends ReferenceCountingBase implements DAGNode {
   LazyResult[][] addRefs(LazyResult[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs)
         .toArray((x) -> new LazyResult[x][]);
   }
 

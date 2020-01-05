@@ -20,12 +20,15 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class State<K> extends DoubleBuffer<K> {
 
   public State(@Nonnull final K layer, final double[] target) {
@@ -40,14 +43,14 @@ class State<K> extends DoubleBuffer<K> {
   State[] addRefs(State[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
   }
 
   public static @SuppressWarnings("unused")
   State[][] addRefs(State[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
   }
 
   public boolean areEqual() {
@@ -71,7 +74,7 @@ class State<K> extends DoubleBuffer<K> {
   @Override
   public State<K> map(@Nonnull final DoubleUnaryOperator mapper) {
     return new State(key, target,
-        com.simiacryptus.ref.wrappers.RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+        RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
   @Nonnull

@@ -19,23 +19,28 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
+import com.simiacryptus.ref.wrappers.RefMap;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@com.simiacryptus.ref.lang.RefAware
+@RefAware
 class GraphEvaluationContext extends ReferenceCountingBase {
 
-  final com.simiacryptus.ref.wrappers.RefMap<UUID, Long> expectedCounts = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  final RefMap<UUID, Long> expectedCounts = new RefConcurrentHashMap<>();
 
-  final com.simiacryptus.ref.wrappers.RefMap<UUID, Supplier<CountingResult>> calculated = new com.simiacryptus.ref.wrappers.RefConcurrentHashMap<>();
+  final RefMap<UUID, Supplier<CountingResult>> calculated = new RefConcurrentHashMap<>();
 
   public static @SuppressWarnings("unused")
   GraphEvaluationContext[] addRefs(GraphEvaluationContext[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
         .toArray((x) -> new GraphEvaluationContext[x]);
   }
 
@@ -43,13 +48,13 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   GraphEvaluationContext[][] addRefs(GraphEvaluationContext[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
         .toArray((x) -> new GraphEvaluationContext[x][]);
   }
 
   public void _free() {
     calculated.entrySet().stream().filter(entry -> {
-      com.simiacryptus.ref.lang.ReferenceCounting o = entry.getValue().get();
+      ReferenceCounting o = entry.getValue().get();
       if (o instanceof RuntimeException)
         throw (RuntimeException) o;
       if (o instanceof Throwable)

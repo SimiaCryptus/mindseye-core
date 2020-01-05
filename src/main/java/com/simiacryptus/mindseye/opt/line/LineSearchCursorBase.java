@@ -21,11 +21,13 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
+import java.util.Arrays;
 import java.util.UUID;
 
-public abstract @com.simiacryptus.ref.lang.RefAware
+public abstract @RefAware
 class LineSearchCursorBase extends ReferenceCountingBase
     implements LineSearchCursor {
 
@@ -35,7 +37,7 @@ class LineSearchCursorBase extends ReferenceCountingBase
   LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
         .toArray((x) -> new LineSearchCursorBase[x]);
   }
 
@@ -43,7 +45,7 @@ class LineSearchCursorBase extends ReferenceCountingBase
   LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
         .toArray((x) -> new LineSearchCursorBase[x][]);
   }
 

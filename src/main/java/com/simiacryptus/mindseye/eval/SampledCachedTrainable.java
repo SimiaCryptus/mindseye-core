@@ -19,9 +19,12 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import javax.annotation.Nonnull;
+import com.simiacryptus.ref.lang.RefAware;
 
-public @com.simiacryptus.ref.lang.RefAware
+import javax.annotation.Nonnull;
+import java.util.Arrays;
+
+public @RefAware
 class SampledCachedTrainable<T extends SampledTrainable>
     extends CachedTrainable<T> implements SampledTrainable {
 
@@ -49,7 +52,7 @@ class SampledCachedTrainable<T extends SampledTrainable>
   SampledCachedTrainable[] addRefs(SampledCachedTrainable[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRef)
         .toArray((x) -> new SampledCachedTrainable[x]);
   }
 
@@ -57,7 +60,7 @@ class SampledCachedTrainable<T extends SampledTrainable>
   SampledCachedTrainable[][] addRefs(SampledCachedTrainable[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRefs)
         .toArray((x) -> new SampledCachedTrainable[x][]);
   }
 

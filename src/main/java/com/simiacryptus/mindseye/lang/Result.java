@@ -19,13 +19,18 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class Result extends ReferenceCountingBase {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
@@ -34,9 +39,9 @@ class Result extends ReferenceCountingBase {
   protected final int[] dims;
   protected final int dataLength;
   @Nonnull
-  protected final BiConsumer<DeltaSet<UUID>, TensorList> accumulator;
+  protected final Result.Accumulator accumulator;
 
-  public Result(@Nonnull final TensorList data, @Nonnull BiConsumer<DeltaSet<UUID>, TensorList> accumulator) {
+  public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator) {
     super();
     this.data = data;
     this.accumulator = accumulator;
@@ -44,7 +49,7 @@ class Result extends ReferenceCountingBase {
     this.dataLength = data.length();
   }
 
-  public BiConsumer<DeltaSet<UUID>, TensorList> getAccumulator() {
+  public Result.Accumulator getAccumulator() {
     assertAlive();
     return accumulator;
   }
@@ -71,18 +76,18 @@ class Result extends ReferenceCountingBase {
   Result[] addRefs(Result[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
   }
 
   public static @SuppressWarnings("unused")
   Result[][] addRefs(Result[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
   }
 
   public double[] copy(double[] delta) {
-    delta = com.simiacryptus.ref.wrappers.RefArrays.copyOf(delta, delta.length);
+    delta = RefArrays.copyOf(delta, delta.length);
     return delta;
   }
 
@@ -92,7 +97,7 @@ class Result extends ReferenceCountingBase {
 
   public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
 
-    accumulate(buffer, new TensorArray(com.simiacryptus.ref.wrappers.RefIntStream.range(0, dataLength)
+    accumulate(buffer, new TensorArray(RefIntStream.range(0, dataLength)
         .mapToObj(x -> new Tensor(dims).setAll(value)).toArray(i -> new Tensor[i])));
   }
 
@@ -108,5 +113,9 @@ class Result extends ReferenceCountingBase {
   @SuppressWarnings("unused")
   Result addRef() {
     return (Result) super.addRef();
+  }
+
+  @RefAware
+  public interface Accumulator extends BiConsumer<DeltaSet<UUID>, TensorList>, ReferenceCounting {
   }
 }

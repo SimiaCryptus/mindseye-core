@@ -21,6 +21,8 @@ package com.simiacryptus.mindseye.util;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.data.DoubleStatistics;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -45,15 +47,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ImageUtil {
   public static final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1,
       new ThreadFactoryBuilder().setDaemon(true).build());
   private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
-  public static com.simiacryptus.ref.wrappers.RefStream<BufferedImage> renderToImages(@Nonnull final Tensor tensor,
-                                                                                      final boolean normalize) {
-    final DoubleStatistics[] statistics = com.simiacryptus.ref.wrappers.RefIntStream.range(0, tensor.getDimensions()[2])
+  public static RefStream<BufferedImage> renderToImages(@Nonnull final Tensor tensor,
+                                                        final boolean normalize) {
+    final DoubleStatistics[] statistics = RefIntStream.range(0, tensor.getDimensions()[2])
         .mapToObj(band -> {
           return new DoubleStatistics().accept(tensor.coordStream(false).filter(x -> x.getCoords()[2] == band)
               .mapToDouble(c -> tensor.get(c)).toArray());
@@ -80,8 +82,8 @@ class ImageUtil {
       }
       return 0xFF * unitValue;
     };
-    tensor.coordStream(true).collect(com.simiacryptus.ref.wrappers.RefCollectors.groupingBy(x -> x.getCoords()[2],
-        com.simiacryptus.ref.wrappers.RefCollectors.toList()));
+    tensor.coordStream(true).collect(RefCollectors.groupingBy(x -> x.getCoords()[2],
+        RefCollectors.toList()));
     @Nullable final Tensor normal = tensor.mapCoords((c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]))
         .map(v -> Math.min(0xFF, Math.max(0, v)));
     return (normalize ? normal : tensor).toImages().stream();
@@ -123,7 +125,7 @@ class ImageUtil {
   public static BufferedImage resize(BufferedImage source, int width, int height) {
     @Nonnull final BufferedImage image = new BufferedImage(width, height, source.getType());
     @Nonnull final Graphics2D graphics = (Graphics2D) image.getGraphics();
-    com.simiacryptus.ref.wrappers.RefHashMap<Object, Object> hints = new com.simiacryptus.ref.wrappers.RefHashMap<>();
+    RefHashMap<Object, Object> hints = new RefHashMap<>();
     hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     hints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
     hints.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
@@ -144,7 +146,7 @@ class ImageUtil {
       return;
     JLabel label = new JLabel(new ImageIcon(input.toImage()));
     final AtomicReference<JDialog> dialog = new AtomicReference<JDialog>();
-    com.simiacryptus.ref.wrappers.RefWeakReference<JLabel> labelWeakReference = new com.simiacryptus.ref.wrappers.RefWeakReference<>(
+    RefWeakReference<JLabel> labelWeakReference = new RefWeakReference<>(
         label);
     ScheduledFuture<?> updater = scheduledThreadPool.scheduleAtFixedRate(() -> {
       try {
@@ -166,7 +168,7 @@ class ImageUtil {
     }, 0, period, TimeUnit.SECONDS);
     new Thread(() -> {
       Window window = JOptionPane.getRootFrame();
-      String title = "Image: " + com.simiacryptus.ref.wrappers.RefArrays.toString(input.getDimensions());
+      String title = "Image: " + RefArrays.toString(input.getDimensions());
       if (window instanceof Frame) {
         dialog.set(new JDialog((Frame) window, title, true));
       } else {
@@ -269,7 +271,7 @@ class ImageUtil {
   }
 
   public static Tensor normalizeBands(final Tensor image, final int max) {
-    DoubleStatistics[] statistics = com.simiacryptus.ref.wrappers.RefIntStream.range(0, image.getDimensions()[2])
+    DoubleStatistics[] statistics = RefIntStream.range(0, image.getDimensions()[2])
         .mapToObj(i -> new DoubleStatistics()).toArray(i -> new DoubleStatistics[i]);
     image.coordStream(false).forEach(c -> {
       double value = image.get(c);

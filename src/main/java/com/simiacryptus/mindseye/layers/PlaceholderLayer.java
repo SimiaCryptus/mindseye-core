@@ -23,14 +23,18 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public final @com.simiacryptus.ref.lang.RefAware
+public final @RefAware
 class PlaceholderLayer<T> extends LayerBase {
 
   @Nullable
@@ -62,7 +66,7 @@ class PlaceholderLayer<T> extends LayerBase {
   PlaceholderLayer[] addRefs(PlaceholderLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRef)
         .toArray((x) -> new PlaceholderLayer[x]);
   }
 
@@ -70,7 +74,7 @@ class PlaceholderLayer<T> extends LayerBase {
   PlaceholderLayer[][] addRefs(PlaceholderLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRefs)
         .toArray((x) -> new PlaceholderLayer[x][]);
   }
 
@@ -82,14 +86,14 @@ class PlaceholderLayer<T> extends LayerBase {
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             DataSerializer dataSerializer) {
     throw new UnsupportedOperationException();
   }
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
+  public RefList<double[]> state() {
     throw new UnsupportedOperationException();
   }
 

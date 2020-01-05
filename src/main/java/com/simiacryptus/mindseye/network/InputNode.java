@@ -21,12 +21,14 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-final @com.simiacryptus.ref.lang.RefAware
+final @RefAware
 class InputNode extends LazyResult {
   private final DAGNetwork dagNetwork;
 
@@ -58,7 +60,7 @@ class InputNode extends LazyResult {
   InputNode[] addRefs(InputNode[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef)
         .toArray((x) -> new InputNode[x]);
   }
 
@@ -66,7 +68,7 @@ class InputNode extends LazyResult {
   InputNode[][] addRefs(InputNode[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs)
         .toArray((x) -> new InputNode[x][]);
   }
 

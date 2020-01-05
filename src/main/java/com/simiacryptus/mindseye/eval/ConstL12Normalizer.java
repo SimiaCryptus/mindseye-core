@@ -20,12 +20,14 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefAware;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ConstL12Normalizer extends L12Normalizer
     implements SampledTrainable, TrainableDataMask {
   private double factor_L1 = 0.0;
@@ -82,7 +84,7 @@ class ConstL12Normalizer extends L12Normalizer
   ConstL12Normalizer[] addRefs(ConstL12Normalizer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
         .toArray((x) -> new ConstL12Normalizer[x]);
   }
 
@@ -90,7 +92,7 @@ class ConstL12Normalizer extends L12Normalizer
   ConstL12Normalizer[][] addRefs(ConstL12Normalizer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
         .toArray((x) -> new ConstL12Normalizer[x][]);
   }
 

@@ -22,29 +22,36 @@ package com.simiacryptus.mindseye.layers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
+import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @com.simiacryptus.ref.lang.RefAware
+public @RefAware
 class ValueLayer extends LayerBase {
 
   @Nullable
   private Tensor[] data;
 
   protected ValueLayer(@Nonnull final JsonObject json,
-                       com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources) {
+                       Map<CharSequence, byte[]> resources) {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
-    data = com.simiacryptus.ref.wrappers.RefIntStream.range(0, values.size())
+    data = RefIntStream.range(0, values.size())
         .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
   }
 
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
-    this.data = com.simiacryptus.ref.wrappers.RefArrays.copyOf(data, data.length);
+    this.data = RefArrays.copyOf(data, data.length);
     this.frozen = true;
   }
 
@@ -59,7 +66,7 @@ class ValueLayer extends LayerBase {
 
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json,
-                                    com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> rs) {
+                                    Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
@@ -67,7 +74,7 @@ class ValueLayer extends LayerBase {
   ValueLayer[] addRefs(ValueLayer[] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
+    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
         .toArray((x) -> new ValueLayer[x]);
   }
 
@@ -75,7 +82,7 @@ class ValueLayer extends LayerBase {
   ValueLayer[][] addRefs(ValueLayer[][] array) {
     if (array == null)
       return null;
-    return java.util.Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
+    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
         .toArray((x) -> new ValueLayer[x][]);
   }
 
@@ -108,11 +115,11 @@ class ValueLayer extends LayerBase {
 
   @Nonnull
   @Override
-  public JsonObject getJson(com.simiacryptus.ref.wrappers.RefMap<CharSequence, byte[]> resources,
+  public JsonObject getJson(Map<CharSequence, byte[]> resources,
                             @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
-    com.simiacryptus.ref.wrappers.RefArrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer))
+    RefArrays.stream(data).map(datum -> datum.getJson(resources, dataSerializer))
         .forEach(values::add);
     json.add("values", values);
     return json;
@@ -120,9 +127,9 @@ class ValueLayer extends LayerBase {
 
   @Nonnull
   @Override
-  public com.simiacryptus.ref.wrappers.RefList<double[]> state() {
-    return com.simiacryptus.ref.wrappers.RefArrays.stream(data).map(x -> x.getData())
-        .collect(com.simiacryptus.ref.wrappers.RefCollectors.toList());
+  public RefList<double[]> state() {
+    return RefArrays.stream(data).map(x -> x.getData())
+        .collect(RefCollectors.toList());
   }
 
   public void _free() {
@@ -134,7 +141,7 @@ class ValueLayer extends LayerBase {
     return (ValueLayer) super.addRef();
   }
 
-  public static @com.simiacryptus.ref.lang.RefAware
+  public static @RefAware
   class RefWrapper<T> {
     public final T obj;
 
