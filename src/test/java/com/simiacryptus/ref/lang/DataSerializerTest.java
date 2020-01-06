@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.SerialPrecision;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.test.TestCategories;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -78,7 +79,7 @@ class DataSerializerTest {
     double[] result = target.fromBytes(target.toBytes(source));
     double rms = RefIntStream.range(0, source.length)
         .mapToDouble(i -> (source[i] - result[i]) / (source[i] + result[i])).map(x -> x * x).average().getAsDouble();
-    log.info(String.format("%s RMS: %s", name, rms));
+    log.info(RefString.format("%s RMS: %s", name, rms));
     //assert rms < 1e-4;
   }
 

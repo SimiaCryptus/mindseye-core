@@ -23,6 +23,7 @@ import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
@@ -119,7 +120,7 @@ class TensorArray extends RegisteredObjectBase implements TensorList, Serializab
 
   @Override
   public String toString() {
-    return String.format("TensorArray{data=%s}", toString(9, getData()));
+    return RefString.format("TensorArray{data=%s}", toString(9, getData()));
   }
 
   public void _free() {

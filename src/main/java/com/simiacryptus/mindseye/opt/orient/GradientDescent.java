@@ -25,6 +25,7 @@ import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -56,9 +57,9 @@ class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
     @Nonnull final DeltaSet<UUID> direction = measurement.delta.scale(-1);
     final double magnitude = direction.getMagnitude();
     if (Math.abs(magnitude) < 1e-10) {
-      monitor.log(String.format("Zero gradient: %s", magnitude));
+      monitor.log(RefString.format("Zero gradient: %s", magnitude));
     } else if (Math.abs(magnitude) < 1e-5) {
-      monitor.log(String.format("Low gradient: %s", magnitude));
+      monitor.log(RefString.format("Low gradient: %s", magnitude));
     }
     SimpleLineSearchCursor temp_42_0002 = new SimpleLineSearchCursor(
         subject == null ? null : subject.addRef(), measurement == null ? null : measurement,

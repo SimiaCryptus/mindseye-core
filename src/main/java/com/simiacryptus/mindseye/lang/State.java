@@ -59,7 +59,7 @@ class State<K> extends DoubleBuffer<K> {
 
   @Nonnull
   public final synchronized State<K> backup() {
-    System.arraycopy(target, 0, getDelta(), 0, target.length);
+    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(target, 0, getDelta(), 0, target.length);
     return this.addRef();
   }
 
@@ -78,7 +78,7 @@ class State<K> extends DoubleBuffer<K> {
 
   @Nonnull
   public final synchronized State<K> restore() {
-    System.arraycopy(getDelta(), 0, target, 0, target.length);
+    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(getDelta(), 0, target, 0, target.length);
     return this.addRef();
   }
 

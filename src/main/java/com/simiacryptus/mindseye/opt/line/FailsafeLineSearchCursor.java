@@ -24,6 +24,7 @@ import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -86,7 +87,7 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
       @Nonnull
       PointSample newValue = step.copyFull();
       if (null != this.best) {
-        monitor.log(String.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
+        monitor.log(RefString.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
       }
       {
         PointSample temp_11_0003 = newValue == null ? null : newValue.addRef();

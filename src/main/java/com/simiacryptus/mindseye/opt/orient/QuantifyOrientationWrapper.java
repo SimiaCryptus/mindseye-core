@@ -30,6 +30,7 @@ import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.ref.wrappers.RefSet;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.data.DoubleStatistics;
 
 import javax.annotation.Nonnull;
@@ -150,11 +151,11 @@ class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSearchCurso
       weights.freeRef();
       if (null != direction)
         direction.freeRef();
-      monitor.log(String.format("Line search stats: %s", dataMap));
+      monitor.log(RefString.format("Line search stats: %s", dataMap));
       if (null != dataMap)
         dataMap.freeRef();
     } else {
-      monitor.log(String.format("Non-simple cursor: %s", cursor));
+      monitor.log(RefString.format("Non-simple cursor: %s", cursor));
     }
     return cursor;
   }

@@ -24,6 +24,7 @@ import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,14 +113,14 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   public double dot(@Nonnull final DoubleBuffer<K> right) {
     if (this.target != right.target) {
       IllegalArgumentException temp_51_0001 = new IllegalArgumentException(
-          String.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
+          RefString.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
       if (null != right)
         right.freeRef();
       throw temp_51_0001;
     }
     if (!this.key.equals(right.key)) {
       IllegalArgumentException temp_51_0002 = new IllegalArgumentException(
-          String.format("Deltas are not based on same key. %s != %s", this.key, right.key));
+          RefString.format("Deltas are not based on same key. %s != %s", this.key, right.key));
       if (null != right)
         right.freeRef();
       throw temp_51_0002;
@@ -145,7 +146,7 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   public void set(@Nonnull final double[] data) {
     assert RefArrays.stream(data).allMatch(Double::isFinite);
-    System.arraycopy(data, 0, this.getDelta(), 0, data.length);
+    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(data, 0, this.getDelta(), 0, data.length);
     //    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
     assert RefArrays.stream(getDelta()).allMatch(Double::isFinite);
   }
@@ -158,7 +159,7 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final StringBuilder builder = new StringBuilder();
+    @Nonnull final com.simiacryptus.ref.wrappers.RefStringBuilder builder = new com.simiacryptus.ref.wrappers.RefStringBuilder();
     builder.append(getClass().getSimpleName());
     builder.append("/");
     builder.append(this.key);

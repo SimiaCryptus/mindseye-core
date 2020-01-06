@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.opt.line;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,7 +71,7 @@ class StaticLearningRate implements LineSearchStrategy {
         lastValue = Double.POSITIVE_INFINITY;
       }
       if (lastValue + startValue * 1e-15 > startValue) {
-        monitor.log(String.format("Non-decreasing runStep. %s > %s at " + thisRate, lastValue, startValue));
+        monitor.log(RefString.format("Non-decreasing runStep. %s > %s at " + thisRate, lastValue, startValue));
         thisRate /= 2;
         if (thisRate < getMinimumRate()) {
           PointSample temp_30_0001 = startPoint.point;

@@ -34,6 +34,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,12 +201,12 @@ class IterativeTrainer extends ReferenceCountingBase {
     double mean = currentPoint.getMean();
     if (!Double.isFinite(mean)) {
       if (monitor.onStepFail(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()))) {
-        monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
+        monitor.log(RefString.format("Retrying iteration %s", currentIteration.get()));
         if (null != currentPoint)
           currentPoint.freeRef();
         return measure();
       } else {
-        monitor.log(String.format("Optimization terminated %s", currentIteration.get()));
+        monitor.log(RefString.format("Optimization terminated %s", currentIteration.get()));
         if (null != currentPoint)
           currentPoint.freeRef();
         throw new IterativeStopException(Double.toString(mean));
@@ -216,8 +217,8 @@ class IterativeTrainer extends ReferenceCountingBase {
   }
 
   public void shuffle() {
-    long seed = System.nanoTime();
-    monitor.log(String.format("Reset training subject: " + seed));
+    long seed = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+    monitor.log(RefString.format("Reset training subject: " + seed));
     orientation.reset();
     subject.reseed(seed);
     if (subject.getLayer() instanceof DAGNetwork) {
@@ -226,21 +227,21 @@ class IterativeTrainer extends ReferenceCountingBase {
   }
 
   public double run() {
-    long startTime = System.currentTimeMillis();
+    long startTime = com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis();
     final long timeoutMs = startTime + timeout.toMillis();
-    long lastIterationTime = System.nanoTime();
+    long lastIterationTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
     shuffle();
     @Nullable
     PointSample currentPoint = measure();
     try {
 mainLoop:
-      while (timeoutMs > System.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
+      while (timeoutMs > com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis() && terminateThreshold < currentPoint.getMean()
           && maxIterations > currentIteration.get()) {
         shuffle();
         currentPoint = null;
         currentPoint = measure();
         for (int subiteration = 0; subiteration < iterationsPerSample || iterationsPerSample <= 0; subiteration++) {
-          if (timeoutMs < System.currentTimeMillis()) {
+          if (timeoutMs < com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis()) {
             break mainLoop;
           }
           if (currentIteration.incrementAndGet() > maxIterations) {
@@ -269,37 +270,37 @@ mainLoop:
                     previous == null ? null : previous.addRef(), direction == null ? null : direction.addRef()));
             currentPoint = null;
             currentPoint = timedLineSearch.result.addRef();
-            final long now = System.nanoTime();
-            final CharSequence perfString = String.format("Total: %.4f; Orientation: %.4f; Line Search: %.4f",
+            final long now = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+            final CharSequence perfString = RefString.format("Total: %.4f; Orientation: %.4f; Line Search: %.4f",
                 (now - lastIterationTime) / 1e9, timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9);
             lastIterationTime = now;
-            monitor.log(String.format("Fitness changed from %s to %s", previous.getMean(), currentPoint.getMean()));
+            monitor.log(RefString.format("Fitness changed from %s to %s", previous.getMean(), currentPoint.getMean()));
             if (previous.getMean() <= currentPoint.getMean()) {
               if (previous.getMean() < currentPoint.getMean()) {
-                monitor.log(String.format("Resetting Iteration %s", perfString));
+                monitor.log(RefString.format("Resetting Iteration %s", perfString));
                 currentPoint = null;
                 LineSearchPoint temp_18_0005 = direction.step(0, monitor);
                 currentPoint = temp_18_0005.point.addRef();
                 if (null != temp_18_0005)
                   temp_18_0005.freeRef();
               } else {
-                monitor.log(String.format("Static Iteration %s", perfString));
+                monitor.log(RefString.format("Static Iteration %s", perfString));
               }
 
               monitor
-                  .log(String.format("Iteration %s failed. Error: %s", currentIteration.get(), currentPoint.getMean()));
-              monitor.log(String.format("Previous Error: %s -> %s", previous.getRate(), previous.getMean()));
+                  .log(RefString.format("Iteration %s failed. Error: %s", currentIteration.get(), currentPoint.getMean()));
+              monitor.log(RefString.format("Previous Error: %s -> %s", previous.getRate(), previous.getMean()));
               if (monitor
                   .onStepFail(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()))) {
-                monitor.log(String.format("Retrying iteration %s", currentIteration.get()));
+                monitor.log(RefString.format("Retrying iteration %s", currentIteration.get()));
 
                 break;
               } else {
-                monitor.log(String.format("Optimization terminated %s", currentIteration.get()));
+                monitor.log(RefString.format("Optimization terminated %s", currentIteration.get()));
                 break mainLoop;
               }
             } else {
-              monitor.log(String.format("Iteration %s complete. Error: %s " + perfString, currentIteration.get(),
+              monitor.log(RefString.format("Iteration %s complete. Error: %s " + perfString, currentIteration.get(),
                   currentPoint.getMean()));
             }
             monitor
@@ -319,12 +320,12 @@ mainLoop:
         currentPoint.freeRef();
       return temp_18_0003;
     } catch (Throwable e) {
-      monitor.log(String.format("Error %s", Util.toString(e)));
+      monitor.log(RefString.format("Error %s", Util.toString(e)));
       throw new RuntimeException(e);
     } finally {
-      monitor.log(String.format("Final threshold in iteration %s: %s (> %s) after %.3fs (< %.3fs)",
+      monitor.log(RefString.format("Final threshold in iteration %s: %s (> %s) after %.3fs (< %.3fs)",
           currentIteration.get(), null == currentPoint ? null : currentPoint.getMean(), terminateThreshold,
-          (System.currentTimeMillis() - startTime) / 1000.0, timeout.toMillis() / 1000.0));
+          (com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis() - startTime) / 1000.0, timeout.toMillis() / 1000.0));
     }
   }
 
@@ -346,7 +347,7 @@ mainLoop:
     if (lineSearchStrategyMap.containsKey(directionType)) {
       lineSearchStrategy = lineSearchStrategyMap.get(directionType);
     } else {
-      log.info(String.format("Constructing line search parameters: %s", directionType));
+      log.info(RefString.format("Constructing line search parameters: %s", directionType));
       lineSearchStrategy = lineSearchFactory.apply(direction.getDirectionType());
       lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }

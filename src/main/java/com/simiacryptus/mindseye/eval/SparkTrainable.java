@@ -230,12 +230,12 @@
 //
 //  @Override
 //  public PointSample measure(final TrainingMonitor monitor) {
-//    final long time1 = System.nanoTime();
+//    final long time1 = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 //    final JavaRDD<ReducableResult> mapPartitions = sampledRDD.toJavaRDD().mapPartitions(new PartitionTask(network));
-//    final long time2 = System.nanoTime();
+//    final long time2 = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 //    final SparkTrainable.ReducableResult result = mapPartitions.reduce(SparkTrainable.ReducableResult::add);
 //    if (isVerbose()) {
-//      log.info(String.format("Measure timing: %.3f / %.3f for %s items", (time2 - time1) * 1e-9, (System.nanoTime() - time2) * 1e-9, sampledRDD.count()));
+//      log.info(String.format("Measure timing: %.3f / %.3f for %s items", (time2 - time1) * 1e-9, (com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - time2) * 1e-9, sampledRDD.count()));
 //    }
 //    @Nonnull final DeltaSet<UUID> xxx = getDelta(result);
 //    return new PointSample(xxx, new StateSet<UUID>(xxx), result.sum, 0.0, result.count).normalize();
@@ -250,7 +250,7 @@
 //    if (null != sampledRDD) {
 //      sampledRDD.unpersist(false);
 //    }
-//    sampledRDD = dataRDD.sample(false, sampleSize * 1.0 / count, System.currentTimeMillis())
+//    sampledRDD = dataRDD.sample(false, sampleSize * 1.0 / count, com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis())
 //      .repartition(getPartitions(), null)
 //      .persist(getStorageLevel());
 //    assert !sampledRDD.isEmpty();
@@ -293,11 +293,11 @@
 //    @Nonnull
 //    @Override
 //    public Iterator<SparkTrainable.ReducableResult> call(@Nonnull final Iterator<Tensor[]> partition) {
-//      final long startTime = System.nanoTime();
+//      final long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 //      @Nonnull final DataTrainable trainable = new BasicTrainable(network);
 //      final Tensor[][] tensors = SparkTrainable.getStream(partition).toArray(i -> new Tensor[i][]);
 //      if (verbose) {
-//        SparkTrainable.debug("Materialized %s records in %4f sec", tensors.length, (System.nanoTime() - startTime) * 1e-9);
+//        SparkTrainable.debug("Materialized %s records in %4f sec", tensors.length, (com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - startTime) * 1e-9);
 //      }
 //      final PointSample measure = trainable.setData(Arrays.asList(tensors)).measure(new TrainingMonitor() {
 //        @Override

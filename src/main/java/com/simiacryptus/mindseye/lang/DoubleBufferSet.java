@@ -149,7 +149,7 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBas
         n.freeRef();
       return temp_15_0006;
     }).distinct().sorted(RefComparator.comparing(y -> {
-      int temp_15_0007 = System.identityHashCode(y.target);
+      int temp_15_0007 = com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(y.target);
       if (null != y)
         y.freeRef();
       return temp_15_0007;
@@ -188,7 +188,7 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBas
         T delta = factory.get();
         assert null != delta;
         if (log.isDebugEnabled())
-          log.debug(String.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));
+          log.debug(RefString.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));
         return delta;
       });
     }

@@ -27,6 +27,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefMap;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +98,7 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
         if (isVerbose()) {
           RefMap<UUID, State<UUID>> temp_53_0001 = result.weights
               .getMap();
-          log.info(String.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
+          log.info(RefString.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
               result.rate, result.getMean()));
           if (null != temp_53_0001)
             temp_53_0001.freeRef();

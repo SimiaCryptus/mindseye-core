@@ -63,7 +63,7 @@ class LineSearchPoint extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final StringBuffer sb = new StringBuffer("LineSearchPoint{");
+    @Nonnull final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder("LineSearchPoint{");
     sb.append("point=").append(point);
     sb.append(", derivative=").append(derivative);
     sb.append('}');

@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public @RefAware
 class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
@@ -121,12 +122,12 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       if (!isFound) {
         @Nonnull final PointSample copyFull = measurement.copyFull();
         if (verbose) {
-          monitor.log(String.format("Adding measurement %s to history. Total: %s",
-              Long.toHexString(System.identityHashCode(copyFull)), history.size()));
+          monitor.log(RefString.format("Adding measurement %s to history. Total: %s",
+              Long.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(copyFull)), history.size()));
         }
         history.add(copyFull == null ? null : copyFull);
       } else if (verbose) {
-        monitor.log(String.format("Non-optimal measurement %s < %s. Total: %s", measurement.sum,
+        monitor.log(RefString.format("Non-optimal measurement %s < %s. Total: %s", measurement.sum,
             history.stream().mapToDouble(x -> {
               double temp_47_0004 = x.sum;
               if (null != x)
@@ -170,8 +171,8 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     while (this.history.size() > (null == result ? minHistory : maxHistory)) {
       @Nullable final PointSample remove = this.history.pollFirst();
       if (verbose) {
-        monitor.log(String.format("Removed measurement %s to history. Total: %s",
-            Long.toHexString(System.identityHashCode(remove)), history.size()));
+        monitor.log(RefString.format("Removed measurement %s to history. Total: %s",
+            Long.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(remove)), history.size()));
       }
       if (null != remove)
         remove.freeRef();
@@ -220,7 +221,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         return result;
       } else {
         monitor.log("Orientation rejected. Popping history element from " + history.stream().map(x -> {
-          String temp_47_0005 = String.format("%s", x.getMean());
+          String temp_47_0005 = RefString.format("%s", x.getMean());
           if (null != x)
             x.freeRef();
           return temp_47_0005;
@@ -232,7 +233,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         return temp_47_0012;
       }
     } else {
-      monitor.log(String.format("LBFGS Accumulation History: %s points", history.size()));
+      monitor.log(RefString.format("LBFGS Accumulation History: %s points", history.size()));
       result.freeRef();
       measurement.freeRef();
       history.freeRef();
@@ -281,7 +282,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       return;
     }
     if (verbose) {
-      monitor.log(String.format("Overwriting history with %s points", history.size()));
+      monitor.log(RefString.format("Overwriting history with %s points", history.size()));
     }
     synchronized (this.history) {
       this.history.clear();
@@ -437,7 +438,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       direction.freeRef();
       return accept;
     } catch (Throwable e) {
-      monitor.log(String.format("LBFGS Orientation Error: %s", e.getMessage()));
+      monitor.log(RefString.format("LBFGS Orientation Error: %s", e.getMessage()));
       return false;
     } finally {
     }
@@ -477,10 +478,8 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       mag = Math.sqrt(quasinewton.dot(quasinewton == null ? null : quasinewton.addRef()));
       magGrad = Math.sqrt(gradient.dot(gradient == null ? null : gradient.addRef()));
       dot = gradient.dot(quasinewton == null ? null : quasinewton) / (mag * magGrad);
-      RefMap<UUID, Delta<UUID>> temp_47_0032 = gradient
-          .getMap();
-      RefSet<Map.Entry<UUID, Delta<UUID>>> temp_47_0033 = temp_47_0032
-          .entrySet();
+      RefMap<UUID, Delta<UUID>> temp_47_0032 = gradient.getMap();
+      RefSet<Map.Entry<UUID, Delta<UUID>>> temp_47_0033 = temp_47_0032.entrySet();
       anglesPerLayer = temp_47_0033.stream()
           //.filter(e -> !(e.getKey() instanceof PlaceholderLayer)) // This would be too verbose
           .map(RefUtil.wrapInterface(
@@ -528,13 +527,13 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
                   temp_47_0038.freeRef();
                 RefUtil.freeRef(e);
                 if (gradientMagnitude == 0.0) {
-                  return String.format("%s = %.3e", layerName, lbfgsMagnitude);
+                  return RefString.format("%s = %.3e", layerName, lbfgsMagnitude);
                 } else {
                   final double dotP = ArrayUtil.dot(lbfgsVector, gradientVector) / (lbfgsMagnitude * gradientMagnitude);
-                  return String.format("%s = %.3f/%.3e", layerName, dotP, lbfgsMagnitude / gradientMagnitude);
+                  return RefString.format("%s = %.3f/%.3e", layerName, dotP, lbfgsMagnitude / gradientMagnitude);
                 }
               }, gradient == null ? null : gradient))
-          .collect(RefCollectors.toList());
+          .collect(Collectors.toList());
       if (null != temp_47_0033)
         temp_47_0033.freeRef();
       if (null != temp_47_0032)
@@ -559,7 +558,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
     @Override
     public String toString() {
-      return String.format("LBFGS Orientation magnitude: %.3e, gradient %.3e, dot %.3f; %s", getMag(), getMagGrad(),
+      return RefString.format("LBFGS Orientation magnitude: %.3e, gradient %.3e, dot %.3f; %s", getMag(), getMagGrad(),
           getDot(), getAnglesPerLayer());
     }
   }

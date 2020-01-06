@@ -252,7 +252,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
           @Nullable final double[] e = temp_33_0011.getData();
           if (null != temp_33_0011)
             temp_33_0011.freeRef();
-          System.arraycopy(e, 0, data, i * e.length, e.length);
+          com.simiacryptus.ref.wrappers.RefSystem.arraycopy(e, 0, data, i * e.length, e.length);
         }
         if (null != elements)
           elements.freeRef();
@@ -618,7 +618,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
             }
           }
         }
-        System.arraycopy(val, 0, safeCopy, 0, val.length);
+        com.simiacryptus.ref.wrappers.RefSystem.arraycopy(val, 0, safeCopy, 0, val.length);
         coordinate.setIndex(cnt++);
         coordinate.setCoords(safeCopy);
         return parallel ? coordinate.copy() : coordinate;
@@ -704,7 +704,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   }
 
   public void get(@Nonnull final double[] bufferArray) {
-    System.arraycopy(getData(), 0, bufferArray, 0, length());
+    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(getData(), 0, bufferArray, 0, length());
   }
 
   public double get(@Nonnull final int[] coords) {
@@ -969,7 +969,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   public Tensor set(final int index, final double value) {
     // assert Double.isFinite(value);
     assert index >= 0 : index;
-    assert index < length() : String.format("%d>%d (%s)", index, length(), RefArrays.toString(dimensions));
+    assert index < length() : RefString.format("%d>%d (%s)", index, length(), RefArrays.toString(dimensions));
     getData()[index] = value;
     return this.addRef();
   }
@@ -992,7 +992,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
     if (dst.length != src.length) {
       throw new IllegalArgumentException(dst.length + " != " + src.length);
     }
-    System.arraycopy(src, 0, dst, 0, src.length);
+    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(src, 0, dst, 0, src.length);
   }
 
   @Nonnull
@@ -1154,7 +1154,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   @Override
   public String toString() {
     assertAlive();
-    return (null == data ? "0" : Integer.toHexString(System.identityHashCode(data))) + "@" + toString(false);
+    return (null == data ? "0" : Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(data))) + "@" + toString(false);
   }
 
   @Nonnull
@@ -1271,7 +1271,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
       @Nonnull final JsonArray jsonArray = new JsonArray();
       RefIntStream.range(0, dimensions[dimensions.length - (coords.length + 1)]).mapToObj(i -> {
         @Nonnull final int[] newCoord = new int[coords.length + 1];
-        System.arraycopy(coords, 0, newCoord, 1, coords.length);
+        com.simiacryptus.ref.wrappers.RefSystem.arraycopy(coords, 0, newCoord, 1, coords.length);
         newCoord[0] = i;
         return getJson(newCoord);
       }).forEach(l -> jsonArray.add(l));

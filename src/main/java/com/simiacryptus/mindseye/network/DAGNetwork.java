@@ -177,7 +177,7 @@ class DAGNetwork extends LayerBase {
             if (null != layer)
               layer.freeRef();
             RuntimeException temp_38_0005 = new RuntimeException(
-                String.format("Duplicated key found: %s (%s)", previous, id));
+                RefString.format("Duplicated key found: %s (%s)", previous, id));
             if (null != previous)
               previous.freeRef();
             throw temp_38_0005;
@@ -396,7 +396,7 @@ class DAGNetwork extends LayerBase {
     if (null == input) {
       if (null != input)
         input.freeRef();
-      throw new IllegalStateException(String.format("No Input: %d: %s", index, key));
+      throw new IllegalStateException(RefString.format("No Input: %d: %s", index, key));
     }
     return input;
   }
@@ -594,7 +594,7 @@ class DAGNetwork extends LayerBase {
         layer.freeRef();
       nodeLinks.freeRef();
       layersByNodeId.freeRef();
-      throw new IllegalArgumentException(String.format("%s is linked to but not defined", newNodeId));
+      throw new IllegalArgumentException(RefString.format("%s is linked to but not defined", newNodeId));
     }
     final RefList<UUID> links = nodeLinks.get(newNodeId);
     if (null != links) {

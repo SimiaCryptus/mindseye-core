@@ -375,7 +375,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
 
   public double run() {
     try {
-      final long timeoutAt = System.currentTimeMillis() + timeout.toMillis();
+      final long timeoutAt = com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis() + timeout.toMillis();
       if (validationSubject.getLayer() instanceof DAGNetwork) {
         ((DAGNetwork) validationSubject.getLayer()).visitLayers(layer -> {
           if (layer instanceof StochasticComponent)
@@ -395,9 +395,9 @@ class ValidatingTrainer extends ReferenceCountingBase {
           monitor.log("Training halted");
           break;
         }
-        monitor.log(String.format("Epoch parameters: %s, %s", epochParams.trainingSize, epochParams.iterations));
+        monitor.log(RefString.format("Epoch parameters: %s, %s", epochParams.trainingSize, epochParams.iterations));
         @Nonnull final RefList<TrainingPhase> regimen = getRegimen();
-        final long seed = System.nanoTime();
+        final long seed = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
         final RefList<EpochResult> epochResults = RefIntStream.range(0, regimen.size())
             .mapToObj(RefUtil.wrapInterface(
                 (IntFunction<? extends ValidatingTrainer.EpochResult>) i -> {
@@ -438,27 +438,27 @@ class ValidatingTrainer extends ReferenceCountingBase {
           lowestValidation = validationMean;
           lastImprovement = iterationNumber;
         }
-        monitor.log(String.format(
+        monitor.log(RefString.format(
             "Epoch %d result apply %s iterations, %s/%s samples: {validation *= 2^%.5f; training *= 2^%.3f; Overtraining = %.2f}, {itr*=%.2f, len*=%.2f} %s since improvement; %.4f validation time",
             ++epochNumber, primaryPhase.iterations, epochParams.trainingSize, getMaxTrainingSize(),
             Math.log(validationDelta) / Math.log(2), Math.log(trainingDelta) / Math.log(2), overtraining, adj1, adj2,
             iterationNumber - lastImprovement, validatingMeasurementTime.getAndSet(0) / 1e9));
         if (!primaryPhase.continueTraining) {
-          monitor.log(String.format("Training %d runPhase halted", epochNumber));
+          monitor.log(RefString.format("Training %d runPhase halted", epochNumber));
           break;
         }
         if (epochParams.trainingSize >= getMaxTrainingSize()) {
           final double roll = FastRandom.INSTANCE.random();
           if (roll > Math.pow(2 - validationDelta, pessimism)) {
-            monitor.log(String.format("Training randomly converged: %3f", roll));
+            monitor.log(RefString.format("Training randomly converged: %3f", roll));
             break;
           } else {
             if (iterationNumber - lastImprovement > improvmentStaleThreshold) {
               if (disappointments.incrementAndGet() > getDisappointmentThreshold()) {
-                monitor.log(String.format("Training converged after %s iterations", iterationNumber - lastImprovement));
+                monitor.log(RefString.format("Training converged after %s iterations", iterationNumber - lastImprovement));
                 break;
               } else {
-                monitor.log(String.format("Training failed to converged on %s attempt after %s iterations",
+                monitor.log(RefString.format("Training failed to converged on %s attempt after %s iterations",
                     disappointments.get(), iterationNumber - lastImprovement));
               }
             } else {
@@ -532,9 +532,9 @@ class ValidatingTrainer extends ReferenceCountingBase {
   @Nonnull
   protected EpochResult runPhase(@Nonnull final EpochParams epochParams, @Nonnull final TrainingPhase phase,
                                  final int i, final long seed) {
-    monitor.log(String.format("Phase %d: %s", i, phase));
+    monitor.log(RefString.format("Phase %d: %s", i, phase));
     phase.trainingSubject.setTrainingSize(epochParams.trainingSize);
-    monitor.log(String.format("resetAndMeasure; trainingSize=%s", epochParams.trainingSize));
+    monitor.log(RefString.format("resetAndMeasure; trainingSize=%s", epochParams.trainingSize));
     ValidatingTrainer temp_07_0029 = reset(phase == null ? null : phase.addRef(), seed);
     PointSample currentPoint = temp_07_0029.measure(phase == null ? null : phase.addRef());
     if (null != temp_07_0029)
@@ -556,21 +556,21 @@ class ValidatingTrainer extends ReferenceCountingBase {
         phase.freeRef();
         return temp_07_0014;
       }
-      final long startTime = System.nanoTime();
+      final long startTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
       final long prevGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
       @Nonnull final StepResult epoch = runStep(currentPoint == null ? null : currentPoint.addRef(),
           phase == null ? null : phase.addRef());
       final long newGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
           .mapToLong(x -> x.getCollectionTime()).sum();
-      final long endTime = System.nanoTime();
-      final CharSequence performance = String.format(
+      final long endTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+      final CharSequence performance = RefString.format(
           "%s in %.3f seconds; %.3f in orientation, %.3f in gc, %.3f in line search; %.3f trainAll time",
           epochParams.trainingSize, (endTime - startTime) / 1e9, epoch.performance[0], (newGcTime - prevGcTime) / 1e3,
           epoch.performance[1], trainingMeasurementTime.getAndSet(0) / 1e9);
       currentPoint = epoch.currentPoint.setRate(0.0);
       if (epoch.previous.getMean() <= epoch.currentPoint.getMean()) {
-        monitor.log(String.format("Iteration %s failed, aborting. Error: %s (%s)", currentIteration.get(),
+        monitor.log(RefString.format("Iteration %s failed, aborting. Error: %s (%s)", currentIteration.get(),
             epoch.currentPoint.getMean(), performance));
         ValidatingTrainer.EpochResult temp_07_0015 = new EpochResult(false, pointMean,
             currentPoint == null ? null : currentPoint.addRef(), step);
@@ -581,7 +581,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
         phase.freeRef();
         return temp_07_0015;
       } else {
-        monitor.log(String.format("Iteration %s complete. Error: %s (%s)", currentIteration.get(),
+        monitor.log(RefString.format("Iteration %s complete. Error: %s (%s)", currentIteration.get(),
             epoch.currentPoint.getMean(), performance));
       }
       epoch.freeRef();
@@ -610,7 +610,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
     if (phase.lineSearchStrategyMap.containsKey(directionType)) {
       lineSearchStrategy = phase.lineSearchStrategyMap.get(directionType);
     } else {
-      monitor.log(String.format("Constructing line search parameters: %s", directionType));
+      monitor.log(RefString.format("Constructing line search parameters: %s", directionType));
       lineSearchStrategy = phase.lineSearchFactory.apply(direction.getDirectionType());
       phase.lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
@@ -652,8 +652,8 @@ class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
-    System.currentTimeMillis();
-    if (timeoutMs < System.currentTimeMillis()) {
+    com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis();
+    if (timeoutMs < com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis()) {
       monitor.log("Training timeout");
       return true;
     } else if (currentIteration.get() > maxIterations) {
@@ -718,7 +718,7 @@ class ValidatingTrainer extends ReferenceCountingBase {
                 doubleList.freeRef();
               return temp_07_0021;
             }, nextWeights == null ? null : nextWeights)));
-    String temp_07_0019 = String.format("Overall network state change: %s", temp_07_0036);
+    String temp_07_0019 = RefString.format("Overall network state change: %s", temp_07_0036);
     if (null != temp_07_0036)
       temp_07_0036.freeRef();
     if (null != temp_07_0033)

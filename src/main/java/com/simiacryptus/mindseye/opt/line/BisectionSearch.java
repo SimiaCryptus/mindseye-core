@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.opt.line;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 
@@ -77,7 +78,7 @@ class BisectionSearch implements LineSearchStrategy {
     double leftX = 0;
     double leftValue;
     final LineSearchPoint searchPoint = cursor.step(leftX, monitor);
-    monitor.log(String.format("F(%s) = %s", leftX, searchPoint));
+    monitor.log(RefString.format("F(%s) = %s", leftX, searchPoint));
     leftValue = searchPoint.point.sum;
     if (null != searchPoint)
       searchPoint.freeRef();
@@ -91,15 +92,15 @@ class BisectionSearch implements LineSearchStrategy {
     while (true) {
       rightX = (leftX + Math.min(rightRight, rightRightSoft)) / 2;
       rightPoint = cursor.step(rightX, monitor);
-      monitor.log(String.format("F(%s)@%s = %s", rightX, loopCount, rightPoint));
+      monitor.log(RefString.format("F(%s)@%s = %s", rightX, loopCount, rightPoint));
       rightLineDeriv = rightPoint.derivative;
       rightValue = rightPoint.point.sum;
       if (loopCount++ > 100) {
-        monitor.log(String.format("Loop overflow"));
+        monitor.log(RefString.format("Loop overflow"));
         break;
       }
       if ((rightRight - leftX) * 2.0 / (leftX + rightRight) < spanTol) {
-        monitor.log(String.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
+        monitor.log(RefString.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
         currentRate = leftX;
         if (null != rightPoint)
           rightPoint.freeRef();
@@ -112,19 +113,19 @@ class BisectionSearch implements LineSearchStrategy {
       }
       if (rightValue > leftValue) {
         rightRight = rightX;
-        monitor.log(String.format("Right is at most %s", rightX));
+        monitor.log(RefString.format("Right is at most %s", rightX));
       } else if (rightLineDeriv < 0) {
         rightRightSoft *= 2.0;
         leftValue = rightValue;
         leftX = rightX;
-        monitor.log(String.format("Right is at least %s", rightX));
+        monitor.log(RefString.format("Right is at least %s", rightX));
       } else {
         break;
       }
     }
     if (null != rightPoint)
       rightPoint.freeRef();
-    monitor.log(String.format("Starting bisection search from %s to %s", leftX, rightX));
+    monitor.log(RefString.format("Starting bisection search from %s to %s", leftX, rightX));
     LineSearchPoint temp_49_0004 = iterate(cursor == null ? null : cursor, monitor,
         leftX, rightX);
     PointSample temp_49_0001 = temp_49_0004.point;
@@ -141,14 +142,14 @@ class BisectionSearch implements LineSearchStrategy {
       double thisX;
       thisX = (rightX + leftX) / 2;
       searchPoint = cursor.step(thisX, monitor);
-      monitor.log(String.format("F(%s) = %s", thisX, searchPoint));
+      monitor.log(RefString.format("F(%s) = %s", thisX, searchPoint));
       if (loopCount++ > 1000) {
         cursor.freeRef();
         return searchPoint;
       }
       if (searchPoint.derivative < -zeroTol) {
         if (leftX == thisX) {
-          monitor.log(String.format("End (static left) at %s", thisX));
+          monitor.log(RefString.format("End (static left) at %s", thisX));
           currentRate = thisX;
           cursor.freeRef();
           return searchPoint;
@@ -156,18 +157,18 @@ class BisectionSearch implements LineSearchStrategy {
         leftX = thisX;
       } else if (searchPoint.derivative > zeroTol) {
         if (rightX == thisX) {
-          monitor.log(String.format("End (static right) at %s", thisX));
+          monitor.log(RefString.format("End (static right) at %s", thisX));
           currentRate = thisX;
           return searchPoint;
         }
         rightX = thisX;
       } else {
-        monitor.log(String.format("End (at min) at %s", thisX));
+        monitor.log(RefString.format("End (at min) at %s", thisX));
         currentRate = thisX;
         return searchPoint;
       }
       if (Math.log10((rightX - leftX) * 2.0 / (leftX + rightX)) < -1) {
-        monitor.log(String.format("End (narrow range) at %s to %s", rightX, leftX));
+        monitor.log(RefString.format("End (narrow range) at %s to %s", rightX, leftX));
         currentRate = thisX;
         cursor.freeRef();
         return searchPoint;

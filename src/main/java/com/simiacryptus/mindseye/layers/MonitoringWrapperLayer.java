@@ -30,7 +30,6 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.util.MonitoredItem;
 import com.simiacryptus.util.MonitoredObject;
 import com.simiacryptus.util.data.PercentileStatistics;
@@ -39,6 +38,7 @@ import com.simiacryptus.util.data.ScalarStatistics;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
@@ -103,8 +103,8 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
   @Nonnull
   @Override
-  public RefMap<CharSequence, Object> getMetrics() {
-    @Nonnull final RefHashMap<CharSequence, Object> map = new RefHashMap<>();
+  public Map<CharSequence, Object> getMetrics() {
+    @Nonnull final Map<CharSequence, Object> map = new HashMap<>();
     Layer temp_31_0005 = getInner();
     map.put("class", temp_31_0005.getClass().getName());
     if (null != temp_31_0005)
@@ -132,11 +132,10 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
       }
     }
     if (statistics.getCount() > 0) {
-      @Nonnull final RefHashMap<CharSequence, Object> weightStats = new RefHashMap<>();
+      @Nonnull final Map<CharSequence, Object> weightStats = new HashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
-      map.put("weights", RefUtil.addRef(weightStats));
-      weightStats.freeRef();
+      map.put("weights", weightStats);
     }
     if (null != state)
       state.freeRef();

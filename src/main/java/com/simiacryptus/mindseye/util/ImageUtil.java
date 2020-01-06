@@ -41,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -143,14 +144,12 @@ class ImageUtil {
   public static BufferedImage resize(BufferedImage source, int width, int height) {
     @Nonnull final BufferedImage image = new BufferedImage(width, height, source.getType());
     @Nonnull final Graphics2D graphics = (Graphics2D) image.getGraphics();
-    RefHashMap<Object, Object> hints = new RefHashMap<>();
+    HashMap<Object, Object> hints = new HashMap<>();
     hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     hints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
     hints.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
     hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     graphics.setRenderingHints(hints);
-    if (null != hints)
-      hints.freeRef();
     graphics.drawImage(source, 0, 0, width, height, null);
     return image;
   }
@@ -276,7 +275,7 @@ class ImageUtil {
           updater.cancel(false);
           if (exitOnClose) {
             logger.warn("Exiting test", new RuntimeException("Stack Trace"));
-            System.exit(0);
+            com.simiacryptus.ref.wrappers.RefSystem.exit(0);
           }
         }
 

@@ -56,7 +56,7 @@ class Singleton<T> implements Supplier<T> {
   }
 
   @Nonnull
-  public Singleton<T> set(T obj) {
+  public Singleton<T> set(@RefAware T obj) {
     assert deque.isEmpty();
     deque.add(obj);
     return this;

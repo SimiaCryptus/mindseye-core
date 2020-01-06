@@ -33,9 +33,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
-public abstract @RefAware
-class RegisteredObjectBase extends ReferenceCountingBase {
+public abstract @RefAware class RegisteredObjectBase extends ReferenceCountingBase {
   private static final Logger logger = LoggerFactory.getLogger(RegisteredObjectBase.class);
   private static final RefMap<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>> cache = new RefConcurrentHashMap<>();
   private static final ScheduledExecutorService maintenanceThread = Executors.newScheduledThreadPool(1,
@@ -62,13 +63,12 @@ class RegisteredObjectBase extends ReferenceCountingBase {
       if (null != e)
         RefUtil.freeRef(e);
       return temp_32_0002;
-    }).map(x -> {
-      RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0003 = x
-          .getValue();
-      if (null != x)
-        RefUtil.freeRef(x);
-      return temp_32_0003;
-    }).flatMap(ObjectRecords::stream).map(x -> (T) x.get()).filter(x -> {
+    }).flatMap((Function<Map.Entry<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>>, RefStream<RefWeakReference<RegisteredObjectBase>>>) recordsEntry -> {
+      ObjectRecords<RegisteredObjectBase> temp_32_0003 = recordsEntry.getValue();
+      if (null != recordsEntry)
+        RefUtil.freeRef(recordsEntry);
+      return temp_32_0003.stream();
+    }).map(x -> (T) x.get()).filter(x -> {
       boolean temp_32_0004 = x != null;
       if (null != x)
         x.freeRef();
@@ -79,49 +79,42 @@ class RegisteredObjectBase extends ReferenceCountingBase {
     return temp_32_0005;
   }
 
-  public static @SuppressWarnings("unused")
-  RegisteredObjectBase[] addRefs(RegisteredObjectBase[] array) {
+  public static @SuppressWarnings("unused") RegisteredObjectBase[] addRefs(RegisteredObjectBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRef)
         .toArray((x) -> new RegisteredObjectBase[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  RegisteredObjectBase[][] addRefs(RegisteredObjectBase[][] array) {
+  public static @SuppressWarnings("unused") RegisteredObjectBase[][] addRefs(RegisteredObjectBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRefs)
         .toArray((x) -> new RegisteredObjectBase[x][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  RegisteredObjectBase addRef() {
+  public @Override @SuppressWarnings("unused") RegisteredObjectBase addRef() {
     return (RegisteredObjectBase) super.addRef();
   }
 
   protected void register() {
-    RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0007 = cache
-        .computeIfAbsent(getClass(), k -> new ObjectRecords<>());
+    RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0007 = cache.computeIfAbsent(getClass(),
+        k -> new ObjectRecords<>());
     temp_32_0007.add(new RefWeakReference<>(this.addRef()));
     if (null != temp_32_0007)
       temp_32_0007.freeRef();
   }
 
-  private static @RefAware
-  class ObjectRecords<T extends RegisteredObjectBase>
+  private static @RefAware class ObjectRecords<T extends RegisteredObjectBase>
       extends RefConcurrentLinkedDeque<RefWeakReference<T>> {
     private volatile boolean dirty = false;
     private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(this::maintain, 1, 1,
         TimeUnit.SECONDS);
 
-    public static @SuppressWarnings("unused")
-    ObjectRecords[] addRefs(ObjectRecords[] array) {
+    public static @SuppressWarnings("unused") ObjectRecords[] addRefs(ObjectRecords[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(ObjectRecords::addRef)
@@ -129,7 +122,7 @@ class RegisteredObjectBase extends ReferenceCountingBase {
     }
 
     @Override
-    public boolean add(final RefWeakReference<T> tWeakReference) {
+    public boolean add(final @com.simiacryptus.ref.lang.RefAware RefWeakReference<T> tWeakReference) {
       dirty = true;
       return super.add(tWeakReference);
     }
@@ -140,13 +133,10 @@ class RegisteredObjectBase extends ReferenceCountingBase {
       return super.stream();
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    ObjectRecords<T> addRef() {
+    public @Override @SuppressWarnings("unused") ObjectRecords<T> addRef() {
       return (ObjectRecords<T>) super.addRef();
     }
 

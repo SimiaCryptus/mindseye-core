@@ -31,6 +31,7 @@ import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefLists;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -134,7 +135,7 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTr
           }
         }, tensors == null ? null : tensors.addRef()));
     if (null != monitor && isVerbose()) {
-      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9,
+      monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9,
           timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     tensors.freeRef();

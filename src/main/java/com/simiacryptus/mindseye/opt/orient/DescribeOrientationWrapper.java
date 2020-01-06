@@ -65,7 +65,7 @@ class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCurso
     weightDelta.freeRef();
     @Nonnull final CharSequence deltaString = RefArrays.toString(dirDelta.getDelta());
     dirDelta.freeRef();
-    return String.format("pos: %s\nvec: %s", weightString, deltaString);
+    return RefString.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
@@ -129,7 +129,7 @@ class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCurso
     RefSet<Map.Entry<CharSequence, CharSequence>> temp_27_0014 = data
         .entrySet();
     String temp_27_0007 = temp_27_0014.stream().map(e -> {
-      String temp_27_0008 = String.format("%s = %s", e.getKey(), e.getValue());
+      String temp_27_0008 = RefString.format("%s = %s", e.getKey(), e.getValue());
       if (null != e)
         RefUtil.freeRef(e);
       return temp_27_0008;
@@ -174,9 +174,9 @@ class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCurso
           direction == null ? null : direction.addRef());
       if (null != direction)
         direction.freeRef();
-      monitor.log(String.format("Orientation Details: %s", asString));
+      monitor.log(RefString.format("Orientation Details: %s", asString));
     } else {
-      monitor.log(String.format("Non-simple cursor: %s", cursor));
+      monitor.log(RefString.format("Non-simple cursor: %s", cursor));
     }
     return cursor;
   }

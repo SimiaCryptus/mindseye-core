@@ -29,7 +29,7 @@ public @RefAware
 class Step extends ReferenceCountingBase {
   public final long iteration;
   public final PointSample point;
-  public final long time = System.currentTimeMillis();
+  public final long time = com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis();
 
   Step(final PointSample point, final long iteration) {
     {

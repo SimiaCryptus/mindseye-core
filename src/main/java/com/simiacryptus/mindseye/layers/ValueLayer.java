@@ -229,7 +229,7 @@ class ValueLayer extends LayerBase {
 
     @Override
     public int hashCode() {
-      return System.identityHashCode(obj);
+      return com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(obj);
     }
   }
 }

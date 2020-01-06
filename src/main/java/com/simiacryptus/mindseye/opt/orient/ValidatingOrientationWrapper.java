@@ -27,6 +27,7 @@ import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursorBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
@@ -167,7 +168,7 @@ class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCur
       final double dy = probePoint.point.sum - primaryPoint.point.sum;
       final double dx = probeAlpha - alpha;
       final double measuredDerivative = dy / dx;
-      monitor.log(String.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative,
+      monitor.log(RefString.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative,
           probePoint.derivative, probeSize));
       primaryPoint.freeRef();
       if (null != probePoint)

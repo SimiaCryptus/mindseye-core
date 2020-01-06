@@ -26,6 +26,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,19 +77,16 @@ class LoggingWrapperLayer extends WrapperLayer {
   public Result eval(@Nonnull final Result... inObj) {
     final LoggingWrapperLayer loggingWrapperLayer = this.addRef();
     final Result[] wrappedInput = RefIntStream.range(0, inObj.length)
-        .mapToObj(RefUtil.wrapInterface((IntFunction<?>) i -> {
+        .mapToObj(RefUtil.wrapInterface((IntFunction<Result>) i -> {
               final Result inputToWrap = inObj[i].addRef();
               try {
                 return new Result(inputToWrap.getData(), new Result.Accumulator() {
-                  {
-                  }
-
                   @Override
                   public void accept(DeltaSet<UUID> buffer, TensorList data) {
                     @Nonnull final String formatted = data.stream().map(loggingWrapperLayer::getString)
                         .reduce((a, b) -> a + "\n" + b).get();
                     Layer temp_46_0006 = LoggingWrapperLayer.this.getInner();
-                    log.info(String.format("Feedback Output %s for key %s: \n\t%s", i, temp_46_0006.getName(),
+                    log.info(RefString.format("Feedback Output %s for key %s: \n\t%s", i, temp_46_0006.getName(),
                         formatted.replaceAll("\n", "\n\t")));
                     if (null != temp_46_0006)
                       temp_46_0006.freeRef();
@@ -103,9 +101,6 @@ class LoggingWrapperLayer extends WrapperLayer {
                   void _free() {
                   }
                 }) {
-
-                  {
-                  }
 
                   @Override
                   public boolean isAlive() {
@@ -130,7 +125,7 @@ class LoggingWrapperLayer extends WrapperLayer {
         tensorList.freeRef();
       Layer temp_46_0007 = getInner();
       log.info(
-          String.format("Input %s for key %s: \n\t%s", i, temp_46_0007.getName(), formatted.replaceAll("\n", "\n\t")));
+          RefString.format("Input %s for key %s: \n\t%s", i, temp_46_0007.getName(), formatted.replaceAll("\n", "\n\t")));
       if (null != temp_46_0007)
         temp_46_0007.freeRef();
     }
@@ -154,7 +149,7 @@ class LoggingWrapperLayer extends WrapperLayer {
       if (null != tensorList)
         tensorList.freeRef();
       Layer temp_46_0009 = getInner();
-      log.info(String.format("Output for key %s: \n\t%s", temp_46_0009.getName(), formatted.replaceAll("\n", "\n\t")));
+      log.info(RefString.format("Output for key %s: \n\t%s", temp_46_0009.getName(), formatted.replaceAll("\n", "\n\t")));
       if (null != temp_46_0009)
         temp_46_0009.freeRef();
     }
@@ -172,7 +167,7 @@ class LoggingWrapperLayer extends WrapperLayer {
             return temp_46_0004;
           }).reduce((a, b) -> a + "\n" + b).get();
           Layer temp_46_0010 = LoggingWrapperLayer.this.getInner();
-          log.info(String.format("Feedback Input for key %s: \n\t%s", temp_46_0010.getName(),
+          log.info(RefString.format("Feedback Input for key %s: \n\t%s", temp_46_0010.getName(),
               formatted.replaceAll("\n", "\n\t")));
           if (null != temp_46_0010)
             temp_46_0010.freeRef();

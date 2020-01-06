@@ -30,6 +30,7 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -210,7 +211,7 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
         .time(() -> eval(TensorList.addRefs(data), monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
-      monitor.log(String.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9,
+      monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9,
           timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
     }
     assert null != timedResult.result;
@@ -306,7 +307,7 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
         }, TensorList.addRefs(list)));
     ReferenceCounting.freeRefs(list);
     if (null != monitor && verbosity() > 0) {
-      monitor.log(String.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
+      monitor.log(RefString.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
     }
     return timedResult.result.normalize();
   }

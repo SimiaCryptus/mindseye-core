@@ -72,7 +72,7 @@ class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     }
     trainingData.freeRef();
     this.trainingSize = trainingSize;
-    reseed(System.nanoTime());
+    reseed(com.simiacryptus.ref.wrappers.RefSystem.nanoTime());
   }
 
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize) {
@@ -109,7 +109,7 @@ class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     }
     ReferenceCounting.freeRefs(trainingData);
     this.trainingSize = trainingSize;
-    reseed(System.nanoTime());
+    reseed(com.simiacryptus.ref.wrappers.RefSystem.nanoTime());
   }
 
   public int getMinSamples() {

@@ -231,7 +231,7 @@ class PointSample extends ReferenceCountingBase {
 
   @Override
   public String toString() {
-    @Nonnull final StringBuffer sb = new StringBuffer("PointSample{");
+    @Nonnull final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder("PointSample{");
     sb.append("avg=").append(getMean());
     sb.append('}');
     return sb.toString();

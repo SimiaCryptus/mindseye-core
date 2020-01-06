@@ -69,7 +69,7 @@
 //  @Nonnull
 //  @Override
 //  public PointSample measure(final TrainingMonitor monitor) {
-//    final long time1 = System.nanoTime();
+//    final long time1 = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 //    final JavaRDD<Tensor[]> javaRDD = sampledRDD.toJavaRDD();
 //    assert !javaRDD.isEmpty();
 //    final List<ReducableResult> mapPartitions = javaRDD.partitions().stream().map(partition -> {
@@ -89,10 +89,10 @@
 //        throw new RuntimeException(e);
 //      }
 //    }).filter(x -> null != x).collect(Collectors.toList());
-//    final long time2 = System.nanoTime();
+//    final long time2 = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
 //    @Nonnull final SparkTrainable.ReducableResult result = mapPartitions.stream().reduce(SparkTrainable.ReducableResult::add).get();
 //    if (isVerbose()) {
-//      log.info(String.format("Measure timing: %.3f / %.3f for %s items", (time2 - time1) * 1e-9, (System.nanoTime() - time2) * 1e-9, sampledRDD.count()));
+//      log.info(String.format("Measure timing: %.3f / %.3f for %s items", (time2 - time1) * 1e-9, (com.simiacryptus.ref.wrappers.RefSystem.nanoTime() - time2) * 1e-9, sampledRDD.count()));
 //    }
 //    @Nonnull final DeltaSet<UUID> xxx = getDelta(result);
 //    return new PointSample(xxx, new StateSet<UUID>(xxx), result.sum, 0.0, result.count).normalize();

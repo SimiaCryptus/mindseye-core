@@ -26,6 +26,7 @@ import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefAssert;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import com.simiacryptus.util.test.TestCategories;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -59,7 +60,7 @@ class TensorTest {
   public void testCoordStream() {
     Tensor temp_52_0001 = new Tensor(2, 2, 2);
     final RefList<CharSequence> coordinates = temp_52_0001.coordStream(true)
-        .map(c -> String.format("%s - %s", c.getIndex(), RefArrays.toString(c.getCoords())))
+        .map(c -> RefString.format("%s - %s", c.getIndex(), RefArrays.toString(c.getCoords())))
         .collect(RefCollectors.toList());
     if (null != temp_52_0001)
       temp_52_0001.freeRef();
