@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
@@ -29,8 +30,7 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public @RefAware
-class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
+public class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
   @Nonnull
   private final Tensor[] data;
 
@@ -43,23 +43,12 @@ class TensorArray extends RegisteredObjectBase implements TensorList, Serializab
       ReferenceCounting.freeRefs(data);
       throw new IllegalArgumentException();
     }
-    {
-      Tensor[] temp_23_0001 = RefArrays
-          .copyOf(Tensor.addRefs(data), data.length);
-      this.data = Tensor.addRefs(temp_23_0001);
-      if (null != temp_23_0001)
-        ReferenceCounting.freeRefs(temp_23_0001);
-    }
+    this.data = RefArrays.copyOf(Tensor.addRefs(data), data.length);
     ReferenceCounting.freeRefs(data);
-    Tensor[] temp_23_0002 = this.getData();
-    assert null != temp_23_0002;
-    if (null != temp_23_0002)
-      ReferenceCounting.freeRefs(temp_23_0002);
-    for (@Nonnull
-        Tensor tensor : this.getData()) {
+    for (@Nonnull Tensor tensor : this.data) {
       assert RefArrays.equals(tensor.getDimensions(),
-          this.getData()[0].getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
-          + RefArrays.toString(tensor.getDimensions());
+          this.data[0].getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
+              + RefArrays.toString(tensor.getDimensions());
     }
     register();
   }
@@ -72,44 +61,36 @@ class TensorArray extends RegisteredObjectBase implements TensorList, Serializab
   @Nonnull
   @Override
   public int[] getDimensions() {
-    return getData()[0].getDimensions();
+    return data[0].getDimensions();
   }
 
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
     return (data.length < limit) ? RefArrays.toString(data)
-        : "[" + RefArrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b).get()
-        + ", ...]";
+        : "[" + RefUtil.get(RefArrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b))
+            + ", ...]";
   }
 
-  public static @SuppressWarnings("unused")
-  TensorArray[] addRefs(TensorArray[] array) {
+  public static @SuppressWarnings("unused") TensorArray[] addRefs(TensorArray[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRef)
-        .toArray((x) -> new TensorArray[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRef).toArray((x) -> new TensorArray[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  TensorArray[][] addRefs(TensorArray[][] array) {
+  public static @SuppressWarnings("unused") TensorArray[][] addRefs(TensorArray[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRefs)
-        .toArray((x) -> new TensorArray[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRefs).toArray((x) -> new TensorArray[x][]);
   }
 
   @Override
   @Nonnull
   public Tensor get(final int i) {
-    return getData()[i];
+    return data[i];
   }
 
   @Override
   public int length() {
-    Tensor[] temp_23_0004 = getData();
-    int temp_23_0003 = temp_23_0004.length;
-    if (null != temp_23_0004)
-      ReferenceCounting.freeRefs(temp_23_0004);
-    return temp_23_0003;
+    return data.length;
   }
 
   @Nonnull
@@ -134,9 +115,7 @@ class TensorArray extends RegisteredObjectBase implements TensorList, Serializab
     }
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  TensorArray addRef() {
+  public @Override @SuppressWarnings("unused") TensorArray addRef() {
     return (TensorArray) super.addRef();
   }
 }

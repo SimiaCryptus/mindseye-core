@@ -28,25 +28,20 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-interface Trainable extends ReferenceCounting {
+public interface Trainable extends ReferenceCounting {
   @Nonnull
   Layer getLayer();
 
-  public static @SuppressWarnings("unused")
-  Trainable[] addRefs(Trainable[] array) {
+  public static @SuppressWarnings("unused") Trainable[] addRefs(Trainable[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRef)
-        .toArray((x) -> new Trainable[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRef).toArray((x) -> new Trainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  Trainable[][] addRefs(Trainable[][] array) {
+  public static @SuppressWarnings("unused") Trainable[][] addRefs(Trainable[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRefs)
-        .toArray((x) -> new Trainable[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRefs).toArray((x) -> new Trainable[x][]);
   }
 
   default CachedTrainable<? extends Trainable> cached() {

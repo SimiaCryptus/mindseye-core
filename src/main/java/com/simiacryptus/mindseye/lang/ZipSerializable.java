@@ -36,8 +36,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-public @RefAware
-interface ZipSerializable {
+public interface ZipSerializable {
 
   default JsonElement getJson() {
     return getJson(null, SerialPrecision.Double);
@@ -61,8 +60,7 @@ interface ZipSerializable {
     return resources;
   }
 
-  JsonElement getJson(Map<CharSequence, byte[]> resources,
-                      DataSerializer dataSerializer);
+  JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
 
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);
@@ -70,7 +68,7 @@ interface ZipSerializable {
 
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull
-         ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
+    ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
       writeZip(zipOutputStream, precision, new HashMap<>(), "model.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -78,7 +76,7 @@ interface ZipSerializable {
   }
 
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
-                        HashMap<CharSequence, byte[]> resources, String fileName) {
+      HashMap<CharSequence, byte[]> resources, String fileName) {
     try {
       JsonElement json = getJson(resources, precision);
       out.putNextEntry(new ZipEntry(fileName));

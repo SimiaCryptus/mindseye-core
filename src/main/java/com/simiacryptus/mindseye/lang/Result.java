@@ -28,8 +28,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
-public @RefAware
-class Result extends ReferenceCountingBase {
+public class Result extends ReferenceCountingBase {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
   protected final TensorList data;
@@ -41,19 +40,14 @@ class Result extends ReferenceCountingBase {
 
   public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator) {
     super();
-    {
-      TensorList temp_16_0001 = data == null ? null : data.addRef();
-      this.data = temp_16_0001 == null ? null : temp_16_0001.addRef();
-      if (null != temp_16_0001)
-        temp_16_0001.freeRef();
-    }
-    {
-      Result.Accumulator temp_16_0002 = accumulator == null ? null
-          : accumulator.addRef();
-      this.accumulator = temp_16_0002 == null ? null : temp_16_0002.addRef();
-      if (null != temp_16_0002)
-        temp_16_0002.freeRef();
-    }
+    TensorList temp_16_0001 = data == null ? null : data.addRef();
+    this.data = temp_16_0001 == null ? null : temp_16_0001.addRef();
+    if (null != temp_16_0001)
+      temp_16_0001.freeRef();
+    Accumulator temp_16_0002 = accumulator == null ? null : accumulator.addRef();
+    this.accumulator = temp_16_0002 == null ? null : temp_16_0002.addRef();
+    if (null != temp_16_0002)
+      temp_16_0002.freeRef();
     accumulator.freeRef();
     this.dims = data.getDimensions();
     this.dataLength = data.length();
@@ -74,11 +68,9 @@ class Result extends ReferenceCountingBase {
   public double[] getSingleDelta() {
     DeltaSet<UUID> deltaBuffer = new DeltaSet<>();
     accumulate(deltaBuffer == null ? null : deltaBuffer.addRef());
-    RefMap<UUID, Delta<UUID>> temp_16_0005 = deltaBuffer
-        .getMap();
+    RefMap<UUID, Delta<UUID>> temp_16_0005 = deltaBuffer.getMap();
     if (temp_16_0005.size() != 1) {
-      RefMap<UUID, Delta<UUID>> temp_16_0006 = deltaBuffer
-          .getMap();
+      RefMap<UUID, Delta<UUID>> temp_16_0006 = deltaBuffer.getMap();
       AssertionError temp_16_0004 = new AssertionError(temp_16_0006.size());
       if (null != temp_16_0006)
         temp_16_0006.freeRef();
@@ -88,12 +80,9 @@ class Result extends ReferenceCountingBase {
     }
     if (null != temp_16_0005)
       temp_16_0005.freeRef();
-    RefMap<UUID, Delta<UUID>> temp_16_0007 = deltaBuffer
-        .getMap();
-    RefCollection<Delta<UUID>> temp_16_0008 = temp_16_0007
-        .values();
-    RefIterator<Delta<UUID>> temp_16_0009 = temp_16_0008
-        .iterator();
+    RefMap<UUID, Delta<UUID>> temp_16_0007 = deltaBuffer.getMap();
+    RefCollection<Delta<UUID>> temp_16_0008 = temp_16_0007.values();
+    RefIterator<Delta<UUID>> temp_16_0009 = temp_16_0008.iterator();
     Delta<UUID> temp_16_0010 = temp_16_0009.next();
     double[] temp_16_0003 = copy(temp_16_0010.getDelta());
     if (null != temp_16_0010)
@@ -117,15 +106,13 @@ class Result extends ReferenceCountingBase {
     return temp_16_0011;
   }
 
-  public static @SuppressWarnings("unused")
-  Result[] addRefs(Result[] array) {
+  public static @SuppressWarnings("unused") Result[] addRefs(Result[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  Result[][] addRefs(Result[][] array) {
+  public static @SuppressWarnings("unused") Result[][] addRefs(Result[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
@@ -163,37 +150,28 @@ class Result extends ReferenceCountingBase {
       buffer.freeRef();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
     accumulator.freeRef();
     data.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  Result addRef() {
+  public @Override @SuppressWarnings("unused") Result addRef() {
     return (Result) super.addRef();
   }
 
-  @RefAware
   public static abstract class Accumulator extends ReferenceCountingBase
       implements BiConsumer<DeltaSet<UUID>, TensorList> {
 
-    public static @SuppressWarnings("unused")
-    Accumulator[] addRefs(Accumulator[] array) {
+    public static @SuppressWarnings("unused") Accumulator[] addRefs(Accumulator[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Accumulator::addRef)
-          .toArray((x) -> new Accumulator[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Accumulator::addRef).toArray((x) -> new Accumulator[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Accumulator addRef() {
+    public @Override @SuppressWarnings("unused") Accumulator addRef() {
       return (Accumulator) super.addRef();
     }
   }

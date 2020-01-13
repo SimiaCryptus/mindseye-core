@@ -40,8 +40,7 @@ import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
-public @RefAware
-class TensorListTrainable extends ReferenceCountingBase implements TrainableDataMask {
+public class TensorListTrainable extends ReferenceCountingBase implements TrainableDataMask {
 
   protected final Layer network;
   @Nullable
@@ -52,23 +51,18 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
   private int verbosity = 0;
 
   public TensorListTrainable(final Layer network, @org.jetbrains.annotations.Nullable final TensorList... data) {
-    {
-      Layer temp_20_0001 = network == null ? null : network.addRef();
-      this.network = temp_20_0001 == null ? null : temp_20_0001.addRef();
-      if (null != temp_20_0001)
-        temp_20_0001.freeRef();
-    }
+    Layer temp_20_0001 = network == null ? null : network.addRef();
+    this.network = temp_20_0001 == null ? null : temp_20_0001.addRef();
+    if (null != temp_20_0001)
+      temp_20_0001.freeRef();
     if (null != network)
       network.freeRef();
-    {
-      TensorList[] temp_20_0002 = TensorList
-          .addRefs(data);
-      if (null != this.data)
-        ReferenceCounting.freeRefs(this.data);
-      this.data = TensorList.addRefs(temp_20_0002);
-      if (null != temp_20_0002)
-        ReferenceCounting.freeRefs(temp_20_0002);
-    }
+    TensorList[] temp_20_0002 = TensorList.addRefs(data);
+    if (null != this.data)
+      ReferenceCounting.freeRefs(this.data);
+    this.data = TensorList.addRefs(temp_20_0002);
+    if (null != temp_20_0002)
+      ReferenceCounting.freeRefs(temp_20_0002);
     if (null != data)
       ReferenceCounting.freeRefs(data);
   }
@@ -107,94 +101,85 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
     int items = data[0].length();
     assert 0 < items;
     Result[] temp_20_0007 = RefIntStream.range(0, inputs)
-        .mapToObj(RefUtil
-            .wrapInterface((IntFunction<? extends Result>) col -> {
-              final Tensor[] tensors = RefIntStream.range(0, items)
-                  .mapToObj(RefUtil.wrapInterface(
-                      (IntFunction<? extends Tensor>) row -> data[col]
-                          .get(row),
-                      TensorList.addRefs(data)))
-                  .toArray(i -> new Tensor[i]);
-              @Nonnull
-              TensorArray tensorArray = new TensorArray(Tensor.addRefs(tensors));
-              if (null == mask || col >= mask.length || !mask[col]) {
-                if (null != tensors)
-                  ReferenceCounting.freeRefs(tensors);
-                ConstantResult temp_20_0005 = new ConstantResult(
-                    tensorArray == null ? null : tensorArray);
-                return temp_20_0005;
-              } else {
-                try {
-                  try {
-                    return new Result(tensorArray, new Result.Accumulator() {
-                      {
-                      }
-
-                      @Override
-                      public void accept(DeltaSet<UUID> buffer, TensorList delta) {
-                        for (int index = 0; index < delta.length(); index++) {
-                          final Tensor dt = delta.get(index);
-                          @Nullable final double[] d = dt.getData();
-                          if (null != dt)
-                            dt.freeRef();
-                          final Tensor t = tensors[index].addRef();
-                          @Nullable final double[] p = t.getData();
-                          if (null != t)
-                            t.freeRef();
-                          @Nonnull
-                          PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
-                          Delta<UUID> temp_20_0008 = buffer.get(layer.getId(),
-                              p);
-                          RefUtil.freeRef(temp_20_0008.addInPlace(d));
-                          if (null != temp_20_0008)
-                            temp_20_0008.freeRef();
-                          layer.freeRef();
-                        }
-                        if (null != delta)
-                          delta.freeRef();
-                        if (null != buffer)
-                          buffer.freeRef();
-                      }
-
-                      public @SuppressWarnings("unused")
-                      void _free() {
-                      }
-                    }) {
-
-                      @Override
-                      public boolean isAlive() {
-                        return true;
-                      }
-
-                      public @SuppressWarnings("unused")
-                      void _free() {
-                      }
-                    };
-                  } finally {
-                    tensorArray.freeRef();
+        .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Result>) col -> {
+          final Tensor[] tensors = RefIntStream.range(0, items).mapToObj(RefUtil
+              .wrapInterface((IntFunction<? extends Tensor>) row -> data[col].get(row), TensorList.addRefs(data)))
+              .toArray(i -> new Tensor[i]);
+          @Nonnull
+          TensorArray tensorArray = new TensorArray(Tensor.addRefs(tensors));
+          if (null == mask || col >= mask.length || !mask[col]) {
+            if (null != tensors)
+              ReferenceCounting.freeRefs(tensors);
+            ConstantResult temp_20_0005 = new ConstantResult(tensorArray == null ? null : tensorArray);
+            return temp_20_0005;
+          } else {
+            try {
+              try {
+                return new Result(tensorArray, new Result.Accumulator() {
+                  {
                   }
-                } finally {
-                  if (null != tensors)
-                    ReferenceCounting.freeRefs(tensors);
-                }
+
+                  @Override
+                  public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+                    for (int index = 0; index < delta.length(); index++) {
+                      final Tensor dt = delta.get(index);
+                      @Nullable
+                      final double[] d = dt.getData();
+                      if (null != dt)
+                        dt.freeRef();
+                      final Tensor t = tensors[index].addRef();
+                      @Nullable
+                      final double[] p = t.getData();
+                      if (null != t)
+                        t.freeRef();
+                      @Nonnull
+                      PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
+                      Delta<UUID> temp_20_0008 = buffer.get(layer.getId(), p);
+                      RefUtil.freeRef(temp_20_0008.addInPlace(d));
+                      if (null != temp_20_0008)
+                        temp_20_0008.freeRef();
+                      layer.freeRef();
+                    }
+                    if (null != delta)
+                      delta.freeRef();
+                    if (null != buffer)
+                      buffer.freeRef();
+                  }
+
+                  public @SuppressWarnings("unused") void _free() {
+                  }
+                }) {
+
+                  @Override
+                  public boolean isAlive() {
+                    return true;
+                  }
+
+                  public @SuppressWarnings("unused") void _free() {
+                  }
+                };
+              } finally {
+                tensorArray.freeRef();
               }
-            }, TensorList.addRefs(data)))
-        .toArray(x1 -> new Result[x1]);
+            } finally {
+              if (null != tensors)
+                ReferenceCounting.freeRefs(tensors);
+            }
+          }
+        }, TensorList.addRefs(data))).toArray(x1 -> new Result[x1]);
     if (null != data)
       ReferenceCounting.freeRefs(data);
     return temp_20_0007;
   }
 
-  public static @SuppressWarnings("unused")
-  TensorListTrainable[] addRefs(TensorListTrainable[] array) {
+  public static @SuppressWarnings("unused") TensorListTrainable[] addRefs(TensorListTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRef)
         .toArray((x) -> new TensorListTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  TensorListTrainable[][] addRefs(TensorListTrainable[][] array) {
+  public static @SuppressWarnings("unused") TensorListTrainable[][] addRefs(TensorListTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TensorListTrainable::addRefs)
@@ -207,8 +192,8 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult
-        .time(() -> eval(TensorList.addRefs(data), monitor));
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(TensorList.addRefs(data), monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
       monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", items, timedResult.timeNanos / 1e9,
@@ -224,15 +209,12 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    {
-      TensorList[] temp_20_0003 = TensorList
-          .addRefs(data);
-      if (null != this.data)
-        ReferenceCounting.freeRefs(this.data);
-      this.data = TensorList.addRefs(temp_20_0003);
-      if (null != temp_20_0003)
-        ReferenceCounting.freeRefs(temp_20_0003);
-    }
+    TensorList[] temp_20_0003 = TensorList.addRefs(data);
+    if (null != this.data)
+      ReferenceCounting.freeRefs(this.data);
+    this.data = TensorList.addRefs(temp_20_0003);
+    if (null != temp_20_0003)
+      ReferenceCounting.freeRefs(temp_20_0003);
     ReferenceCounting.freeRefs(data);
     return this.addRef();
   }
@@ -256,9 +238,7 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
       network.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  TensorListTrainable addRef() {
+  public @Override @SuppressWarnings("unused") TensorListTrainable addRef() {
     return (TensorListTrainable) super.addRef();
   }
 
@@ -268,13 +248,13 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(RefUtil
-        .wrapInterface((UncheckedSupplier<PointSample>) () -> {
-          final Result[] nnContext = TensorListTrainable
-              .getNNContext(TensorList.addRefs(list), mask);
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult
+        .time(RefUtil.wrapInterface((UncheckedSupplier<PointSample>) () -> {
+          final Result[] nnContext = TensorListTrainable.getNNContext(TensorList.addRefs(list), mask);
           final Result result = network.eval(Result.addRefs(nnContext));
           for (@Nonnull
-              Result nnResult : nnContext) {
+          Result nnResult : nnContext) {
             RefUtil.freeRef(nnResult.getData());
           }
           if (null != nnContext)
@@ -289,17 +269,16 @@ class TensorListTrainable extends ReferenceCountingBase implements TrainableData
           if (null != resultData)
             resultData.freeRef();
           final double sum = statistics.getSum();
-          @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
+          @Nonnull
+          final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
           @Nonnull
           PointSample pointSample;
-          {
-            result.accumulate(deltaSet == null ? null : deltaSet.addRef());
-            //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
-            @Nonnull
-            StateSet<UUID> stateSet = new StateSet<>(deltaSet == null ? null : deltaSet.addRef());
-            pointSample = new PointSample(deltaSet == null ? null : deltaSet.addRef(),
-                stateSet == null ? null : stateSet, sum, 0.0, items);
-          }
+          result.accumulate(deltaSet == null ? null : deltaSet.addRef());
+          //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
+          @Nonnull
+          StateSet<UUID> stateSet = new StateSet<>(deltaSet == null ? null : deltaSet.addRef());
+          pointSample = new PointSample(deltaSet == null ? null : deltaSet.addRef(), stateSet == null ? null : stateSet,
+              sum, 0.0, items);
           deltaSet.freeRef();
           if (null != result)
             result.freeRef();

@@ -27,26 +27,19 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.wrappers.RefArrayList;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefLists;
-import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public abstract @RefAware
-class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
+public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
 
   protected final int batchSize;
   private boolean verbose = false;
 
   public BatchedTrainable(final DataTrainable inner, final int batchSize) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
     this.batchSize = batchSize;
   }
 
@@ -70,16 +63,14 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTr
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused")
-  BatchedTrainable[] addRefs(BatchedTrainable[] array) {
+  public static @SuppressWarnings("unused") BatchedTrainable[] addRefs(BatchedTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
         .toArray((x) -> new BatchedTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  BatchedTrainable[][] addRefs(BatchedTrainable[][] array) {
+  public static @SuppressWarnings("unused") BatchedTrainable[][] addRefs(BatchedTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
@@ -88,39 +79,37 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTr
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    @Nonnull final RefList<Tensor[]> tensors = RefArrays.asList(getData());
-    TimedResult<PointSample> timedResult = TimedResult.time(RefUtil
-        .wrapInterface((UncheckedSupplier<PointSample>) () -> {
+    @Nonnull
+    final RefList<Tensor[]> tensors = RefArrays.asList(getData());
+    TimedResult<PointSample> timedResult = TimedResult
+        .time(RefUtil.wrapInterface((UncheckedSupplier<PointSample>) () -> {
           DataTrainable inner = getInner();
           if (batchSize < tensors.size()) {
             final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
             final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
-            @Nonnull final RefList<RefList<Tensor[]>> collection = RefLists.partition(tensors == null ? null : tensors.addRef(),
-                evenBatchSize);
-            PointSample temp_36_0001 = collection.stream()
-                .map(RefUtil.wrapInterface(
-                    (Function<? super RefList<Tensor[]>, ? extends PointSample>) trainingData -> {
-                      if (batchSize < trainingData.size()) {
-                        if (null != trainingData)
-                          trainingData.freeRef();
-                        throw new RuntimeException();
-                      }
-                      RefUtil
-                          .freeRef(inner.setData(trainingData == null ? null : trainingData.addRef()));
-                      if (null != trainingData)
-                        trainingData.freeRef();
-                      PointSample measure = super.measure(monitor).addRef();
-                      RefUtil.freeRef(inner.setData(new RefArrayList<>()));
-                      return measure;
-                    }, inner == null ? null : inner.addRef()))
-                .reduce((a, b) -> {
+            @Nonnull
+            final RefList<RefList<Tensor[]>> collection = RefLists.partition(tensors.addRef(), evenBatchSize);
+            PointSample temp_36_0001 = RefUtil.get(collection.stream()
+                .map(RefUtil.wrapInterface((Function<RefList<Tensor[]>, PointSample>) trainingData -> {
+                  if (batchSize < trainingData.size()) {
+                    if (null != trainingData)
+                      trainingData.freeRef();
+                    throw new RuntimeException();
+                  }
+                  RefUtil.freeRef(inner.setData(trainingData == null ? null : trainingData.addRef()));
+                  if (null != trainingData)
+                    trainingData.freeRef();
+                  PointSample measure = super.measure(monitor).addRef();
+                  RefUtil.freeRef(inner.setData(new RefArrayList<>()));
+                  return measure;
+                }, inner == null ? null : inner.addRef())).reduce((a, b) -> {
                   PointSample temp_36_0002 = a.add(b == null ? null : b.addRef());
                   if (null != b)
                     b.freeRef();
                   if (null != a)
                     a.freeRef();
                   return temp_36_0002;
-                }).get();
+                }));
             collection.freeRef();
             if (null != inner)
               inner.freeRef();
@@ -142,13 +131,10 @@ class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTr
     return timedResult.result;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  BatchedTrainable addRef() {
+  public @Override @SuppressWarnings("unused") BatchedTrainable addRef() {
     return (BatchedTrainable) super.addRef();
   }
 }

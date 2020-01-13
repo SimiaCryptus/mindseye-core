@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.lang.State;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrayList;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -35,8 +34,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 
-public @RefAware
-class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
+public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private static final Logger log = LoggerFactory.getLogger(CachedTrainable.class);
 
   private final RefList<PointSample> history = new RefArrayList<>();
@@ -45,8 +43,6 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
 
   public CachedTrainable(final T inner) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
   }
 
   public int getHistorySize() {
@@ -93,17 +89,21 @@ class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
-    for (@Nonnull final PointSample result : history) {
-      if (!result.weights.isDifferent()) {
-        if (isVerbose()) {
-          RefMap<UUID, State<UUID>> temp_53_0001 = result.weights
-              .getMap();
-          log.info(RefString.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
-              result.rate, result.getMean()));
-          if (null != temp_53_0001)
-            temp_53_0001.freeRef();
+    for (int i = 0; i < history.size(); i++) {
+      PointSample result = history.get(i);
+      try {
+        if (!result.weights.isDifferent()) {
+          if (isVerbose()) {
+            RefMap<UUID, State<UUID>> temp_53_0001 = result.weights.getMap();
+            log.info(RefString.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
+                result.rate, result.getMean()));
+            if (null != temp_53_0001)
+              temp_53_0001.freeRef();
+          }
+          return result.copyFull();
         }
-        return result.copyFull();
+      } finally {
+        result.freeRef();
       }
     }
     final PointSample result = super.measure(monitor).addRef();

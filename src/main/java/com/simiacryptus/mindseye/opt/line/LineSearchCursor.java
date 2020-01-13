@@ -29,21 +29,18 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 
-public @RefAware
-interface LineSearchCursor extends ReferenceCounting {
+public interface LineSearchCursor extends ReferenceCounting {
 
   CharSequence getDirectionType();
 
-  public static @SuppressWarnings("unused")
-  LineSearchCursor[] addRefs(LineSearchCursor[] array) {
+  public static @SuppressWarnings("unused") LineSearchCursor[] addRefs(LineSearchCursor[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRef)
         .toArray((x) -> new LineSearchCursor[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LineSearchCursor[][] addRefs(LineSearchCursor[][] array) {
+  public static @SuppressWarnings("unused") LineSearchCursor[][] addRefs(LineSearchCursor[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRefs)

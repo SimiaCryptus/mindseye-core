@@ -45,8 +45,7 @@ import java.util.UUID;
 import java.util.function.UnaryOperator;
 import java.util.zip.ZipFile;
 
-public @RefAware
-interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
+public interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   RefList<Layer> getChildren();
 
   @Nullable
@@ -59,7 +58,8 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   @Nonnull
   default JsonObject getJsonStub() {
     assertAlive();
-    @Nonnull final JsonObject json = new JsonObject();
+    @Nonnull
+    final JsonObject json = new JsonObject();
     json.addProperty("class", getClass().getCanonicalName());
     json.addProperty("id", getId().toString());
     json.addProperty("isFrozen", isFrozen());
@@ -116,15 +116,13 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
     }
   }
 
-  public static @SuppressWarnings("unused")
-  Layer[] addRefs(Layer[] array) {
+  public static @SuppressWarnings("unused") Layer[] addRefs(Layer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Layer::addRef).toArray((x) -> new Layer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  Layer[][] addRefs(Layer[][] array) {
+  public static @SuppressWarnings("unused") Layer[][] addRefs(Layer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Layer::addRefs).toArray((x) -> new Layer[x][]);
@@ -149,26 +147,25 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
 
   @NotNull
   default RefList<Tensor> map(RefCollection<? extends Tensor> values) {
-    RefList<Tensor> temp_34_0006 = values.stream()
-        .map(t -> {
-          Result temp_34_0015 = eval(RefUtil.addRef(t));
-          TensorList temp_34_0016 = temp_34_0015.getData();
-          Tensor temp_34_0002 = temp_34_0016.get(0);
-          if (null != temp_34_0016)
-            temp_34_0016.freeRef();
-          if (null != temp_34_0015)
-            temp_34_0015.freeRef();
-          if (null != t)
-            t.freeRef();
-          return temp_34_0002;
-        }).collect(RefCollectors.toList());
+    RefList<Tensor> temp_34_0006 = values.stream().map(t -> {
+      Result temp_34_0015 = eval(RefUtil.addRef(t));
+      TensorList temp_34_0016 = temp_34_0015.getData();
+      Tensor temp_34_0002 = temp_34_0016.get(0);
+      if (null != temp_34_0016)
+        temp_34_0016.freeRef();
+      if (null != temp_34_0015)
+        temp_34_0015.freeRef();
+      if (null != t)
+        t.freeRef();
+      return temp_34_0002;
+    }).collect(RefCollectors.toList());
     if (null != values)
       values.freeRef();
     return temp_34_0006;
   }
 
   @NotNull
-  default RefStream<Tensor> map(RefStream<? extends Tensor> values) {
+  default RefStream<Tensor> map(RefStream<Tensor> values) {
     return values.map(t -> {
       Result temp_34_0017 = eval(RefUtil.addRef(t));
       TensorList temp_34_0018 = temp_34_0017.getData();
@@ -184,8 +181,7 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   }
 
   default PipelineNetwork andThen(Layer append) {
-    PipelineNetwork temp_34_0007 = PipelineNetwork.build(1, this.addRef(),
-        append == null ? null : append.addRef());
+    PipelineNetwork temp_34_0007 = PipelineNetwork.build(1, this.addRef(), append == null ? null : append.addRef());
     if (null != append)
       append.freeRef();
     return temp_34_0007;
@@ -201,16 +197,14 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   default PipelineNetwork andThenWrap(Layer append) {
     assert append.assertAlive();
     assert assertAlive();
-    PipelineNetwork temp_34_0009 = PipelineNetwork.build(1, this.addRef(),
-        append == null ? null : append.addRef());
+    PipelineNetwork temp_34_0009 = PipelineNetwork.build(1, this.addRef(), append == null ? null : append.addRef());
     if (null != append)
       append.freeRef();
     return temp_34_0009;
   }
 
   default PipelineNetwork freeAndThenWrap(Layer append) {
-    PipelineNetwork temp_34_0010 = PipelineNetwork.build(1, this.addRef(),
-        append == null ? null : append.addRef());
+    PipelineNetwork temp_34_0010 = PipelineNetwork.build(1, this.addRef(), append == null ? null : append.addRef());
     if (null != append)
       append.freeRef();
     return temp_34_0010;
@@ -262,8 +256,7 @@ interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
 
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
-    Result temp_34_0012 = eval(
-        ConstantResult.singleResultArray(Tensor.addRefs(array)));
+    Result temp_34_0012 = eval(ConstantResult.singleResultArray(Tensor.addRefs(array)));
     ReferenceCounting.freeRefs(array);
     return temp_34_0012;
   }

@@ -39,8 +39,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public @RefAware
-class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
+public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   protected final boolean verbose = true;
   private final RefTreeSet<PointSample> history = new RefTreeSet<>(RefComparator.comparingDouble(x -> {
@@ -72,15 +71,13 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused")
-  LBFGS[] addRefs(LBFGS[] array) {
+  public static @SuppressWarnings("unused") LBFGS[] addRefs(LBFGS[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LBFGS::addRef).toArray((x) -> new LBFGS[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LBFGS[][] addRefs(LBFGS[][] array) {
+  public static @SuppressWarnings("unused") LBFGS[][] addRefs(LBFGS[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LBFGS::addRefs).toArray((x) -> new LBFGS[x][]);
@@ -108,19 +105,18 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       }
     } else {
       Optional<PointSample> temp_47_0015 = history.stream()
-          .filter(RefUtil
-              .wrapInterface((Predicate<? super PointSample>) x -> {
-                boolean temp_47_0003 = x.getMean() <= measurement.getMean();
-                if (null != x)
-                  x.freeRef();
-                return temp_47_0003;
-              }, measurement == null ? null : measurement.addRef()))
-          .findAny();
+          .filter(RefUtil.wrapInterface((Predicate<? super PointSample>) x -> {
+            boolean temp_47_0003 = x.getMean() <= measurement.getMean();
+            if (null != x)
+              x.freeRef();
+            return temp_47_0003;
+          }, measurement == null ? null : measurement.addRef())).findAny();
       boolean isFound = temp_47_0015.isPresent();
       if (null != temp_47_0015)
         RefUtil.freeRef(temp_47_0015);
       if (!isFound) {
-        @Nonnull final PointSample copyFull = measurement.copyFull();
+        @Nonnull
+        final PointSample copyFull = measurement.copyFull();
         if (verbose) {
           monitor.log(RefString.format("Adding measurement %s to history. Total: %s",
               Long.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(copyFull)), history.size()));
@@ -141,7 +137,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Override
   public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-                                       @Nonnull final TrainingMonitor monitor) {
+      @Nonnull final TrainingMonitor monitor) {
 
     //    if (getClass().desiredAssertionStatus()) {
     //      double verify = subject.measureStyle(monitor).getMean();
@@ -152,8 +148,10 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     //    }
 
     addToHistory(measurement == null ? null : measurement.addRef(), monitor);
-    @Nonnull final RefList<PointSample> history = RefArrays.asList(this.history.toArray(new PointSample[]{}));
-    @Nullable final DeltaSet<UUID> result = lbfgs(measurement == null ? null : measurement.addRef(), monitor,
+    @Nonnull
+    final RefList<PointSample> history = RefArrays.asList(this.history.toArray(new PointSample[] {}));
+    @Nullable
+    final DeltaSet<UUID> result = lbfgs(measurement == null ? null : measurement.addRef(), monitor,
         history == null ? null : history.addRef());
     SimpleLineSearchCursor returnValue;
     if (null == result) {
@@ -169,7 +167,8 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     if (null != subject)
       subject.freeRef();
     while (this.history.size() > (null == result ? minHistory : maxHistory)) {
-      @Nullable final PointSample remove = this.history.pollFirst();
+      @Nullable
+      final PointSample remove = this.history.pollFirst();
       if (verbose) {
         monitor.log(RefString.format("Removed measurement %s to history. Total: %s",
             Long.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(remove)), history.size()));
@@ -203,16 +202,15 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     history.clear();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  LBFGS addRef() {
+  public @Override @SuppressWarnings("unused") LBFGS addRef() {
     return (LBFGS) super.addRef();
   }
 
   @Nullable
   protected DeltaSet<UUID> lbfgs(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor,
-                                 @Nonnull final RefList<PointSample> history) {
-    @Nonnull final DeltaSet<UUID> result = measurement.delta.scale(-1);
+      @Nonnull final RefList<PointSample> history) {
+    @Nonnull
+    final DeltaSet<UUID> result = measurement.delta.scale(-1);
     if (history.size() > minHistory) {
       if (lbfgs(measurement == null ? null : measurement.addRef(), monitor, history == null ? null : history.addRef(),
           result == null ? null : result.addRef())) {
@@ -220,15 +218,15 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         measurement.freeRef();
         return result;
       } else {
-        monitor.log("Orientation rejected. Popping history element from " + history.stream().map(x -> {
+        monitor.log("Orientation rejected. Popping history element from " + RefUtil.get(history.stream().map(x -> {
           String temp_47_0005 = RefString.format("%s", x.getMean());
           if (null != x)
             x.freeRef();
           return temp_47_0005;
-        }).reduce((a, b) -> a + ", " + b).get());
+        }).reduce((a, b) -> a + ", " + b)));
         result.freeRef();
-        DeltaSet<UUID> temp_47_0012 = lbfgs(
-            measurement == null ? null : measurement, monitor, history.subList(0, history.size() - 1));
+        DeltaSet<UUID> temp_47_0012 = lbfgs(measurement == null ? null : measurement, monitor,
+            history.subList(0, history.size() - 1));
         history.freeRef();
         return temp_47_0012;
       }
@@ -243,11 +241,8 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Nonnull
   private SimpleLineSearchCursor cursor(final Trainable subject, @Nonnull final PointSample measurement,
-                                        final String type, final DeltaSet<UUID> result) {
-    SimpleLineSearchCursor temp_47_0014 = new SimpleLineSearchCursor(subject,
-        measurement, result) {
-      {
-      }
+      final String type, final DeltaSet<UUID> result) {
+    SimpleLineSearchCursor temp_47_0014 = new SimpleLineSearchCursor(subject, measurement, result) {
 
       @Override
       public LineSearchPoint step(final double t, @Nonnull final TrainingMonitor monitor) {
@@ -256,18 +251,12 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         return measure;
       }
 
-      public @SuppressWarnings("unused")
-      void _free() {
+      public @SuppressWarnings("unused") void _free() {
       }
     };
     SimpleLineSearchCursor temp_47_0013 = temp_47_0014.setDirectionType(type);
     if (null != temp_47_0014)
       temp_47_0014.freeRef();
-    if (null != result)
-      result.freeRef();
-    measurement.freeRef();
-    if (null != subject)
-      subject.freeRef();
     return temp_47_0013;
   }
 
@@ -292,7 +281,7 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   private boolean lbfgs(@Nonnull PointSample measurement, @Nonnull TrainingMonitor monitor,
-                        @Nonnull RefList<PointSample> history, @Nonnull DeltaSet<UUID> direction) {
+      @Nonnull RefList<PointSample> history, @Nonnull DeltaSet<UUID> direction) {
     @Nonnull
     DeltaSet<UUID> p = null;
     try {
@@ -309,18 +298,21 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         direction.freeRef();
         throw new IllegalStateException("Non-finite value");
       }
-      @Nonnull final double[] alphas = new double[history.size()];
+      @Nonnull
+      final double[] alphas = new double[history.size()];
       for (int i = history.size() - 2; i >= 0; i--) {
         PointSample temp_47_0016 = history.get(i + 1);
         PointSample temp_47_0017 = history.get(i);
-        @Nonnull final DeltaSet<UUID> sd = temp_47_0016.weights.subtract(temp_47_0017.weights.addRef());
+        @Nonnull
+        final DeltaSet<UUID> sd = temp_47_0016.weights.subtract(temp_47_0017.weights.addRef());
         if (null != temp_47_0017)
           temp_47_0017.freeRef();
         if (null != temp_47_0016)
           temp_47_0016.freeRef();
         PointSample temp_47_0018 = history.get(i + 1);
         PointSample temp_47_0019 = history.get(i);
-        @Nonnull final DeltaSet<UUID> yd = temp_47_0018.delta.subtract(temp_47_0019.delta.addRef());
+        @Nonnull
+        final DeltaSet<UUID> yd = temp_47_0018.delta.subtract(temp_47_0019.delta.addRef());
         if (null != temp_47_0019)
           temp_47_0019.freeRef();
         if (null != temp_47_0018)
@@ -356,23 +348,23 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       }
       PointSample temp_47_0020 = history.get(history.size() - 1);
       PointSample temp_47_0021 = history.get(history.size() - 2);
-      @Nonnull final DeltaSet<UUID> sk = temp_47_0020.weights.subtract(temp_47_0021.weights.addRef());
+      @Nonnull
+      final DeltaSet<UUID> sk = temp_47_0020.weights.subtract(temp_47_0021.weights.addRef());
       if (null != temp_47_0021)
         temp_47_0021.freeRef();
       if (null != temp_47_0020)
         temp_47_0020.freeRef();
       PointSample temp_47_0022 = history.get(history.size() - 1);
       PointSample temp_47_0023 = history.get(history.size() - 2);
-      @Nonnull final DeltaSet<UUID> yk = temp_47_0022.delta.subtract(temp_47_0023.delta.addRef());
+      @Nonnull
+      final DeltaSet<UUID> yk = temp_47_0022.delta.subtract(temp_47_0023.delta.addRef());
       if (null != temp_47_0023)
         temp_47_0023.freeRef();
       if (null != temp_47_0022)
         temp_47_0022.freeRef();
-      {
-        double dot = sk.dot(yk == null ? null : yk.addRef());
-        double f = dot / yk.dot(yk == null ? null : yk.addRef());
-        p = p.scale(f);
-      }
+      double dot = sk.dot(yk == null ? null : yk.addRef());
+      double f = dot / yk.dot(yk == null ? null : yk.addRef());
+      p = p.scale(f);
       yk.freeRef();
       sk.freeRef();
       if (!p.stream().parallel().allMatch(y -> {
@@ -390,25 +382,25 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       for (int i = 0; i < history.size() - 1; i++) {
         PointSample temp_47_0024 = history.get(i + 1);
         PointSample temp_47_0025 = history.get(i);
-        @Nonnull final DeltaSet<UUID> sd = temp_47_0024.weights.subtract(temp_47_0025.weights.addRef());
+        @Nonnull
+        final DeltaSet<UUID> sd = temp_47_0024.weights.subtract(temp_47_0025.weights.addRef());
         if (null != temp_47_0025)
           temp_47_0025.freeRef();
         if (null != temp_47_0024)
           temp_47_0024.freeRef();
         PointSample temp_47_0026 = history.get(i + 1);
         PointSample temp_47_0027 = history.get(i);
-        @Nonnull final DeltaSet<UUID> yd = temp_47_0026.delta.subtract(temp_47_0027.delta.addRef());
+        @Nonnull
+        final DeltaSet<UUID> yd = temp_47_0026.delta.subtract(temp_47_0027.delta.addRef());
         if (null != temp_47_0027)
           temp_47_0027.freeRef();
         if (null != temp_47_0026)
           temp_47_0026.freeRef();
         final double beta = p.dot(yd == null ? null : yd) / sd.dot(yd == null ? null : yd.addRef());
-        {
-          DeltaSet<UUID> scale = sd.scale(alphas[i] - beta);
-          p = p.add(scale == null ? null : scale.addRef());
-          if (null != scale)
-            scale.freeRef();
-        }
+        DeltaSet<UUID> scale = sd.scale(alphas[i] - beta);
+        p = p.add(scale == null ? null : scale.addRef());
+        if (null != scale)
+          scale.freeRef();
         sd.freeRef();
         if (!p.stream().parallel().allMatch(y -> {
           boolean temp_47_0010 = RefArrays.stream(y.getDelta()).allMatch(d -> Double.isFinite(d));
@@ -445,13 +437,15 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   private void copy(@Nonnull DeltaSet<UUID> from, @Nonnull DeltaSet<UUID> to) {
-    RefMap<UUID, Delta<UUID>> temp_47_0028 = to
-        .getMap();
-    for (@Nonnull final Map.Entry<UUID, Delta<UUID>> e : temp_47_0028.entrySet()) {
-      RefMap<UUID, Delta<UUID>> temp_47_0029 = from
-          .getMap();
+    RefMap<UUID, Delta<UUID>> uuidDeltaRefMap = to.getMap();
+    RefSet<Map.Entry<UUID, Delta<UUID>>> entries = uuidDeltaRefMap.entrySet();
+    if (null != uuidDeltaRefMap)
+      uuidDeltaRefMap.freeRef();
+    for (final Map.Entry<UUID, Delta<UUID>> e : entries) {
+      RefMap<UUID, Delta<UUID>> temp_47_0029 = from.getMap();
       Delta<UUID> temp_47_0030 = temp_47_0029.get(e.getKey());
-      @Nullable final double[] delta = temp_47_0030.getDelta();
+      @Nullable
+      final double[] delta = temp_47_0030.getDelta();
       if (null != temp_47_0030)
         temp_47_0030.freeRef();
       if (null != temp_47_0029)
@@ -461,14 +455,12 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       if (null != temp_47_0031)
         temp_47_0031.freeRef();
     }
-    if (null != temp_47_0028)
-      temp_47_0028.freeRef();
+    entries.freeRef();
     to.freeRef();
     from.freeRef();
   }
 
-  private @RefAware
-  class Stats {
+  private class Stats {
     private final double mag;
     private final double magGrad;
     private final double dot;
@@ -482,58 +474,55 @@ class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       RefSet<Map.Entry<UUID, Delta<UUID>>> temp_47_0033 = temp_47_0032.entrySet();
       anglesPerLayer = temp_47_0033.stream()
           //.filter(e -> !(e.getKey() instanceof PlaceholderLayer)) // This would be too verbose
-          .map(RefUtil.wrapInterface(
-              (Function<Map.Entry<UUID, Delta<UUID>>, ? extends String>) (
-                  @Nonnull final Map.Entry<UUID, Delta<UUID>> e) -> {
-                RefMap<UUID, Delta<UUID>> temp_47_0034 = gradient
-                    .getMap();
-                Delta<UUID> temp_47_0035 = temp_47_0034.get(e.getKey());
-                @Nullable final double[] lbfgsVector = temp_47_0035.getDelta();
-                if (null != temp_47_0035)
-                  temp_47_0035.freeRef();
-                if (null != temp_47_0034)
-                  temp_47_0034.freeRef();
-                for (int index = 0; index < lbfgsVector.length; index++) {
-                  lbfgsVector[index] = Double.isFinite(lbfgsVector[index]) ? lbfgsVector[index] : 0;
-                }
-                RefMap<UUID, Delta<UUID>> temp_47_0036 = gradient
-                    .getMap();
-                Delta<UUID> temp_47_0037 = temp_47_0036.get(e.getKey());
-                @Nullable final double[] gradientVector = temp_47_0037.getDelta();
-                if (null != temp_47_0037)
-                  temp_47_0037.freeRef();
-                if (null != temp_47_0036)
-                  temp_47_0036.freeRef();
-                for (int index = 0; index < gradientVector.length; index++) {
-                  gradientVector[index] = Double.isFinite(gradientVector[index]) ? gradientVector[index] : 0;
-                }
-                final double lbfgsMagnitude = ArrayUtil.magnitude(lbfgsVector);
-                final double gradientMagnitude = ArrayUtil.magnitude(gradientVector);
-                if (!Double.isFinite(gradientMagnitude)) {
-                  RefUtil.freeRef(e);
-                  throw new IllegalStateException();
-                }
-                if (!Double.isFinite(lbfgsMagnitude)) {
-                  RefUtil.freeRef(e);
-                  throw new IllegalStateException();
-                }
-                RefMap<UUID, Delta<UUID>> temp_47_0038 = gradient
-                    .getMap();
-                Delta<UUID> temp_47_0039 = temp_47_0038.get(e.getKey());
-                final CharSequence layerName = temp_47_0039.key.toString();
-                if (null != temp_47_0039)
-                  temp_47_0039.freeRef();
-                if (null != temp_47_0038)
-                  temp_47_0038.freeRef();
-                RefUtil.freeRef(e);
-                if (gradientMagnitude == 0.0) {
-                  return RefString.format("%s = %.3e", layerName, lbfgsMagnitude);
-                } else {
-                  final double dotP = ArrayUtil.dot(lbfgsVector, gradientVector) / (lbfgsMagnitude * gradientMagnitude);
-                  return RefString.format("%s = %.3f/%.3e", layerName, dotP, lbfgsMagnitude / gradientMagnitude);
-                }
-              }, gradient == null ? null : gradient))
-          .collect(Collectors.toList());
+          .map(RefUtil.wrapInterface((Function<Map.Entry<UUID, Delta<UUID>>, ? extends String>) (
+              @Nonnull final Map.Entry<UUID, Delta<UUID>> e) -> {
+            RefMap<UUID, Delta<UUID>> temp_47_0034 = gradient.getMap();
+            Delta<UUID> temp_47_0035 = temp_47_0034.get(e.getKey());
+            @Nullable
+            final double[] lbfgsVector = temp_47_0035.getDelta();
+            if (null != temp_47_0035)
+              temp_47_0035.freeRef();
+            if (null != temp_47_0034)
+              temp_47_0034.freeRef();
+            for (int index = 0; index < lbfgsVector.length; index++) {
+              lbfgsVector[index] = Double.isFinite(lbfgsVector[index]) ? lbfgsVector[index] : 0;
+            }
+            RefMap<UUID, Delta<UUID>> temp_47_0036 = gradient.getMap();
+            Delta<UUID> temp_47_0037 = temp_47_0036.get(e.getKey());
+            @Nullable
+            final double[] gradientVector = temp_47_0037.getDelta();
+            if (null != temp_47_0037)
+              temp_47_0037.freeRef();
+            if (null != temp_47_0036)
+              temp_47_0036.freeRef();
+            for (int index = 0; index < gradientVector.length; index++) {
+              gradientVector[index] = Double.isFinite(gradientVector[index]) ? gradientVector[index] : 0;
+            }
+            final double lbfgsMagnitude = ArrayUtil.magnitude(lbfgsVector);
+            final double gradientMagnitude = ArrayUtil.magnitude(gradientVector);
+            if (!Double.isFinite(gradientMagnitude)) {
+              RefUtil.freeRef(e);
+              throw new IllegalStateException();
+            }
+            if (!Double.isFinite(lbfgsMagnitude)) {
+              RefUtil.freeRef(e);
+              throw new IllegalStateException();
+            }
+            RefMap<UUID, Delta<UUID>> temp_47_0038 = gradient.getMap();
+            Delta<UUID> temp_47_0039 = temp_47_0038.get(e.getKey());
+            final CharSequence layerName = temp_47_0039.key.toString();
+            if (null != temp_47_0039)
+              temp_47_0039.freeRef();
+            if (null != temp_47_0038)
+              temp_47_0038.freeRef();
+            RefUtil.freeRef(e);
+            if (gradientMagnitude == 0.0) {
+              return RefString.format("%s = %.3e", layerName, lbfgsMagnitude);
+            } else {
+              final double dotP = ArrayUtil.dot(lbfgsVector, gradientVector) / (lbfgsMagnitude * gradientMagnitude);
+              return RefString.format("%s = %.3f/%.3e", layerName, dotP, lbfgsMagnitude / gradientMagnitude);
+            }
+          }, gradient == null ? null : gradient)).collect(Collectors.toList());
       if (null != temp_47_0033)
         temp_47_0033.freeRef();
       if (null != temp_47_0032)

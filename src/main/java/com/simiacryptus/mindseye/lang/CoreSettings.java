@@ -27,8 +27,7 @@ import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public @RefAware
-class CoreSettings extends RefSettings {
+public class CoreSettings extends RefSettings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
   private static transient CoreSettings INSTANCE = null;
@@ -38,7 +37,8 @@ class CoreSettings extends RefSettings {
 
   private CoreSettings() {
     this.jvmThreads = Settings.get("THREADS", 64);
-    com.simiacryptus.ref.wrappers.RefSystem.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism", Integer.toString(jvmThreads));
+    com.simiacryptus.ref.wrappers.RefSystem.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
+        Integer.toString(jvmThreads));
     this.singleThreaded = Settings.get("SINGLE_THREADED", false);
     this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 3);
   }

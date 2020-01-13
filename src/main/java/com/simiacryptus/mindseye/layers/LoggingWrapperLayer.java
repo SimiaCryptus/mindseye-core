@@ -38,8 +38,7 @@ import java.util.UUID;
 import java.util.function.IntFunction;
 
 @SuppressWarnings("serial")
-public final @RefAware
-class LoggingWrapperLayer extends WrapperLayer {
+public final class LoggingWrapperLayer extends WrapperLayer {
   static final Logger log = LoggerFactory.getLogger(LoggingWrapperLayer.class);
 
   protected LoggingWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -48,8 +47,6 @@ class LoggingWrapperLayer extends WrapperLayer {
 
   public LoggingWrapperLayer(final Layer inner) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
   }
 
   @SuppressWarnings("unused")
@@ -57,16 +54,14 @@ class LoggingWrapperLayer extends WrapperLayer {
     return new LoggingWrapperLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  LoggingWrapperLayer[] addRefs(LoggingWrapperLayer[] array) {
+  public static @SuppressWarnings("unused") LoggingWrapperLayer[] addRefs(LoggingWrapperLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRef)
         .toArray((x) -> new LoggingWrapperLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LoggingWrapperLayer[][] addRefs(LoggingWrapperLayer[][] array) {
+  public static @SuppressWarnings("unused") LoggingWrapperLayer[][] addRefs(LoggingWrapperLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRefs)
@@ -78,54 +73,55 @@ class LoggingWrapperLayer extends WrapperLayer {
     final LoggingWrapperLayer loggingWrapperLayer = this.addRef();
     final Result[] wrappedInput = RefIntStream.range(0, inObj.length)
         .mapToObj(RefUtil.wrapInterface((IntFunction<Result>) i -> {
-              final Result inputToWrap = inObj[i].addRef();
-              try {
-                return new Result(inputToWrap.getData(), new Result.Accumulator() {
-                  @Override
-                  public void accept(DeltaSet<UUID> buffer, TensorList data) {
-                    @Nonnull final String formatted = data.stream().map(loggingWrapperLayer::getString)
-                        .reduce((a, b) -> a + "\n" + b).get();
-                    Layer temp_46_0006 = LoggingWrapperLayer.this.getInner();
-                    log.info(RefString.format("Feedback Output %s for key %s: \n\t%s", i, temp_46_0006.getName(),
-                        formatted.replaceAll("\n", "\n\t")));
-                    if (null != temp_46_0006)
-                      temp_46_0006.freeRef();
-                    inputToWrap.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
-                    if (null != data)
-                      data.freeRef();
-                    if (null != buffer)
-                      buffer.freeRef();
-                  }
-
-                  public @SuppressWarnings("unused")
-                  void _free() {
-                  }
-                }) {
-
-                  @Override
-                  public boolean isAlive() {
-                    return inputToWrap.isAlive();
-                  }
-
-                  public void _free() {
-                  }
-                };
-              } finally {
-                if (null != inputToWrap)
-                  inputToWrap.freeRef();
+          final Result inputToWrap = inObj[i].addRef();
+          try {
+            return new Result(inputToWrap.getData(), new Result.Accumulator() {
+              @Override
+              public void accept(DeltaSet<UUID> buffer, TensorList data) {
+                @Nonnull
+                final String formatted = RefUtil.get(data.stream().map(loggingWrapperLayer::getString)
+                    .reduce((a, b) -> a + "\n" + b));
+                Layer temp_46_0006 = LoggingWrapperLayer.this.getInner();
+                log.info(RefString.format("Feedback Output %s for key %s: \n\t%s", i, temp_46_0006.getName(),
+                    formatted.replaceAll("\n", "\n\t")));
+                if (null != temp_46_0006)
+                  temp_46_0006.freeRef();
+                inputToWrap.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
+                if (null != data)
+                  data.freeRef();
+                if (null != buffer)
+                  buffer.freeRef();
               }
-            }, loggingWrapperLayer == null ? null : loggingWrapperLayer.addRef(),
-            Result.addRefs(inObj)))
+
+              public @SuppressWarnings("unused") void _free() {
+              }
+            }) {
+
+              @Override
+              public boolean isAlive() {
+                return inputToWrap.isAlive();
+              }
+
+              public void _free() {
+              }
+            };
+          } finally {
+            if (null != inputToWrap)
+              inputToWrap.freeRef();
+          }
+        }, loggingWrapperLayer == null ? null : loggingWrapperLayer.addRef(), Result.addRefs(inObj)))
         .toArray(i -> new Result[i]);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
-      @Nonnull final String formatted = tensorList.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b)
-          .get();
+      @Nonnull
+      final String formatted = RefUtil.get(
+          tensorList.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b)
+      );
       if (null != tensorList)
         tensorList.freeRef();
       Layer temp_46_0007 = getInner();
-      log.info(
-          RefString.format("Input %s for key %s: \n\t%s", i, temp_46_0007.getName(), formatted.replaceAll("\n", "\n\t")));
+      log.info(RefString.format("Input %s for key %s: \n\t%s", i, temp_46_0007.getName(),
+          formatted.replaceAll("\n", "\n\t")));
       if (null != temp_46_0007)
         temp_46_0007.freeRef();
     }
@@ -133,23 +129,26 @@ class LoggingWrapperLayer extends WrapperLayer {
     if (null != loggingWrapperLayer)
       loggingWrapperLayer.freeRef();
     Layer temp_46_0008 = getInner();
-    @Nullable final Result output = temp_46_0008.eval(Result.addRefs(wrappedInput));
+    @Nullable
+    final Result output = temp_46_0008.eval(Result.addRefs(wrappedInput));
     if (null != temp_46_0008)
       temp_46_0008.freeRef();
     if (null != wrappedInput)
       ReferenceCounting.freeRefs(wrappedInput);
     {
       final TensorList tensorList = output.getData();
-      @Nonnull final String formatted = tensorList.stream().map(x -> {
+      @Nonnull
+      final String formatted = RefUtil.get(tensorList.stream().map(x -> {
         String temp_46_0003 = getString(x == null ? null : x.addRef());
         if (null != x)
           x.freeRef();
         return temp_46_0003;
-      }).reduce((a, b) -> a + "\n" + b).get();
+      }).reduce((a, b) -> a + "\n" + b));
       if (null != tensorList)
         tensorList.freeRef();
       Layer temp_46_0009 = getInner();
-      log.info(RefString.format("Output for key %s: \n\t%s", temp_46_0009.getName(), formatted.replaceAll("\n", "\n\t")));
+      log.info(
+          RefString.format("Output for key %s: \n\t%s", temp_46_0009.getName(), formatted.replaceAll("\n", "\n\t")));
       if (null != temp_46_0009)
         temp_46_0009.freeRef();
     }
@@ -160,12 +159,13 @@ class LoggingWrapperLayer extends WrapperLayer {
 
         @Override
         public void accept(DeltaSet<UUID> buffer, TensorList data) {
-          @Nonnull final String formatted = data.stream().map(x -> {
+          @Nonnull
+          final String formatted = RefUtil.get(data.stream().map(x -> {
             String temp_46_0004 = LoggingWrapperLayer.this.getString(x == null ? null : x.addRef());
             if (null != x)
               x.freeRef();
             return temp_46_0004;
-          }).reduce((a, b) -> a + "\n" + b).get();
+          }).reduce((a, b) -> a + "\n" + b));
           Layer temp_46_0010 = LoggingWrapperLayer.this.getInner();
           log.info(RefString.format("Feedback Input for key %s: \n\t%s", temp_46_0010.getName(),
               formatted.replaceAll("\n", "\n\t")));
@@ -178,8 +178,7 @@ class LoggingWrapperLayer extends WrapperLayer {
             buffer.freeRef();
         }
 
-        public @SuppressWarnings("unused")
-        void _free() {
+        public @SuppressWarnings("unused") void _free() {
         }
       }) {
 
@@ -207,13 +206,10 @@ class LoggingWrapperLayer extends WrapperLayer {
     return temp_46_0005;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  LoggingWrapperLayer addRef() {
+  public @Override @SuppressWarnings("unused") LoggingWrapperLayer addRef() {
     return (LoggingWrapperLayer) super.addRef();
   }
 

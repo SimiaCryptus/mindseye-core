@@ -36,32 +36,27 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
-public abstract @RefAware
-class L12Normalizer extends TrainableBase {
+public abstract class L12Normalizer extends TrainableBase {
   public final Trainable inner;
   private final boolean hideAdj = false;
 
   public L12Normalizer(final Trainable inner) {
-    {
-      Trainable temp_01_0001 = inner == null ? null : inner.addRef();
-      this.inner = temp_01_0001 == null ? null : temp_01_0001.addRef();
-      if (null != temp_01_0001)
-        temp_01_0001.freeRef();
-    }
+    Trainable temp_01_0001 = inner == null ? null : inner.addRef();
+    this.inner = temp_01_0001 == null ? null : temp_01_0001.addRef();
+    if (null != temp_01_0001)
+      temp_01_0001.freeRef();
     if (null != inner)
       inner.freeRef();
   }
 
-  public static @SuppressWarnings("unused")
-  L12Normalizer[] addRefs(L12Normalizer[] array) {
+  public static @SuppressWarnings("unused") L12Normalizer[] addRefs(L12Normalizer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRef)
         .toArray((x) -> new L12Normalizer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  L12Normalizer[][] addRefs(L12Normalizer[][] array) {
+  public static @SuppressWarnings("unused") L12Normalizer[][] addRefs(L12Normalizer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRefs)
@@ -69,17 +64,17 @@ class L12Normalizer extends TrainableBase {
   }
 
   public Layer toLayer(UUID id) {
-    RefMap<UUID, Layer> temp_01_0005 = ((DAGNetwork) inner
-        .getLayer()).getLayersById();
+    DAGNetwork layer = (DAGNetwork) inner.getLayer();
+    RefMap<UUID, Layer> temp_01_0005 = layer.getLayersById();
     Layer temp_01_0004 = temp_01_0005.get(id);
     if (null != temp_01_0005)
       temp_01_0005.freeRef();
+    layer.freeRef();
     return temp_01_0004;
   }
 
   public RefCollection<Layer> getLayers(@Nonnull final RefCollection<UUID> layers) {
-    RefList<Layer> temp_01_0003 = layers.stream()
-        .map(this::toLayer)
+    RefList<Layer> temp_01_0003 = layers.stream().map(this::toLayer)
         //.filter(layer -> layer instanceof FullyConnectedLayer)
         .collect(RefCollectors.toList());
     layers.freeRef();
@@ -90,22 +85,22 @@ class L12Normalizer extends TrainableBase {
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     final PointSample innerMeasure = inner.measure(monitor);
-    @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
+    @Nonnull
+    final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
     double valueAdj = 0;
-    RefMap<UUID, Delta<UUID>> temp_01_0006 = innerMeasure.delta
-        .getMap();
-    for (@Nonnull final Layer layer : getLayers(temp_01_0006.keySet())) {
-      RefMap<UUID, Delta<UUID>> temp_01_0007 = innerMeasure.delta
-          .getMap();
+    RefMap<UUID, Delta<UUID>> temp_01_0006 = innerMeasure.delta.getMap();
+    RefCollection<Layer> layers = getLayers(temp_01_0006.keySet());
+    for (@Nonnull final Layer layer : layers) {
+      RefMap<UUID, Delta<UUID>> temp_01_0007 = innerMeasure.delta.getMap();
       Delta<UUID> temp_01_0008 = temp_01_0007.get(layer.getId());
       final double[] weights = temp_01_0008.target;
       if (null != temp_01_0008)
         temp_01_0008.freeRef();
       if (null != temp_01_0007)
         temp_01_0007.freeRef();
-      Delta<UUID> temp_01_0009 = normalizationVector.get(layer.getId(),
-          weights);
-      @Nullable final double[] gradientAdj = temp_01_0009.getDelta();
+      Delta<UUID> temp_01_0009 = normalizationVector.get(layer.getId(), weights);
+      @Nullable
+      final double[] gradientAdj = temp_01_0009.getDelta();
       if (null != temp_01_0009)
         temp_01_0009.freeRef();
       final double factor_L1 = getL1(layer == null ? null : layer.addRef());
@@ -117,6 +112,7 @@ class L12Normalizer extends TrainableBase {
         valueAdj += (factor_L1 * sign + factor_L2 * weights[i]) * weights[i];
       }
     }
+    layers.freeRef();
     if (null != temp_01_0006)
       temp_01_0006.freeRef();
     final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector == null ? null : normalizationVector);
@@ -143,9 +139,7 @@ class L12Normalizer extends TrainableBase {
       inner.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  L12Normalizer addRef() {
+  public @Override @SuppressWarnings("unused") L12Normalizer addRef() {
     return (L12Normalizer) super.addRef();
   }
 

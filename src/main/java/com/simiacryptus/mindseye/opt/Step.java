@@ -25,47 +25,39 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import java.util.Arrays;
 
-public @RefAware
-class Step extends ReferenceCountingBase {
+public class Step extends ReferenceCountingBase {
   public final long iteration;
   public final PointSample point;
   public final long time = com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis();
 
   Step(final PointSample point, final long iteration) {
-    {
-      PointSample temp_22_0001 = point == null ? null : point.addRef();
-      this.point = temp_22_0001 == null ? null : temp_22_0001.addRef();
-      if (null != temp_22_0001)
-        temp_22_0001.freeRef();
-    }
+    PointSample temp_22_0001 = point == null ? null : point.addRef();
+    this.point = temp_22_0001 == null ? null : temp_22_0001.addRef();
+    if (null != temp_22_0001)
+      temp_22_0001.freeRef();
     if (null != point)
       point.freeRef();
     this.iteration = iteration;
   }
 
-  public static @SuppressWarnings("unused")
-  Step[] addRefs(Step[] array) {
+  public static @SuppressWarnings("unused") Step[] addRefs(Step[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Step::addRef).toArray((x) -> new Step[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  Step[][] addRefs(Step[][] array) {
+  public static @SuppressWarnings("unused") Step[][] addRefs(Step[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Step::addRefs).toArray((x) -> new Step[x][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
     if (null != point)
       point.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  Step addRef() {
+  public @Override @SuppressWarnings("unused") Step addRef() {
     return (Step) super.addRef();
   }
 }

@@ -34,8 +34,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
-abstract @RefAware
-class LazyResult extends ReferenceCountingBase implements DAGNode {
+abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
   public final UUID id;
 
@@ -53,20 +52,16 @@ class LazyResult extends ReferenceCountingBase implements DAGNode {
     return id;
   }
 
-  public static @SuppressWarnings("unused")
-  LazyResult[] addRefs(LazyResult[] array) {
+  public static @SuppressWarnings("unused") LazyResult[] addRefs(LazyResult[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef)
-        .toArray((x) -> new LazyResult[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef).toArray((x) -> new LazyResult[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LazyResult[][] addRefs(LazyResult[][] array) {
+  public static @SuppressWarnings("unused") LazyResult[][] addRefs(LazyResult[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs)
-        .toArray((x) -> new LazyResult[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs).toArray((x) -> new LazyResult[x][]);
   }
 
   @Nullable
@@ -150,13 +145,10 @@ class LazyResult extends ReferenceCountingBase implements DAGNode {
     return nnResult;
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  LazyResult addRef() {
+  public @Override @SuppressWarnings("unused") LazyResult addRef() {
     return (LazyResult) super.addRef();
   }
 

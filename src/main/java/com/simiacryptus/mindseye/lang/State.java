@@ -27,9 +27,8 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public @RefAware
-class State<K> extends DoubleBuffer<K> {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class State<K> extends DoubleBuffer<K> {
 
   public State(@Nonnull final K layer, final double[] target) {
     super(layer, target);
@@ -39,15 +38,13 @@ class State<K> extends DoubleBuffer<K> {
     super(layer, target, delta);
   }
 
-  public static @SuppressWarnings("unused")
-  State[] addRefs(State[] array) {
+  public static @SuppressWarnings("unused") State[] addRefs(State[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  State[][] addRefs(State[][] array) {
+  public static @SuppressWarnings("unused") State[][] addRefs(State[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
@@ -82,13 +79,10 @@ class State<K> extends DoubleBuffer<K> {
     return this.addRef();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  State<K> addRef() {
+  public @Override @SuppressWarnings("unused") State<K> addRef() {
     return (State<K>) super.addRef();
   }
 

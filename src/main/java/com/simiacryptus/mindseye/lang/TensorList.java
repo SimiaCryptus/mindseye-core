@@ -30,8 +30,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.IntFunction;
 
-public @RefAware
-interface TensorList extends ReferenceCounting {
+public interface TensorList extends ReferenceCounting {
   @Nonnull
   int[] getDimensions();
 
@@ -39,20 +38,16 @@ interface TensorList extends ReferenceCounting {
     return length() * Tensor.length(getDimensions());
   }
 
-  public static @SuppressWarnings("unused")
-  TensorList[] addRefs(TensorList[] array) {
+  public static @SuppressWarnings("unused") TensorList[] addRefs(TensorList[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRef)
-        .toArray((x) -> new TensorList[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRef).toArray((x) -> new TensorList[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  TensorList[][] addRefs(TensorList[][] array) {
+  public static @SuppressWarnings("unused") TensorList[][] addRefs(TensorList[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRefs)
-        .toArray((x) -> new TensorList[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRefs).toArray((x) -> new TensorList[x][]);
   }
 
   default TensorList add(@Nonnull final TensorList right) {
@@ -66,18 +61,16 @@ interface TensorList extends ReferenceCounting {
     }
     assert length() == right.length();
     TensorArray temp_40_0004 = new TensorArray(
-        RefIntStream.range(0, length()).mapToObj(RefUtil
-            .wrapInterface((IntFunction<? extends Tensor>) i -> {
-              Tensor b = right.get(i);
-              Tensor temp_40_0007 = get(i);
-              Tensor temp_40_0001 = temp_40_0007
-                  .addAndFree(b == null ? null : b.addRef());
-              if (null != temp_40_0007)
-                temp_40_0007.freeRef();
-              if (null != b)
-                b.freeRef();
-              return temp_40_0001;
-            }, right == null ? null : right)).toArray(i -> new Tensor[i]));
+        RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
+          Tensor b = right.get(i);
+          Tensor temp_40_0007 = get(i);
+          Tensor temp_40_0001 = temp_40_0007.addAndFree(b == null ? null : b.addRef());
+          if (null != temp_40_0007)
+            temp_40_0007.freeRef();
+          if (null != b)
+            b.freeRef();
+          return temp_40_0001;
+        }, right == null ? null : right)).toArray(i -> new Tensor[i]));
     return temp_40_0004;
   }
 
@@ -100,19 +93,18 @@ interface TensorList extends ReferenceCounting {
     }
     assert length() == right.length();
     TensorArray temp_40_0006 = new TensorArray(
-        RefIntStream.range(0, length()).mapToObj(RefUtil
-            .wrapInterface((IntFunction<? extends Tensor>) i -> {
-              @Nullable
-              Tensor a = get(i);
-              @Nullable
-              Tensor b = right.get(i);
-              Tensor temp_40_0002 = a.minus(b == null ? null : b.addRef());
-              if (null != b)
-                b.freeRef();
-              if (null != a)
-                a.freeRef();
-              return temp_40_0002;
-            }, right == null ? null : right)).toArray(i -> new Tensor[i]));
+        RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
+          @Nullable
+          Tensor a = get(i);
+          @Nullable
+          Tensor b = right.get(i);
+          Tensor temp_40_0002 = a.minus(b == null ? null : b.addRef());
+          if (null != b)
+            b.freeRef();
+          if (null != a)
+            a.freeRef();
+          return temp_40_0002;
+        }, right == null ? null : right)).toArray(i -> new Tensor[i]));
     return temp_40_0006;
   }
 

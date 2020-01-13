@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.ref.lang.RefAware;
 
-public @RefAware
-interface Explodable {
+public interface Explodable {
   Layer explode();
 }

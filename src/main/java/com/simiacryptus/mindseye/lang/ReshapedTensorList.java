@@ -27,8 +27,7 @@ import com.simiacryptus.ref.wrappers.RefStream;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
+public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
   @Nonnull
   private final TensorList inner;
   private final int[] dims;
@@ -41,12 +40,10 @@ class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
         inner.freeRef();
       throw temp_28_0004;
     }
-    {
-      TensorList temp_28_0001 = inner == null ? null : inner.addRef();
-      this.inner = temp_28_0001 == null ? null : temp_28_0001.addRef();
-      if (null != temp_28_0001)
-        temp_28_0001.freeRef();
-    }
+    TensorList temp_28_0001 = inner == null ? null : inner.addRef();
+    this.inner = temp_28_0001 == null ? null : temp_28_0001.addRef();
+    if (null != temp_28_0001)
+      temp_28_0001.freeRef();
     inner.freeRef();
     this.dims = toDim;
   }
@@ -62,16 +59,14 @@ class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
     return inner == null ? null : inner.addRef();
   }
 
-  public static @SuppressWarnings("unused")
-  ReshapedTensorList[] addRefs(ReshapedTensorList[] array) {
+  public static @SuppressWarnings("unused") ReshapedTensorList[] addRefs(ReshapedTensorList[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
         .toArray((x) -> new ReshapedTensorList[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ReshapedTensorList[][] addRefs(ReshapedTensorList[][] array) {
+  public static @SuppressWarnings("unused") ReshapedTensorList[][] addRefs(ReshapedTensorList[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
@@ -108,9 +103,7 @@ class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
     inner.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ReshapedTensorList addRef() {
+  public @Override @SuppressWarnings("unused") ReshapedTensorList addRef() {
     return (ReshapedTensorList) super.addRef();
   }
 }

@@ -280,8 +280,7 @@ public enum SerialPrecision implements DataSerializer {
     }
   }
 
-  public static @RefAware
-  class Rational {
+  public static class Rational {
     public final int numerator;
     public final int denominator;
 

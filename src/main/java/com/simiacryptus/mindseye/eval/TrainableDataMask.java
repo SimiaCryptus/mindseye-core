@@ -25,24 +25,21 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
-public @RefAware
-interface TrainableDataMask extends Trainable {
+public interface TrainableDataMask extends Trainable {
   @Nullable
   boolean[] getMask();
 
   @Nonnull
   TrainableDataMask setMask(boolean... mask);
 
-  public static @SuppressWarnings("unused")
-  TrainableDataMask[] addRefs(TrainableDataMask[] array) {
+  public static @SuppressWarnings("unused") TrainableDataMask[] addRefs(TrainableDataMask[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableDataMask::addRef)
         .toArray((x) -> new TrainableDataMask[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  TrainableDataMask[][] addRefs(TrainableDataMask[][] array) {
+  public static @SuppressWarnings("unused") TrainableDataMask[][] addRefs(TrainableDataMask[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableDataMask::addRefs)

@@ -28,7 +28,6 @@ import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.MonitoredItem;
 import com.simiacryptus.util.MonitoredObject;
@@ -43,9 +42,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-@SuppressWarnings({"serial", "FieldCanBeLocal"})
-public final @RefAware
-class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
+@SuppressWarnings({ "serial", "FieldCanBeLocal" })
+public final class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
   private final PercentileStatistics backwardPerformance = new PercentileStatistics();
   private final ScalarStatistics backwardSignal = new PercentileStatistics();
@@ -77,8 +75,6 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
   public MonitoringWrapperLayer(final Layer inner) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
   }
 
   @Nonnull
@@ -104,7 +100,8 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
   @Nonnull
   @Override
   public Map<CharSequence, Object> getMetrics() {
-    @Nonnull final Map<CharSequence, Object> map = new HashMap<>();
+    @Nonnull
+    final Map<CharSequence, Object> map = new HashMap<>();
     Layer temp_31_0005 = getInner();
     map.put("class", temp_31_0005.getClass().getName());
     if (null != temp_31_0005)
@@ -124,15 +121,19 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
     final double backpropMedian = backwardPerformance.getPercentile(0.5);
     map.put("avgMsPerItem_Backward", 1000 * batchesPerItem * backpropMean);
     map.put("medianMsPerItem_Backward", 1000 * batchesPerItem * backpropMedian);
-    @Nullable final RefList<double[]> state = state();
-    @Nonnull final ScalarStatistics statistics = new PercentileStatistics();
-    for (@Nonnull final double[] s : state) {
+    @Nullable
+    final RefList<double[]> state = state();
+    @Nonnull
+    final ScalarStatistics statistics = new PercentileStatistics();
+    for (@Nonnull
+    final double[] s : state) {
       for (final double v : s) {
         statistics.add(v);
       }
     }
     if (statistics.getCount() > 0) {
-      @Nonnull final Map<CharSequence, Object> weightStats = new HashMap<>();
+      @Nonnull
+      final Map<CharSequence, Object> weightStats = new HashMap<>();
       weightStats.put("buffers", state.size());
       weightStats.putAll(statistics.getMetrics());
       map.put("weights", weightStats);
@@ -157,16 +158,14 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
     return new MonitoringWrapperLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  MonitoringWrapperLayer[] addRefs(MonitoringWrapperLayer[] array) {
+  public static @SuppressWarnings("unused") MonitoringWrapperLayer[] addRefs(MonitoringWrapperLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
         .toArray((x) -> new MonitoringWrapperLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  MonitoringWrapperLayer[][] addRefs(MonitoringWrapperLayer[][] array) {
+  public static @SuppressWarnings("unused") MonitoringWrapperLayer[][] addRefs(MonitoringWrapperLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
@@ -176,8 +175,7 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
   @Nonnull
   public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj) {
     Layer temp_31_0008 = getInner();
-    MonitoringWrapperLayer temp_31_0004 = addTo(obj == null ? null : obj,
-        temp_31_0008.getName());
+    MonitoringWrapperLayer temp_31_0004 = addTo(obj == null ? null : obj, temp_31_0008.getName());
     if (null != temp_31_0008)
       temp_31_0008.freeRef();
     return temp_31_0004;
@@ -193,7 +191,8 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
   @Override
   public Result eval(@Nonnull final Result... inObj) {
-    @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
+    @Nonnull
+    final AtomicLong passbackNanos = new AtomicLong(0);
     final Result[] wrappedInput = RefArrays.stream(Result.addRefs(inObj)).map(result -> {
       try {
         return new Result(result.getData(), new Result.Accumulator() {
@@ -203,8 +202,8 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
           @Override
           public void accept(DeltaSet<UUID> buffer, TensorList data) {
             passbackNanos.addAndGet(TimedResult.time(RefUtil.wrapInterface(
-                (UncheckedRunnable<Object>) () -> result
-                    .accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef()),
+                (UncheckedRunnable<Object>) () -> result.accumulate(buffer == null ? null : buffer.addRef(),
+                    data == null ? null : data.addRef()),
                 result == null ? null : result.addRef(), data == null ? null : data.addRef(),
                 buffer == null ? null : buffer.addRef())).timeNanos);
             if (null != data)
@@ -213,8 +212,7 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
               buffer.freeRef();
           }
 
-          public @SuppressWarnings("unused")
-          void _free() {
+          public @SuppressWarnings("unused") void _free() {
           }
         }) {
 
@@ -235,10 +233,12 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
       }
     }).toArray(i -> new Result[i]);
     @Nonnull
-    TimedResult<Result> timedResult = TimedResult.time(RefUtil
-        .wrapInterface((UncheckedSupplier<Result>) () -> {
-          return getInner().eval(Result.addRefs(wrappedInput));
-        }, Result.addRefs(wrappedInput)));
+    TimedResult<Result> timedResult = TimedResult.time(RefUtil.wrapInterface((UncheckedSupplier<Result>) () -> {
+      Layer inner = getInner();
+      Result eval = inner.eval(Result.addRefs(wrappedInput));
+      inner.freeRef();
+      return eval;
+    }, Result.addRefs(wrappedInput)));
     if (null != wrappedInput)
       ReferenceCounting.freeRefs(wrappedInput);
     final Result output = timedResult.result.addRef();
@@ -281,19 +281,20 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
                 t.freeRef();
             });
           }
-          backwardPerformance.add((TimedResult.time(RefUtil.wrapInterface(
-              (UncheckedRunnable<Object>) () -> output
-                  .accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef()),
-              data == null ? null : data.addRef(), output == null ? null : output.addRef(),
-              buffer == null ? null : buffer.addRef())).timeNanos - passbackNanos.getAndSet(0)) / (items * 1e9));
+          backwardPerformance.add((TimedResult
+              .time(RefUtil.wrapInterface(
+                  (UncheckedRunnable<Object>) () -> output.accumulate(buffer == null ? null : buffer.addRef(),
+                      data == null ? null : data.addRef()),
+                  data == null ? null : data.addRef(), output == null ? null : output.addRef(),
+                  buffer == null ? null : buffer.addRef())).timeNanos
+              - passbackNanos.getAndSet(0)) / (items * 1e9));
           if (null != data)
             data.freeRef();
           if (null != buffer)
             buffer.freeRef();
         }
 
-        public @SuppressWarnings("unused")
-        void _free() {
+        public @SuppressWarnings("unused") void _free() {
         }
       }) {
 
@@ -317,7 +318,8 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJson(resources, dataSerializer);
+    @Nonnull
+    final JsonObject json = super.getJson(resources, dataSerializer);
     //json.fn("forwardPerf",forwardPerf.getJson());
     //json.fn("backwardPerf",backwardPerf.getJson());
     json.addProperty("totalBatches", totalBatches);
@@ -347,13 +349,10 @@ class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
     return this.addRef();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  MonitoringWrapperLayer addRef() {
+  public @Override @SuppressWarnings("unused") MonitoringWrapperLayer addRef() {
     return (MonitoringWrapperLayer) super.addRef();
   }
 }

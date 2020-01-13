@@ -30,8 +30,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
-public final @RefAware
-class ConstantResult extends Result {
+public final class ConstantResult extends Result {
 
   public ConstantResult(final Tensor... data) {
     this(new TensorArray(Tensor.addRefs(data)));
@@ -49,12 +48,9 @@ class ConstantResult extends Result {
           buffer.freeRef();
       }
 
-      public @SuppressWarnings("unused")
-      void _free() {
+      public @SuppressWarnings("unused") void _free() {
       }
     });
-    if (null != tensorArray)
-      tensorArray.freeRef();
   }
 
   public ConstantResult(final TensorList tensorList) {
@@ -67,12 +63,9 @@ class ConstantResult extends Result {
           buffer.freeRef();
       }
 
-      public @SuppressWarnings("unused")
-      void _free() {
+      public @SuppressWarnings("unused") void _free() {
       }
     });
-    if (null != tensorList)
-      tensorList.freeRef();
   }
 
   @Override
@@ -86,23 +79,16 @@ class ConstantResult extends Result {
       throw new IllegalArgumentException();
     }
     Result[] temp_44_0003 = RefIntStream.range(0, input[0].length)
-        .mapToObj(RefUtil.wrapInterface(
-            (IntFunction<? extends Tensor[]>) x -> RefIntStream
-                .range(0, input.length)
-                .mapToObj(RefUtil.wrapInterface(
-                    (IntFunction<? extends Tensor>) y -> input[y][x],
-                    Tensor.addRefs(input)))
-                .toArray(i -> new Tensor[i]),
-            Tensor.addRefs(input)))
+        .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor[]>) x -> RefIntStream.range(0, input.length)
+            .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) y -> input[y][x], Tensor.addRefs(input)))
+            .toArray(i -> new Tensor[i]), Tensor.addRefs(input)))
         .map(tensors -> {
-          TensorArray temp_44_0001 = new TensorArray(
-              Tensor.addRefs(tensors));
+          TensorArray temp_44_0001 = new TensorArray(Tensor.addRefs(tensors));
           if (null != tensors)
             ReferenceCounting.freeRefs(tensors);
           return temp_44_0001;
         }).map(tensorArray -> {
-          ConstantResult temp_44_0002 = new ConstantResult(
-              tensorArray == null ? null : tensorArray.addRef());
+          ConstantResult temp_44_0002 = new ConstantResult(tensorArray == null ? null : tensorArray.addRef());
           if (null != tensorArray)
             tensorArray.freeRef();
           return temp_44_0002;
@@ -112,54 +98,45 @@ class ConstantResult extends Result {
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
-    Result[] temp_44_0004 = RefArrays
-        .stream(Tensor.addRefs(input)).map((@Nonnull final Tensor x) -> {
-          ConstantResult temp_44_0005 = new ConstantResult(
-              new TensorArray(x == null ? null : x.addRef()));
-          if (null != x)
-            x.freeRef();
-          return temp_44_0005;
-        }).toArray(i -> new Result[i]);
+    Result[] temp_44_0004 = RefArrays.stream(Tensor.addRefs(input)).map((@Nonnull final Tensor x) -> {
+      ConstantResult temp_44_0005 = new ConstantResult(new TensorArray(x == null ? null : x.addRef()));
+      if (null != x)
+        x.freeRef();
+      return temp_44_0005;
+    }).toArray(i -> new Result[i]);
     ReferenceCounting.freeRefs(input);
     return temp_44_0004;
   }
 
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
-    Result[] temp_44_0006 = RefArrays
-        .stream(Tensor.addRefs(input)).map((@Nonnull final Tensor[] x) -> {
-          ConstantResult temp_44_0007 = new ConstantResult(
-              new TensorArray(Tensor.addRefs(x)));
-          if (null != x)
-            ReferenceCounting.freeRefs(x);
-          return temp_44_0007;
-        }).toArray(i -> new Result[i]);
+    Result[] temp_44_0006 = RefArrays.stream(Tensor.addRefs(input)).map((@Nonnull final Tensor[] x) -> {
+      ConstantResult temp_44_0007 = new ConstantResult(new TensorArray(Tensor.addRefs(x)));
+      if (null != x)
+        ReferenceCounting.freeRefs(x);
+      return temp_44_0007;
+    }).toArray(i -> new Result[i]);
     ReferenceCounting.freeRefs(input);
     return temp_44_0006;
   }
 
-  public static @SuppressWarnings("unused")
-  ConstantResult[] addRefs(ConstantResult[] array) {
+  public static @SuppressWarnings("unused") ConstantResult[] addRefs(ConstantResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
         .toArray((x) -> new ConstantResult[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ConstantResult[][] addRefs(ConstantResult[][] array) {
+  public static @SuppressWarnings("unused") ConstantResult[][] addRefs(ConstantResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
         .toArray((x) -> new ConstantResult[x][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ConstantResult addRef() {
+  public @Override @SuppressWarnings("unused") ConstantResult addRef() {
     return (ConstantResult) super.addRef();
   }
 

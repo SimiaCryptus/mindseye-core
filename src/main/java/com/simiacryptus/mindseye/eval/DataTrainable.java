@@ -26,20 +26,17 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-interface DataTrainable extends Trainable {
+public interface DataTrainable extends Trainable {
   Tensor[][] getData();
 
-  public static @SuppressWarnings("unused")
-  DataTrainable[] addRefs(DataTrainable[] array) {
+  public static @SuppressWarnings("unused") DataTrainable[] addRefs(DataTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRef)
         .toArray((x) -> new DataTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  DataTrainable[][] addRefs(DataTrainable[][] array) {
+  public static @SuppressWarnings("unused") DataTrainable[][] addRefs(DataTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRefs)

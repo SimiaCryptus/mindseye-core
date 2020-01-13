@@ -35,8 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public final @RefAware
-class PlaceholderLayer<T> extends LayerBase {
+public final class PlaceholderLayer<T> extends LayerBase {
 
   @Nullable
   private final T key;
@@ -64,16 +63,14 @@ class PlaceholderLayer<T> extends LayerBase {
     return key;
   }
 
-  public static @SuppressWarnings("unused")
-  PlaceholderLayer[] addRefs(PlaceholderLayer[] array) {
+  public static @SuppressWarnings("unused") PlaceholderLayer[] addRefs(PlaceholderLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRef)
         .toArray((x) -> new PlaceholderLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  PlaceholderLayer[][] addRefs(PlaceholderLayer[][] array) {
+  public static @SuppressWarnings("unused") PlaceholderLayer[][] addRefs(PlaceholderLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRefs)
@@ -107,9 +104,7 @@ class PlaceholderLayer<T> extends LayerBase {
     super._free();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  PlaceholderLayer<T> addRef() {
+  public @Override @SuppressWarnings("unused") PlaceholderLayer<T> addRef() {
     return (PlaceholderLayer<T>) super.addRef();
   }
 }

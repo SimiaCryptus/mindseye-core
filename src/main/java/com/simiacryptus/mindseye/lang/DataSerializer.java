@@ -23,8 +23,7 @@ import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
 
-public @RefAware
-interface DataSerializer {
+public interface DataSerializer {
 
   int getElementSize();
 

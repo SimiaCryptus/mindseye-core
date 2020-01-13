@@ -27,8 +27,7 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public @RefAware
-class StaticLearningRate implements LineSearchStrategy {
+public class StaticLearningRate implements LineSearchStrategy {
 
   private double minimumRate = 1e-12;
   private double rate = 1e-4;
@@ -64,33 +63,35 @@ class StaticLearningRate implements LineSearchStrategy {
     final double startValue = startPoint.point.sum; // theta(0)
     @Nullable
     LineSearchPoint lastStep = null;
-    while (true) {
-      lastStep = cursor.step(thisRate, monitor);
-      double lastValue = lastStep.point.sum;
-      if (!Double.isFinite(lastValue)) {
-        lastValue = Double.POSITIVE_INFINITY;
-      }
-      if (lastValue + startValue * 1e-15 > startValue) {
-        monitor.log(RefString.format("Non-decreasing runStep. %s > %s at " + thisRate, lastValue, startValue));
-        thisRate /= 2;
-        if (thisRate < getMinimumRate()) {
-          PointSample temp_30_0001 = startPoint.point;
+    try {
+      while (true) {
+        lastStep = cursor.step(thisRate, monitor);
+        double lastValue = lastStep.point.sum;
+        if (!Double.isFinite(lastValue)) {
+          lastValue = Double.POSITIVE_INFINITY;
+        }
+        if (lastValue + startValue * 1e-15 > startValue) {
+          monitor.log(RefString.format("Non-decreasing runStep. %s > %s at " + thisRate, lastValue, startValue));
+          thisRate /= 2;
+          if (thisRate < getMinimumRate()) {
+            PointSample temp_30_0001 = startPoint.point;
+            if (null != startPoint)
+              startPoint.freeRef();
+            if (null != lastStep)
+              lastStep.freeRef();
+            return temp_30_0001;
+          }
+        } else {
           if (null != startPoint)
             startPoint.freeRef();
+          PointSample temp_30_0002 = lastStep.point;
           if (null != lastStep)
             lastStep.freeRef();
-          cursor.freeRef();
-          return temp_30_0001;
+          return temp_30_0002;
         }
-      } else {
-        if (null != startPoint)
-          startPoint.freeRef();
-        PointSample temp_30_0002 = lastStep.point;
-        if (null != lastStep)
-          lastStep.freeRef();
-        cursor.freeRef();
-        return temp_30_0002;
       }
+    } finally {
+      cursor.freeRef();
     }
   }
 }

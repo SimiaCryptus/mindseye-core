@@ -25,33 +25,27 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import java.util.Arrays;
 
-public abstract @RefAware
-class OrientationStrategyBase<T extends LineSearchCursor> extends ReferenceCountingBase
+public abstract class OrientationStrategyBase<T extends LineSearchCursor> extends ReferenceCountingBase
     implements OrientationStrategy<T> {
 
-  public static @SuppressWarnings("unused")
-  OrientationStrategyBase[] addRefs(OrientationStrategyBase[] array) {
+  public static @SuppressWarnings("unused") OrientationStrategyBase[] addRefs(OrientationStrategyBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRef)
         .toArray((x) -> new OrientationStrategyBase[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  OrientationStrategyBase[][] addRefs(OrientationStrategyBase[][] array) {
+  public static @SuppressWarnings("unused") OrientationStrategyBase[][] addRefs(OrientationStrategyBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategyBase::addRefs)
         .toArray((x) -> new OrientationStrategyBase[x][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  OrientationStrategyBase<T> addRef() {
+  public @Override @SuppressWarnings("unused") OrientationStrategyBase<T> addRef() {
     return (OrientationStrategyBase<T>) super.addRef();
   }
 }

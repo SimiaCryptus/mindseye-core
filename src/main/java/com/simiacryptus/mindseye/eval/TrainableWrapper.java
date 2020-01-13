@@ -30,19 +30,15 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
-    implements TrainableDataMask {
+public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase implements TrainableDataMask {
 
   private final T inner;
 
   public TrainableWrapper(final T inner) {
-    {
-      T temp_21_0001 = RefUtil.addRef(inner);
-      this.inner = RefUtil.addRef(temp_21_0001);
-      if (null != temp_21_0001)
-        temp_21_0001.freeRef();
-    }
+    T temp_21_0001 = RefUtil.addRef(inner);
+    this.inner = RefUtil.addRef(temp_21_0001);
+    if (null != temp_21_0001)
+      temp_21_0001.freeRef();
     if (null != inner)
       inner.freeRef();
   }
@@ -62,16 +58,14 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return ((TrainableDataMask) inner).getMask();
   }
 
-  public static @SuppressWarnings("unused")
-  TrainableWrapper[] addRefs(TrainableWrapper[] array) {
+  public static @SuppressWarnings("unused") TrainableWrapper[] addRefs(TrainableWrapper[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
         .toArray((x) -> new TrainableWrapper[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
+  public static @SuppressWarnings("unused") TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
@@ -111,9 +105,7 @@ class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     super._free();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  TrainableWrapper<T> addRef() {
+  public @Override @SuppressWarnings("unused") TrainableWrapper<T> addRef() {
     return (TrainableWrapper<T>) super.addRef();
   }
 }

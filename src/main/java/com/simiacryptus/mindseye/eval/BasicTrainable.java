@@ -27,11 +27,7 @@ import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.*;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -41,8 +37,7 @@ import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
-public @RefAware
-class BasicTrainable extends ReferenceCountingBase implements DataTrainable, TrainableDataMask {
+public class BasicTrainable extends ReferenceCountingBase implements DataTrainable, TrainableDataMask {
 
   protected final Layer network;
   @Nullable
@@ -53,42 +48,35 @@ class BasicTrainable extends ReferenceCountingBase implements DataTrainable, Tra
   private int verbosity = 0;
 
   public BasicTrainable(final Layer network) {
-    {
-      Layer temp_13_0001 = network == null ? null : network.addRef();
-      this.network = temp_13_0001 == null ? null : temp_13_0001.addRef();
-      if (null != temp_13_0001)
-        temp_13_0001.freeRef();
-    }
+    Layer temp_13_0001 = network == null ? null : network.addRef();
+    this.network = temp_13_0001 == null ? null : temp_13_0001.addRef();
+    if (null != temp_13_0001)
+      temp_13_0001.freeRef();
     if (null != network)
       network.freeRef();
-    {
-      RefList<Tensor[]> temp_13_0002 = null;
-      if (null != data)
-        data.freeRef();
-      data = temp_13_0002 == null ? null : temp_13_0002.addRef();
-      if (null != temp_13_0002)
-        temp_13_0002.freeRef();
-    }
+    RefList<Tensor[]> temp_13_0002 = null;
+    if (null != data)
+      data.freeRef();
+    data = temp_13_0002 == null ? null : temp_13_0002.addRef();
+    if (null != temp_13_0002)
+      temp_13_0002.freeRef();
   }
 
   @Nonnull
   @Override
   public Tensor[][] getData() {
-    return data.toArray(new Tensor[][]{});
+    return data.toArray(new Tensor[][] {});
   }
 
   @Nonnull
   @Override
   public synchronized BasicTrainable setData(@Nonnull final RefList<Tensor[]> data) {
-    {
-      RefList<Tensor[]> temp_13_0003 = data == null ? null
-          : data.addRef();
-      if (null != this.data)
-        this.data.freeRef();
-      this.data = temp_13_0003 == null ? null : temp_13_0003.addRef();
-      if (null != temp_13_0003)
-        temp_13_0003.freeRef();
-    }
+    RefList<Tensor[]> temp_13_0003 = data == null ? null : data.addRef();
+    if (null != this.data)
+      this.data.freeRef();
+    this.data = temp_13_0003 == null ? null : temp_13_0003.addRef();
+    if (null != temp_13_0003)
+      temp_13_0003.freeRef();
     data.freeRef();
     return this.addRef();
   }
@@ -134,44 +122,41 @@ class BasicTrainable extends ReferenceCountingBase implements DataTrainable, Tra
     if (null != temp_13_0008)
       ReferenceCounting.freeRefs(temp_13_0008);
     Result[] temp_13_0007 = RefIntStream.range(0, cols)
-        .mapToObj(RefUtil
-            .wrapInterface((IntFunction<? extends Result>) col -> {
-              final Tensor[] tensors = RefIntStream.range(0, data.size())
-                  .mapToObj(RefUtil.wrapInterface(
-                      (IntFunction<? extends Tensor>) row -> data
-                          .get(row)[col],
-                      data == null ? null : data.addRef()))
-                  .toArray(i -> new Tensor[i]);
-              if (null == mask || col >= mask.length || !mask[col]) {
-                ConstantResult temp_13_0004 = new ConstantResult(
-                    new TensorArray(Tensor.addRefs(tensors)));
-                if (null != tensors)
-                  ReferenceCounting.freeRefs(tensors);
-                return temp_13_0004;
-              } else {
-                MutableResult temp_13_0005 = new MutableResult(
-                    Tensor.addRefs(tensors));
-                if (null != tensors)
-                  ReferenceCounting.freeRefs(tensors);
-                return temp_13_0005;
-              }
-            }, data == null ? null : data.addRef()))
-        .toArray(x1 -> new Result[x1]);
+        .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Result>) col -> {
+          final Tensor[] tensors = RefIntStream.range(0, data.size())
+              .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) row -> {
+                    Tensor[] rowData = data.get(row);
+                    Tensor cell = rowData[col].addRef();
+                    ReferenceCounting.freeRefs(rowData);
+                    return cell;
+                  },
+                  data == null ? null : data.addRef()))
+              .toArray(i -> new Tensor[i]);
+          if (null == mask || col >= mask.length || !mask[col]) {
+            ConstantResult temp_13_0004 = new ConstantResult(new TensorArray(Tensor.addRefs(tensors)));
+            if (null != tensors)
+              ReferenceCounting.freeRefs(tensors);
+            return temp_13_0004;
+          } else {
+            MutableResult temp_13_0005 = new MutableResult(Tensor.addRefs(tensors));
+            if (null != tensors)
+              ReferenceCounting.freeRefs(tensors);
+            return temp_13_0005;
+          }
+        }, data == null ? null : data.addRef())).toArray(x1 -> new Result[x1]);
     if (null != data)
       data.freeRef();
     return temp_13_0007;
   }
 
-  public static @SuppressWarnings("unused")
-  BasicTrainable[] addRefs(BasicTrainable[] array) {
+  public static @SuppressWarnings("unused") BasicTrainable[] addRefs(BasicTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRef)
         .toArray((x) -> new BasicTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  BasicTrainable[][] addRefs(BasicTrainable[][] array) {
+  public static @SuppressWarnings("unused") BasicTrainable[][] addRefs(BasicTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRefs)
@@ -181,7 +166,8 @@ class BasicTrainable extends ReferenceCountingBase implements DataTrainable, Tra
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert !data.isEmpty();
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult
         .time(() -> eval(data == null ? null : data.addRef(), monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     if (null != monitor && verbosity() > 1) {
@@ -204,24 +190,22 @@ class BasicTrainable extends ReferenceCountingBase implements DataTrainable, Tra
       network.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  BasicTrainable addRef() {
+  public @Override @SuppressWarnings("unused") BasicTrainable addRef() {
     return (BasicTrainable) super.addRef();
   }
 
   @Nonnull
   protected PointSample eval(@Nonnull final RefList<Tensor[]> list, @Nullable final TrainingMonitor monitor) {
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(RefUtil
-        .wrapInterface((UncheckedSupplier<PointSample>) () -> {
+    @Nonnull
+    final TimedResult<PointSample> timedResult = TimedResult
+        .time(RefUtil.wrapInterface((UncheckedSupplier<PointSample>) () -> {
           final Result[] nnContext = BasicTrainable.getNNContext(list == null ? null : list.addRef(), mask);
           final Result result = network.eval(Result.addRefs(nnContext));
           if (null != nnContext)
             ReferenceCounting.freeRefs(nnContext);
           final TensorList resultData = result.getData();
-          @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
           @Nonnull
-          StateSet<UUID> stateSet = null;
+          final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
           try {
             final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
               double[] array = RefArrays.stream(x.getData()).toArray();
@@ -231,27 +215,26 @@ class BasicTrainable extends ReferenceCountingBase implements DataTrainable, Tra
             }).summaryStatistics();
             final double sum = statistics.getSum();
             result.accumulate(deltaSet == null ? null : deltaSet.addRef());
-            stateSet = new StateSet<>(deltaSet == null ? null : deltaSet.addRef());
-            RefMap<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
-            for (Tensor[] tensors : list) {
-              for (Tensor tensor : tensors) {
-                if (deltaSetMap.containsKey(tensor.getId()))
-                  stateSet.get(tensor.getId(), tensor.getData());
-              }
+            StateSet<UUID> stateSet = new StateSet<>(deltaSet == null ? null : deltaSet.addRef());
+            try {
+              RefMap<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
+              list.stream().flatMap(Arrays::stream).filter(tensor -> deltaSetMap.containsKey(tensor.getId()))
+                  .forEach(tensor -> stateSet.get(tensor.getId(), tensor.getData()));
+              if (null != deltaSetMap)
+                deltaSetMap.freeRef();
+              if (null != result)
+                result.freeRef();
+              if (null != resultData)
+                resultData.freeRef();
+              PointSample temp_13_0006 = new PointSample(deltaSet == null ? null : deltaSet,
+                  stateSet == null ? null : stateSet, sum, 0.0, list.size());
+              //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
+              return temp_13_0006;
+            } finally {
+              if (null != stateSet)
+                stateSet.freeRefAsync();
             }
-            if (null != deltaSetMap)
-              deltaSetMap.freeRef();
-            if (null != result)
-              result.freeRef();
-            if (null != resultData)
-              resultData.freeRef();
-            PointSample temp_13_0006 = new PointSample(
-                deltaSet == null ? null : deltaSet, stateSet == null ? null : stateSet, sum, 0.0, list.size());
-            //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
-            return temp_13_0006;
           } finally {
-            if (null != stateSet)
-              stateSet.freeRefAsync();
             resultData.freeRefAsync();
             result.freeRefAsync();
             deltaSet.freeRefAsync();

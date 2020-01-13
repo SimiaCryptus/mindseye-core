@@ -27,21 +27,18 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import java.util.Arrays;
 import java.util.UUID;
 
-public abstract @RefAware
-class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
+public abstract class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
 
   public abstract CharSequence getDirectionType();
 
-  public static @SuppressWarnings("unused")
-  LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
+  public static @SuppressWarnings("unused") LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
         .toArray((x) -> new LineSearchCursorBase[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
+  public static @SuppressWarnings("unused") LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
@@ -56,9 +53,7 @@ class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCu
 
   public abstract void _free();
 
-  public @Override
-  @SuppressWarnings("unused")
-  LineSearchCursorBase addRef() {
+  public @Override @SuppressWarnings("unused") LineSearchCursorBase addRef() {
     return (LineSearchCursorBase) super.addRef();
   }
 }

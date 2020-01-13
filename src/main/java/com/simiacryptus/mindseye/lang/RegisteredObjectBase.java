@@ -34,9 +34,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
-public abstract @RefAware class RegisteredObjectBase extends ReferenceCountingBase {
+public abstract class RegisteredObjectBase extends ReferenceCountingBase {
   private static final Logger logger = LoggerFactory.getLogger(RegisteredObjectBase.class);
   private static final RefMap<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>> cache = new RefConcurrentHashMap<>();
   private static final ScheduledExecutorService maintenanceThread = Executors.newScheduledThreadPool(1,
@@ -63,17 +62,18 @@ public abstract @RefAware class RegisteredObjectBase extends ReferenceCountingBa
       if (null != e)
         RefUtil.freeRef(e);
       return temp_32_0002;
-    }).flatMap((Function<Map.Entry<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>>, RefStream<RefWeakReference<RegisteredObjectBase>>>) recordsEntry -> {
-      ObjectRecords<RegisteredObjectBase> temp_32_0003 = recordsEntry.getValue();
-      if (null != recordsEntry)
-        RefUtil.freeRef(recordsEntry);
-      return temp_32_0003.stream();
-    }).map(x -> (T) x.get()).filter(x -> {
-      boolean temp_32_0004 = x != null;
-      if (null != x)
-        x.freeRef();
-      return temp_32_0004;
-    });
+    }).flatMap(
+        (Function<Map.Entry<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>>, RefStream<RefWeakReference<RegisteredObjectBase>>>) recordsEntry -> {
+          ObjectRecords<RegisteredObjectBase> temp_32_0003 = recordsEntry.getValue();
+          if (null != recordsEntry)
+            RefUtil.freeRef(recordsEntry);
+          return temp_32_0003.stream();
+        }).map(x -> (T) x.get()).filter(x -> {
+          boolean temp_32_0004 = x != null;
+          if (null != x)
+            x.freeRef();
+          return temp_32_0004;
+        });
     if (null != temp_32_0006)
       temp_32_0006.freeRef();
     return temp_32_0005;
@@ -108,7 +108,7 @@ public abstract @RefAware class RegisteredObjectBase extends ReferenceCountingBa
       temp_32_0007.freeRef();
   }
 
-  private static @RefAware class ObjectRecords<T extends RegisteredObjectBase>
+  private static class ObjectRecords<T extends RegisteredObjectBase>
       extends RefConcurrentLinkedDeque<RefWeakReference<T>> {
     private volatile boolean dirty = false;
     private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(this::maintain, 1, 1,
@@ -143,7 +143,10 @@ public abstract @RefAware class RegisteredObjectBase extends ReferenceCountingBa
     private void maintain() {
       if (dirty) {
         this.removeIf(ref -> {
-          return null == ref.get();
+          T t = ref.get();
+          boolean isNull = null == t;
+          t.freeRef();
+          return isNull;
         });
         dirty = false;
       }

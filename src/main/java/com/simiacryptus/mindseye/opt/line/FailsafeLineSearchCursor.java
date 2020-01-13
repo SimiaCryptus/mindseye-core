@@ -30,30 +30,25 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 
-public @RefAware
-class FailsafeLineSearchCursor extends LineSearchCursorBase {
+public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   private final LineSearchCursor direction;
   private final TrainingMonitor monitor;
   private PointSample best;
 
   public FailsafeLineSearchCursor(final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
-                                  final TrainingMonitor monitor) {
-    {
-      LineSearchCursor temp_11_0001 = direction == null ? null : direction.addRef();
-      this.direction = temp_11_0001 == null ? null : temp_11_0001.addRef();
-      if (null != temp_11_0001)
-        temp_11_0001.freeRef();
-    }
+      final TrainingMonitor monitor) {
+    LineSearchCursor temp_11_0001 = direction == null ? null : direction.addRef();
+    this.direction = temp_11_0001 == null ? null : temp_11_0001.addRef();
+    if (null != temp_11_0001)
+      temp_11_0001.freeRef();
     if (null != direction)
       direction.freeRef();
-    {
-      PointSample temp_11_0002 = previousPoint.copyFull();
-      if (null != best)
-        best.freeRef();
-      best = temp_11_0002 == null ? null : temp_11_0002.addRef();
-      if (null != temp_11_0002)
-        temp_11_0002.freeRef();
-    }
+    PointSample temp_11_0002 = previousPoint.copyFull();
+    if (null != best)
+      best.freeRef();
+    best = temp_11_0002 == null ? null : temp_11_0002.addRef();
+    if (null != temp_11_0002)
+      temp_11_0002.freeRef();
     previousPoint.freeRef();
     this.monitor = monitor;
   }
@@ -63,16 +58,14 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
     return direction.getDirectionType();
   }
 
-  public static @SuppressWarnings("unused")
-  FailsafeLineSearchCursor[] addRefs(FailsafeLineSearchCursor[] array) {
+  public static @SuppressWarnings("unused") FailsafeLineSearchCursor[] addRefs(FailsafeLineSearchCursor[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FailsafeLineSearchCursor::addRef)
         .toArray((x) -> new FailsafeLineSearchCursor[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  FailsafeLineSearchCursor[][] addRefs(FailsafeLineSearchCursor[][] array) {
+  public static @SuppressWarnings("unused") FailsafeLineSearchCursor[][] addRefs(FailsafeLineSearchCursor[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(FailsafeLineSearchCursor::addRefs)
@@ -81,7 +74,7 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
 
   @Override
   public synchronized PointSample afterStep(@Nonnull final PointSample step) {
-    super.afterStep(step);
+    super.afterStep(step.addRef());
     RefUtil.freeRef(direction.afterStep(step == null ? null : step.addRef()));
     if (null == best || best.getMean() > step.getMean()) {
       @Nonnull
@@ -89,14 +82,12 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
       if (null != this.best) {
         monitor.log(RefString.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
       }
-      {
-        PointSample temp_11_0003 = newValue == null ? null : newValue.addRef();
-        if (null != this.best)
-          this.best.freeRef();
-        this.best = temp_11_0003 == null ? null : temp_11_0003.addRef();
-        if (null != temp_11_0003)
-          temp_11_0003.freeRef();
-      }
+      PointSample temp_11_0003 = newValue == null ? null : newValue.addRef();
+      if (null != this.best)
+        this.best.freeRef();
+      this.best = temp_11_0003 == null ? null : temp_11_0003.addRef();
+      if (null != temp_11_0003)
+        temp_11_0003.freeRef();
       newValue.freeRef();
     }
     return step;
@@ -134,20 +125,16 @@ class FailsafeLineSearchCursor extends LineSearchCursorBase {
     if (null != direction)
       direction.freeRef();
     if (null != this.best) {
-      {
-        PointSample temp_11_0004 = null;
-        if (null != this.best)
-          this.best.freeRef();
-        this.best = temp_11_0004 == null ? null : temp_11_0004.addRef();
-        if (null != temp_11_0004)
-          temp_11_0004.freeRef();
-      }
+      PointSample temp_11_0004 = null;
+      if (null != this.best)
+        this.best.freeRef();
+      this.best = temp_11_0004 == null ? null : temp_11_0004.addRef();
+      if (null != temp_11_0004)
+        temp_11_0004.freeRef();
     }
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  FailsafeLineSearchCursor addRef() {
+  public @Override @SuppressWarnings("unused") FailsafeLineSearchCursor addRef() {
     return (FailsafeLineSearchCursor) super.addRef();
   }
 

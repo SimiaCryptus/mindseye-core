@@ -30,8 +30,7 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.UUID;
 
-public @RefAware
-class SimpleLineSearchCursor extends LineSearchCursorBase {
+public class SimpleLineSearchCursor extends LineSearchCursorBase {
   public final DeltaSet<UUID> direction;
   @Nonnull
   public final PointSample origin;
@@ -39,29 +38,22 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
   private String type = "";
 
   public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin,
-                                final DeltaSet<UUID> direction) {
-    {
-      PointSample temp_25_0001 = origin.copyFull();
-      this.origin = temp_25_0001 == null ? null : temp_25_0001.addRef();
-      if (null != temp_25_0001)
-        temp_25_0001.freeRef();
-    }
+      final DeltaSet<UUID> direction) {
+    PointSample temp_25_0001 = origin.copyFull();
+    this.origin = temp_25_0001 == null ? null : temp_25_0001.addRef();
+    if (null != temp_25_0001)
+      temp_25_0001.freeRef();
     origin.freeRef();
-    {
-      DeltaSet<UUID> temp_25_0002 = direction == null ? null
-          : direction.addRef();
-      this.direction = temp_25_0002 == null ? null : temp_25_0002.addRef();
-      if (null != temp_25_0002)
-        temp_25_0002.freeRef();
-    }
+    DeltaSet<UUID> temp_25_0002 = direction == null ? null : direction.addRef();
+    this.direction = temp_25_0002 == null ? null : temp_25_0002.addRef();
+    if (null != temp_25_0002)
+      temp_25_0002.freeRef();
     if (null != direction)
       direction.freeRef();
-    {
-      Trainable temp_25_0003 = subject == null ? null : subject.addRef();
-      this.subject = temp_25_0003 == null ? null : temp_25_0003.addRef();
-      if (null != temp_25_0003)
-        temp_25_0003.freeRef();
-    }
+    Trainable temp_25_0003 = subject == null ? null : subject.addRef();
+    this.subject = temp_25_0003 == null ? null : temp_25_0003.addRef();
+    if (null != temp_25_0003)
+      temp_25_0003.freeRef();
     if (null != subject)
       subject.freeRef();
   }
@@ -77,16 +69,14 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused")
-  SimpleLineSearchCursor[] addRefs(SimpleLineSearchCursor[] array) {
+  public static @SuppressWarnings("unused") SimpleLineSearchCursor[] addRefs(SimpleLineSearchCursor[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRef)
         .toArray((x) -> new SimpleLineSearchCursor[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  SimpleLineSearchCursor[][] addRefs(SimpleLineSearchCursor[][] array) {
+  public static @SuppressWarnings("unused") SimpleLineSearchCursor[][] addRefs(SimpleLineSearchCursor[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRefs)
@@ -113,12 +103,12 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
       direction.accumulate(alpha);
     }
     PointSample temp_25_0005 = subject.measure(monitor);
-    @Nonnull final PointSample sample = afterStep(temp_25_0005.setRate(alpha));
+    @Nonnull
+    final PointSample sample = afterStep(temp_25_0005.setRate(alpha));
     if (null != temp_25_0005)
       temp_25_0005.freeRef();
     final double dot = direction.dot(sample.delta.addRef());
-    LineSearchPoint temp_25_0004 = new LineSearchPoint(
-        sample == null ? null : sample, dot);
+    LineSearchPoint temp_25_0004 = new LineSearchPoint(sample == null ? null : sample, dot);
     return temp_25_0004;
   }
 
@@ -130,9 +120,7 @@ class SimpleLineSearchCursor extends LineSearchCursorBase {
       direction.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  SimpleLineSearchCursor addRef() {
+  public @Override @SuppressWarnings("unused") SimpleLineSearchCursor addRef() {
     return (SimpleLineSearchCursor) super.addRef();
   }
 }

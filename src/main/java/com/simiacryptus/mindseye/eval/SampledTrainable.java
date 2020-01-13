@@ -24,23 +24,20 @@ import com.simiacryptus.ref.lang.RefAware;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-interface SampledTrainable extends Trainable {
+public interface SampledTrainable extends Trainable {
   int getTrainingSize();
 
   @Nonnull
   void setTrainingSize(int trainingSize);
 
-  public static @SuppressWarnings("unused")
-  SampledTrainable[] addRefs(SampledTrainable[] array) {
+  public static @SuppressWarnings("unused") SampledTrainable[] addRefs(SampledTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SampledTrainable::addRef)
         .toArray((x) -> new SampledTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  SampledTrainable[][] addRefs(SampledTrainable[][] array) {
+  public static @SuppressWarnings("unused") SampledTrainable[][] addRefs(SampledTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SampledTrainable::addRefs)

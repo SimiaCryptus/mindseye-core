@@ -30,8 +30,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Predicate;
 
-public final @RefAware
-class PointSample extends ReferenceCountingBase {
+public final class PointSample extends ReferenceCountingBase {
   public final int count;
   @Nonnull
   public final DeltaSet<UUID> delta;
@@ -41,38 +40,24 @@ class PointSample extends ReferenceCountingBase {
   public double rate;
 
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum,
-                     final double rate, final int count) {
+      final double rate, final int count) {
+    RefMap<UUID, Delta<UUID>> deltaMap = delta.getMap();
+    RefMap<UUID, State<UUID>> weightsMap = weights.getMap();
     try {
-      RefMap<UUID, Delta<UUID>> temp_08_0008 = delta
-          .getMap();
-      RefMap<UUID, State<UUID>> temp_08_0009 = weights
-          .getMap();
-      assert temp_08_0008.size() == temp_08_0009.size();
-      if (null != temp_08_0009)
-        temp_08_0009.freeRef();
-      if (null != temp_08_0008)
-        temp_08_0008.freeRef();
-      {
-        DeltaSet<UUID> temp_08_0001 = new DeltaSet<>(
-            delta == null ? null : delta.addRef());
-        this.delta = temp_08_0001 == null ? null : temp_08_0001.addRef();
-        if (null != temp_08_0001)
-          temp_08_0001.freeRef();
-      }
-      {
-        StateSet<UUID> temp_08_0002 = new StateSet<>(
-            weights == null ? null : weights.addRef());
-        this.weights = temp_08_0002 == null ? null : temp_08_0002.addRef();
-        if (null != temp_08_0002)
-          temp_08_0002.freeRef();
-      }
-      RefMap<UUID, Delta<UUID>> temp_08_0010 = delta
-          .getMap();
+      assert deltaMap.size() == weightsMap.size();
+      DeltaSet<UUID> temp_08_0001 = new DeltaSet<>(delta == null ? null : delta.addRef());
+      this.delta = temp_08_0001 == null ? null : temp_08_0001.addRef();
+      if (null != temp_08_0001)
+        temp_08_0001.freeRef();
+      StateSet<UUID> temp_08_0002 = new StateSet<>(weights == null ? null : weights.addRef());
+      this.weights = temp_08_0002 == null ? null : temp_08_0002.addRef();
+      if (null != temp_08_0002)
+        temp_08_0002.freeRef();
+      RefMap<UUID, Delta<UUID>> temp_08_0010 = delta.getMap();
       RefSet<UUID> temp_08_0011 = temp_08_0010.keySet();
-      assert temp_08_0011.stream().allMatch(
-          RefUtil.wrapInterface((Predicate<? super UUID>) x -> {
-            return weights.getMap().containsKey(x);
-          }, weights == null ? null : weights.addRef()));
+      assert temp_08_0011.stream().allMatch(RefUtil.wrapInterface((Predicate<? super UUID>) x -> {
+        return weightsMap.containsKey(x);
+      }, weights == null ? null : weights.addRef()));
       if (null != temp_08_0011)
         temp_08_0011.freeRef();
       if (null != temp_08_0010)
@@ -84,6 +69,11 @@ class PointSample extends ReferenceCountingBase {
       throw e;
     } catch (Throwable e) {
       throw new RuntimeException(e);
+    } finally {
+      if (null != weightsMap)
+        weightsMap.freeRef();
+      if (null != deltaMap)
+        deltaMap.freeRef();
     }
     weights.freeRef();
     delta.freeRef();
@@ -104,19 +94,15 @@ class PointSample extends ReferenceCountingBase {
   }
 
   public static PointSample add(@Nonnull final PointSample left, @Nonnull final PointSample right) {
-    RefMap<UUID, Delta<UUID>> temp_08_0012 = left.delta
-        .getMap();
-    RefMap<UUID, State<UUID>> temp_08_0013 = left.weights
-        .getMap();
+    RefMap<UUID, Delta<UUID>> temp_08_0012 = left.delta.getMap();
+    RefMap<UUID, State<UUID>> temp_08_0013 = left.weights.getMap();
     assert temp_08_0012.size() == temp_08_0013.size();
     if (null != temp_08_0013)
       temp_08_0013.freeRef();
     if (null != temp_08_0012)
       temp_08_0012.freeRef();
-    RefMap<UUID, Delta<UUID>> temp_08_0014 = right.delta
-        .getMap();
-    RefMap<UUID, State<UUID>> temp_08_0015 = right.weights
-        .getMap();
+    RefMap<UUID, Delta<UUID>> temp_08_0014 = right.delta.getMap();
+    RefMap<UUID, State<UUID>> temp_08_0015 = right.weights.getMap();
     assert temp_08_0014.size() == temp_08_0015.size();
     if (null != temp_08_0015)
       temp_08_0015.freeRef();
@@ -136,42 +122,33 @@ class PointSample extends ReferenceCountingBase {
     return temp_08_0003;
   }
 
-  public static @SuppressWarnings("unused")
-  PointSample[] addRefs(PointSample[] array) {
+  public static @SuppressWarnings("unused") PointSample[] addRefs(PointSample[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef)
-        .toArray((x) -> new PointSample[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef).toArray((x) -> new PointSample[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  PointSample[][] addRefs(PointSample[][] array) {
+  public static @SuppressWarnings("unused") PointSample[][] addRefs(PointSample[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs)
-        .toArray((x) -> new PointSample[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs).toArray((x) -> new PointSample[x][]);
   }
 
   public PointSample add(@Nonnull final PointSample right) {
-    PointSample temp_08_0006 = PointSample.add(this.addRef(),
-        right == null ? null : right);
+    PointSample temp_08_0006 = PointSample.add(this.addRef(), right == null ? null : right);
     return temp_08_0006;
   }
 
   public PointSample addInPlace(@Nonnull final PointSample right) {
-    RefMap<UUID, Delta<UUID>> temp_08_0016 = delta
-        .getMap();
-    RefMap<UUID, State<UUID>> temp_08_0017 = weights
-        .getMap();
+    RefMap<UUID, Delta<UUID>> temp_08_0016 = delta.getMap();
+    RefMap<UUID, State<UUID>> temp_08_0017 = weights.getMap();
     assert temp_08_0016.size() == temp_08_0017.size();
     if (null != temp_08_0017)
       temp_08_0017.freeRef();
     if (null != temp_08_0016)
       temp_08_0016.freeRef();
-    RefMap<UUID, Delta<UUID>> temp_08_0018 = right.delta
-        .getMap();
-    RefMap<UUID, State<UUID>> temp_08_0019 = right.weights
-        .getMap();
+    RefMap<UUID, Delta<UUID>> temp_08_0018 = right.delta.getMap();
+    RefMap<UUID, State<UUID>> temp_08_0019 = right.weights.getMap();
     assert temp_08_0018.size() == temp_08_0019.size();
     if (null != temp_08_0019)
       temp_08_0019.freeRef();
@@ -231,7 +208,9 @@ class PointSample extends ReferenceCountingBase {
 
   @Override
   public String toString() {
-    @Nonnull final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder("PointSample{");
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder(
+        "PointSample{");
     sb.append("avg=").append(getMean());
     sb.append('}');
     return sb.toString();
@@ -242,9 +221,7 @@ class PointSample extends ReferenceCountingBase {
     delta.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  PointSample addRef() {
+  public @Override @SuppressWarnings("unused") PointSample addRef() {
     return (PointSample) super.addRef();
   }
 }

@@ -24,16 +24,12 @@ import com.simiacryptus.ref.lang.RefAware;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-class SampledCachedTrainable<T extends SampledTrainable> extends CachedTrainable<T>
-    implements SampledTrainable {
+public class SampledCachedTrainable<T extends SampledTrainable> extends CachedTrainable<T> implements SampledTrainable {
 
   private long seed;
 
   public SampledCachedTrainable(final T inner) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
   }
 
   @Override
@@ -57,16 +53,14 @@ class SampledCachedTrainable<T extends SampledTrainable> extends CachedTrainable
     }
   }
 
-  public static @SuppressWarnings("unused")
-  SampledCachedTrainable[] addRefs(SampledCachedTrainable[] array) {
+  public static @SuppressWarnings("unused") SampledCachedTrainable[] addRefs(SampledCachedTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRef)
         .toArray((x) -> new SampledCachedTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  SampledCachedTrainable[][] addRefs(SampledCachedTrainable[][] array) {
+  public static @SuppressWarnings("unused") SampledCachedTrainable[][] addRefs(SampledCachedTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRefs)
@@ -85,13 +79,10 @@ class SampledCachedTrainable<T extends SampledTrainable> extends CachedTrainable
     return super.reseed(seed);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  SampledCachedTrainable<T> addRef() {
+  public @Override @SuppressWarnings("unused") SampledCachedTrainable<T> addRef() {
     return (SampledCachedTrainable<T>) super.addRef();
   }
 

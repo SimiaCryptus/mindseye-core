@@ -23,7 +23,7 @@ import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
-import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefLinkedList;
 import com.simiacryptus.ref.wrappers.RefStream;
 import org.slf4j.Logger;
@@ -34,8 +34,7 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public @RefAware
-class CountingResult extends Result {
+public class CountingResult extends Result {
   protected static final Logger logger = LoggerFactory.getLogger(CountingResult.class);
 
   @Nonnull
@@ -43,19 +42,15 @@ class CountingResult extends Result {
 
   public CountingResult(@Nonnull final Result inner) {
     super(inner.getData(), new CountingAccumulator(inner == null ? null : inner.addRef()));
-    {
-      Result temp_09_0001 = inner == null ? null : inner.addRef();
-      this.inner = temp_09_0001 == null ? null : temp_09_0001.addRef();
-      if (null != temp_09_0001)
-        temp_09_0001.freeRef();
-    }
+    Result temp_09_0001 = inner == null ? null : inner.addRef();
+    this.inner = temp_09_0001 == null ? null : temp_09_0001.addRef();
+    if (null != temp_09_0001)
+      temp_09_0001.freeRef();
     inner.freeRef();
   }
 
   public CountingResult(final Result r, final int samples) {
     this(r);
-    if (null != r)
-      r.freeRef();
     CountingResult.CountingAccumulator temp_09_0007 = getAccumulator();
     temp_09_0007.fwdLinks.set(samples);
     if (null != temp_09_0007)
@@ -73,16 +68,14 @@ class CountingResult extends Result {
     return inner.isAlive();
   }
 
-  public static @SuppressWarnings("unused")
-  CountingResult[] addRefs(CountingResult[] array) {
+  public static @SuppressWarnings("unused") CountingResult[] addRefs(CountingResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
         .toArray((x) -> new CountingResult[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  CountingResult[][] addRefs(CountingResult[][] array) {
+  public static @SuppressWarnings("unused") CountingResult[][] addRefs(CountingResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
@@ -93,14 +86,11 @@ class CountingResult extends Result {
     inner.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  CountingResult addRef() {
+  public @Override @SuppressWarnings("unused") CountingResult addRef() {
     return (CountingResult) super.addRef();
   }
 
-  static @RefAware
-  class CountingAccumulator extends Result.Accumulator {
+  static class CountingAccumulator extends Result.Accumulator {
     @Nonnull
     private final AtomicInteger fwdLinks;
     private final Result inner;
@@ -110,21 +100,17 @@ class CountingResult extends Result {
     private final AtomicInteger accumulations;
 
     public CountingAccumulator(Result inner) {
-      {
-        Result temp_09_0002 = inner == null ? null : inner.addRef();
-        this.inner = temp_09_0002 == null ? null : temp_09_0002.addRef();
-        if (null != temp_09_0002)
-          temp_09_0002.freeRef();
-      }
+      Result temp_09_0002 = inner == null ? null : inner.addRef();
+      this.inner = temp_09_0002 == null ? null : temp_09_0002.addRef();
+      if (null != temp_09_0002)
+        temp_09_0002.freeRef();
       if (null != inner)
         inner.freeRef();
       fwdLinks = new AtomicInteger(0);
-      {
-        RefLinkedList<TensorList> temp_09_0003 = new RefLinkedList<>();
-        passbackBuffers = temp_09_0003 == null ? null : temp_09_0003.addRef();
-        if (null != temp_09_0003)
-          temp_09_0003.freeRef();
-      }
+      RefLinkedList<TensorList> temp_09_0003 = new RefLinkedList<>();
+      passbackBuffers = temp_09_0003 == null ? null : temp_09_0003.addRef();
+      if (null != temp_09_0003)
+        temp_09_0003.freeRef();
       accumulations = new AtomicInteger(0);
     }
 
@@ -132,8 +118,7 @@ class CountingResult extends Result {
       return this.fwdLinks.get();
     }
 
-    public static @SuppressWarnings("unused")
-    CountingAccumulator[] addRefs(CountingAccumulator[] array) {
+    public static @SuppressWarnings("unused") CountingAccumulator[] addRefs(CountingAccumulator[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
@@ -167,7 +152,7 @@ class CountingResult extends Result {
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
             @Nonnull
-            TensorList compacted = stream.reduce((a, b) -> {
+            TensorList compacted = RefUtil.get(stream.reduce((a, b) -> {
               TensorList c;
               c = a.addAndFree(b == null ? null : b.addRef());
               if (null != b)
@@ -175,7 +160,7 @@ class CountingResult extends Result {
               if (null != a)
                 a.freeRef();
               return c;
-            }).get();
+            }));
             passbackBuffers.clear();
             passbackBuffers.add(compacted == null ? null : compacted);
             assert passbackBuffers.stream().allMatch(x -> {
@@ -189,7 +174,7 @@ class CountingResult extends Result {
             RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
-            reduced = stream.reduce((a, b) -> {
+            reduced = RefUtil.get(stream.reduce((a, b) -> {
               TensorList c;
               c = a.addAndFree(b == null ? null : b.addRef());
               if (null != b)
@@ -197,7 +182,7 @@ class CountingResult extends Result {
               if (null != a)
                 a.freeRef();
               return c;
-            }).get();
+            }));
             passbackBuffers.clear();
           }
           assert passbackBuffers.stream().allMatch(x -> {
@@ -227,9 +212,7 @@ class CountingResult extends Result {
       }
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    CountingAccumulator addRef() {
+    public @Override @SuppressWarnings("unused") CountingAccumulator addRef() {
       return (CountingAccumulator) super.addRef();
     }
 

@@ -28,19 +28,16 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import java.util.Arrays;
 
-public @RefAware
-interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
+public interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
 
-  public static @SuppressWarnings("unused")
-  OrientationStrategy[] addRefs(OrientationStrategy[] array) {
+  public static @SuppressWarnings("unused") OrientationStrategy[] addRefs(OrientationStrategy[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategy::addRef)
         .toArray((x) -> new OrientationStrategy[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  OrientationStrategy[][] addRefs(OrientationStrategy[][] array) {
+  public static @SuppressWarnings("unused") OrientationStrategy[][] addRefs(OrientationStrategy[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategy::addRefs)

@@ -22,11 +22,7 @@ package com.simiacryptus.ref.lang;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.simiacryptus.mindseye.lang.Tensor;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefAssert;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.test.TestCategories;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -36,21 +32,22 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public @RefAware
-class TensorTest {
+public class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
   @Nullable
   public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
-    @Nullable final Tensor tensor = Tensor.fromJson(json, null);
+    @Nullable
+    final Tensor tensor = Tensor.fromJson(json, null);
     RefAssert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
     if (null != tensor)
       tensor.freeRef();
   }
 
   public void test(@Nonnull final Tensor t) {
-    @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
+    @Nonnull
+    final JsonElement json = t.getJson(null, Tensor.json_precision);
     RefAssert.assertEquals(Tensor.fromJson(json, null), t == null ? null : t);
     parse(json.toString());
   }

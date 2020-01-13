@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.DoubleSupplier;
 
-public @RefAware
-class DataSerializerTest {
+public class DataSerializerTest {
   private static final Logger log = LoggerFactory.getLogger(DataSerializerTest.class);
 
   @Test

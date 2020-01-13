@@ -26,34 +26,29 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 import java.util.Arrays;
 
-public @RefAware
-class LineSearchPoint extends ReferenceCountingBase {
+public class LineSearchPoint extends ReferenceCountingBase {
 
   public final double derivative;
   public final PointSample point;
 
   public LineSearchPoint(final PointSample point, final double derivative) {
-    {
-      PointSample temp_04_0001 = point == null ? null : point.addRef();
-      this.point = temp_04_0001 == null ? null : temp_04_0001.addRef();
-      if (null != temp_04_0001)
-        temp_04_0001.freeRef();
-    }
+    PointSample temp_04_0001 = point == null ? null : point.addRef();
+    this.point = temp_04_0001 == null ? null : temp_04_0001.addRef();
+    if (null != temp_04_0001)
+      temp_04_0001.freeRef();
     if (null != point)
       point.freeRef();
     this.derivative = derivative;
   }
 
-  public static @SuppressWarnings("unused")
-  LineSearchPoint[] addRefs(LineSearchPoint[] array) {
+  public static @SuppressWarnings("unused") LineSearchPoint[] addRefs(LineSearchPoint[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRef)
         .toArray((x) -> new LineSearchPoint[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LineSearchPoint[][] addRefs(LineSearchPoint[][] array) {
+  public static @SuppressWarnings("unused") LineSearchPoint[][] addRefs(LineSearchPoint[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRefs)
@@ -63,8 +58,10 @@ class LineSearchPoint extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder("LineSearchPoint{");
-    sb.append("point=").append(point);
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder(
+        "LineSearchPoint{");
+    sb.append("point=").append(point.addRef());
     sb.append(", derivative=").append(derivative);
     sb.append('}');
     return sb.toString();
@@ -75,9 +72,7 @@ class LineSearchPoint extends ReferenceCountingBase {
       point.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  LineSearchPoint addRef() {
+  public @Override @SuppressWarnings("unused") LineSearchPoint addRef() {
     return (LineSearchPoint) super.addRef();
   }
 }

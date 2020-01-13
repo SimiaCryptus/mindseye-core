@@ -38,10 +38,10 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.*;
+import java.util.stream.Stream;
 
 @SuppressWarnings("serial")
-public final @RefAware
-class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializable {
+public final class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializable {
   @Nonnull
   public static final DataSerializer json_precision = SerialPrecision.Float;
   @Nullable
@@ -75,7 +75,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
       throw new IllegalArgumentException();
     if (null != data && Tensor.length(dims) != data.length)
       throw new IllegalArgumentException(RefArrays.toString(dims) + " != " + data.length);
-    dimensions = (null == dims || 0 == dims.length) ? new int[]{} : RefArrays.copyOf(dims, dims.length);
+    dimensions = (null == dims || 0 == dims.length) ? new int[] {} : RefArrays.copyOf(dims, dims.length);
     strides = Tensor.getSkips(dims);
     //this.data = data;// Arrays.copyOf(data, data.length);
     if (null != data) {
@@ -90,7 +90,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   }
 
   private Tensor(@org.jetbrains.annotations.Nullable int[] dimensions,
-                 @org.jetbrains.annotations.Nullable int[] strides, @Nullable double[] data) {
+      @org.jetbrains.annotations.Nullable int[] strides, @Nullable double[] data) {
     if (Tensor.length(dimensions) >= Integer.MAX_VALUE)
       throw new IllegalArgumentException();
     assert null == data || data.length == Tensor.length(dimensions);
@@ -172,11 +172,12 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
     int width = dimensions[0];
     int height = dimensions[1];
     int bands = dimensions[2];
-    return RefIntStream.range(0, width).mapToObj(x -> x).parallel().flatMap(x -> {
-      return RefIntStream.range(0, height).mapToObj(y -> y).map(y -> {
-        return this.getPixel(x, y, bands);
-      });
-    });
+    return RefIntStream.range(0, width).mapToObj(x -> x).parallel()
+        .flatMap((Function<Integer, RefStream<double[]>>) x1 -> {
+          return RefIntStream.range(0, height).mapToObj(y -> y).map(y -> {
+            return this.getPixel(x1, y, bands);
+          });
+        });
   }
 
   public boolean isValid() {
@@ -184,7 +185,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   }
 
   public Tensor setAll(final double v) {
-    @Nullable final double[] data = getData();
+    @Nullable
+    final double[] data = getData();
     for (int i = 0; i < data.length; i++) {
       data[i] = v;
     }
@@ -230,7 +232,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
           return Tensor.fromJson(element, resources);
         }).collect(RefCollectors.toList());
         Tensor temp_33_0010 = elements.get(0);
-        @Nonnull final int[] dimensions = temp_33_0010.getDimensions();
+        @Nonnull
+        final int[] dimensions = temp_33_0010.getDimensions();
         if (null != temp_33_0010)
           temp_33_0010.freeRef();
         if (!elements.stream().allMatch(t -> {
@@ -243,13 +246,17 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
             elements.freeRef();
           throw new IllegalArgumentException();
         }
-        @Nonnull final int[] newDdimensions = RefArrays.copyOf(dimensions, dimensions.length + 1);
+        @Nonnull
+        final int[] newDdimensions = RefArrays.copyOf(dimensions, dimensions.length + 1);
         newDdimensions[dimensions.length] = size;
-        @Nonnull final Tensor tensor = new Tensor(newDdimensions);
-        @Nullable final double[] data = tensor.getData();
+        @Nonnull
+        final Tensor tensor = new Tensor(newDdimensions);
+        @Nullable
+        final double[] data = tensor.getData();
         for (int i = 0; i < size; i++) {
           Tensor temp_33_0011 = elements.get(i);
-          @Nullable final double[] e = temp_33_0011.getData();
+          @Nullable
+          final double[] e = temp_33_0011.getData();
           if (null != temp_33_0011)
             temp_33_0011.freeRef();
           com.simiacryptus.ref.wrappers.RefSystem.arraycopy(e, 0, data, i * e.length, e.length);
@@ -275,8 +282,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
         CharSequence resourceId = jsonObject.getAsJsonPrimitive("resource").getAsString();
         RefUtil.freeRef(tensor.setBytes(resources.get(resourceId), precision));
       } else {
-        RefUtil
-            .freeRef(tensor.setBytes(Base64.getDecoder().decode(base64.getAsString()), precision));
+        RefUtil.freeRef(tensor.setBytes(Base64.getDecoder().decode(base64.getAsString()), precision));
       }
       assert tensor.isValid();
       JsonElement id = jsonObject.get("id");
@@ -307,22 +313,22 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   public static Tensor fromRGB(@Nonnull final BufferedImage img) {
     final int width = img.getWidth();
     final int height = img.getHeight();
-    @Nonnull final Tensor a = new Tensor(width, height, 3);
-    RefIntStream.range(0, width).parallel()
-        .forEach(RefUtil.wrapInterface(x -> {
-          @Nonnull final int[] coords = {0, 0, 0};
-          RefIntStream.range(0, height)
-              .forEach(RefUtil.wrapInterface(y -> {
-                coords[0] = x;
-                coords[1] = y;
-                coords[2] = 0;
-                a.set(coords, img.getRGB(x, y) & 0xFF);
-                coords[2] = 1;
-                a.set(coords, img.getRGB(x, y) >> 8 & 0xFF);
-                coords[2] = 2;
-                a.set(coords, img.getRGB(x, y) >> 16 & 0x0FF);
-              }, a == null ? null : a.addRef()));
-        }, a == null ? null : a.addRef()));
+    @Nonnull
+    final Tensor a = new Tensor(width, height, 3);
+    RefIntStream.range(0, width).parallel().forEach(RefUtil.wrapInterface(x -> {
+      @Nonnull
+      final int[] coords = { 0, 0, 0 };
+      RefIntStream.range(0, height).forEach(RefUtil.wrapInterface(y -> {
+        coords[0] = x;
+        coords[1] = y;
+        coords[2] = 0;
+        a.set(coords, img.getRGB(x, y) & 0xFF);
+        coords[2] = 1;
+        a.set(coords, img.getRGB(x, y) >> 8 & 0xFF);
+        coords[2] = 2;
+        a.set(coords, img.getRGB(x, y) >> 16 & 0x0FF);
+      }, a == null ? null : a.addRef()));
+    }, a == null ? null : a.addRef()));
     return a;
   }
 
@@ -342,16 +348,19 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   @Nonnull
   public static Tensor product(@Nonnull final Tensor left, @Nonnull final Tensor right) {
     if (left.length() == 1 && right.length() != 1) {
-      Tensor temp_33_0004 = Tensor.product(right == null ? null : right,
-          left == null ? null : left);
+      Tensor temp_33_0004 = Tensor.product(right == null ? null : right, left == null ? null : left);
       return temp_33_0004;
     }
     assert left.length() == right.length() || 1 == right.length();
-    @Nonnull final Tensor result = new Tensor(left.getDimensions());
-    @Nullable final double[] resultData = result.getData();
-    @Nullable final double[] leftData = left.getData();
+    @Nonnull
+    final Tensor result = new Tensor(left.getDimensions());
+    @Nullable
+    final double[] resultData = result.getData();
+    @Nullable
+    final double[] leftData = left.getData();
     left.freeRef();
-    @Nullable final double[] rightData = right.getData();
+    @Nullable
+    final double[] rightData = right.getData();
     right.freeRef();
     for (int i = 0; i < resultData.length; i++) {
       final double l = leftData[i];
@@ -452,25 +461,21 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   public static SerializableFunction<Tensor, Tensor> select(Coordinate... reducedCoords) {
     return tensor -> {
       Tensor reduced = new Tensor(reducedCoords.length);
-      RefUtil.freeRef(reduced.setByCoord(RefUtil
-              .wrapInterface(c2 -> tensor
-                  .get(reducedCoords[c2.getIndex()]), tensor == null ? null : tensor.addRef()),
-          false));
+      RefUtil.freeRef(reduced.setByCoord(RefUtil.wrapInterface(c2 -> tensor.get(reducedCoords[c2.getIndex()]),
+          tensor == null ? null : tensor.addRef()), false));
       if (null != tensor)
         tensor.freeRef();
       return reduced;
     };
   }
 
-  public static @SuppressWarnings("unused")
-  Tensor[] addRefs(Tensor[] array) {
+  public static @SuppressWarnings("unused") Tensor[] addRefs(Tensor[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRef).toArray((x) -> new Tensor[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  Tensor[][] addRefs(Tensor[][] array) {
+  public static @SuppressWarnings("unused") Tensor[][] addRefs(Tensor[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Tensor::addRefs).toArray((x) -> new Tensor[x][]);
@@ -490,7 +495,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   @Nonnull
   private static int[] getSkips(@Nonnull final int[] dims) {
-    @Nonnull final int[] skips = new int[dims.length];
+    @Nonnull
+    final int[] skips = new int[dims.length];
     for (int i = 0; i < skips.length; i++) {
       if (i == 0) {
         skips[0] = 1;
@@ -518,12 +524,11 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   public Tensor rearrange(@Nonnull UnaryOperator<int[]> fn, int[] outputDims) {
     @Nonnull
     Tensor result = new Tensor(outputDims);
-    coordStream(false).forEach(RefUtil
-        .wrapInterface((Consumer<? super Coordinate>) c -> {
-          int[] inCoords = c.getCoords();
-          int[] outCoords = fn.apply(inCoords);
-          result.set(outCoords, get(c));
-        }, result == null ? null : result.addRef()));
+    coordStream(false).forEach(RefUtil.wrapInterface((Consumer<? super Coordinate>) c -> {
+      int[] inCoords = c.getCoords();
+      int[] outCoords = fn.apply(inCoords);
+      result.set(outCoords, get(c));
+    }, result == null ? null : result.addRef()));
     return result;
   }
 
@@ -624,8 +629,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
         return parallel ? coordinate.copy() : coordinate;
       }
 
-      public @SuppressWarnings("unused")
-      void _free() {
+      public @SuppressWarnings("unused") void _free() {
       }
     }, length(), Spliterator.ORDERED), parallel);
   }
@@ -657,7 +661,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
     if (getClass() != obj.getClass()) {
       return false;
     }
-    @Nullable final Tensor other = (Tensor) obj;
+    @Nullable
+    final Tensor other = (Tensor) obj;
     if (0 == currentRefCount()) {
       if (null != other)
         other.freeRef();
@@ -794,9 +799,11 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   @Nullable
   public Tensor map(@Nonnull final DoubleUnaryOperator f, boolean parallel) {
-    @Nullable final double[] data = getData();
+    @Nullable
+    final double[] data = getData();
     Tensor tensor = new Tensor(dimensions);
-    @Nonnull final double[] cpy = tensor.getData();
+    @Nonnull
+    final double[] cpy = tensor.getData();
     RefIntStream stream = RefIntStream.range(0, data.length);
     if (parallel)
       stream = stream.parallel();
@@ -827,7 +834,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   @Nullable
   public Tensor mapParallel(@Nonnull final DoubleUnaryOperator f) {
-    @Nullable final double[] data = getData();
+    @Nullable
+    final double[] data = getData();
     return new Tensor(
         Tensor.getDoubles(RefIntStream.range(0, length()).mapToDouble(i -> f.applyAsDouble(data[i])), length()),
         dimensions);
@@ -842,9 +850,12 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
         right.freeRef();
       throw temp_33_0006;
     }
-    @Nonnull final Tensor copy = new Tensor(getDimensions());
-    @Nullable final double[] thisData = getData();
-    @Nullable final double[] rightData = right.getData();
+    @Nonnull
+    final Tensor copy = new Tensor(getDimensions());
+    @Nullable
+    final double[] thisData = getData();
+    @Nullable
+    final double[] rightData = right.getData();
     right.freeRef();
     RefArrays.parallelSetAll(copy.getData(), i -> (thisData[i] == rightData[i]) ? 0 : (thisData[i] - rightData[i]));
     return copy;
@@ -857,9 +868,12 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   @Nonnull
   public Tensor multiply(final double d) {
-    @Nonnull final Tensor tensor = new Tensor(getDimensions());
-    @Nullable final double[] resultData = tensor.getData();
-    @Nullable final double[] thisData = getData();
+    @Nonnull
+    final Tensor tensor = new Tensor(getDimensions());
+    @Nullable
+    final double[] resultData = tensor.getData();
+    @Nullable
+    final double[] thisData = getData();
     for (int i = 0; i < thisData.length; i++) {
       resultData[i] = d * thisData[i];
     }
@@ -887,8 +901,10 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
         right.freeRef();
       throw temp_33_0007;
     }
-    @Nullable final double[] dataL = getData();
-    @Nullable final double[] dataR = right.getData();
+    @Nullable
+    final double[] dataL = getData();
+    @Nullable
+    final double[] dataR = right.getData();
     right.freeRef();
     return new Tensor(Tensor.getDoubles(
         RefIntStream.range(0, length()).mapToDouble(i -> f.applyAsDouble(dataL[i], dataR[i])), length()), dimensions);
@@ -922,7 +938,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   public Tensor scaleInPlace(final double d) {
     if (!Double.isFinite(d))
       throw new IllegalArgumentException();
-    @Nullable final double[] data = getData();
+    @Nullable
+    final double[] data = getData();
     for (int i = 0; i < data.length; i++) {
       data[i] *= d;
     }
@@ -931,7 +948,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   public Tensor set(@Nonnull final Coordinate coords, final double value) {
     if (Double.isFinite(value))
-      set(coords.getIndex(), value);
+      set(coords.getIndex(), value).freeRef();
     return this.addRef();
   }
 
@@ -986,7 +1003,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   public void set(@Nonnull final Tensor right) {
     assertAlive();
-    @Nullable final double[] src = right.getData();
+    @Nullable
+    final double[] src = right.getData();
     right.freeRef();
     double[] dst = getData();
     if (dst.length != src.length) {
@@ -1033,7 +1051,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   public BufferedImage toGrayImage(final int band) {
     final int width = getDimensions()[0];
     final int height = getDimensions()[1];
-    @Nonnull final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
+    @Nonnull
+    final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
     for (int x = 0; x < width; x++) {
       for (int y = 0; y < height; y++) {
         final double v = get(x, y, band);
@@ -1045,7 +1064,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   @Nonnull
   public BufferedImage toImage() {
-    @Nonnull final int[] dims = getDimensions();
+    @Nonnull
+    final int[] dims = getDimensions();
     if (3 == dims.length) {
       if (3 == dims[2]) {
         return toRgbImage();
@@ -1061,12 +1081,14 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   @Nonnull
   public RefList<BufferedImage> toImages() {
-    @Nonnull final int[] dims = getDimensions();
+    @Nonnull
+    final int[] dims = getDimensions();
     if (3 == dims.length) {
       if (3 == dims[2]) {
         return RefArrays.asList(toRgbImage());
       } else if (0 == dims[2] % 3) {
-        @Nonnull final RefArrayList<BufferedImage> list = new RefArrayList<>();
+        @Nonnull
+        final RefArrayList<BufferedImage> list = new RefArrayList<>();
         for (int i = 0; i < dims[2]; i += 3) {
           list.add(toRgbImage(i, i + 1, i + 2));
         }
@@ -1074,7 +1096,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
       } else if (1 == dims[2]) {
         return RefArrays.asList(toGrayImage());
       } else {
-        @Nonnull final RefArrayList<BufferedImage> list = new RefArrayList<>();
+        @Nonnull
+        final RefArrayList<BufferedImage> list = new RefArrayList<>();
         for (int i = 0; i < dims[2]; i++) {
           list.add(toGrayImage(i));
         }
@@ -1109,7 +1132,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
       }
       return obj;
     } else {
-      return getJson(new int[]{});
+      return getJson(new int[] {});
     }
   }
 
@@ -1132,8 +1155,10 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   @Nonnull
   public BufferedImage toRgbImage(final int redBand, final int greenBand, final int blueBand) {
     assertAlive();
-    @Nonnull final int[] dims = getDimensions();
-    @Nonnull final BufferedImage img = new BufferedImage(dims[0], dims[1], BufferedImage.TYPE_INT_RGB);
+    @Nonnull
+    final int[] dims = getDimensions();
+    @Nonnull
+    final BufferedImage img = new BufferedImage(dims[0], dims[1], BufferedImage.TYPE_INT_RGB);
     for (int x = 0; x < img.getWidth(); x++) {
       for (int y = 0; y < img.getHeight(); y++) {
         if (getDimensions()[2] == 1) {
@@ -1154,7 +1179,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
   @Override
   public String toString() {
     assertAlive();
-    return (null == data ? "0" : Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(data))) + "@" + toString(false);
+    return (null == data ? "0" : Integer.toHexString(com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(data)))
+        + "@" + toString(false);
   }
 
   @Nonnull
@@ -1232,18 +1258,14 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
 
   public Tensor mapPixels(UnaryOperator<double[]> fn) {
     final Tensor copy = new Tensor(dimensions);
-    RefIntStream.range(0, dimensions[0]).parallel()
-        .forEach(RefUtil.wrapInterface(x -> {
-          RefIntStream.range(0, dimensions[1])
-              .forEach(RefUtil.wrapInterface(y -> {
-                final double[] finalPixel = fn
-                    .apply(RefIntStream.range(0, dimensions[2]).mapToDouble(c1 -> get(x, y, c1)).toArray());
-                RefIntStream.range(0, dimensions[2])
-                    .forEach(RefUtil.wrapInterface(
-                        c -> copy.set(x, y, c, finalPixel[c]),
-                        copy == null ? null : copy.addRef()));
-              }, copy == null ? null : copy.addRef()));
-        }, copy == null ? null : copy.addRef()));
+    RefIntStream.range(0, dimensions[0]).parallel().forEach(RefUtil.wrapInterface(x -> {
+      RefIntStream.range(0, dimensions[1]).forEach(RefUtil.wrapInterface(y -> {
+        final double[] finalPixel = fn
+            .apply(RefIntStream.range(0, dimensions[2]).mapToDouble(c1 -> get(x, y, c1)).toArray());
+        RefIntStream.range(0, dimensions[2])
+            .forEach(RefUtil.wrapInterface(c -> copy.set(x, y, c, finalPixel[c]), copy == null ? null : copy.addRef()));
+      }, copy == null ? null : copy.addRef()));
+    }, copy == null ? null : copy.addRef()));
     return copy;
   }
 
@@ -1256,9 +1278,7 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
     }
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  Tensor addRef() {
+  public @Override @SuppressWarnings("unused") Tensor addRef() {
     return (Tensor) super.addRef();
   }
 
@@ -1268,9 +1288,11 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
       final double d = get(coords);
       return new JsonPrimitive(d);
     } else {
-      @Nonnull final JsonArray jsonArray = new JsonArray();
+      @Nonnull
+      final JsonArray jsonArray = new JsonArray();
       RefIntStream.range(0, dimensions[dimensions.length - (coords.length + 1)]).mapToObj(i -> {
-        @Nonnull final int[] newCoord = new int[coords.length + 1];
+        @Nonnull
+        final int[] newCoord = new int[coords.length + 1];
         com.simiacryptus.ref.wrappers.RefSystem.arraycopy(coords, 0, newCoord, 1, coords.length);
         newCoord[0] = i;
         return getJson(newCoord);
@@ -1284,7 +1306,8 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
       return Double.toString(get(coords));
     } else {
       RefList<CharSequence> list = RefIntStream.range(0, dimensions[coords.length]).mapToObj(i -> {
-        @Nonnull final int[] newCoord = RefArrays.copyOf(coords, coords.length + 1);
+        @Nonnull
+        final int[] newCoord = RefArrays.copyOf(coords, coords.length + 1);
         newCoord[coords.length] = i;
         return toString(prettyPrint, newCoord);
       }).limit(15).collect(RefCollectors.toList());
@@ -1314,13 +1337,11 @@ class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializa
     }
   }
 
-  public @RefAware
-  interface CoordOperator {
+  public interface CoordOperator {
     void eval(double value, Coordinate index);
   }
 
-  public @RefAware
-  interface TupleOperator {
+  public interface TupleOperator {
     double eval(double value, int index);
   }
 }

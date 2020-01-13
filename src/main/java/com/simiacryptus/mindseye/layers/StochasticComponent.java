@@ -25,8 +25,7 @@ import com.simiacryptus.ref.lang.RefAware;
 import java.util.Arrays;
 import java.util.Random;
 
-public @RefAware
-interface StochasticComponent extends Layer {
+public interface StochasticComponent extends Layer {
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
     @Override
     protected Random initialValue() {
@@ -34,16 +33,14 @@ interface StochasticComponent extends Layer {
     }
   };
 
-  public static @SuppressWarnings("unused")
-  StochasticComponent[] addRefs(StochasticComponent[] array) {
+  public static @SuppressWarnings("unused") StochasticComponent[] addRefs(StochasticComponent[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
         .toArray((x) -> new StochasticComponent[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  StochasticComponent[][] addRefs(StochasticComponent[][] array) {
+  public static @SuppressWarnings("unused") StochasticComponent[][] addRefs(StochasticComponent[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)

@@ -27,8 +27,7 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public @RefAware
-class ArmijoWolfeSearch implements LineSearchStrategy {
+public class ArmijoWolfeSearch implements LineSearchStrategy {
 
   private double absoluteTolerance = 1e-15;
   private double alpha = 1.0;
@@ -148,29 +147,29 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
     final LineSearchPoint startPoint = cursor.step(0, monitor);
     @Nullable
     LineSearchPoint lastStep = null;
-    {
-      final double startLineDeriv = startPoint.derivative; // theta'(0)
-      final double startValue = startPoint.point.getMean(); // theta(0)
-      if (0 <= startPoint.derivative) {
-        monitor.log(RefString.format("th(0)=%s;dx=%s (ERROR: Starting derivative negative)", startValue, startLineDeriv));
-        LineSearchPoint step = cursor.step(0, monitor);
-        if (null != startPoint)
-          startPoint.freeRef();
-        if (null != lastStep)
-          lastStep.freeRef();
-        PointSample temp_39_0001 = step.point;
-        if (null != step)
-          step.freeRef();
-        cursor.freeRef();
-        return temp_39_0001;
-      }
-      monitor.log(RefString.format("th(0)=%s;dx=%s", startValue, startLineDeriv));
-      int stepBias = 0;
-      double bestAlpha = 0;
-      double bestValue = startPoint.point.getMean();
+    final double startLineDeriv = startPoint.derivative; // theta'(0)
+    final double startValue = startPoint.point.getMean(); // theta(0)
+    if (0 <= startPoint.derivative) {
+      monitor.log(RefString.format("th(0)=%s;dx=%s (ERROR: Starting derivative negative)", startValue, startLineDeriv));
+      LineSearchPoint step = cursor.step(0, monitor);
+      if (null != startPoint)
+        startPoint.freeRef();
+      if (null != lastStep)
+        lastStep.freeRef();
+      PointSample temp_39_0001 = step.point;
+      if (null != step)
+        step.freeRef();
+      cursor.freeRef();
+      return temp_39_0001;
+    }
+    monitor.log(RefString.format("th(0)=%s;dx=%s", startValue, startLineDeriv));
+    int stepBias = 0;
+    double bestAlpha = 0;
+    double bestValue = startPoint.point.getMean();
+    try {
       while (true) {
         if (!isAlphaValid()) {
-          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor.addRef(), monitor, bestAlpha);
           monitor.log(RefString.format("INVALID ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           if (null != startPoint)
             startPoint.freeRef();
@@ -180,7 +179,7 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
         }
         if (mu >= nu - absoluteTolerance) {
           loosenMetaparameters();
-          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor.addRef(), monitor, bestAlpha);
           monitor.log(RefString.format("mu >= nu (%s): th(%s)=%s", mu, bestAlpha, point.getMean()));
           if (null != startPoint)
             startPoint.freeRef();
@@ -190,7 +189,7 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
         }
         if (nu - mu < nu * relativeTolerance) {
           loosenMetaparameters();
-          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor.addRef(), monitor, bestAlpha);
           monitor.log(RefString.format("mu ~= nu (%s): th(%s)=%s", mu, bestAlpha, point.getMean()));
           if (null != startPoint)
             startPoint.freeRef();
@@ -199,7 +198,7 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
           return point;
         }
         if (Math.abs(alpha) < minAlpha) {
-          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor.addRef(), monitor, bestAlpha);
           monitor.log(RefString.format("MIN ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           alpha = minAlpha;
           if (null != startPoint)
@@ -209,7 +208,7 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
           return point;
         }
         if (Math.abs(alpha) > maxAlpha) {
-          PointSample point = stepPoint(cursor == null ? null : cursor, monitor, bestAlpha);
+          PointSample point = stepPoint(cursor == null ? null : cursor.addRef(), monitor, bestAlpha);
           monitor.log(RefString.format("MAX ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           alpha = maxAlpha;
           if (null != startPoint)
@@ -229,8 +228,8 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
         }
         if (lastValue > startValue + alpha * c1 * startLineDeriv) {
           // Value did not decrease (enough) - It is gauranteed to decrease given an infitefimal rate; the rate must be less than this; this is a new ceiling
-          monitor.log(RefString.format("Armijo: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
-              startValue - lastValue));
+          monitor.log(RefString.format("Armijo: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue,
+              lastStep.derivative, startValue - lastValue));
           nu = alpha;
           stepBias = Math.min(-1, stepBias - 1);
         } else if (isStrongWolfe() && lastStep.derivative > 0) {
@@ -258,6 +257,8 @@ class ArmijoWolfeSearch implements LineSearchStrategy {
           alpha = (mu + nu) / 2;
         }
       }
+    } finally {
+      cursor.freeRef();
     }
   }
 

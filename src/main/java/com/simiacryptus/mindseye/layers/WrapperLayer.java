@@ -35,43 +35,36 @@ import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public abstract @RefAware
-class WrapperLayer extends LayerBase {
+public abstract class WrapperLayer extends LayerBase {
   @Nullable
   private Layer inner;
 
   protected WrapperLayer() {
-    {
-      Layer temp_19_0001 = null;
-      if (null != inner)
-        inner.freeRef();
-      inner = temp_19_0001 == null ? null : temp_19_0001.addRef();
-      if (null != temp_19_0001)
-        temp_19_0001.freeRef();
-    }
+    Layer temp_19_0001 = null;
+    if (null != inner)
+      inner.freeRef();
+    inner = temp_19_0001 == null ? null : temp_19_0001.addRef();
+    if (null != temp_19_0001)
+      temp_19_0001.freeRef();
   }
 
   public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
-    {
-      Layer temp_19_0002 = Layer.fromJson(json.getAsJsonObject("inner"), rs);
-      if (null != this.inner)
-        this.inner.freeRef();
-      this.inner = temp_19_0002 == null ? null : temp_19_0002.addRef();
-      if (null != temp_19_0002)
-        temp_19_0002.freeRef();
-    }
+    Layer temp_19_0002 = Layer.fromJson(json.getAsJsonObject("inner"), rs);
+    if (null != this.inner)
+      this.inner.freeRef();
+    this.inner = temp_19_0002 == null ? null : temp_19_0002.addRef();
+    if (null != temp_19_0002)
+      temp_19_0002.freeRef();
   }
 
   public WrapperLayer(@org.jetbrains.annotations.Nullable final Layer inner) {
-    {
-      Layer temp_19_0003 = inner == null ? null : inner.addRef();
-      if (null != this.inner)
-        this.inner.freeRef();
-      this.inner = temp_19_0003 == null ? null : temp_19_0003.addRef();
-      if (null != temp_19_0003)
-        temp_19_0003.freeRef();
-    }
+    Layer temp_19_0003 = inner == null ? null : inner.addRef();
+    if (null != this.inner)
+      this.inner.freeRef();
+    this.inner = temp_19_0003 == null ? null : temp_19_0003.addRef();
+    if (null != temp_19_0003)
+      temp_19_0003.freeRef();
     if (null != inner)
       inner.freeRef();
   }
@@ -82,22 +75,9 @@ class WrapperLayer extends LayerBase {
   }
 
   public WrapperLayer setInner(@Nullable Layer inner) {
-    Layer temp_19_0006 = this.getInner();
-    if (temp_19_0006 != null)
-      this.getInner();
-    if (null != temp_19_0006)
-      temp_19_0006.freeRef();
-    {
-      Layer temp_19_0004 = inner == null ? null : inner.addRef();
-      if (null != this.inner)
-        this.inner.freeRef();
-      this.inner = temp_19_0004 == null ? null : temp_19_0004.addRef();
-      if (null != temp_19_0004)
-        temp_19_0004.freeRef();
-    }
-    if (null != inner)
-      inner.freeRef();
-    RefUtil.freeRef(this.getInner());
+    if (null != this.inner)
+      this.inner.freeRef();
+    this.inner = inner;
     return this.addRef();
   }
 
@@ -108,16 +88,13 @@ class WrapperLayer extends LayerBase {
     return inner.isFrozen();
   }
 
-  public static @SuppressWarnings("unused")
-  WrapperLayer[] addRefs(WrapperLayer[] array) {
+  public static @SuppressWarnings("unused") WrapperLayer[] addRefs(WrapperLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef)
-        .toArray((x) -> new WrapperLayer[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef).toArray((x) -> new WrapperLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  WrapperLayer[][] addRefs(WrapperLayer[][] array) {
+  public static @SuppressWarnings("unused") WrapperLayer[][] addRefs(WrapperLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
@@ -127,8 +104,7 @@ class WrapperLayer extends LayerBase {
   @Nullable
   @Override
   public Result eval(final Result... array) {
-    Result temp_19_0005 = inner
-        .eval(Result.addRefs(array));
+    Result temp_19_0005 = inner.eval(Result.addRefs(array));
     if (null != array)
       ReferenceCounting.freeRefs(array);
     return temp_19_0005;
@@ -137,7 +113,8 @@ class WrapperLayer extends LayerBase {
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     Layer temp_19_0007 = getInner();
     json.add("inner", temp_19_0007.getJson(resources, dataSerializer));
     if (null != temp_19_0007)
@@ -167,9 +144,7 @@ class WrapperLayer extends LayerBase {
     super._free();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  WrapperLayer addRef() {
+  public @Override @SuppressWarnings("unused") WrapperLayer addRef() {
     return (WrapperLayer) super.addRef();
   }
 }

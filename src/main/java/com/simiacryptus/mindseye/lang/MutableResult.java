@@ -27,19 +27,14 @@ import com.simiacryptus.ref.wrappers.RefArrays;
 import java.util.Arrays;
 import java.util.UUID;
 
-public @RefAware
-class MutableResult extends Result {
+public class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
-    this(RefArrays.stream(Tensor.addRefs(tensors)).map(Tensor::getId)
-        .toArray(i -> new UUID[i]), tensors);
-    if (null != tensors)
-      ReferenceCounting.freeRefs(tensors);
+    this(RefArrays.stream(Tensor.addRefs(tensors)).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
   }
 
   public MutableResult(UUID[] objectId, final Tensor... tensors) {
-    super(new TensorArray(Tensor.addRefs(tensors)),
-        handler(Tensor.addRefs(tensors), objectId));
+    super(new TensorArray(Tensor.addRefs(tensors)), handler(Tensor.addRefs(tensors), objectId));
     if (null != tensors)
       ReferenceCounting.freeRefs(tensors);
   }
@@ -49,16 +44,14 @@ class MutableResult extends Result {
     return true;
   }
 
-  public static @SuppressWarnings("unused")
-  MutableResult[] addRefs(MutableResult[] array) {
+  public static @SuppressWarnings("unused") MutableResult[] addRefs(MutableResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRef)
         .toArray((x) -> new MutableResult[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  MutableResult[][] addRefs(MutableResult[][] array) {
+  public static @SuppressWarnings("unused") MutableResult[][] addRefs(MutableResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRefs)
@@ -75,8 +68,7 @@ class MutableResult extends Result {
         @Override
         public void accept(DeltaSet<UUID> buffer, TensorList delta) {
           for (int index = 0; index < delta.length(); index++) {
-            Delta<UUID> temp_50_0002 = buffer.get(objectId[index],
-                tensors[index].getData());
+            Delta<UUID> temp_50_0002 = buffer.get(objectId[index], tensors[index].getData());
             Tensor temp_50_0003 = delta.get(index);
             RefUtil.freeRef(temp_50_0002.addInPlace(temp_50_0003.getData()));
             if (null != temp_50_0003)
@@ -90,10 +82,10 @@ class MutableResult extends Result {
             buffer.freeRef();
         }
 
-        public @SuppressWarnings("unused")
-        void _free() {
+        public @SuppressWarnings("unused") void _free() {
           if (null != tensors)
             ReferenceCounting.freeRefs(tensors);
+          RefUtil.freeRefs(objectId);
         }
       };
     } finally {
@@ -102,13 +94,10 @@ class MutableResult extends Result {
     }
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  MutableResult addRef() {
+  public @Override @SuppressWarnings("unused") MutableResult addRef() {
     return (MutableResult) super.addRef();
   }
 }

@@ -27,8 +27,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 
 @SuppressWarnings("serial")
-public @RefAware
-class SimpleLossNetwork extends SupervisedNetwork {
+public class SimpleLossNetwork extends SupervisedNetwork {
 
   @Nullable
   public final DAGNode lossNode;
@@ -37,21 +36,16 @@ class SimpleLossNetwork extends SupervisedNetwork {
 
   public SimpleLossNetwork(@Nonnull final Layer student, @Nonnull final Layer loss) {
     super(2);
-    {
-      DAGNode temp_24_0001 = add(student == null ? null : student.addRef(),
-          getInput(0));
-      studentNode = temp_24_0001 == null ? null : temp_24_0001.addRef();
-      if (null != temp_24_0001)
-        temp_24_0001.freeRef();
-    }
+    DAGNode temp_24_0001 = add(student == null ? null : student.addRef(), getInput(0));
+    studentNode = temp_24_0001 == null ? null : temp_24_0001.addRef();
+    if (null != temp_24_0001)
+      temp_24_0001.freeRef();
     student.freeRef();
-    {
-      DAGNode temp_24_0002 = add(loss == null ? null : loss.addRef(),
-          studentNode == null ? null : studentNode.addRef(), getInput(1));
-      lossNode = temp_24_0002 == null ? null : temp_24_0002.addRef();
-      if (null != temp_24_0002)
-        temp_24_0002.freeRef();
-    }
+    DAGNode temp_24_0002 = add(loss == null ? null : loss.addRef(), studentNode == null ? null : studentNode.addRef(),
+        getInput(1));
+    lossNode = temp_24_0002 == null ? null : temp_24_0002.addRef();
+    if (null != temp_24_0002)
+      temp_24_0002.freeRef();
     loss.freeRef();
   }
 
@@ -60,33 +54,28 @@ class SimpleLossNetwork extends SupervisedNetwork {
     return lossNode == null ? null : lossNode.addRef();
   }
 
-  public static @SuppressWarnings("unused")
-  SimpleLossNetwork[] addRefs(SimpleLossNetwork[] array) {
+  public static @SuppressWarnings("unused") SimpleLossNetwork[] addRefs(SimpleLossNetwork[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRef)
         .toArray((x) -> new SimpleLossNetwork[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  SimpleLossNetwork[][] addRefs(SimpleLossNetwork[][] array) {
+  public static @SuppressWarnings("unused") SimpleLossNetwork[][] addRefs(SimpleLossNetwork[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRefs)
         .toArray((x) -> new SimpleLossNetwork[x][]);
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
     if (null != studentNode)
       studentNode.freeRef();
     if (null != lossNode)
       lossNode.freeRef();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  SimpleLossNetwork addRef() {
+  public @Override @SuppressWarnings("unused") SimpleLossNetwork addRef() {
     return (SimpleLossNetwork) super.addRef();
   }
 }

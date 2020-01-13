@@ -38,8 +38,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public @RefAware
-class ValueLayer extends LayerBase {
+public class ValueLayer extends LayerBase {
 
   @Nullable
   private Tensor[] data;
@@ -47,28 +46,23 @@ class ValueLayer extends LayerBase {
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
-    {
-      Tensor[] temp_14_0001 = RefIntStream.range(0, values.size())
-          .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
-      if (null != data)
-        ReferenceCounting.freeRefs(data);
-      data = Tensor.addRefs(temp_14_0001);
-      if (null != temp_14_0001)
-        ReferenceCounting.freeRefs(temp_14_0001);
-    }
+    Tensor[] temp_14_0001 = RefIntStream.range(0, values.size())
+        .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
+    if (null != data)
+      ReferenceCounting.freeRefs(data);
+    data = Tensor.addRefs(temp_14_0001);
+    if (null != temp_14_0001)
+      ReferenceCounting.freeRefs(temp_14_0001);
   }
 
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
-    {
-      Tensor[] temp_14_0002 = RefArrays
-          .copyOf(Tensor.addRefs(data), data.length);
-      if (null != this.data)
-        ReferenceCounting.freeRefs(this.data);
-      this.data = Tensor.addRefs(temp_14_0002);
-      if (null != temp_14_0002)
-        ReferenceCounting.freeRefs(temp_14_0002);
-    }
+    Tensor[] temp_14_0002 = RefArrays.copyOf(Tensor.addRefs(data), data.length);
+    if (null != this.data)
+      ReferenceCounting.freeRefs(this.data);
+    this.data = Tensor.addRefs(temp_14_0002);
+    if (null != temp_14_0002)
+      ReferenceCounting.freeRefs(temp_14_0002);
     ReferenceCounting.freeRefs(data);
     this.frozen = true;
   }
@@ -79,14 +73,12 @@ class ValueLayer extends LayerBase {
   }
 
   public void setData(final Tensor... data) {
-    {
-      Tensor[] temp_14_0003 = Tensor.addRefs(data);
-      if (null != this.data)
-        ReferenceCounting.freeRefs(this.data);
-      this.data = Tensor.addRefs(temp_14_0003);
-      if (null != temp_14_0003)
-        ReferenceCounting.freeRefs(temp_14_0003);
-    }
+    Tensor[] temp_14_0003 = Tensor.addRefs(data);
+    if (null != this.data)
+      ReferenceCounting.freeRefs(this.data);
+    this.data = Tensor.addRefs(temp_14_0003);
+    if (null != temp_14_0003)
+      ReferenceCounting.freeRefs(temp_14_0003);
     if (null != data)
       ReferenceCounting.freeRefs(data);
   }
@@ -96,20 +88,16 @@ class ValueLayer extends LayerBase {
     return new ValueLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused")
-  ValueLayer[] addRefs(ValueLayer[] array) {
+  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef)
-        .toArray((x) -> new ValueLayer[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef).toArray((x) -> new ValueLayer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ValueLayer[][] addRefs(ValueLayer[][] array) {
+  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs)
-        .toArray((x) -> new ValueLayer[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs).toArray((x) -> new ValueLayer[x][]);
   }
 
   @Nonnull
@@ -119,40 +107,37 @@ class ValueLayer extends LayerBase {
     ReferenceCounting.freeRefs(array);
     final ValueLayer valueLayer = ValueLayer.this.addRef();
     try {
-      return new Result(new TensorArray(Tensor.addRefs(this.data)),
-          new Result.Accumulator() {
-            {
-            }
+      return new Result(new TensorArray(Tensor.addRefs(this.data)), new Result.Accumulator() {
+        {
+        }
 
-            @Override
-            public void accept(DeltaSet<UUID> buffer, TensorList data) {
-              if (!ValueLayer.this.isFrozen()) {
-                ValueLayer.this.assertAlive();
-                assert (1 == valueLayer.data.length || valueLayer.data.length == data.length());
-                for (int i = 0; i < data.length(); i++) {
-                  Tensor delta = data.get(i);
-                  Tensor value = valueLayer.data[i % valueLayer.data.length].addRef();
-                  Delta<UUID> temp_14_0007 = buffer.get(value.getId(),
-                      value.getData());
-                  RefUtil.freeRef(temp_14_0007.addInPlace(delta.getData()));
-                  if (null != temp_14_0007)
-                    temp_14_0007.freeRef();
-                  if (null != value)
-                    value.freeRef();
-                  if (null != delta)
-                    delta.freeRef();
-                }
-              }
-              if (null != data)
-                data.freeRef();
-              if (null != buffer)
-                buffer.freeRef();
+        @Override
+        public void accept(DeltaSet<UUID> buffer, TensorList data) {
+          if (!ValueLayer.this.isFrozen()) {
+            ValueLayer.this.assertAlive();
+            assert (1 == valueLayer.data.length || valueLayer.data.length == data.length());
+            for (int i = 0; i < data.length(); i++) {
+              Tensor delta = data.get(i);
+              Tensor value = valueLayer.data[i % valueLayer.data.length].addRef();
+              Delta<UUID> temp_14_0007 = buffer.get(value.getId(), value.getData());
+              RefUtil.freeRef(temp_14_0007.addInPlace(delta.getData()));
+              if (null != temp_14_0007)
+                temp_14_0007.freeRef();
+              if (null != value)
+                value.freeRef();
+              if (null != delta)
+                delta.freeRef();
             }
+          }
+          if (null != data)
+            data.freeRef();
+          if (null != buffer)
+            buffer.freeRef();
+        }
 
-            public @SuppressWarnings("unused")
-            void _free() {
-            }
-          }) {
+        public @SuppressWarnings("unused") void _free() {
+        }
+      }) {
 
         {
         }
@@ -174,7 +159,8 @@ class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull
+    final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
     RefArrays.stream(Tensor.addRefs(data)).map(datum -> {
       JsonElement temp_14_0005 = datum.getJson(resources, dataSerializer);
@@ -203,14 +189,11 @@ class ValueLayer extends LayerBase {
     data = null;
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ValueLayer addRef() {
+  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
     return (ValueLayer) super.addRef();
   }
 
-  public static @RefAware
-  class RefWrapper<T> {
+  public static class RefWrapper<T> {
     public final T obj;
 
     public RefWrapper(T obj) {

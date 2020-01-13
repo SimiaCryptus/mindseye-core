@@ -34,15 +34,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
-public @RefAware
-class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
+public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   public DeltaSet() {
   }
 
   public DeltaSet(@Nonnull final DoubleBufferSet<K, Delta<K>> toCopy) {
     super(toCopy);
-    toCopy.freeRef();
     assert stream().allMatch(x -> {
       boolean temp_37_0001 = x instanceof Delta;
       if (null != x)
@@ -53,7 +51,6 @@ class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   public DeltaSet(@Nonnull final RefMap<K, ? extends Delta<K>> collect) {
     super(collect);
-    collect.freeRef();
     assert stream().allMatch(x -> {
       boolean temp_37_0002 = x instanceof Delta;
       if (null != x)
@@ -63,8 +60,7 @@ class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   public double getMagnitude() {
-    RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0011 = map
-        .entrySet();
+    RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0011 = map.entrySet();
     RefStream<Map.Entry<K, Delta<K>>> stream = temp_37_0011.stream();
     if (null != temp_37_0011)
       temp_37_0011.freeRef();
@@ -83,20 +79,16 @@ class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return Math.sqrt(RefArrays.stream(elementArray).sum());
   }
 
-  public static @SuppressWarnings("unused")
-  DeltaSet[] addRefs(DeltaSet[] array) {
+  public static @SuppressWarnings("unused") DeltaSet[] addRefs(DeltaSet[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRef)
-        .toArray((x) -> new DeltaSet[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRef).toArray((x) -> new DeltaSet[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  DeltaSet[][] addRefs(DeltaSet[][] array) {
+  public static @SuppressWarnings("unused") DeltaSet[][] addRefs(DeltaSet[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRefs)
-        .toArray((x) -> new DeltaSet[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRefs).toArray((x) -> new DeltaSet[x][]);
   }
 
   @Nonnull
@@ -133,17 +125,17 @@ class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   public StateSet<K> asState() {
-    @Nonnull final StateSet<K> returnValue = new StateSet<>();
-    map.forEach(RefUtil.wrapInterface(
-        (BiConsumer<? super K, ? super Delta<K>>) (layer, delta) -> {
-          delta.assertAlive();
-          State<K> kState = returnValue.get(layer, delta.target);
-          kState.set(delta.delta);
-          if (null != kState)
-            kState.freeRef();
-          if (null != delta)
-            delta.freeRef();
-        }, returnValue == null ? null : returnValue.addRef()));
+    @Nonnull
+    final StateSet<K> returnValue = new StateSet<>();
+    map.forEach(RefUtil.wrapInterface((BiConsumer<? super K, ? super Delta<K>>) (layer, delta) -> {
+      delta.assertAlive();
+      State<K> kState = returnValue.get(layer, delta.target);
+      kState.set(delta.delta);
+      if (null != kState)
+        kState.freeRef();
+      if (null != delta)
+        delta.freeRef();
+    }, returnValue == null ? null : returnValue.addRef()));
     return returnValue;
   }
 
@@ -159,16 +151,15 @@ class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
-    RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0014 = map
-        .entrySet();
+    RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0014 = map.entrySet();
     RefStream<Map.Entry<K, Delta<K>>> stream = temp_37_0014.stream();
     if (null != temp_37_0014)
       temp_37_0014.freeRef();
     if (100 < map.size()) {
       stream = stream.parallel();
     }
-    double temp_37_0010 = stream.mapToDouble(RefUtil.wrapInterface(
-        (ToDoubleFunction<? super Map.Entry<K, Delta<K>>>) entry -> {
+    double temp_37_0010 = stream
+        .mapToDouble(RefUtil.wrapInterface((ToDoubleFunction<? super Map.Entry<K, Delta<K>>>) entry -> {
           final K key = entry.getKey();
           final Delta<K> value = entry.getValue();
           if (null != entry)
@@ -226,13 +217,10 @@ class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return scale(1.0 / getMagnitude());
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  DeltaSet<K> addRef() {
+  public @Override @SuppressWarnings("unused") DeltaSet<K> addRef() {
     return (DeltaSet<K>) super.addRef();
   }
 

@@ -25,8 +25,7 @@ import com.simiacryptus.ref.wrappers.RefDoubleStream;
 
 import java.util.DoubleSummaryStatistics;
 
-public @RefAware
-class DoubleArrayStatsFacade {
+public class DoubleArrayStatsFacade {
   private final double[] data;
 
   public DoubleArrayStatsFacade(final double[] data) {
@@ -47,8 +46,7 @@ class DoubleArrayStatsFacade {
   }
 
   public double sumSq() {
-    final RefDoubleStream doubleStream = RefArrays
-        .stream(data).map((final double x) -> x * x);
+    final RefDoubleStream doubleStream = RefArrays.stream(data).map((final double x) -> x * x);
     final DoubleSummaryStatistics statistics = doubleStream.summaryStatistics();
     return statistics.getSum();
   }

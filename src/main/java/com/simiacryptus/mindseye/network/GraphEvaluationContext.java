@@ -32,23 +32,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-@RefAware
 class GraphEvaluationContext extends ReferenceCountingBase {
 
   final RefMap<UUID, Long> expectedCounts = new RefConcurrentHashMap<>();
 
   final RefMap<UUID, Supplier<CountingResult>> calculated = new RefConcurrentHashMap<>();
 
-  public static @SuppressWarnings("unused")
-  GraphEvaluationContext[] addRefs(GraphEvaluationContext[] array) {
+  public static @SuppressWarnings("unused") GraphEvaluationContext[] addRefs(GraphEvaluationContext[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
         .toArray((x) -> new GraphEvaluationContext[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  GraphEvaluationContext[][] addRefs(GraphEvaluationContext[][] array) {
+  public static @SuppressWarnings("unused") GraphEvaluationContext[][] addRefs(GraphEvaluationContext[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
@@ -60,8 +57,7 @@ class GraphEvaluationContext extends ReferenceCountingBase {
       calculated.freeRef();
     if (null != expectedCounts)
       expectedCounts.freeRef();
-    RefSet<Map.Entry<UUID, Supplier<CountingResult>>> temp_43_0004 = calculated
-        .entrySet();
+    RefSet<Map.Entry<UUID, Supplier<CountingResult>>> temp_43_0004 = calculated.entrySet();
     temp_43_0004.stream().filter(entry -> {
       ReferenceCounting o = entry.getValue().get();
       if (o instanceof RuntimeException) {
@@ -84,8 +80,7 @@ class GraphEvaluationContext extends ReferenceCountingBase {
       if (null != o)
         o.freeRef();
       if (expectedCounts.containsKey(entry.getKey())) {
-        CountingResult.CountingAccumulator temp_43_0005 = countingNNResult
-            .getAccumulator();
+        CountingResult.CountingAccumulator temp_43_0005 = countingNNResult.getAccumulator();
         boolean temp_43_0001 = expectedCounts.get(entry.getKey()) > temp_43_0005.getCount();
         if (null != temp_43_0005)
           temp_43_0005.freeRef();
@@ -114,9 +109,7 @@ class GraphEvaluationContext extends ReferenceCountingBase {
     calculated.clear();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  GraphEvaluationContext addRef() {
+  public @Override @SuppressWarnings("unused") GraphEvaluationContext addRef() {
     return (GraphEvaluationContext) super.addRef();
   }
 }

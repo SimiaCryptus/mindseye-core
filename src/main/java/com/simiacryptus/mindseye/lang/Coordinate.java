@@ -26,8 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
-public final @RefAware
-class Coordinate implements Serializable {
+public final class Coordinate implements Serializable {
   protected int[] coords;
   protected int index;
 
@@ -61,7 +60,8 @@ class Coordinate implements Serializable {
 
   @Nonnull
   public static int[] add(@Nonnull final int[] a, @Nonnull final int[] b) {
-    @Nonnull final int[] r = new int[Math.max(a.length, b.length)];
+    @Nonnull
+    final int[] r = new int[Math.max(a.length, b.length)];
     for (int i = 0; i < r.length; i++) {
       r[i] = (a.length <= i ? 0 : a[i]) + (b.length <= i ? 0 : b[i]);
     }

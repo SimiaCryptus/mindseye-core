@@ -28,15 +28,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
-public @RefAware
-class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, TrainableDataMask {
+public class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, TrainableDataMask {
   private double factor_L1 = 0.0;
   private double factor_L2 = 0.0;
 
   public ConstL12Normalizer(final Trainable inner) {
     super(inner);
-    if (null != inner)
-      inner.freeRef();
   }
 
   public double getFactor_L1() {
@@ -82,16 +79,14 @@ class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, Trai
     ((SampledTrainable) inner).setTrainingSize(trainingSize);
   }
 
-  public static @SuppressWarnings("unused")
-  ConstL12Normalizer[] addRefs(ConstL12Normalizer[] array) {
+  public static @SuppressWarnings("unused") ConstL12Normalizer[] addRefs(ConstL12Normalizer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
         .toArray((x) -> new ConstL12Normalizer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  ConstL12Normalizer[][] addRefs(ConstL12Normalizer[][] array) {
+  public static @SuppressWarnings("unused") ConstL12Normalizer[][] addRefs(ConstL12Normalizer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
@@ -111,13 +106,10 @@ class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, Trai
     return this.addRef();
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
+  public @SuppressWarnings("unused") void _free() {
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  ConstL12Normalizer addRef() {
+  public @Override @SuppressWarnings("unused") ConstL12Normalizer addRef() {
     return (ConstL12Normalizer) super.addRef();
   }
 

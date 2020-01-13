@@ -28,24 +28,19 @@ import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-final @RefAware
-class InputNode extends LazyResult {
+final class InputNode extends LazyResult {
   private final DAGNetwork dagNetwork;
 
   InputNode(final DAGNetwork dagNetwork) {
     this(dagNetwork, null);
-    if (null != dagNetwork)
-      dagNetwork.freeRef();
   }
 
   public InputNode(final DAGNetwork dagNetwork, final UUID key) {
     super(key);
-    {
-      DAGNetwork temp_10_0001 = dagNetwork == null ? null : dagNetwork.addRef();
-      this.dagNetwork = temp_10_0001 == null ? null : temp_10_0001.addRef();
-      if (null != temp_10_0001)
-        temp_10_0001.freeRef();
-    }
+    DAGNetwork temp_10_0001 = dagNetwork == null ? null : dagNetwork.addRef();
+    this.dagNetwork = temp_10_0001 == null ? null : temp_10_0001.addRef();
+    if (null != temp_10_0001)
+      temp_10_0001.freeRef();
     if (null != dagNetwork)
       dagNetwork.freeRef();
   }
@@ -67,25 +62,20 @@ class InputNode extends LazyResult {
     return this.dagNetwork;
   }
 
-  public static @SuppressWarnings("unused")
-  InputNode[] addRefs(InputNode[] array) {
+  public static @SuppressWarnings("unused") InputNode[] addRefs(InputNode[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef)
-        .toArray((x) -> new InputNode[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef).toArray((x) -> new InputNode[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  InputNode[][] addRefs(InputNode[][] array) {
+  public static @SuppressWarnings("unused") InputNode[][] addRefs(InputNode[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs)
-        .toArray((x) -> new InputNode[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs).toArray((x) -> new InputNode[x][]);
   }
 
   public DAGNode add(@Nonnull final Layer nextHead) {
-    InnerNode temp_10_0002 = dagNetwork.add(nextHead == null ? null : nextHead,
-        InputNode.this.addRef());
+    InnerNode temp_10_0002 = dagNetwork.add(nextHead == null ? null : nextHead, InputNode.this.addRef());
     return temp_10_0002;
   }
 
@@ -95,9 +85,7 @@ class InputNode extends LazyResult {
     super._free();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  InputNode addRef() {
+  public @Override @SuppressWarnings("unused") InputNode addRef() {
     return (InputNode) super.addRef();
   }
 

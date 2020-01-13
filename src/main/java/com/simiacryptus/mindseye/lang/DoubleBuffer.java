@@ -33,8 +33,7 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-public @RefAware
-class DoubleBuffer<K> extends ReferenceCountingBase {
+public class DoubleBuffer<K> extends ReferenceCountingBase {
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(DoubleBuffer.class);
   @Nonnull
@@ -50,7 +49,7 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   public DoubleBuffer(@Nonnull final K key, final double[] target,
-                      @org.jetbrains.annotations.Nullable final double[] delta) {
+      @org.jetbrains.annotations.Nullable final double[] delta) {
     this.key = key;
     this.target = target;
     this.delta = delta;
@@ -83,16 +82,13 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
     return true;
   }
 
-  public static @SuppressWarnings("unused")
-  DoubleBuffer[] addRefs(DoubleBuffer[] array) {
+  public static @SuppressWarnings("unused") DoubleBuffer[] addRefs(DoubleBuffer[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRef)
-        .toArray((x) -> new DoubleBuffer[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRef).toArray((x) -> new DoubleBuffer[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  DoubleBuffer[][] addRefs(DoubleBuffer[][] array) {
+  public static @SuppressWarnings("unused") DoubleBuffer[][] addRefs(DoubleBuffer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRefs)
@@ -125,8 +121,10 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
         right.freeRef();
       throw temp_51_0002;
     }
-    @Nullable final double[] l = this.getDelta();
-    @Nullable final double[] r = right.getDelta();
+    @Nullable
+    final double[] l = this.getDelta();
+    @Nullable
+    final double[] r = right.getDelta();
     right.freeRef();
     assert l.length == r.length;
     final double[] array = RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i]).toArray();
@@ -159,7 +157,8 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull final com.simiacryptus.ref.wrappers.RefStringBuilder builder = new com.simiacryptus.ref.wrappers.RefStringBuilder();
+    @Nonnull
+    final com.simiacryptus.ref.wrappers.RefStringBuilder builder = new com.simiacryptus.ref.wrappers.RefStringBuilder();
     builder.append(getClass().getSimpleName());
     builder.append("/");
     builder.append(this.key);
@@ -177,9 +176,7 @@ class DoubleBuffer<K> extends ReferenceCountingBase {
     }
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  DoubleBuffer<K> addRef() {
+  public @Override @SuppressWarnings("unused") DoubleBuffer<K> addRef() {
     return (DoubleBuffer<K>) super.addRef();
   }
 }

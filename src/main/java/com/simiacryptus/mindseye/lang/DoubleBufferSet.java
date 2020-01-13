@@ -33,8 +33,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public abstract @RefAware
-class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
+public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
   static final Logger log = LoggerFactory.getLogger(DoubleBufferSet.class);
 
   @Nonnull
@@ -70,16 +69,14 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBas
     return RefCollections.unmodifiableMap(RefUtil.addRef(map));
   }
 
-  public static @SuppressWarnings("unused")
-  DoubleBufferSet[] addRefs(DoubleBufferSet[] array) {
+  public static @SuppressWarnings("unused") DoubleBufferSet[] addRefs(DoubleBufferSet[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRef)
         .toArray((x) -> new DoubleBufferSet[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  DoubleBufferSet[][] addRefs(DoubleBufferSet[][] array) {
+  public static @SuppressWarnings("unused") DoubleBufferSet[][] addRefs(DoubleBufferSet[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRefs)
@@ -112,7 +109,8 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBas
 
   @Nonnull
   public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
-    @Nonnull final DoubleBufferSet<K, T> parent = this.addRef();
+    @Nonnull
+    final DoubleBufferSet<K, T> parent = this.addRef();
     RefHashSet<Map.Entry<K, T>> temp_15_0009 = map.entrySet();
     RefStream<Map.Entry<K, T>> stream = temp_15_0009.stream();
     if (null != temp_15_0009)
@@ -168,9 +166,7 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBas
     //    map.clear();
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  DoubleBufferSet<K, T> addRef() {
+  public @Override @SuppressWarnings("unused") DoubleBufferSet<K, T> addRef() {
     return (DoubleBufferSet<K, T>) super.addRef();
   }
 
@@ -194,46 +190,35 @@ class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBas
     }
   }
 
-  protected static @RefAware
-  class Delegate<K, T extends DoubleBuffer<K>> extends DoubleBufferSet<K, T> {
+  protected static class Delegate<K, T extends DoubleBuffer<K>> extends DoubleBufferSet<K, T> {
     private final DoubleBufferSet<K, T> parent;
 
     public Delegate(final DoubleBufferSet<K, T> parent) {
       this(parent, new RefHashMap<>());
-      if (null != parent)
-        parent.freeRef();
     }
 
     public Delegate(final DoubleBufferSet<K, T> parent, @Nonnull final RefMap<K, T> newMap) {
       super(newMap);
-      newMap.freeRef();
-      {
-        DoubleBufferSet<K, T> temp_15_0001 = parent == null ? null : parent.addRef();
-        this.parent = temp_15_0001 == null ? null : temp_15_0001.addRef();
-        if (null != temp_15_0001)
-          temp_15_0001.freeRef();
-      }
+      DoubleBufferSet<K, T> temp_15_0001 = parent == null ? null : parent.addRef();
+      this.parent = temp_15_0001 == null ? null : temp_15_0001.addRef();
+      if (null != temp_15_0001)
+        temp_15_0001.freeRef();
       if (null != parent)
         parent.freeRef();
     }
 
-    public static @SuppressWarnings("unused")
-    Delegate[] addRefs(Delegate[] array) {
+    public static @SuppressWarnings("unused") Delegate[] addRefs(Delegate[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Delegate::addRef)
-          .toArray((x) -> new Delegate[x]);
+      return Arrays.stream(array).filter((x) -> x != null).map(Delegate::addRef).toArray((x) -> new Delegate[x]);
     }
 
-    public @SuppressWarnings("unused")
-    void _free() {
+    public @SuppressWarnings("unused") void _free() {
       if (null != parent)
         parent.freeRef();
     }
 
-    public @Override
-    @SuppressWarnings("unused")
-    Delegate<K, T> addRef() {
+    public @Override @SuppressWarnings("unused") Delegate<K, T> addRef() {
       return (Delegate<K, T>) super.addRef();
     }
 

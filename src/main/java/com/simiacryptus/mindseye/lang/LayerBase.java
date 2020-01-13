@@ -31,8 +31,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public abstract @RefAware
-class LayerBase extends RegisteredObjectBase implements Layer {
+public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
   protected boolean frozen = false;
@@ -83,20 +82,16 @@ class LayerBase extends RegisteredObjectBase implements Layer {
     return frozen;
   }
 
-  public static @SuppressWarnings("unused")
-  LayerBase[] addRefs(LayerBase[] array) {
+  public static @SuppressWarnings("unused") LayerBase[] addRefs(LayerBase[] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef)
-        .toArray((x) -> new LayerBase[x]);
+    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef).toArray((x) -> new LayerBase[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  LayerBase[][] addRefs(LayerBase[][] array) {
+  public static @SuppressWarnings("unused") LayerBase[][] addRefs(LayerBase[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs)
-        .toArray((x) -> new LayerBase[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs).toArray((x) -> new LayerBase[x][]);
   }
 
   @Override
@@ -110,7 +105,8 @@ class LayerBase extends RegisteredObjectBase implements Layer {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    @Nullable final Layer other = (Layer) obj;
+    @Nullable
+    final Layer other = (Layer) obj;
     if (getId() == null) {
       boolean temp_45_0001 = other.getId() == null;
       if (null != other)
@@ -151,9 +147,7 @@ class LayerBase extends RegisteredObjectBase implements Layer {
 
   }
 
-  public @Override
-  @SuppressWarnings("unused")
-  LayerBase addRef() {
+  public @Override @SuppressWarnings("unused") LayerBase addRef() {
     return (LayerBase) super.addRef();
   }
 

@@ -30,13 +30,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.UUID;
 
-public @RefAware
-interface DAGNode extends Serializable, ReferenceCounting {
+public interface DAGNode extends Serializable, ReferenceCounting {
   UUID getId();
 
   @Nonnull
   default DAGNode[] getInputs() {
-    return new DAGNode[]{};
+    return new DAGNode[] {};
   }
 
   @Nullable
@@ -46,19 +45,16 @@ interface DAGNode extends Serializable, ReferenceCounting {
 
   DAGNetwork getNetwork();
 
-  public static @SuppressWarnings("unused")
-  DAGNode[] addRefs(DAGNode[] array) {
+  public static @SuppressWarnings("unused") DAGNode[] addRefs(DAGNode[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
   }
 
-  public static @SuppressWarnings("unused")
-  DAGNode[][] addRefs(DAGNode[][] array) {
+  public static @SuppressWarnings("unused") DAGNode[][] addRefs(DAGNode[][] array) {
     if (array == null)
       return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs)
-        .toArray((x) -> new DAGNode[x][]);
+    return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs).toArray((x) -> new DAGNode[x][]);
   }
 
   @Nullable
