@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import org.slf4j.Logger;
@@ -52,13 +51,17 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return id;
   }
 
-  public static @SuppressWarnings("unused") LazyResult[] addRefs(LazyResult[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LazyResult[] addRefs(@Nullable LazyResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef).toArray((x) -> new LazyResult[x]);
   }
 
-  public static @SuppressWarnings("unused") LazyResult[][] addRefs(LazyResult[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LazyResult[][] addRefs(@Nullable LazyResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs).toArray((x) -> new LazyResult[x][]);
@@ -82,16 +85,13 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
       if (null != singleton) {
         try {
           @Nullable
-          Result result = eval(context == null ? null : context.addRef());
+          Result result = eval(context.addRef());
           if (null == result) {
-            if (null != result)
-              result.freeRef();
             context.freeRef();
             throw new IllegalStateException();
           }
-          singleton.set(new CountingResult(result == null ? null : result.addRef()));
-          if (null != result)
-            result.freeRef();
+          singleton.set(new CountingResult(result.addRef()));
+          result.freeRef();
         } catch (Throwable e) {
           log.warn("Error execuing network component", e);
           singleton.set(e);
@@ -103,36 +103,27 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
       context.freeRef();
       throw new IllegalStateException();
     }
-    Object obj = null == resultSupplier ? null : resultSupplier.get();
+    Object obj = resultSupplier.get();
     if (obj != null && obj instanceof Throwable) {
       context.freeRef();
       throw new RuntimeException((Throwable) obj);
     }
-    if (obj != null && obj instanceof RuntimeException) {
-      context.freeRef();
-      throw ((RuntimeException) obj);
-    }
     @Nullable
     CountingResult nnResult = (CountingResult) obj;
     if (null == nnResult) {
-      if (null != nnResult)
-        nnResult.freeRef();
       context.freeRef();
       throw new IllegalStateException();
     }
     CountingResult.CountingAccumulator temp_56_0001 = nnResult.getAccumulator();
     int references = temp_56_0001.increment();
-    if (null != temp_56_0001)
-      temp_56_0001.freeRef();
+    temp_56_0001.freeRef();
     if (references <= 0) {
-      if (null != nnResult)
-        nnResult.freeRef();
+      nnResult.freeRef();
       context.freeRef();
       throw new IllegalStateException();
     }
     if (expectedCount >= 0 && references > expectedCount) {
-      if (null != nnResult)
-        nnResult.freeRef();
+      nnResult.freeRef();
       context.freeRef();
       throw new IllegalStateException();
     }
@@ -145,10 +136,14 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return nnResult;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") LazyResult addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  LazyResult addRef() {
     return (LazyResult) super.addRef();
   }
 

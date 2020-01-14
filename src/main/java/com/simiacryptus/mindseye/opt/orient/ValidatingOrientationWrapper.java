@@ -26,18 +26,19 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursorBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
 public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
+  @Nullable
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
-  public ValidatingOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
+  public ValidatingOrientationWrapper(@Nullable final OrientationStrategy<? extends LineSearchCursor> inner) {
     OrientationStrategy<? extends LineSearchCursor> temp_26_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_26_0001 == null ? null : temp_26_0001.addRef();
     if (null != temp_26_0001)
@@ -46,16 +47,20 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       inner.freeRef();
   }
 
-  public static @SuppressWarnings("unused") ValidatingOrientationWrapper[] addRefs(
-      ValidatingOrientationWrapper[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ValidatingOrientationWrapper[] addRefs(
+      @Nullable ValidatingOrientationWrapper[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRef)
         .toArray((x) -> new ValidatingOrientationWrapper[x]);
   }
 
-  public static @SuppressWarnings("unused") ValidatingOrientationWrapper[][] addRefs(
-      ValidatingOrientationWrapper[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ValidatingOrientationWrapper[][] addRefs(
+      @Nullable ValidatingOrientationWrapper[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRefs)
@@ -64,8 +69,9 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
   @Nonnull
   @Override
-  public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-      final TrainingMonitor monitor) {
+  public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
+                                 final TrainingMonitor monitor) {
+    assert inner != null;
     final LineSearchCursor cursor = inner.orient(subject == null ? null : subject.addRef(),
         measurement == null ? null : measurement.addRef(), monitor);
     if (null != measurement)
@@ -81,6 +87,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
   @Override
   public void reset() {
+    assert inner != null;
     inner.reset();
   }
 
@@ -89,14 +96,18 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       inner.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") ValidatingOrientationWrapper addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ValidatingOrientationWrapper addRef() {
     return (ValidatingOrientationWrapper) super.addRef();
   }
 
   private static class ValidatingLineSearchCursor extends LineSearchCursorBase {
+    @Nullable
     private final LineSearchCursor cursor;
 
-    public ValidatingLineSearchCursor(final LineSearchCursor cursor) {
+    public ValidatingLineSearchCursor(@Nullable final LineSearchCursor cursor) {
       LineSearchCursor temp_26_0002 = cursor == null ? null : cursor.addRef();
       this.cursor = temp_26_0002 == null ? null : temp_26_0002.addRef();
       if (null != temp_26_0002)
@@ -107,10 +118,13 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
     @Override
     public CharSequence getDirectionType() {
+      assert cursor != null;
       return cursor.getDirectionType();
     }
 
-    public static @SuppressWarnings("unused") ValidatingLineSearchCursor[] addRefs(ValidatingLineSearchCursor[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    ValidatingLineSearchCursor[] addRefs(@Nullable ValidatingLineSearchCursor[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(ValidatingLineSearchCursor::addRef)
@@ -120,21 +134,26 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     @Override
     public PointSample afterStep(@Nonnull PointSample step) {
       super.afterStep(step.addRef());
-      return cursor.afterStep(step == null ? null : step);
+      assert cursor != null;
+      return cursor.afterStep(step);
     }
 
     @Override
     public DeltaSet<UUID> position(final double alpha) {
+      assert cursor != null;
       return cursor.position(alpha);
     }
 
     @Override
     public void reset() {
+      assert cursor != null;
       cursor.reset();
     }
 
+    @javax.annotation.Nullable
     @Override
     public LineSearchPoint step(final double alpha, @Nonnull final TrainingMonitor monitor) {
+      assert cursor != null;
       final LineSearchPoint primaryPoint = cursor.step(alpha, monitor);
       //monitor.log(String.format("f(%s) = %s",alphaList, primaryPoint.point.value));
       test(monitor, primaryPoint == null ? null : primaryPoint.addRef(), 1e-3);
@@ -144,21 +163,24 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
-        final double probeSize) {
+                     final double probeSize) {
+      assert primaryPoint.point != null;
       final double alpha = primaryPoint.point.rate;
       double probeAlpha = alpha + primaryPoint.point.sum * probeSize / primaryPoint.derivative;
       if (!Double.isFinite(probeAlpha) || probeAlpha == alpha) {
         probeAlpha = alpha + probeSize;
       }
+      assert cursor != null;
       final LineSearchPoint probePoint = cursor.step(probeAlpha, monitor);
+      assert probePoint != null;
+      assert probePoint.point != null;
       final double dy = probePoint.point.sum - primaryPoint.point.sum;
       final double dx = probeAlpha - alpha;
       final double measuredDerivative = dy / dx;
       monitor.log(RefString.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative,
           probePoint.derivative, probeSize));
       primaryPoint.freeRef();
-      if (null != probePoint)
-        probePoint.freeRef();
+      probePoint.freeRef();
     }
 
     public void _free() {
@@ -166,7 +188,10 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
         cursor.freeRef();
     }
 
-    public @Override @SuppressWarnings("unused") ValidatingLineSearchCursor addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    ValidatingLineSearchCursor addRef() {
       return (ValidatingLineSearchCursor) super.addRef();
     }
   }

@@ -21,21 +21,23 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefAware;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
 final class InputNode extends LazyResult {
+  @Nullable
   private final DAGNetwork dagNetwork;
 
   InputNode(final DAGNetwork dagNetwork) {
     this(dagNetwork, null);
   }
 
-  public InputNode(final DAGNetwork dagNetwork, final UUID key) {
+  public InputNode(@Nullable final DAGNetwork dagNetwork, final UUID key) {
     super(key);
     DAGNetwork temp_10_0001 = dagNetwork == null ? null : dagNetwork.addRef();
     this.dagNetwork = temp_10_0001 == null ? null : temp_10_0001.addRef();
@@ -45,37 +47,45 @@ final class InputNode extends LazyResult {
       dagNetwork.freeRef();
   }
 
+  @Nullable
   @Override
   public <T extends Layer> T getLayer() {
     return null;
   }
 
   @Override
-  public void setLayer(final Layer layer) {
+  public void setLayer(@Nullable final Layer layer) {
     if (null != layer)
       layer.freeRef();
     throw new IllegalStateException();
   }
 
+  @Nullable
   @Override
   public DAGNetwork getNetwork() {
     return this.dagNetwork;
   }
 
-  public static @SuppressWarnings("unused") InputNode[] addRefs(InputNode[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  InputNode[] addRefs(@Nullable InputNode[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef).toArray((x) -> new InputNode[x]);
   }
 
-  public static @SuppressWarnings("unused") InputNode[][] addRefs(InputNode[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  InputNode[][] addRefs(@Nullable InputNode[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs).toArray((x) -> new InputNode[x][]);
   }
 
+  @NotNull
   public DAGNode add(@Nonnull final Layer nextHead) {
-    InnerNode temp_10_0002 = dagNetwork.add(nextHead == null ? null : nextHead, InputNode.this.addRef());
+    assert dagNetwork != null;
+    InnerNode temp_10_0002 = dagNetwork.add(nextHead, InputNode.this.addRef());
     return temp_10_0002;
   }
 
@@ -85,13 +95,17 @@ final class InputNode extends LazyResult {
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") InputNode addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  InputNode addRef() {
     return (InputNode) super.addRef();
   }
 
   @Override
   protected Result eval(@Nonnull final GraphEvaluationContext context) {
     assertAlive();
+    assert this.dagNetwork != null;
     this.dagNetwork.assertAlive();
     synchronized (context) {
       CountingResult temp_10_0003 = context.calculated.get(id).get();

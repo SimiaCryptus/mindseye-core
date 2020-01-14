@@ -30,12 +30,12 @@ import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.opt.line.*;
 import com.simiacryptus.mindseye.opt.orient.LBFGS;
 import com.simiacryptus.mindseye.opt.orient.OrientationStrategy;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.RefSystem;
 import com.simiacryptus.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,17 +55,19 @@ public class IterativeTrainer extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(IterativeTrainer.class);
 
   private final RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new RefHashMap<>();
+  @Nullable
   private final Trainable subject;
   private AtomicInteger currentIteration = new AtomicInteger(0);
   private int iterationsPerSample = 100;
   private Function<CharSequence, LineSearchStrategy> lineSearchFactory = (s) -> new ArmijoWolfeSearch();
   private int maxIterations = Integer.MAX_VALUE;
   private TrainingMonitor monitor = new TrainingMonitor();
+  @Nullable
   private OrientationStrategy<?> orientation = new LBFGS();
   private double terminateThreshold;
   private Duration timeout;
 
-  public IterativeTrainer(final Trainable subject) {
+  public IterativeTrainer(@Nullable final Trainable subject) {
     Trainable temp_18_0001 = subject == null ? null : subject.addRef();
     this.subject = temp_18_0001 == null ? null : temp_18_0001.addRef();
     if (null != temp_18_0001)
@@ -126,12 +128,13 @@ public class IterativeTrainer extends ReferenceCountingBase {
     return this.addRef();
   }
 
+  @Nullable
   public OrientationStrategy<?> getOrientation() {
     return orientation == null ? null : orientation.addRef();
   }
 
   @Nonnull
-  public IterativeTrainer setOrientation(final OrientationStrategy<?> orientation) {
+  public IterativeTrainer setOrientation(@Nullable final OrientationStrategy<?> orientation) {
     OrientationStrategy<?> temp_18_0002 = orientation == null ? null : orientation.addRef();
     if (null != this.orientation)
       this.orientation.freeRef();
@@ -163,14 +166,18 @@ public class IterativeTrainer extends ReferenceCountingBase {
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused") IterativeTrainer[] addRefs(IterativeTrainer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  IterativeTrainer[] addRefs(@Nullable IterativeTrainer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRef)
         .toArray((x) -> new IterativeTrainer[x]);
   }
 
-  public static @SuppressWarnings("unused") IterativeTrainer[][] addRefs(IterativeTrainer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  IterativeTrainer[][] addRefs(@Nullable IterativeTrainer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(IterativeTrainer::addRefs)
@@ -181,26 +188,23 @@ public class IterativeTrainer extends ReferenceCountingBase {
   public PointSample measure() {
     @Nullable
     PointSample currentPoint = null;
+    assert subject != null;
     currentPoint = subject.measure(monitor);
     RefMap<UUID, Delta<UUID>> temp_18_0004 = currentPoint.delta.getMap();
     if (0 >= temp_18_0004.size()) {
-      if (null != currentPoint)
-        currentPoint.freeRef();
+      currentPoint.freeRef();
       throw new AssertionError("Nothing to optimize");
     }
-    if (null != temp_18_0004)
-      temp_18_0004.freeRef();
+    temp_18_0004.freeRef();
     double mean = currentPoint.getMean();
     if (!Double.isFinite(mean)) {
-      if (monitor.onStepFail(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()))) {
+      if (monitor.onStepFail(new Step(currentPoint.addRef(), currentIteration.get()))) {
         monitor.log(RefString.format("Retrying iteration %s", currentIteration.get()));
-        if (null != currentPoint)
-          currentPoint.freeRef();
+        currentPoint.freeRef();
         return measure();
       } else {
         monitor.log(RefString.format("Optimization terminated %s", currentIteration.get()));
-        if (null != currentPoint)
-          currentPoint.freeRef();
+        currentPoint.freeRef();
         throw new IterativeStopException(Double.toString(mean));
       }
 
@@ -209,9 +213,11 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   public void shuffle() {
-    long seed = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+    long seed = RefSystem.nanoTime();
     monitor.log(RefString.format("Reset training subject: " + seed));
+    assert orientation != null;
     orientation.reset();
+    assert subject != null;
     subject.reseed(seed);
     Layer layer = subject.getLayer();
     if (layer instanceof DAGNetwork) {
@@ -221,20 +227,22 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   public double run() {
-    long startTime = com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis();
+    long startTime = RefSystem.currentTimeMillis();
     final long timeoutMs = startTime + timeout.toMillis();
-    long lastIterationTime = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+    long lastIterationTime = RefSystem.nanoTime();
     shuffle();
     @Nullable
     PointSample currentPoint = measure();
     try {
-      mainLoop: while (timeoutMs > com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis()
+      assert currentPoint != null;
+mainLoop:
+      while (timeoutMs > RefSystem.currentTimeMillis()
           && terminateThreshold < currentPoint.getMean() && maxIterations > currentIteration.get()) {
         shuffle();
         currentPoint = null;
         currentPoint = measure();
         for (int subiteration = 0; subiteration < iterationsPerSample || iterationsPerSample <= 0; subiteration++) {
-          if (timeoutMs < com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis()) {
+          if (timeoutMs < RefSystem.currentTimeMillis()) {
             break mainLoop;
           }
           if (currentIteration.incrementAndGet() > maxIterations) {
@@ -242,39 +250,40 @@ public class IterativeTrainer extends ReferenceCountingBase {
           }
           currentPoint = null;
           currentPoint = measure();
-          @Nullable
-          final PointSample _currentPoint = currentPoint == null ? null : currentPoint.addRef();
-          @Nonnull
-          final TimedResult<LineSearchCursor> timedOrientation = TimedResult.time(RefUtil.wrapInterface(
-              (UncheckedSupplier<LineSearchCursor>) () -> orientation.orient(subject == null ? null : subject.addRef(),
-                  _currentPoint == null ? null : _currentPoint.addRef(), monitor),
+          @Nullable final PointSample _currentPoint = currentPoint == null ? null : currentPoint.addRef();
+          @Nonnull final TimedResult<LineSearchCursor> timedOrientation = TimedResult.time(RefUtil.wrapInterface(
+              (UncheckedSupplier<LineSearchCursor>) () -> {
+                assert orientation != null;
+                return orientation.orient(subject == null ? null : subject.addRef(),
+                    _currentPoint == null ? null : _currentPoint.addRef(), monitor);
+              },
               _currentPoint == null ? null : _currentPoint.addRef()));
           if (null != _currentPoint)
             _currentPoint.freeRef();
           final LineSearchCursor direction = timedOrientation.result.addRef();
           final CharSequence directionType = direction.getDirectionType();
-          @Nullable
-          final PointSample previous = currentPoint == null ? null : currentPoint.addRef();
-          @Nonnull
-          final TimedResult<PointSample> timedLineSearch = TimedResult.time(RefUtil.wrapInterface(
-              (UncheckedSupplier<PointSample>) () -> step(direction == null ? null : direction.addRef(), directionType,
+          @Nullable final PointSample previous = currentPoint == null ? null : currentPoint.addRef();
+          @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult.time(RefUtil.wrapInterface(
+              (UncheckedSupplier<PointSample>) () -> step(direction.addRef(), directionType,
                   previous == null ? null : previous.addRef()),
-              previous == null ? null : previous.addRef(), direction == null ? null : direction.addRef()));
+              previous == null ? null : previous.addRef(), direction.addRef()));
           currentPoint = null;
           currentPoint = timedLineSearch.result.addRef();
-          final long now = com.simiacryptus.ref.wrappers.RefSystem.nanoTime();
+          final long now = RefSystem.nanoTime();
           final CharSequence perfString = RefString.format("Total: %.4f; Orientation: %.4f; Line Search: %.4f",
               (now - lastIterationTime) / 1e9, timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9);
           lastIterationTime = now;
+          assert previous != null;
           monitor.log(RefString.format("Fitness changed from %s to %s", previous.getMean(), currentPoint.getMean()));
           if (previous.getMean() <= currentPoint.getMean()) {
             if (previous.getMean() < currentPoint.getMean()) {
               monitor.log(RefString.format("Resetting Iteration %s", perfString));
               currentPoint = null;
               LineSearchPoint temp_18_0005 = direction.step(0, monitor);
+              assert temp_18_0005 != null;
+              assert temp_18_0005.point != null;
               currentPoint = temp_18_0005.point.addRef();
-              if (null != temp_18_0005)
-                temp_18_0005.freeRef();
+              temp_18_0005.freeRef();
             } else {
               monitor.log(RefString.format("Static Iteration %s", perfString));
             }
@@ -283,7 +292,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
                 RefString.format("Iteration %s failed. Error: %s", currentIteration.get(), currentPoint.getMean()));
             monitor.log(RefString.format("Previous Error: %s -> %s", previous.getRate(), previous.getMean()));
             if (monitor
-                .onStepFail(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()))) {
+                .onStepFail(new Step(currentPoint.addRef(), currentIteration.get()))) {
               monitor.log(RefString.format("Retrying iteration %s", currentIteration.get()));
 
               break;
@@ -295,13 +304,12 @@ public class IterativeTrainer extends ReferenceCountingBase {
             monitor.log(RefString.format("Iteration %s complete. Error: %s " + perfString, currentIteration.get(),
                 currentPoint.getMean()));
           }
-          monitor.onStepComplete(new Step(currentPoint == null ? null : currentPoint.addRef(), currentIteration.get()));
-          if (null != previous)
-            previous.freeRef();
-          if (null != direction)
-            direction.freeRef();
+          monitor.onStepComplete(new Step(currentPoint.addRef(), currentIteration.get()));
+          previous.freeRef();
+          direction.freeRef();
         }
       }
+      assert subject != null;
       Layer subjectLayer = subject.getLayer();
       if (subjectLayer instanceof DAGNetwork) {
         ((DAGNetwork) subjectLayer).clearNoise();
@@ -317,7 +325,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
     } finally {
       monitor.log(RefString.format("Final threshold in iteration %s: %s (> %s) after %.3fs (< %.3fs)",
           currentIteration.get(), null == currentPoint ? null : currentPoint.getMean(), terminateThreshold,
-          (com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis() - startTime) / 1000.0,
+          (RefSystem.currentTimeMillis() - startTime) / 1000.0,
           timeout.toMillis() / 1000.0));
     }
   }
@@ -333,8 +341,9 @@ public class IterativeTrainer extends ReferenceCountingBase {
     return setTimeout(number, Util.cvt(units));
   }
 
+  @Nullable
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType,
-      @Nonnull final PointSample previous) {
+                          @Nonnull final PointSample previous) {
     PointSample currentPoint;
     LineSearchStrategy lineSearchStrategy;
     if (lineSearchStrategyMap.containsKey(directionType)) {
@@ -344,10 +353,10 @@ public class IterativeTrainer extends ReferenceCountingBase {
       lineSearchStrategy = lineSearchFactory.apply(direction.getDirectionType());
       lineSearchStrategyMap.put(directionType, lineSearchStrategy);
     }
-    @Nonnull
-    final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction == null ? null : direction,
-        previous == null ? null : previous, monitor);
-    RefUtil.freeRef(lineSearchStrategy.step(wrapped == null ? null : wrapped.addRef(), monitor));
+    @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction,
+        previous, monitor);
+    assert lineSearchStrategy != null;
+    RefUtil.freeRef(lineSearchStrategy.step(wrapped.addRef(), monitor));
     currentPoint = wrapped.getBest(monitor);
     wrapped.freeRef();
     return currentPoint;
@@ -359,11 +368,13 @@ public class IterativeTrainer extends ReferenceCountingBase {
     orientation = null;
     if (null != subject)
       subject.freeRef();
-    if (null != lineSearchStrategyMap)
-      lineSearchStrategyMap.freeRef();
+    lineSearchStrategyMap.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") IterativeTrainer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  IterativeTrainer addRef() {
     return (IterativeTrainer) super.addRef();
   }
 }

@@ -38,17 +38,15 @@ public class TensorTest {
   @Nullable
   public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
-    @Nullable
-    final Tensor tensor = Tensor.fromJson(json, null);
+    @Nullable final Tensor tensor = Tensor.fromJson(json, null);
+    assert tensor != null;
     RefAssert.assertEquals(json, tensor.getJson(null, Tensor.json_precision));
-    if (null != tensor)
-      tensor.freeRef();
+    tensor.freeRef();
   }
 
   public void test(@Nonnull final Tensor t) {
-    @Nonnull
-    final JsonElement json = t.getJson(null, Tensor.json_precision);
-    RefAssert.assertEquals(Tensor.fromJson(json, null), t == null ? null : t);
+    @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
+    RefAssert.assertEquals(Tensor.fromJson(json, null), t);
     parse(json.toString());
   }
 
@@ -59,13 +57,11 @@ public class TensorTest {
     final RefList<CharSequence> coordinates = temp_52_0001.coordStream(true)
         .map(c -> RefString.format("%s - %s", c.getIndex(), RefArrays.toString(c.getCoords())))
         .collect(RefCollectors.toList());
-    if (null != temp_52_0001)
-      temp_52_0001.freeRef();
+    temp_52_0001.freeRef();
     for (final CharSequence c : coordinates) {
       log.info(c.toString());
     }
-    if (null != coordinates)
-      coordinates.freeRef();
+    coordinates.freeRef();
   }
   //
   //  /**
@@ -89,12 +85,10 @@ public class TensorTest {
   public void testToJson() {
     Tensor temp_52_0002 = new Tensor(3, 3, 1);
     test(temp_52_0002.map(v -> Math.random()));
-    if (null != temp_52_0002)
-      temp_52_0002.freeRef();
+    temp_52_0002.freeRef();
     Tensor temp_52_0003 = new Tensor(1, 3, 3);
     test(temp_52_0003.map(v -> Math.random()));
-    if (null != temp_52_0003)
-      temp_52_0003.freeRef();
+    temp_52_0003.freeRef();
   }
 
 }

@@ -23,26 +23,27 @@ import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
 public class SimpleLineSearchCursor extends LineSearchCursorBase {
+  @Nullable
   public final DeltaSet<UUID> direction;
   @Nonnull
   public final PointSample origin;
+  @Nullable
   public final Trainable subject;
   private String type = "";
 
-  public SimpleLineSearchCursor(final Trainable subject, @Nonnull final PointSample origin,
-      final DeltaSet<UUID> direction) {
+  public SimpleLineSearchCursor(@Nullable final Trainable subject, @Nonnull final PointSample origin,
+                                @Nullable final DeltaSet<UUID> direction) {
     PointSample temp_25_0001 = origin.copyFull();
-    this.origin = temp_25_0001 == null ? null : temp_25_0001.addRef();
-    if (null != temp_25_0001)
-      temp_25_0001.freeRef();
+    this.origin = temp_25_0001.addRef();
+    temp_25_0001.freeRef();
     origin.freeRef();
     DeltaSet<UUID> temp_25_0002 = direction == null ? null : direction.addRef();
     this.direction = temp_25_0002 == null ? null : temp_25_0002.addRef();
@@ -69,14 +70,18 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused") SimpleLineSearchCursor[] addRefs(SimpleLineSearchCursor[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SimpleLineSearchCursor[] addRefs(@Nullable SimpleLineSearchCursor[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRef)
         .toArray((x) -> new SimpleLineSearchCursor[x]);
   }
 
-  public static @SuppressWarnings("unused") SimpleLineSearchCursor[][] addRefs(SimpleLineSearchCursor[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SimpleLineSearchCursor[][] addRefs(@Nullable SimpleLineSearchCursor[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRefs)
@@ -86,6 +91,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
   @Nonnull
   @Override
   public DeltaSet<UUID> position(final double alpha) {
+    assert direction != null;
     return direction.scale(alpha);
   }
 
@@ -94,21 +100,23 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     RefUtil.freeRef(origin.restore());
   }
 
+  @Nullable
   @Override
   public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
     if (!Double.isFinite(alpha))
       throw new IllegalArgumentException();
     reset();
     if (0.0 != alpha) {
+      assert direction != null;
       direction.accumulate(alpha);
     }
+    assert subject != null;
     PointSample temp_25_0005 = subject.measure(monitor);
-    @Nonnull
-    final PointSample sample = afterStep(temp_25_0005.setRate(alpha));
-    if (null != temp_25_0005)
-      temp_25_0005.freeRef();
+    @Nonnull final PointSample sample = afterStep(temp_25_0005.setRate(alpha));
+    temp_25_0005.freeRef();
+    assert direction != null;
     final double dot = direction.dot(sample.delta.addRef());
-    LineSearchPoint temp_25_0004 = new LineSearchPoint(sample == null ? null : sample, dot);
+    LineSearchPoint temp_25_0004 = new LineSearchPoint(sample, dot);
     return temp_25_0004;
   }
 
@@ -120,7 +128,10 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
       direction.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") SimpleLineSearchCursor addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SimpleLineSearchCursor addRef() {
     return (SimpleLineSearchCursor) super.addRef();
   }
 }

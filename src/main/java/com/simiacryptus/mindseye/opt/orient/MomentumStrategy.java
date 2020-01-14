@@ -27,24 +27,25 @@ import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.util.ArrayUtil;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
+  @Nullable
   public final OrientationStrategy<SimpleLineSearchCursor> inner;
   @Nonnull
   DeltaSet<UUID> prevDelta = new DeltaSet<UUID>();
   private double carryOver = 0.1;
 
-  public MomentumStrategy(final OrientationStrategy<SimpleLineSearchCursor> inner) {
+  public MomentumStrategy(@Nullable final OrientationStrategy<SimpleLineSearchCursor> inner) {
     OrientationStrategy<SimpleLineSearchCursor> temp_05_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_05_0001 == null ? null : temp_05_0001.addRef();
     if (null != temp_05_0001)
@@ -63,14 +64,18 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused") MomentumStrategy[] addRefs(MomentumStrategy[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  MomentumStrategy[] addRefs(@Nullable MomentumStrategy[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRef)
         .toArray((x) -> new MomentumStrategy[x]);
   }
 
-  public static @SuppressWarnings("unused") MomentumStrategy[][] addRefs(MomentumStrategy[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  MomentumStrategy[][] addRefs(@Nullable MomentumStrategy[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRefs)
@@ -79,40 +84,45 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
 
   @Nonnull
   @Override
-  public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      final TrainingMonitor monitor) {
+  public SimpleLineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
+                                       final TrainingMonitor monitor) {
+    assert inner != null;
     final LineSearchCursor orient = inner.orient(subject == null ? null : subject.addRef(),
-        measurement == null ? null : measurement.addRef(), monitor);
+        measurement.addRef(), monitor);
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
+    assert ((SimpleLineSearchCursor) orient).direction != null;
     final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) orient).direction.addRef();
-    if (null != orient)
-      orient.freeRef();
-    @Nonnull
-    final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
+    orient.freeRef();
+    @Nonnull final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
     RefMap<UUID, Delta<UUID>> temp_05_0004 = direction.getMap();
     temp_05_0004.forEach(RefUtil.wrapInterface((BiConsumer<? super UUID, ? super Delta<UUID>>) (layer, delta) -> {
       final DoubleBuffer<UUID> prevBuffer = prevDelta.get(layer, delta.target);
       Delta<UUID> temp_05_0005 = newDelta.get(layer, delta.target);
+      assert prevBuffer != null;
+      assert temp_05_0005 != null;
       RefUtil.freeRef(temp_05_0005
           .addInPlace(ArrayUtil.add(ArrayUtil.multiply(prevBuffer.getDelta(), carryOver), delta.getDelta())));
-      if (null != temp_05_0005)
-        temp_05_0005.freeRef();
-      if (null != prevBuffer)
-        prevBuffer.freeRef();
-      if (null != delta)
-        delta.freeRef();
-    }, newDelta == null ? null : newDelta.addRef()));
-    if (null != temp_05_0004)
-      temp_05_0004.freeRef();
-    if (null != direction)
-      direction.freeRef();
-    DeltaSet<UUID> temp_05_0002 = newDelta == null ? null : newDelta.addRef();
-    if (null != prevDelta)
-      prevDelta.freeRef();
-    prevDelta = temp_05_0002 == null ? null : temp_05_0002.addRef();
-    if (null != temp_05_0002)
-      temp_05_0002.freeRef();
+      temp_05_0005.freeRef();
+      prevBuffer.freeRef();
+      delta.freeRef();
+    }, newDelta.addRef()));
+    temp_05_0004.freeRef();
+    direction.freeRef();
+    DeltaSet<UUID> temp_05_0002 = newDelta.addRef();
+    prevDelta.freeRef();
+    prevDelta = temp_05_0002.addRef();
+    temp_05_0002.freeRef();
     SimpleLineSearchCursor temp_05_0003 = new SimpleLineSearchCursor(subject == null ? null : subject.addRef(),
-        measurement == null ? null : measurement, newDelta == null ? null : newDelta);
+        measurement, newDelta);
     if (null != subject)
       subject.freeRef();
     return temp_05_0003;
@@ -120,18 +130,21 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
 
   @Override
   public void reset() {
+    assert inner != null;
     inner.reset();
   }
 
   public void _free() {
-    if (null != prevDelta)
-      prevDelta.freeRef();
+    prevDelta.freeRef();
     prevDelta = null;
     if (null != inner)
       inner.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") MomentumStrategy addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  MomentumStrategy addRef() {
     return (MomentumStrategy) super.addRef();
   }
 }

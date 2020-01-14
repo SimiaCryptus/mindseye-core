@@ -19,10 +19,10 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,11 +51,10 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     collect.forEach((k, v) -> {
       assert null != k;
       assert null != v;
-      if (null != v)
-        v.freeRef();
+      v.freeRef();
     });
     synchronized (collect) {
-      map.putAll(collect == null ? null : collect.addRef());
+      map.putAll(collect.addRef());
       map.forEach((k, v) -> {
         if (null != v)
           v.freeRef();
@@ -69,14 +68,18 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     return RefCollections.unmodifiableMap(RefUtil.addRef(map));
   }
 
-  public static @SuppressWarnings("unused") DoubleBufferSet[] addRefs(DoubleBufferSet[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DoubleBufferSet[] addRefs(@Nullable DoubleBufferSet[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRef)
         .toArray((x) -> new DoubleBufferSet[x]);
   }
 
-  public static @SuppressWarnings("unused") DoubleBufferSet[][] addRefs(DoubleBufferSet[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DoubleBufferSet[][] addRefs(@Nullable DoubleBufferSet[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRefs)
@@ -88,12 +91,12 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   public DoubleBufferSet<K, T> copy() {
     return map(x -> {
       T temp_15_0002 = (T) x.copy();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_15_0002;
     });
   }
 
+  @javax.annotation.Nullable
   public T get(final K layer, final double[] ptr) {
     final T delta = get(layer, () -> factory(layer, ptr));
     assert delta.key.equals(layer);
@@ -101,6 +104,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
     return delta;
   }
 
+  @javax.annotation.Nullable
   public T get(final K layer, @Nonnull final Tensor ptr) {
     T temp_15_0008 = get(layer, ptr.getData());
     ptr.freeRef();
@@ -109,36 +113,33 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
 
   @Nonnull
   public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
-    @Nonnull
-    final DoubleBufferSet<K, T> parent = this.addRef();
+    @Nonnull final DoubleBufferSet<K, T> parent = this.addRef();
     RefHashSet<Map.Entry<K, T>> temp_15_0009 = map.entrySet();
     RefStream<Map.Entry<K, T>> stream = temp_15_0009.stream();
-    if (null != temp_15_0009)
-      temp_15_0009.freeRef();
+    temp_15_0009.freeRef();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
     final RefMap<K, T> newMap = stream.collect(RefCollectors.toMap(e -> {
       K temp_15_0004 = e.getKey();
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_15_0004;
     }, e -> {
       T temp_15_0010 = e.getValue();
       T temp_15_0005 = mapper.apply(temp_15_0010);
       if (null != temp_15_0010)
         temp_15_0010.freeRef();
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_15_0005;
     }));
-    DoubleBufferSet.Delegate temp_15_0003 = new Delegate(parent == null ? null : parent,
+    DoubleBufferSet.Delegate temp_15_0003 = new Delegate(parent,
         newMap == null ? null : newMap.addRef());
     if (null != newMap)
       newMap.freeRef();
     return temp_15_0003;
   }
 
+  @Nonnull
   public RefStream<T> stream() {
     RefHashSet<T> temp_15_0012 = map.values();
     RefStream<T> temp_15_0011 = temp_15_0012.stream().filter(n -> {
@@ -147,34 +148,29 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
         n.freeRef();
       return temp_15_0006;
     }).distinct().sorted(RefComparator.comparing(y -> {
-      int temp_15_0007 = com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(y.target);
-      if (null != y)
-        y.freeRef();
+      int temp_15_0007 = RefSystem.identityHashCode(y.target);
+      y.freeRef();
       return temp_15_0007;
     }));
-    if (null != temp_15_0012)
-      temp_15_0012.freeRef();
+    temp_15_0012.freeRef();
     return temp_15_0011;
   }
 
   public void _free() {
     map.freeRef();
-    map.forEach((k, v) -> {
-      if (null != v)
-        v.freeRef();
-    });
-    //    map.clear();
   }
 
-  public @Override @SuppressWarnings("unused") DoubleBufferSet<K, T> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  DoubleBufferSet<K, T> addRef() {
     return (DoubleBufferSet<K, T>) super.addRef();
   }
 
   protected abstract T factory(final K layer, final double[] target);
 
+  @NotNull
   private T get(@Nullable final K layer, @Nullable final Supplier<T> factory) {
-    if (null == map)
-      throw new IllegalArgumentException();
     if (null == factory)
       throw new IllegalArgumentException();
     if (null == layer)
@@ -191,13 +187,14 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   protected static class Delegate<K, T extends DoubleBuffer<K>> extends DoubleBufferSet<K, T> {
+    @Nullable
     private final DoubleBufferSet<K, T> parent;
 
     public Delegate(final DoubleBufferSet<K, T> parent) {
       this(parent, new RefHashMap<>());
     }
 
-    public Delegate(final DoubleBufferSet<K, T> parent, @Nonnull final RefMap<K, T> newMap) {
+    public Delegate(@Nullable final DoubleBufferSet<K, T> parent, @Nonnull final RefMap<K, T> newMap) {
       super(newMap);
       DoubleBufferSet<K, T> temp_15_0001 = parent == null ? null : parent.addRef();
       this.parent = temp_15_0001 == null ? null : temp_15_0001.addRef();
@@ -207,23 +204,30 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
         parent.freeRef();
     }
 
-    public static @SuppressWarnings("unused") Delegate[] addRefs(Delegate[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Delegate[] addRefs(@Nullable Delegate[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Delegate::addRef).toArray((x) -> new Delegate[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
       if (null != parent)
         parent.freeRef();
     }
 
-    public @Override @SuppressWarnings("unused") Delegate<K, T> addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Delegate<K, T> addRef() {
       return (Delegate<K, T>) super.addRef();
     }
 
     @Override
     protected T factory(final K layer, final double[] target) {
+      assert parent != null;
       return parent.factory(layer, target);
     }
   }

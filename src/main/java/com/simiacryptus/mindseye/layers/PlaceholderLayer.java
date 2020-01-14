@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -50,7 +49,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
     RefUtil.freeRef(setName(getClass().getSimpleName() + "/" + getId()));
   }
 
-  @Nullable
+  @Nonnull
   @Override
   public UUID getId() {
     assertAlive();
@@ -63,14 +62,18 @@ public final class PlaceholderLayer<T> extends LayerBase {
     return key;
   }
 
-  public static @SuppressWarnings("unused") PlaceholderLayer[] addRefs(PlaceholderLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  PlaceholderLayer[] addRefs(@Nullable PlaceholderLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRef)
         .toArray((x) -> new PlaceholderLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") PlaceholderLayer[][] addRefs(PlaceholderLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  PlaceholderLayer[][] addRefs(@Nullable PlaceholderLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRefs)
@@ -79,7 +82,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
 
   @Nonnull
   @Override
-  public Result eval(final Result... array) {
+  public Result eval(@Nullable final Result... array) {
     if (null != array)
       ReferenceCounting.freeRefs(array);
     throw new UnsupportedOperationException();
@@ -104,7 +107,10 @@ public final class PlaceholderLayer<T> extends LayerBase {
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") PlaceholderLayer<T> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  PlaceholderLayer<T> addRef() {
     return (PlaceholderLayer<T>) super.addRef();
   }
 }

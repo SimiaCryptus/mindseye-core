@@ -22,28 +22,33 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public interface Trainable extends ReferenceCounting {
   @Nonnull
   Layer getLayer();
 
-  public static @SuppressWarnings("unused") Trainable[] addRefs(Trainable[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Trainable[] addRefs(@Nullable Trainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRef).toArray((x) -> new Trainable[x]);
   }
 
-  public static @SuppressWarnings("unused") Trainable[][] addRefs(Trainable[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Trainable[][] addRefs(@Nullable Trainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Trainable::addRefs).toArray((x) -> new Trainable[x][]);
   }
 
+  @Nonnull
   default CachedTrainable<? extends Trainable> cached() {
     return new CachedTrainable<>(this.addRef());
   }

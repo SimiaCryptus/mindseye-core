@@ -21,10 +21,10 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class BisectionSearch implements LineSearchStrategy {
 
@@ -47,6 +47,7 @@ public class BisectionSearch implements LineSearchStrategy {
     return maxRate;
   }
 
+  @Nonnull
   public BisectionSearch setMaxRate(double maxRate) {
     this.maxRate = maxRate;
     return this;
@@ -56,6 +57,7 @@ public class BisectionSearch implements LineSearchStrategy {
     return spanTol;
   }
 
+  @Nonnull
   public BisectionSearch setSpanTol(double spanTol) {
     this.spanTol = spanTol;
     return this;
@@ -78,9 +80,10 @@ public class BisectionSearch implements LineSearchStrategy {
     double leftValue;
     final LineSearchPoint searchPoint = cursor.step(leftX, monitor);
     monitor.log(RefString.format("F(%s) = %s", leftX, searchPoint));
+    assert searchPoint != null;
+    assert searchPoint.point != null;
     leftValue = searchPoint.point.sum;
-    if (null != searchPoint)
-      searchPoint.freeRef();
+    searchPoint.freeRef();
     double rightRight = getMaxRate();
     double rightX;
     double rightLineDeriv;
@@ -92,7 +95,9 @@ public class BisectionSearch implements LineSearchStrategy {
       rightX = (leftX + Math.min(rightRight, rightRightSoft)) / 2;
       rightPoint = cursor.step(rightX, monitor);
       monitor.log(RefString.format("F(%s)@%s = %s", rightX, loopCount, rightPoint));
+      assert rightPoint != null;
       rightLineDeriv = rightPoint.derivative;
+      assert rightPoint.point != null;
       rightValue = rightPoint.point.sum;
       if (loopCount++ > 100) {
         monitor.log(RefString.format("Loop overflow"));
@@ -101,12 +106,11 @@ public class BisectionSearch implements LineSearchStrategy {
       if ((rightRight - leftX) * 2.0 / (leftX + rightRight) < spanTol) {
         monitor.log(RefString.format("Right limit is nonconvergent at %s/%s", leftX, rightRight));
         currentRate = leftX;
-        if (null != rightPoint)
-          rightPoint.freeRef();
+        rightPoint.freeRef();
         LineSearchPoint temp_49_0003 = cursor.step(leftX, monitor);
+        assert temp_49_0003 != null;
         PointSample temp_49_0002 = temp_49_0003.point;
-        if (null != temp_49_0003)
-          temp_49_0003.freeRef();
+        temp_49_0003.freeRef();
         cursor.freeRef();
         return temp_49_0002;
       }
@@ -122,18 +126,18 @@ public class BisectionSearch implements LineSearchStrategy {
         break;
       }
     }
-    if (null != rightPoint)
-      rightPoint.freeRef();
+    rightPoint.freeRef();
     monitor.log(RefString.format("Starting bisection search from %s to %s", leftX, rightX));
-    LineSearchPoint temp_49_0004 = iterate(cursor == null ? null : cursor, monitor, leftX, rightX);
+    LineSearchPoint temp_49_0004 = iterate(cursor, monitor, leftX, rightX);
+    assert temp_49_0004 != null;
     PointSample temp_49_0001 = temp_49_0004.point;
-    if (null != temp_49_0004)
-      temp_49_0004.freeRef();
+    temp_49_0004.freeRef();
     return temp_49_0001;
   }
 
+  @Nullable
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
-      double leftX, double rightX) {
+                                 double leftX, double rightX) {
     LineSearchPoint searchPoint = null;
     int loopCount = 0;
     try {
@@ -145,6 +149,7 @@ public class BisectionSearch implements LineSearchStrategy {
         if (loopCount++ > 1000) {
           return searchPoint;
         }
+        assert searchPoint != null;
         if (searchPoint.derivative < -zeroTol) {
           if (leftX == thisX) {
             monitor.log(RefString.format("End (static left) at %s", thisX));

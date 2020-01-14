@@ -20,12 +20,11 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiConsumer;
@@ -39,26 +38,22 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   public StateSet(@Nonnull final DeltaSet<K> toCopy) {
     assert toCopy.stream().allMatch(x -> {
       boolean temp_41_0001 = RefArrays.stream(x.getDelta()).allMatch(Double::isFinite);
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_41_0001;
     });
     RefMap<K, Delta<K>> temp_41_0018 = toCopy.getMap();
     temp_41_0018.forEach((layer, layerDelta) -> {
       State<K> temp_41_0019 = this.get(layer, layerDelta.target);
+      assert temp_41_0019 != null;
       RefUtil.freeRef(temp_41_0019.backup());
-      if (null != temp_41_0019)
-        temp_41_0019.freeRef();
-      if (null != layerDelta)
-        layerDelta.freeRef();
+      temp_41_0019.freeRef();
+      layerDelta.freeRef();
     });
-    if (null != temp_41_0018)
-      temp_41_0018.freeRef();
+    temp_41_0018.freeRef();
     toCopy.freeRef();
     assert stream().allMatch(x -> {
       boolean temp_41_0002 = RefArrays.stream(x.getDelta()).allMatch(Double::isFinite);
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_41_0002;
     });
     assert stream().allMatch(x -> {
@@ -86,14 +81,14 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   public boolean isDifferent() {
     return stream().parallel().anyMatch(x -> {
       boolean temp_41_0005 = !x.areEqual();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_41_0005;
     });
   }
 
+  @Nonnull
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
-      @Nonnull final DoubleBufferSet<K, State<K>> right) {
+                                      @Nonnull final DoubleBufferSet<K, State<K>> right) {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0020 = left.map.entrySet();
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0021 = right.map.entrySet();
     final RefMap<K, State<K>> collect = RefStream.concat(temp_41_0020.stream(), temp_41_0021.stream())
@@ -113,14 +108,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
               return a;
             }), x -> {
               State<K> temp_41_0006 = RefUtil.get(x);
-              if (null != x)
-                RefUtil.freeRef(x);
+              RefUtil.freeRef(x);
               return temp_41_0006;
             }))));
-    if (null != temp_41_0021)
-      temp_41_0021.freeRef();
-    if (null != temp_41_0020)
-      temp_41_0020.freeRef();
+    temp_41_0021.freeRef();
+    temp_41_0020.freeRef();
     right.freeRef();
     left.freeRef();
     StateSet<K> temp_41_0007 = new StateSet<K>(collect == null ? null : collect.addRef());
@@ -129,13 +121,17 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return temp_41_0007;
   }
 
-  public static @SuppressWarnings("unused") StateSet[] addRefs(StateSet[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  StateSet[] addRefs(@Nullable StateSet[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRef).toArray((x) -> new StateSet[x]);
   }
 
-  public static @SuppressWarnings("unused") StateSet[][] addRefs(StateSet[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  StateSet[][] addRefs(@Nullable StateSet[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(StateSet::addRefs).toArray((x) -> new StateSet[x][]);
@@ -143,24 +139,23 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
-    @Nonnull
-    final DeltaSet<K> deltas = new DeltaSet<K>();
+    @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
     map.forEach(
         RefUtil.wrapInterface((BiConsumer<K, State<K>>) (@Nonnull final K layer, @Nonnull final State<K> buffer) -> {
           Delta<K> temp_41_0022 = deltas.get(layer, buffer.target);
+          assert temp_41_0022 != null;
           temp_41_0022.set(buffer.getDelta());
-          if (null != temp_41_0022)
-            temp_41_0022.freeRef();
+          temp_41_0022.freeRef();
           buffer.freeRef();
-        }, deltas == null ? null : deltas.addRef()));
+        }, deltas.addRef()));
     right.map.forEach(
         RefUtil.wrapInterface((BiConsumer<K, Delta<K>>) (@Nonnull final K layer, @Nonnull final Delta<K> buffer) -> {
           Delta<K> temp_41_0023 = deltas.get(layer, buffer.target);
+          assert temp_41_0023 != null;
           RefUtil.freeRef(temp_41_0023.addInPlace(buffer.getDelta()));
-          if (null != temp_41_0023)
-            temp_41_0023.freeRef();
+          temp_41_0023.freeRef();
           buffer.freeRef();
-        }, deltas == null ? null : deltas.addRef()));
+        }, deltas.addRef()));
     right.freeRef();
     StateSet<K> temp_41_0008 = deltas.asState();
     deltas.freeRef();
@@ -169,13 +164,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
   @Nonnull
   public DeltaSet<K> asVector() {
-    @Nonnull
-    final RefHashMap<K, Delta<K>> newMap = new RefHashMap<>();
+    @Nonnull final RefHashMap<K, Delta<K>> newMap = new RefHashMap<>();
     map.forEach(RefUtil.wrapInterface((BiConsumer<? super K, ? super State<K>>) (layer, state) -> {
       RefUtil.freeRef(newMap.put(layer,
           new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
-      if (null != state)
-        state.freeRef();
+      state.freeRef();
     }, RefUtil.addRef(newMap)));
     DeltaSet<K> temp_41_0009 = new DeltaSet<>(RefUtil.addRef(RefUtil.addRef(newMap)));
     newMap.freeRef();
@@ -187,8 +180,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   public StateSet<K> copy() {
     return map(x -> {
       State<K> temp_41_0010 = x.copy();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_41_0010;
     });
   }
@@ -208,43 +200,37 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   public void restore() {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0024 = map.entrySet();
     RefStream<Map.Entry<K, State<K>>> stream = temp_41_0024.stream();
-    if (null != temp_41_0024)
-      temp_41_0024.freeRef();
+    temp_41_0024.freeRef();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
     stream.forEach(e -> {
       State<K> temp_41_0025 = e.getValue();
       RefUtil.freeRef(temp_41_0025.restore());
-      if (null != temp_41_0025)
-        temp_41_0025.freeRef();
-      if (null != e)
-        RefUtil.freeRef(e);
+      temp_41_0025.freeRef();
+      RefUtil.freeRef(e);
     });
   }
 
   @Nonnull
   @Override
-  public StateSet<K> map(@NotNull @Nonnull final Function<State<K>, State<K>> mapper) {
+  public StateSet<K> map(@Nonnull final Function<State<K>, State<K>> mapper) {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0026 = map.entrySet();
     RefStream<Map.Entry<K, State<K>>> stream = temp_41_0026.stream();
-    if (null != temp_41_0026)
-      temp_41_0026.freeRef();
+    temp_41_0026.freeRef();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
     final RefMap<K, State<K>> newMap = stream.collect(RefCollectors.toMap(e -> {
       K temp_41_0011 = e.getKey();
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_41_0011;
     }, e -> {
       State<K> temp_41_0027 = e.getValue();
       State<K> temp_41_0012 = mapper.apply(temp_41_0027);
       if (null != temp_41_0027)
         temp_41_0027.freeRef();
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_41_0012;
     }));
     StateSet<K> temp_41_0013 = new StateSet<>(newMap == null ? null : newMap.addRef());
@@ -269,16 +255,20 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     DeltaSet<K> scale = rvec.scale(-1);
     rvec.freeRef();
     @Nonnull
-    StateSet<K> add = this.add(scale == null ? null : scale);
+    StateSet<K> add = this.add(scale);
     DeltaSet<K> temp_41_0014 = add.asVector();
     add.freeRef();
     return temp_41_0014;
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") StateSet<K> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  StateSet<K> addRef() {
     return (StateSet<K>) super.addRef();
   }
 

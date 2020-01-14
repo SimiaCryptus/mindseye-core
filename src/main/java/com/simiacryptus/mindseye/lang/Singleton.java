@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.lang;
 import com.simiacryptus.ref.lang.RefAware;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
@@ -37,12 +38,14 @@ public class Singleton<T> implements Supplier<T> {
     return !deque.isEmpty();
   }
 
-  public synchronized T getOrInit(Supplier<T> fn) {
+  @Nonnull
+  public synchronized T getOrInit(@Nonnull Supplier<T> fn) {
     if (deque.isEmpty())
       set(fn.get());
     return get();
   }
 
+  @Nonnull
   @Override
   public T get() {
     try {
@@ -55,12 +58,13 @@ public class Singleton<T> implements Supplier<T> {
   }
 
   @Nonnull
-  public Singleton<T> set(@RefAware T obj) {
+  public Singleton<T> set(@Nonnull @RefAware T obj) {
     assert deque.isEmpty();
     deque.add(obj);
     return this;
   }
 
+  @Nullable
   public T remove() {
     try {
       return deque.poll(1, TimeUnit.SECONDS);

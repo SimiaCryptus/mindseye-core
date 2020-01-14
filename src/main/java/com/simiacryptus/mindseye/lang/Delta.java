@@ -20,10 +20,8 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,7 +41,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta,
-      @org.jetbrains.annotations.Nullable final double[] deltaCompensation) {
+                  @Nullable final double[] deltaCompensation) {
     super(layer, target, delta);
     if (null == target)
       throw new IllegalArgumentException();
@@ -53,7 +51,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   public static void accumulate(@Nonnull final double[] data, final double[] delta,
-      @Nullable final double[] dataCompensation) {
+                                @Nullable final double[] dataCompensation) {
     synchronized (data) {
       for (int i = 0; i < data.length; i++) {
         final double sum = data[i];
@@ -82,13 +80,17 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
-  public static @SuppressWarnings("unused") Delta[] addRefs(Delta[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Delta[] addRefs(@Nullable Delta[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Delta::addRef).toArray((x) -> new Delta[x]);
   }
 
-  public static @SuppressWarnings("unused") Delta[][] addRefs(Delta[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Delta[][] addRefs(@Nullable Delta[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Delta::addRefs).toArray((x) -> new Delta[x][]);
@@ -97,9 +99,9 @@ public class Delta<K> extends DoubleBuffer<K> {
   public final void accumulate(final double factor) {
     synchronized (target) {
       assert RefArrays.stream(target).allMatch(Double::isFinite);
-      @Nullable
-      final double[] delta = getDelta();
+      @Nullable final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
+        assert delta != null;
         target[i] += delta[i] * factor;
         if (!Double.isFinite(target[i]))
           target[i] = 0;
@@ -112,9 +114,9 @@ public class Delta<K> extends DoubleBuffer<K> {
   public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
     Delta<K> temp_55_0001 = addInPlace(buffer.delta);
+    assert buffer.deltaCompensation != null;
     RefUtil.freeRef(temp_55_0001.addInPlace(buffer.deltaCompensation));
-    if (null != temp_55_0001)
-      temp_55_0001.freeRef();
+    temp_55_0001.freeRef();
     buffer.freeRef();
   }
 
@@ -148,7 +150,7 @@ public class Delta<K> extends DoubleBuffer<K> {
 
   @Nonnull
   @Override
-  public void set(@NotNull final double[] data) {
+  public void set(@Nonnull final double[] data) {
     super.set(data);
   }
 
@@ -162,7 +164,10 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
-  public @Override @SuppressWarnings("unused") Delta<K> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  Delta<K> addRef() {
     return (Delta<K>) super.addRef();
   }
 }

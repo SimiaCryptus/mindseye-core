@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -58,7 +57,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     register();
   }
 
-  protected LayerBase(final UUID id, @org.jetbrains.annotations.Nullable final String name) {
+  protected LayerBase(final UUID id, @Nullable final String name) {
     this.id = id;
     this.name = name;
     register();
@@ -82,13 +81,17 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     return frozen;
   }
 
-  public static @SuppressWarnings("unused") LayerBase[] addRefs(LayerBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LayerBase[] addRefs(@Nullable LayerBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef).toArray((x) -> new LayerBase[x]);
   }
 
-  public static @SuppressWarnings("unused") LayerBase[][] addRefs(LayerBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LayerBase[][] addRefs(@Nullable LayerBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs).toArray((x) -> new LayerBase[x][]);
@@ -105,17 +108,14 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    @Nullable
-    final Layer other = (Layer) obj;
+    @Nullable final Layer other = (Layer) obj;
     if (getId() == null) {
       boolean temp_45_0001 = other.getId() == null;
-      if (null != other)
-        other.freeRef();
+      other.freeRef();
       return temp_45_0001;
     } else {
       boolean temp_45_0002 = getId().equals(other.getId());
-      if (null != other)
-        other.freeRef();
+      other.freeRef();
       return temp_45_0002;
     }
   }
@@ -128,6 +128,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
 
   @Override
   public final int hashCode() {
+    assert getId() != null;
     return getId().hashCode();
   }
 
@@ -147,7 +148,9 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
 
   }
 
-  public @Override @SuppressWarnings("unused") LayerBase addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  LayerBase addRef() {
     return (LayerBase) super.addRef();
   }
 

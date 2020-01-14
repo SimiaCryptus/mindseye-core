@@ -21,9 +21,10 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -31,14 +32,18 @@ public abstract class LineSearchCursorBase extends ReferenceCountingBase impleme
 
   public abstract CharSequence getDirectionType();
 
-  public static @SuppressWarnings("unused") LineSearchCursorBase[] addRefs(LineSearchCursorBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LineSearchCursorBase[] addRefs(@Nullable LineSearchCursorBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRef)
         .toArray((x) -> new LineSearchCursorBase[x]);
   }
 
-  public static @SuppressWarnings("unused") LineSearchCursorBase[][] addRefs(LineSearchCursorBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LineSearchCursorBase[][] addRefs(@Nullable LineSearchCursorBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursorBase::addRefs)
@@ -49,11 +54,15 @@ public abstract class LineSearchCursorBase extends ReferenceCountingBase impleme
 
   public abstract void reset();
 
+  @javax.annotation.Nullable
   public abstract LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
   public abstract void _free();
 
-  public @Override @SuppressWarnings("unused") LineSearchCursorBase addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  LineSearchCursorBase addRef() {
     return (LineSearchCursorBase) super.addRef();
   }
 }

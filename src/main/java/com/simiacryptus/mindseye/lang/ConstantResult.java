@@ -19,51 +19,53 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
 public final class ConstantResult extends Result {
 
-  public ConstantResult(final Tensor... data) {
+  public ConstantResult(@Nullable final Tensor... data) {
     this(new TensorArray(Tensor.addRefs(data)));
     if (null != data)
       ReferenceCounting.freeRefs(data);
   }
 
-  public ConstantResult(TensorArray tensorArray) {
+  public ConstantResult(@Nonnull TensorArray tensorArray) {
     super(tensorArray, new Accumulator() {
       @Override
-      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+      public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
         if (null != data)
           data.freeRef();
         if (null != buffer)
           buffer.freeRef();
       }
 
-      public @SuppressWarnings("unused") void _free() {
+      public @SuppressWarnings("unused")
+      void _free() {
       }
     });
   }
 
-  public ConstantResult(final TensorList tensorList) {
+  public ConstantResult(@Nonnull final TensorList tensorList) {
     super(tensorList, new Accumulator() {
       @Override
-      public void accept(DeltaSet<UUID> buffer, TensorList data) {
+      public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
         if (null != data)
           data.freeRef();
         if (null != buffer)
           buffer.freeRef();
       }
 
-      public @SuppressWarnings("unused") void _free() {
+      public @SuppressWarnings("unused")
+      void _free() {
       }
     });
   }
@@ -73,11 +75,8 @@ public final class ConstantResult extends Result {
     return false;
   }
 
+  @Nonnull
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
-    if (null == input) {
-      ReferenceCounting.freeRefs(input);
-      throw new IllegalArgumentException();
-    }
     Result[] temp_44_0003 = RefIntStream.range(0, input[0].length)
         .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor[]>) x -> RefIntStream.range(0, input.length)
             .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) y -> input[y][x], Tensor.addRefs(input)))
@@ -88,15 +87,15 @@ public final class ConstantResult extends Result {
             ReferenceCounting.freeRefs(tensors);
           return temp_44_0001;
         }).map(tensorArray -> {
-          ConstantResult temp_44_0002 = new ConstantResult(tensorArray == null ? null : tensorArray.addRef());
-          if (null != tensorArray)
-            tensorArray.freeRef();
+          ConstantResult temp_44_0002 = new ConstantResult(tensorArray.addRef());
+          tensorArray.freeRef();
           return temp_44_0002;
         }).toArray(x -> new Result[x]);
     ReferenceCounting.freeRefs(input);
     return temp_44_0003;
   }
 
+  @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
     Result[] temp_44_0004 = RefArrays.stream(Tensor.addRefs(input)).map((@Nonnull final Tensor x) -> {
       ConstantResult temp_44_0005 = new ConstantResult(new TensorArray(x == null ? null : x.addRef()));
@@ -108,6 +107,7 @@ public final class ConstantResult extends Result {
     return temp_44_0004;
   }
 
+  @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
     Result[] temp_44_0006 = RefArrays.stream(Tensor.addRefs(input)).map((@Nonnull final Tensor[] x) -> {
       ConstantResult temp_44_0007 = new ConstantResult(new TensorArray(Tensor.addRefs(x)));
@@ -119,24 +119,32 @@ public final class ConstantResult extends Result {
     return temp_44_0006;
   }
 
-  public static @SuppressWarnings("unused") ConstantResult[] addRefs(ConstantResult[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ConstantResult[] addRefs(@Nullable ConstantResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
         .toArray((x) -> new ConstantResult[x]);
   }
 
-  public static @SuppressWarnings("unused") ConstantResult[][] addRefs(ConstantResult[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ConstantResult[][] addRefs(@Nullable ConstantResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
         .toArray((x) -> new ConstantResult[x][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ConstantResult addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ConstantResult addRef() {
     return (ConstantResult) super.addRef();
   }
 

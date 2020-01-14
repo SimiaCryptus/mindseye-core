@@ -24,23 +24,27 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
 public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
-  public static @SuppressWarnings("unused") GradientDescent[] addRefs(GradientDescent[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  GradientDescent[] addRefs(@Nullable GradientDescent[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRef)
         .toArray((x) -> new GradientDescent[x]);
   }
 
-  public static @SuppressWarnings("unused") GradientDescent[][] addRefs(GradientDescent[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  GradientDescent[][] addRefs(@Nullable GradientDescent[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRefs)
@@ -49,10 +53,9 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
 
   @Nonnull
   @Override
-  public SimpleLineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
-    @Nonnull
-    final DeltaSet<UUID> direction = measurement.delta.scale(-1);
+  public SimpleLineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
+                                       @Nonnull final TrainingMonitor monitor) {
+    @Nonnull final DeltaSet<UUID> direction = measurement.delta.scale(-1);
     final double magnitude = direction.getMagnitude();
     if (Math.abs(magnitude) < 1e-10) {
       monitor.log(RefString.format("Zero gradient: %s", magnitude));
@@ -60,10 +63,9 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
       monitor.log(RefString.format("Low gradient: %s", magnitude));
     }
     SimpleLineSearchCursor temp_42_0002 = new SimpleLineSearchCursor(subject == null ? null : subject.addRef(),
-        measurement == null ? null : measurement, direction == null ? null : direction);
+        measurement, direction);
     SimpleLineSearchCursor temp_42_0001 = temp_42_0002.setDirectionType("GD");
-    if (null != temp_42_0002)
-      temp_42_0002.freeRef();
+    temp_42_0002.freeRef();
     if (null != subject)
       subject.freeRef();
     return temp_42_0001;
@@ -78,7 +80,10 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
 
   }
 
-  public @Override @SuppressWarnings("unused") GradientDescent addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  GradientDescent addRef() {
     return (GradientDescent) super.addRef();
   }
 }

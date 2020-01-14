@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -27,6 +26,7 @@ import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Arrays;
 
@@ -35,10 +35,6 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   private final Tensor[] data;
 
   public TensorArray(@Nonnull final Tensor... data) {
-    if (null == data) {
-      ReferenceCounting.freeRefs(data);
-      throw new IllegalArgumentException();
-    }
     if (0 >= data.length) {
       ReferenceCounting.freeRefs(data);
       throw new IllegalArgumentException();
@@ -48,7 +44,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     for (@Nonnull Tensor tensor : this.data) {
       assert RefArrays.equals(tensor.getDimensions(),
           this.data[0].getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
-              + RefArrays.toString(tensor.getDimensions());
+          + RefArrays.toString(tensor.getDimensions());
     }
     register();
   }
@@ -64,19 +60,24 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     return data[0].getDimensions();
   }
 
+  @Nonnull
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
     return (data.length < limit) ? RefArrays.toString(data)
         : "[" + RefUtil.get(RefArrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b))
-            + ", ...]";
+        + ", ...]";
   }
 
-  public static @SuppressWarnings("unused") TensorArray[] addRefs(TensorArray[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  TensorArray[] addRefs(@Nullable TensorArray[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRef).toArray((x) -> new TensorArray[x]);
   }
 
-  public static @SuppressWarnings("unused") TensorArray[][] addRefs(TensorArray[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  TensorArray[][] addRefs(@Nullable TensorArray[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRefs).toArray((x) -> new TensorArray[x][]);
@@ -99,6 +100,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     return RefArrays.stream(getData());
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return RefString.format("TensorArray{data=%s}", toString(9, getData()));
@@ -115,7 +117,10 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
     }
   }
 
-  public @Override @SuppressWarnings("unused") TensorArray addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  TensorArray addRef() {
     return (TensorArray) super.addRef();
   }
 }

@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefArrays;
 
 import javax.annotation.Nonnull;
@@ -60,8 +59,7 @@ public final class Coordinate implements Serializable {
 
   @Nonnull
   public static int[] add(@Nonnull final int[] a, @Nonnull final int[] b) {
-    @Nonnull
-    final int[] r = new int[Math.max(a.length, b.length)];
+    @Nonnull final int[] r = new int[Math.max(a.length, b.length)];
     for (int i = 0; i < r.length; i++) {
       r[i] = (a.length <= i ? 0 : a[i]) + (b.length <= i ? 0 : b[i]);
     }
@@ -94,11 +92,13 @@ public final class Coordinate implements Serializable {
     return Integer.hashCode(index) ^ RefArrays.hashCode(coords);
   }
 
+  @Nonnull
   @Override
   public String toString() {
     return RefArrays.toString(coords) + "<" + index + ">";
   }
 
+  @Nonnull
   public Coordinate copy() {
     return new Coordinate(index, RefArrays.copyOf(coords, coords.length));
   }

@@ -20,27 +20,33 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Random;
 
 public interface StochasticComponent extends Layer {
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
+    @Nonnull
     @Override
     protected Random initialValue() {
       return new Random();
     }
   };
 
-  public static @SuppressWarnings("unused") StochasticComponent[] addRefs(StochasticComponent[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  StochasticComponent[] addRefs(@Nullable StochasticComponent[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
         .toArray((x) -> new StochasticComponent[x]);
   }
 
-  public static @SuppressWarnings("unused") StochasticComponent[][] addRefs(StochasticComponent[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  StochasticComponent[][] addRefs(@Nullable StochasticComponent[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)
@@ -53,5 +59,6 @@ public interface StochasticComponent extends Layer {
 
   public void _free();
 
+  @Nonnull
   public StochasticComponent addRef();
 }

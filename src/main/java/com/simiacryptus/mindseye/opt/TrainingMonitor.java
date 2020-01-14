@@ -19,7 +19,7 @@
 
 package com.simiacryptus.mindseye.opt;
 
-import com.simiacryptus.ref.lang.RefAware;
+import javax.annotation.Nullable;
 
 public class TrainingMonitor {
   public void clear() {
@@ -28,12 +28,12 @@ public class TrainingMonitor {
   public void log(final String msg) {
   }
 
-  public void onStepComplete(final Step currentPoint) {
+  public void onStepComplete(@Nullable final Step currentPoint) {
     if (null != currentPoint)
       currentPoint.freeRef();
   }
 
-  public boolean onStepFail(final Step currentPoint) {
+  public boolean onStepFail(@Nullable final Step currentPoint) {
     if (null != currentPoint)
       currentPoint.freeRef();
     return false;

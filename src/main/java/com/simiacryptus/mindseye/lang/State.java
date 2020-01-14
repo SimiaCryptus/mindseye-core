@@ -20,14 +20,15 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefSystem;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class State<K> extends DoubleBuffer<K> {
 
   public State(@Nonnull final K layer, final double[] target) {
@@ -38,13 +39,17 @@ public class State<K> extends DoubleBuffer<K> {
     super(layer, target, delta);
   }
 
-  public static @SuppressWarnings("unused") State[] addRefs(State[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  State[] addRefs(@Nullable State[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
   }
 
-  public static @SuppressWarnings("unused") State[][] addRefs(State[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  State[][] addRefs(@Nullable State[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
@@ -56,7 +61,7 @@ public class State<K> extends DoubleBuffer<K> {
 
   @Nonnull
   public final synchronized State<K> backup() {
-    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(target, 0, getDelta(), 0, target.length);
+    RefSystem.arraycopy(target, 0, getDelta(), 0, target.length);
     return this.addRef();
   }
 
@@ -75,14 +80,18 @@ public class State<K> extends DoubleBuffer<K> {
 
   @Nonnull
   public final synchronized State<K> restore() {
-    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(getDelta(), 0, target, 0, target.length);
+    RefSystem.arraycopy(getDelta(), 0, target, 0, target.length);
     return this.addRef();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") State<K> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  State<K> addRef() {
     return (State<K>) super.addRef();
   }
 

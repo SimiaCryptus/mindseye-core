@@ -20,17 +20,20 @@
 package com.simiacryptus.mindseye.opt;
 
 import com.simiacryptus.mindseye.lang.PointSample;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefSystem;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class Step extends ReferenceCountingBase {
   public final long iteration;
+  @Nullable
   public final PointSample point;
-  public final long time = com.simiacryptus.ref.wrappers.RefSystem.currentTimeMillis();
+  public final long time = RefSystem.currentTimeMillis();
 
-  Step(final PointSample point, final long iteration) {
+  Step(@Nullable final PointSample point, final long iteration) {
     PointSample temp_22_0001 = point == null ? null : point.addRef();
     this.point = temp_22_0001 == null ? null : temp_22_0001.addRef();
     if (null != temp_22_0001)
@@ -40,24 +43,32 @@ public class Step extends ReferenceCountingBase {
     this.iteration = iteration;
   }
 
-  public static @SuppressWarnings("unused") Step[] addRefs(Step[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Step[] addRefs(@Nullable Step[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Step::addRef).toArray((x) -> new Step[x]);
   }
 
-  public static @SuppressWarnings("unused") Step[][] addRefs(Step[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Step[][] addRefs(@Nullable Step[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Step::addRefs).toArray((x) -> new Step[x][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
     if (null != point)
       point.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") Step addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  Step addRef() {
     return (Step) super.addRef();
   }
 }

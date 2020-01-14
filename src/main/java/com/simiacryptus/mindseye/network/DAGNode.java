@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
@@ -35,7 +34,7 @@ public interface DAGNode extends Serializable, ReferenceCounting {
 
   @Nonnull
   default DAGNode[] getInputs() {
-    return new DAGNode[] {};
+    return new DAGNode[]{};
   }
 
   @Nullable
@@ -43,15 +42,20 @@ public interface DAGNode extends Serializable, ReferenceCounting {
 
   void setLayer(Layer layer);
 
+  @Nullable
   DAGNetwork getNetwork();
 
-  public static @SuppressWarnings("unused") DAGNode[] addRefs(DAGNode[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DAGNode[] addRefs(@Nullable DAGNode[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
   }
 
-  public static @SuppressWarnings("unused") DAGNode[][] addRefs(DAGNode[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DAGNode[][] addRefs(@Nullable DAGNode[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs).toArray((x) -> new DAGNode[x][]);
@@ -62,6 +66,7 @@ public interface DAGNode extends Serializable, ReferenceCounting {
 
   public void _free();
 
+  @Nonnull
   public DAGNode addRef();
 
 }

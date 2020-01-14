@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
@@ -27,6 +26,8 @@ import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.ref.wrappers.RefSet;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -38,14 +39,18 @@ class GraphEvaluationContext extends ReferenceCountingBase {
 
   final RefMap<UUID, Supplier<CountingResult>> calculated = new RefConcurrentHashMap<>();
 
-  public static @SuppressWarnings("unused") GraphEvaluationContext[] addRefs(GraphEvaluationContext[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  GraphEvaluationContext[] addRefs(@Nullable GraphEvaluationContext[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
         .toArray((x) -> new GraphEvaluationContext[x]);
   }
 
-  public static @SuppressWarnings("unused") GraphEvaluationContext[][] addRefs(GraphEvaluationContext[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  GraphEvaluationContext[][] addRefs(@Nullable GraphEvaluationContext[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
@@ -53,63 +58,41 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   }
 
   public void _free() {
-    if (null != calculated)
-      calculated.freeRef();
-    if (null != expectedCounts)
-      expectedCounts.freeRef();
     RefSet<Map.Entry<UUID, Supplier<CountingResult>>> temp_43_0004 = calculated.entrySet();
     temp_43_0004.stream().filter(entry -> {
       ReferenceCounting o = entry.getValue().get();
-      if (o instanceof RuntimeException) {
-        if (null != entry)
-          RefUtil.freeRef(entry);
-        RuntimeException temp_43_0002 = (RuntimeException) o;
-        if (null != o)
-          o.freeRef();
-        throw temp_43_0002;
-      }
-      if (o instanceof Throwable) {
-        if (null != entry)
-          RefUtil.freeRef(entry);
-        RuntimeException temp_43_0003 = new RuntimeException((Throwable) o);
-        if (null != o)
-          o.freeRef();
-        throw temp_43_0003;
-      }
       CountingResult countingNNResult = (CountingResult) o;
       if (null != o)
         o.freeRef();
       if (expectedCounts.containsKey(entry.getKey())) {
         CountingResult.CountingAccumulator temp_43_0005 = countingNNResult.getAccumulator();
         boolean temp_43_0001 = expectedCounts.get(entry.getKey()) > temp_43_0005.getCount();
-        if (null != temp_43_0005)
-          temp_43_0005.freeRef();
-        if (null != entry)
-          RefUtil.freeRef(entry);
-        if (null != countingNNResult)
-          countingNNResult.freeRef();
+        temp_43_0005.freeRef();
+        RefUtil.freeRef(entry);
+        countingNNResult.freeRef();
         return temp_43_0001;
       } else {
-        if (null != entry)
-          RefUtil.freeRef(entry);
+        RefUtil.freeRef(entry);
         if (null != countingNNResult)
           countingNNResult.freeRef();
         return true;
       }
     }).forEach(entry -> {
       CountingResult result = entry.getValue().get();
-      if (null != entry)
-        RefUtil.freeRef(entry);
+      RefUtil.freeRef(entry);
       RefUtil.freeRef(result.getData());
-      if (null != result)
-        result.freeRef();
+      result.freeRef();
     });
-    if (null != temp_43_0004)
-      temp_43_0004.freeRef();
+    temp_43_0004.freeRef();
+    expectedCounts.freeRef();
     calculated.clear();
+    calculated.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") GraphEvaluationContext addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  GraphEvaluationContext addRef() {
     return (GraphEvaluationContext) super.addRef();
   }
 }

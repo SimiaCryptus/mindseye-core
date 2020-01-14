@@ -21,15 +21,18 @@ package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.lang.Settings;
 import com.simiacryptus.ref.RefSettings;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.RefSystem;
 import com.simiacryptus.util.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
+
 public class CoreSettings extends RefSettings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
+  @Nullable
   private static transient CoreSettings INSTANCE = null;
   public final int backpropAggregationSize;
   public final int jvmThreads;
@@ -37,7 +40,7 @@ public class CoreSettings extends RefSettings {
 
   private CoreSettings() {
     this.jvmThreads = Settings.get("THREADS", 64);
-    com.simiacryptus.ref.wrappers.RefSystem.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
+    RefSystem.setProperty("java.util.concurrent.ForkJoinPool.common.parallelism",
         Integer.toString(jvmThreads));
     this.singleThreaded = Settings.get("SINGLE_THREADED", false);
     this.backpropAggregationSize = Settings.get("BACKPROP_AGG_SIZE", 3);

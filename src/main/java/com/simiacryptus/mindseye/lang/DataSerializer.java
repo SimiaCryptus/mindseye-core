@@ -19,8 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
-
 import javax.annotation.Nonnull;
 
 public interface DataSerializer {

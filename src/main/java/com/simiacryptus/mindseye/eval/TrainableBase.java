@@ -19,31 +19,40 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public abstract class TrainableBase extends ReferenceCountingBase implements Trainable {
 
-  public static @SuppressWarnings("unused") TrainableBase[] addRefs(TrainableBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  TrainableBase[] addRefs(@Nullable TrainableBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableBase::addRef)
         .toArray((x) -> new TrainableBase[x]);
   }
 
-  public static @SuppressWarnings("unused") TrainableBase[][] addRefs(TrainableBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  TrainableBase[][] addRefs(@Nullable TrainableBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableBase::addRefs)
         .toArray((x) -> new TrainableBase[x][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") TrainableBase addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  TrainableBase addRef() {
     return (TrainableBase) super.addRef();
   }
 

@@ -19,12 +19,12 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
@@ -36,14 +36,12 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim)) {
       IllegalArgumentException temp_28_0004 = new IllegalArgumentException(
           RefArrays.toString(inner.getDimensions()) + " != " + RefArrays.toString(toDim));
-      if (null != inner)
-        inner.freeRef();
+      inner.freeRef();
       throw temp_28_0004;
     }
-    TensorList temp_28_0001 = inner == null ? null : inner.addRef();
-    this.inner = temp_28_0001 == null ? null : temp_28_0001.addRef();
-    if (null != temp_28_0001)
-      temp_28_0001.freeRef();
+    TensorList temp_28_0001 = inner.addRef();
+    this.inner = temp_28_0001.addRef();
+    temp_28_0001.freeRef();
     inner.freeRef();
     this.dims = toDim;
   }
@@ -56,17 +54,21 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
 
   @Nonnull
   public TensorList getInner() {
-    return inner == null ? null : inner.addRef();
+    return inner.addRef();
   }
 
-  public static @SuppressWarnings("unused") ReshapedTensorList[] addRefs(ReshapedTensorList[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ReshapedTensorList[] addRefs(@Nullable ReshapedTensorList[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
         .toArray((x) -> new ReshapedTensorList[x]);
   }
 
-  public static @SuppressWarnings("unused") ReshapedTensorList[][] addRefs(ReshapedTensorList[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ReshapedTensorList[][] addRefs(@Nullable ReshapedTensorList[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
@@ -89,12 +91,12 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     return inner.length();
   }
 
+  @Nonnull
   @Override
   public RefStream<Tensor> stream() {
     return inner.stream().map(t -> {
       Tensor temp_28_0003 = t.reshapeCast(dims);
-      if (null != t)
-        t.freeRef();
+      t.freeRef();
       return temp_28_0003;
     });
   }
@@ -103,7 +105,10 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     inner.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") ReshapedTensorList addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ReshapedTensorList addRef() {
     return (ReshapedTensorList) super.addRef();
   }
 }

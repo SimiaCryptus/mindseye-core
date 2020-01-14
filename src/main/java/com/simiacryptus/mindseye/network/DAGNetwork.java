@@ -26,7 +26,6 @@ import com.google.gson.JsonPrimitive;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.StochasticComponent;
 import com.simiacryptus.mindseye.layers.WrapperLayer;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
@@ -70,10 +69,8 @@ public abstract class DAGNetwork extends LayerBase {
 
   protected DAGNetwork(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
-    for (@Nonnull
-    final JsonElement item : json.getAsJsonArray("inputs")) {
-      @Nonnull
-      final UUID key = UUID.fromString(item.getAsString());
+    for (@Nonnull final JsonElement item : json.getAsJsonArray("inputs")) {
+      @Nonnull final UUID key = UUID.fromString(item.getAsString());
       inputHandles.add(key);
       InputNode replaced = inputNodes.put(key, new InputNode(this.addRef(), key));
       if (null != replaced)
@@ -83,63 +80,49 @@ public abstract class DAGNetwork extends LayerBase {
     final JsonObject jsonLayers = json.getAsJsonObject("layers");
     final JsonObject jsonLinks = json.getAsJsonObject("links");
     final JsonObject jsonLabels = json.getAsJsonObject("labels");
-    @Nonnull
-    final RefMap<UUID, Layer> source_layersByNodeId = new RefHashMap<>();
-    @Nonnull
-    final RefMap<UUID, Layer> source_layersByLayerId = new RefHashMap<>();
-    for (@Nonnull
-    final Entry<String, JsonElement> e : jsonLayers.entrySet()) {
+    @Nonnull final RefMap<UUID, Layer> source_layersByNodeId = new RefHashMap<>();
+    @Nonnull final RefMap<UUID, Layer> source_layersByLayerId = new RefHashMap<>();
+    for (@Nonnull final Entry<String, JsonElement> e : jsonLayers.entrySet()) {
       @Nonnull
       Layer value = Layer.fromJson(e.getValue().getAsJsonObject(), rs);
-      RefUtil.freeRef(source_layersByLayerId.put(UUID.fromString(e.getKey()), value == null ? null : value));
+      RefUtil.freeRef(source_layersByLayerId.put(UUID.fromString(e.getKey()), value));
     }
-    for (@Nonnull
-    final Entry<String, JsonElement> e : jsonNodes.entrySet()) {
-      @Nonnull
-      final UUID nodeId = UUID.fromString(e.getKey());
-      @Nonnull
-      final UUID layerId = UUID.fromString(e.getValue().getAsString());
+    for (@Nonnull final Entry<String, JsonElement> e : jsonNodes.entrySet()) {
+      @Nonnull final UUID nodeId = UUID.fromString(e.getKey());
+      @Nonnull final UUID layerId = UUID.fromString(e.getValue().getAsString());
       final Layer layer = source_layersByLayerId.get(layerId);
       assert null != layer;
-      RefUtil.freeRef(source_layersByNodeId.put(nodeId, layer == null ? null : layer.addRef()));
-      if (null != layer)
-        layer.freeRef();
+      RefUtil.freeRef(source_layersByNodeId.put(nodeId, layer.addRef()));
+      layer.freeRef();
     }
     source_layersByLayerId.freeRef();
-    @Nonnull
-    final RefLinkedHashMap<CharSequence, UUID> labels = new RefLinkedHashMap<>();
-    for (@Nonnull
-    final Entry<String, JsonElement> e : jsonLabels.entrySet()) {
+    @Nonnull final RefLinkedHashMap<CharSequence, UUID> labels = new RefLinkedHashMap<>();
+    for (@Nonnull final Entry<String, JsonElement> e : jsonLabels.entrySet()) {
       labels.put(e.getKey(), UUID.fromString(e.getValue().getAsString()));
     }
-    @Nonnull
-    final RefMap<UUID, RefList<UUID>> deserializedLinks = new RefHashMap<>();
-    for (@Nonnull
-    final Entry<String, JsonElement> e : jsonLinks.entrySet()) {
-      @Nonnull
-      final RefArrayList<UUID> linkList = new RefArrayList<>();
-      for (@Nonnull
-      final JsonElement linkItem : e.getValue().getAsJsonArray()) {
+    @Nonnull final RefMap<UUID, RefList<UUID>> deserializedLinks = new RefHashMap<>();
+    for (@Nonnull final Entry<String, JsonElement> e : jsonLinks.entrySet()) {
+      @Nonnull final RefArrayList<UUID> linkList = new RefArrayList<>();
+      for (@Nonnull final JsonElement linkItem : e.getValue().getAsJsonArray()) {
         linkList.add(UUID.fromString(linkItem.getAsString()));
       }
-      RefUtil.freeRef(deserializedLinks.put(UUID.fromString(e.getKey()), linkList == null ? null : linkList));
+      RefUtil.freeRef(deserializedLinks.put(UUID.fromString(e.getKey()), linkList));
     }
     RefHashSet<UUID> values = labels.values();
     for (final UUID key : values) {
-      initLinks(deserializedLinks == null ? null : deserializedLinks.addRef(),
-          source_layersByNodeId == null ? null : source_layersByNodeId.addRef(), key);
+      initLinks(deserializedLinks.addRef(),
+          source_layersByNodeId.addRef(), key);
     }
     values.freeRef();
     RefSet<UUID> keySet = source_layersByNodeId.keySet();
     for (final UUID key : keySet) {
-      initLinks(deserializedLinks == null ? null : deserializedLinks.addRef(),
-          source_layersByNodeId == null ? null : source_layersByNodeId.addRef(), key);
+      initLinks(deserializedLinks.addRef(),
+          source_layersByNodeId.addRef(), key);
     }
     keySet.freeRef();
-    @Nonnull
-    final UUID head = UUID.fromString(json.getAsJsonPrimitive("head").getAsString());
-    initLinks(deserializedLinks == null ? null : deserializedLinks,
-        source_layersByNodeId == null ? null : source_layersByNodeId, head);
+    @Nonnull final UUID head = UUID.fromString(json.getAsJsonPrimitive("head").getAsString());
+    initLinks(deserializedLinks,
+        source_layersByNodeId, head);
     this.labels.putAll(labels);
     assertConsistent();
   }
@@ -148,19 +131,16 @@ public abstract class DAGNetwork extends LayerBase {
   public RefList<Layer> getChildren() {
     RefMap<UUID, Layer> temp_38_0016 = getLayersById();
     RefCollection<Layer> values = temp_38_0016.values();
-    if (null != temp_38_0016)
-      temp_38_0016.freeRef();
+    temp_38_0016.freeRef();
     RefList<Layer> temp_38_0015 = values.stream().flatMap(l -> {
       RefList<Layer> children = l.getChildren();
       RefStream<Layer> temp_38_0001 = children.stream();
-      if (null != l)
-        l.freeRef();
+      l.freeRef();
       children.freeRef();
       return temp_38_0001;
     }).distinct().sorted(RefComparator.comparing(l -> {
       String temp_38_0002 = l.getId().toString();
-      if (null != l)
-        l.freeRef();
+      l.freeRef();
       return temp_38_0002;
     })).collect(RefCollectors.toList());
     values.freeRef();
@@ -172,9 +152,9 @@ public abstract class DAGNetwork extends LayerBase {
 
   public UUID getHeadId() {
     DAGNode head = getHead();
+    assert head != null;
     UUID temp_38_0003 = head.getId();
-    if (null != head)
-      head.freeRef();
+    head.freeRef();
     return temp_38_0003;
   }
 
@@ -183,28 +163,25 @@ public abstract class DAGNetwork extends LayerBase {
     return this.addRef();
   }
 
+  @Nonnull
   public RefMap<UUID, Layer> getLayersById() {
     RefLinkedHashMap<UUID, Layer> map = new RefLinkedHashMap<>();
     visitLayers(RefUtil.wrapInterface(layer -> {
       UUID id = layer.getId();
-      Layer previous = map.put(id, layer == null ? null : layer.addRef());
+      Layer previous = map.put(id, layer.addRef());
       if (null != previous && previous != layer) {
-        if (null != layer)
-          layer.freeRef();
+        layer.freeRef();
         RuntimeException temp_38_0005 = new RuntimeException(
             RefString.format("Duplicated key found: %s (%s)", previous, id));
-        if (null != previous)
-          previous.freeRef();
+        previous.freeRef();
         throw temp_38_0005;
       }
       if (null != previous)
         previous.freeRef();
-      if (null != layer)
-        layer.freeRef();
+      layer.freeRef();
     }, RefUtil.addRef(map)));
     RefMap<UUID, Layer> temp_38_0004 = RefCollections.unmodifiableMap(RefUtil.addRef(map));
-    if (null != map)
-      map.freeRef();
+    map.freeRef();
     return temp_38_0004;
   }
 
@@ -212,8 +189,7 @@ public abstract class DAGNetwork extends LayerBase {
     RefHashSet<DAGNode> temp_38_0019 = this.internalNodes.values();
     RefList<DAGNode> temp_38_0018 = RefStream.concat(temp_38_0019.stream(), inputHandles.stream().map(inputNodes::get))
         .collect(RefCollectors.toList());
-    if (null != temp_38_0019)
-      temp_38_0019.freeRef();
+    temp_38_0019.freeRef();
     return temp_38_0018;
   }
 
@@ -223,19 +199,22 @@ public abstract class DAGNetwork extends LayerBase {
     super.setFrozen(frozen);
     visitLayers(layer -> {
       RefUtil.freeRef(layer.setFrozen(frozen));
-      if (null != layer)
-        layer.freeRef();
+      layer.freeRef();
     });
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused") DAGNetwork[] addRefs(DAGNetwork[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DAGNetwork[] addRefs(@Nullable DAGNetwork[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DAGNetwork::addRef).toArray((x) -> new DAGNetwork[x]);
   }
 
-  public static @SuppressWarnings("unused") DAGNetwork[][] addRefs(DAGNetwork[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DAGNetwork[][] addRefs(@Nullable DAGNetwork[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DAGNetwork::addRefs).toArray((x) -> new DAGNetwork[x][]);
@@ -259,27 +238,16 @@ public abstract class DAGNetwork extends LayerBase {
     });
   }
 
-  @Nullable
-  public InnerNode add(@Nonnull final Layer nextHead, final DAGNode... head) {
-    InnerNode temp_38_0014 = add(null, nextHead == null ? null : nextHead, DAGNode.addRefs(head));
+  @Nonnull
+  public InnerNode add(@Nonnull final Layer nextHead, @Nullable final DAGNode... head) {
+    InnerNode temp_38_0014 = add(null, nextHead, DAGNode.addRefs(head));
     if (null != head)
       ReferenceCounting.freeRefs(head);
     return temp_38_0014;
   }
 
-  public InnerNode add(@Nullable final CharSequence label, @Nonnull final Layer layer, final DAGNode... head) {
-    if (null == layer && head.length > 0) {
-      layer.freeRef();
-      if (null != head)
-        ReferenceCounting.freeRefs(head);
-      throw new IllegalArgumentException();
-    }
-    if (null == layer) {
-      layer.freeRef();
-      if (null != head)
-        ReferenceCounting.freeRefs(head);
-      return null;
-    }
+  @Nonnull
+  public InnerNode add(@Nullable final CharSequence label, @Nonnull final Layer layer, @Nonnull final DAGNode... head) {
     assert RefArrays.stream(DAGNode.addRefs(head)).allMatch(x -> {
       boolean temp_38_0006 = x == null || internalNodes.containsKey(x.getId()) || inputNodes.containsKey(x.getId());
       if (null != x)
@@ -287,21 +255,13 @@ public abstract class DAGNetwork extends LayerBase {
       return temp_38_0006;
     });
     assert layer.assertAlive();
-    if (null == layer) {
-      layer.freeRef();
-      if (null != head)
-        ReferenceCounting.freeRefs(head);
-      throw new IllegalArgumentException();
-    }
     assert layer.assertAlive();
     assertAlive();
     assertConsistent();
     assert null != inputHandles;
-    @Nonnull
-    final InnerNode node = new InnerNode(this.addRef(), layer == null ? null : layer, DAGNode.addRefs(head));
-    if (null != head)
-      ReferenceCounting.freeRefs(head);
-    DAGNode replaced = internalNodes.put(node.getId(), node == null ? null : node.addRef());
+    @Nonnull final InnerNode node = new InnerNode(this.addRef(), layer, DAGNode.addRefs(head));
+    ReferenceCounting.freeRefs(head);
+    DAGNode replaced = internalNodes.put(node.getId(), node.addRef());
     if (null != replaced)
       replaced.freeRef();
     if (null != label)
@@ -312,17 +272,13 @@ public abstract class DAGNetwork extends LayerBase {
 
   @Nonnull
   public void addInput() {
-    @Nonnull
-    final UUID key = UUID.randomUUID();
+    @Nonnull final UUID key = UUID.randomUUID();
     inputHandles.add(key);
     InputNode replaced = inputNodes.put(key, new InputNode(this.addRef(), key));
     if (null != replaced) {
-      if (null != replaced)
-        replaced.freeRef();
+      replaced.freeRef();
       throw new RuntimeException("UUID Conflict: " + key);
     }
-    if (null != replaced)
-      replaced.freeRef();
   }
 
   public void attach(@Nonnull final MonitoredObject obj) {
@@ -332,40 +288,36 @@ public abstract class DAGNetwork extends LayerBase {
       }
       if (null != layer)
         layer.freeRef();
-    }, obj == null ? null : obj));
+    }, obj));
   }
 
   @Nonnull
   public GraphEvaluationContext buildExeCtx(@Nonnull final Result... inputs) {
     assert inputs.length == inputHandles.size() : inputs.length + " != " + inputHandles.size();
-    @Nonnull
-    final GraphEvaluationContext context = new GraphEvaluationContext();
+    @Nonnull final GraphEvaluationContext context = new GraphEvaluationContext();
     for (int i = 0; i < inputs.length; i++) {
       UUID key = inputHandles.get(i);
       Result input = inputs[i].addRef();
       if (!context.calculated.containsKey(key)) {
         RefUtil.freeRef(input.getData());
         context.calculated.put(key,
-            new Singleton<CountingResult>().set(new CountingResult(input == null ? null : input.addRef())));
+            new Singleton<CountingResult>().set(new CountingResult(input.addRef())));
       }
-      if (null != input)
-        input.freeRef();
+      input.freeRef();
     }
     ReferenceCounting.freeRefs(inputs);
     RefList<DAGNode> temp_38_0020 = getNodes();
     context.expectedCounts.putAll(temp_38_0020.stream().flatMap(t -> {
       RefStream<UUID> temp_38_0007 = RefArrays.stream(t.getInputs()).map(n -> {
         UUID temp_38_0008 = n.getId();
-        if (null != n)
-          n.freeRef();
+        n.freeRef();
         return temp_38_0008;
       });
       if (null != t)
         t.freeRef();
       return temp_38_0007;
     }).filter(x -> !inputHandles.contains(x)).collect(RefCollectors.groupingBy(x -> x, RefCollectors.counting())));
-    if (null != temp_38_0020)
-      temp_38_0020.freeRef();
+    temp_38_0020.freeRef();
     return context;
   }
 
@@ -377,19 +329,20 @@ public abstract class DAGNetwork extends LayerBase {
 
   @Nullable
   @Override
-  public Result eval(final Result... input) {
+  public Result eval(@Nullable final Result... input) {
     assertAlive();
     @Nonnull
     GraphEvaluationContext buildExeCtx = buildExeCtx(Result.addRefs(input));
     if (null != input)
       ReferenceCounting.freeRefs(input);
     DAGNode head = getHead();
-    Result temp_38_0009 = head.get(buildExeCtx == null ? null : buildExeCtx);
-    if (null != head)
-      head.freeRef();
+    assert head != null;
+    Result temp_38_0009 = head.get(buildExeCtx);
+    head.freeRef();
     return temp_38_0009;
   }
 
+  @Nullable
   public DAGNode getNodeById(final UUID k) {
     DAGNode dagNode = internalNodes.get(k);
     DAGNode temp_38_0010 = null == dagNode ? null : dagNode;
@@ -398,13 +351,12 @@ public abstract class DAGNetwork extends LayerBase {
     return temp_38_0010;
   }
 
+  @Nonnull
   public final DAGNode getInput(final int index) {
     assertAlive();
     UUID key = inputHandles.get(index);
     final DAGNode input = inputNodes.get(key);
     if (null == input) {
-      if (null != input)
-        input.freeRef();
       throw new IllegalStateException(RefString.format("No Input: %d: %s", index, key));
     }
     return input;
@@ -413,46 +365,35 @@ public abstract class DAGNetwork extends LayerBase {
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     assertAlive();
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
-    @Nonnull
-    final JsonArray inputs = new JsonArray();
+    @Nonnull final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonArray inputs = new JsonArray();
     json.add("inputs", inputs);
     inputHandles.forEach(uuid -> inputs.add(new JsonPrimitive(uuid.toString())));
-    @Nonnull
-    final JsonObject layerMap = new JsonObject();
-    @Nonnull
-    final JsonObject nodeMap = new JsonObject();
-    @Nonnull
-    final JsonObject links = new JsonObject();
+    @Nonnull final JsonObject layerMap = new JsonObject();
+    @Nonnull final JsonObject nodeMap = new JsonObject();
+    @Nonnull final JsonObject links = new JsonObject();
     RefHashSet<DAGNode> temp_38_0021 = this.internalNodes.values();
     temp_38_0021.forEach(node -> {
-      @Nonnull
-      final JsonArray linkArray = new JsonArray();
+      @Nonnull final JsonArray linkArray = new JsonArray();
       RefArrays.stream(node.getInputs()).forEach((@Nonnull final DAGNode input) -> {
         linkArray.add(new JsonPrimitive(input.getId().toString()));
         input.freeRef();
       });
-      @Nullable
-      final Layer layer = node.getLayer();
-      @Nonnull
-      final String nodeId = node.getId().toString();
-      if (null != node)
-        node.freeRef();
+      @Nullable final Layer layer = node.getLayer();
+      @Nonnull final String nodeId = node.getId().toString();
+      node.freeRef();
+      assert layer != null;
       final String layerId = layer.getId().toString();
       nodeMap.addProperty(nodeId, layerId);
       layerMap.add(layerId, layer.getJson(resources, dataSerializer));
-      if (null != layer)
-        layer.freeRef();
+      layer.freeRef();
       links.add(nodeId, linkArray);
     });
-    if (null != temp_38_0021)
-      temp_38_0021.freeRef();
+    temp_38_0021.freeRef();
     json.add("nodes", nodeMap);
     json.add("layers", layerMap);
     json.add("links", links);
-    @Nonnull
-    final JsonObject labels = new JsonObject();
+    @Nonnull final JsonObject labels = new JsonObject();
     this.labels.forEach((k, v) -> {
       labels.addProperty(k.toString(), v.toString());
     });
@@ -471,26 +412,24 @@ public abstract class DAGNetwork extends LayerBase {
     RefList<Layer> temp_38_0023 = getChildren();
     RefList<double[]> temp_38_0022 = temp_38_0023.stream().filter(x -> {
       boolean temp_38_0011 = !x.isFrozen();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_38_0011;
     }).flatMap(l -> {
       RefList<double[]> state = l.state();
+      assert state != null;
       RefStream<double[]> temp_38_0012 = state.stream();
       state.freeRef();
-      if (null != l) l.freeRef();
+      l.freeRef();
       return temp_38_0012;
     }).distinct().collect(RefCollectors.toList());
-    if (null != temp_38_0023)
-      temp_38_0023.freeRef();
+    temp_38_0023.freeRef();
     return temp_38_0022;
   }
 
   public void visitLayers(@Nonnull final RefConsumer<Layer> visitor) {
     visitNodes(node -> {
       Layer layer = node.getLayer();
-      if (null != node)
-        node.freeRef();
+      node.freeRef();
       Layer unwrapped = layer == null ? null : layer.addRef();
       while (unwrapped instanceof WrapperLayer) {
         unwrapped = ((WrapperLayer) unwrapped).getInner();
@@ -520,6 +459,7 @@ public abstract class DAGNetwork extends LayerBase {
     temp_38_0025.forEach(node -> {
       node.assertAlive();
       Layer layer = node.getLayer();
+      assert layer != null;
       layer.assertAlive();
       while (layer instanceof WrapperLayer) {
         layer = ((WrapperLayer) layer).getInner();
@@ -529,12 +469,10 @@ public abstract class DAGNetwork extends LayerBase {
       }
       if (null != layer)
         layer.freeRef();
-      visitor.accept(node == null ? null : node.addRef());
-      if (null != node)
-        node.freeRef();
+      visitor.accept(node.addRef());
+      node.freeRef();
     });
-    if (null != temp_38_0025)
-      temp_38_0025.freeRef();
+    temp_38_0025.freeRef();
   }
 
   public void _free() {
@@ -547,10 +485,11 @@ public abstract class DAGNetwork extends LayerBase {
     if (null != inputHandles)
       inputHandles.freeRef();
     super._free();
-    this.inputNodes.clear();
   }
 
-  public @Override @SuppressWarnings("unused") DAGNetwork addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  DAGNetwork addRef() {
     return (DAGNetwork) super.addRef();
   }
 
@@ -565,20 +504,19 @@ public abstract class DAGNetwork extends LayerBase {
     return true;
   }
 
+  @Nonnull
   private DAGNode[] getDependencies(@Nonnull final RefMap<UUID, RefList<UUID>> deserializedLinks, final UUID e) {
     final RefList<UUID> links = deserializedLinks.get(e);
     deserializedLinks.freeRef();
     if (null == links) {
-      if (null != links)
-        links.freeRef();
-      return new DAGNode[] {};
+      return new DAGNode[]{};
     }
     DAGNode[] temp_38_0013 = links.stream().map(id -> getNode(id)).toArray(i -> new DAGNode[i]);
-    if (null != links)
-      links.freeRef();
+    links.freeRef();
     return temp_38_0013;
   }
 
+  @Nullable
   private DAGNode getNode(final UUID id) {
     DAGNode returnValue = getNodeById(id);
     if (null == returnValue) {
@@ -588,17 +526,15 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   private synchronized void initLinks(@Nonnull final RefMap<UUID, RefList<UUID>> nodeLinks,
-      @Nonnull final RefMap<UUID, Layer> layersByNodeId, final UUID newNodeId) {
+                                      @Nonnull final RefMap<UUID, Layer> layersByNodeId, final UUID newNodeId) {
     RefMap<UUID, Layer> layersById = getLayersById();
     if (layersById.containsKey(newNodeId)) {
-      if (null != layersById)
-        layersById.freeRef();
+      layersById.freeRef();
       nodeLinks.freeRef();
       layersByNodeId.freeRef();
       return;
     }
-    if (null != layersById)
-      layersById.freeRef();
+    layersById.freeRef();
     if (inputNodes.containsKey(newNodeId)) {
       nodeLinks.freeRef();
       layersByNodeId.freeRef();
@@ -606,8 +542,6 @@ public abstract class DAGNetwork extends LayerBase {
     }
     final Layer layer = layersByNodeId.get(newNodeId);
     if (layer == null) {
-      if (null != layer)
-        layer.freeRef();
       nodeLinks.freeRef();
       layersByNodeId.freeRef();
       throw new IllegalArgumentException(RefString.format("%s is linked to but not defined", newNodeId));
@@ -615,20 +549,18 @@ public abstract class DAGNetwork extends LayerBase {
     final RefList<UUID> links = nodeLinks.get(newNodeId);
     if (null != links) {
       for (final UUID link : links) {
-        initLinks(nodeLinks == null ? null : nodeLinks.addRef(),
-            layersByNodeId == null ? null : layersByNodeId.addRef(), link);
+        initLinks(nodeLinks.addRef(),
+            layersByNodeId.addRef(), link);
       }
     }
     layersByNodeId.freeRef();
     if (null != links)
       links.freeRef();
     assertConsistent();
-    @Nonnull
-    final InnerNode node = new InnerNode(this.addRef(), layer == null ? null : layer.addRef(), newNodeId,
-        getDependencies(nodeLinks == null ? null : nodeLinks, newNodeId));
-    if (null != layer)
-      layer.freeRef();
-    DAGNode replaced = internalNodes.put(node.getId(), node == null ? null : node);
+    @Nonnull final InnerNode node = new InnerNode(this.addRef(), layer.addRef(), newNodeId,
+        getDependencies(nodeLinks, newNodeId));
+    layer.freeRef();
+    DAGNode replaced = internalNodes.put(node.getId(), node);
     if (null != replaced)
       replaced.freeRef();
     assertConsistent();

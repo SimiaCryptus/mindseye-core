@@ -20,9 +20,7 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,37 +54,45 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     return this.addRef();
   }
 
-  @NotNull
+  @Nonnull
   @Override
   public Layer getLayer() {
+    assert inner != null;
     return inner.getLayer();
   }
 
   @Nullable
   @Override
   public boolean[] getMask() {
+    assert inner != null;
     return ((TrainableDataMask) inner).getMask();
   }
 
   @Override
   public int getTrainingSize() {
+    assert inner != null;
     return ((SampledTrainable) inner).getTrainingSize();
   }
 
   @Nonnull
   @Override
   public void setTrainingSize(final int trainingSize) {
+    assert inner != null;
     ((SampledTrainable) inner).setTrainingSize(trainingSize);
   }
 
-  public static @SuppressWarnings("unused") ConstL12Normalizer[] addRefs(ConstL12Normalizer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ConstL12Normalizer[] addRefs(@Nullable ConstL12Normalizer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
         .toArray((x) -> new ConstL12Normalizer[x]);
   }
 
-  public static @SuppressWarnings("unused") ConstL12Normalizer[][] addRefs(ConstL12Normalizer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ConstL12Normalizer[][] addRefs(@Nullable ConstL12Normalizer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
@@ -102,22 +108,26 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
   @Nonnull
   @Override
   public TrainableDataMask setMask(final boolean... mask) {
+    assert inner != null;
     RefUtil.freeRef(((TrainableDataMask) inner).setMask(mask));
     return this.addRef();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") ConstL12Normalizer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ConstL12Normalizer addRef() {
     return (ConstL12Normalizer) super.addRef();
   }
 
   @Override
-  protected double getL1(final Layer layer) {
+  protected double getL1(@Nullable final Layer layer) {
     if (supress(layer == null ? null : layer.addRef())) {
-      if (null != layer)
-        layer.freeRef();
+      layer.freeRef();
       return 0;
     }
     if (null != layer)
@@ -126,13 +136,13 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
   }
 
   @Override
-  protected double getL2(final Layer layer) {
+  protected double getL2(@Nullable final Layer layer) {
     if (null != layer)
       layer.freeRef();
     return factor_L2;
   }
 
-  private boolean supress(final Layer layer) {
+  private boolean supress(@Nullable final Layer layer) {
     if (null != layer)
       layer.freeRef();
     //    if (layer instanceof BiasLayer) return false;

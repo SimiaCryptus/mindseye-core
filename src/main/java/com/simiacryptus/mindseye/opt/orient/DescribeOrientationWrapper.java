@@ -24,11 +24,11 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
@@ -36,9 +36,10 @@ import java.util.function.Function;
 
 public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
+  @Nullable
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
-  public DescribeOrientationWrapper(final OrientationStrategy<? extends LineSearchCursor> inner) {
+  public DescribeOrientationWrapper(@Nullable final OrientationStrategy<? extends LineSearchCursor> inner) {
     OrientationStrategy<? extends LineSearchCursor> temp_27_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_27_0001 == null ? null : temp_27_0001.addRef();
     if (null != temp_27_0001)
@@ -54,13 +55,12 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return temp_27_0009;
   }
 
+  @Nonnull
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
-      @Nonnull final DoubleBuffer<UUID> dirDelta) {
-    @Nonnull
-    final CharSequence weightString = RefArrays.toString(weightDelta.getDelta());
+                                    @Nonnull final DoubleBuffer<UUID> dirDelta) {
+    @Nonnull final CharSequence weightString = RefArrays.toString(weightDelta.getDelta());
     weightDelta.freeRef();
-    @Nonnull
-    final CharSequence deltaString = RefArrays.toString(dirDelta.getDelta());
+    @Nonnull final CharSequence deltaString = RefArrays.toString(dirDelta.getDelta());
     dirDelta.freeRef();
     return RefString.format("pos: %s\nvec: %s", weightString, deltaString);
   }
@@ -75,8 +75,7 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     RefSet<Map.Entry<CharSequence, RefList<State<UUID>>>> temp_27_0011 = temp_27_0010.entrySet();
     final RefMap<CharSequence, CharSequence> data = temp_27_0011.stream().collect(RefCollectors.toMap(x -> {
       CharSequence temp_27_0003 = x.getKey();
-      if (null != x)
-        RefUtil.freeRef(x);
+      RefUtil.freeRef(x);
       return temp_27_0003;
     }, RefUtil.wrapInterface((Function<Map.Entry<CharSequence, RefList<State<UUID>>>, ? extends CharSequence>) (
         @Nonnull final Map.Entry<CharSequence, RefList<State<UUID>>> list) -> {
@@ -84,61 +83,56 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
       RefUtil.freeRef(list);
       if (1 == deltaList.size()) {
         final State<UUID> weightDelta = deltaList.get(0);
-        if (null != deltaList)
-          deltaList.freeRef();
+        deltaList.freeRef();
         RefMap<UUID, Delta<UUID>> temp_27_0012 = direction.getMap();
-        CharSequence temp_27_0005 = DescribeOrientationWrapper.render(weightDelta == null ? null : weightDelta.addRef(),
+        assert weightDelta != null;
+        CharSequence temp_27_0005 = DescribeOrientationWrapper.render(weightDelta.addRef(),
             temp_27_0012.get(weightDelta.key));
-        if (null != temp_27_0012)
-          temp_27_0012.freeRef();
-        if (null != weightDelta)
-          weightDelta.freeRef();
+        temp_27_0012.freeRef();
+        weightDelta.freeRef();
         return temp_27_0005;
       } else {
         CharSequence temp_27_0004 = deltaList.stream()
             .map(RefUtil.wrapInterface((Function<? super State<UUID>, ? extends CharSequence>) weightDelta -> {
               RefMap<UUID, Delta<UUID>> temp_27_0013 = direction.getMap();
+              assert weightDelta != null;
               CharSequence temp_27_0006 = DescribeOrientationWrapper
-                  .render(weightDelta == null ? null : weightDelta.addRef(), temp_27_0013.get(weightDelta.key));
-              if (null != temp_27_0013)
-                temp_27_0013.freeRef();
-              if (null != weightDelta)
-                weightDelta.freeRef();
+                  .render(weightDelta.addRef(), temp_27_0013.get(weightDelta.key));
+              temp_27_0013.freeRef();
+              weightDelta.freeRef();
               return temp_27_0006;
-            }, direction == null ? null : direction.addRef())).limit(10).reduce((a, b) -> a + "\n" + b).orElse("");
-        if (null != deltaList)
-          deltaList.freeRef();
+            }, direction.addRef())).limit(10).reduce((a, b) -> a + "\n" + b).orElse("");
+        deltaList.freeRef();
         return temp_27_0004;
       }
-    }, direction == null ? null : direction)));
-    if (null != temp_27_0011)
-      temp_27_0011.freeRef();
-    if (null != temp_27_0010)
-      temp_27_0010.freeRef();
+    }, direction)));
+    temp_27_0011.freeRef();
+    temp_27_0010.freeRef();
     weights.freeRef();
     RefSet<Map.Entry<CharSequence, CharSequence>> temp_27_0014 = data.entrySet();
     String temp_27_0007 = temp_27_0014.stream().map(e -> {
       String temp_27_0008 = RefString.format("%s = %s", e.getKey(), e.getValue());
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_27_0008;
     }).map(str -> str.replaceAll("\n", "\n\t")).reduce((a, b) -> a + "\n" + b).orElse("");
-    if (null != temp_27_0014)
-      temp_27_0014.freeRef();
-    if (null != data)
-      data.freeRef();
+    temp_27_0014.freeRef();
+    data.freeRef();
     return temp_27_0007;
   }
 
-  public static @SuppressWarnings("unused") DescribeOrientationWrapper[] addRefs(DescribeOrientationWrapper[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DescribeOrientationWrapper[] addRefs(@Nullable DescribeOrientationWrapper[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
         .toArray((x) -> new DescribeOrientationWrapper[x]);
   }
 
-  public static @SuppressWarnings("unused") DescribeOrientationWrapper[][] addRefs(
-      DescribeOrientationWrapper[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DescribeOrientationWrapper[][] addRefs(
+      @Nullable DescribeOrientationWrapper[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
@@ -146,8 +140,9 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   @Override
-  public LineSearchCursor orient(final Trainable subject, final PointSample measurement,
-      @Nonnull final TrainingMonitor monitor) {
+  public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
+                                 @Nonnull final TrainingMonitor monitor) {
+    assert inner != null;
     final LineSearchCursor cursor = inner.orient(subject == null ? null : subject.addRef(),
         measurement == null ? null : measurement.addRef(), monitor);
     if (null != measurement)
@@ -155,13 +150,22 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     if (null != subject)
       subject.freeRef();
     if (cursor instanceof SimpleLineSearchCursor) {
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
       final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction.addRef();
-      @Nonnull
-      final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights.addRef();
-      final CharSequence asString = DescribeOrientationWrapper.render(weights == null ? null : weights,
-          direction == null ? null : direction.addRef());
-      if (null != direction)
-        direction.freeRef();
+      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights.addRef();
+      final CharSequence asString = DescribeOrientationWrapper.render(weights,
+          direction.addRef());
+      direction.freeRef();
       monitor.log(RefString.format("Orientation Details: %s", asString));
     } else {
       monitor.log(RefString.format("Non-simple cursor: %s", cursor));
@@ -171,6 +175,7 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
 
   @Override
   public void reset() {
+    assert inner != null;
     inner.reset();
   }
 
@@ -179,7 +184,10 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
       inner.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") DescribeOrientationWrapper addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  DescribeOrientationWrapper addRef() {
     return (DescribeOrientationWrapper) super.addRef();
   }
 }

@@ -19,8 +19,8 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.RefAware;
-
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 @SuppressWarnings("serial")
@@ -29,24 +29,32 @@ public abstract class SupervisedNetwork extends DAGNetwork {
     super(inputs);
   }
 
-  public static @SuppressWarnings("unused") SupervisedNetwork[] addRefs(SupervisedNetwork[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SupervisedNetwork[] addRefs(@Nullable SupervisedNetwork[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRef)
         .toArray((x) -> new SupervisedNetwork[x]);
   }
 
-  public static @SuppressWarnings("unused") SupervisedNetwork[][] addRefs(SupervisedNetwork[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  SupervisedNetwork[][] addRefs(@Nullable SupervisedNetwork[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRefs)
         .toArray((x) -> new SupervisedNetwork[x][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") SupervisedNetwork addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  SupervisedNetwork addRef() {
     return (SupervisedNetwork) super.addRef();
   }
 }

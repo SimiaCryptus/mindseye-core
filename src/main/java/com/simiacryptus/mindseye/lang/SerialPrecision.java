@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefArrays;
 
 import javax.annotation.Nonnull;
@@ -232,14 +231,14 @@ public enum SerialPrecision implements DataSerializer {
     return size;
   }
 
-  public double[] parse(String trim) {
+  @Nonnull
+  public double[] parse(@Nonnull String trim) {
     return fromBytes(Base64.getDecoder().decode(trim));
   }
 
-  public String base64(Tensor value) {
+  public String base64(@Nonnull Tensor value) {
     String temp_48_0001 = Base64.getEncoder().encodeToString(toBytes(value.getData()));
-    if (null != value)
-      value.freeRef();
+    value.freeRef();
     return temp_48_0001;
   }
 
@@ -259,6 +258,7 @@ public enum SerialPrecision implements DataSerializer {
     return current;
   }
 
+  @Nonnull
   private Rational rationalRecursion(double value, int recursions) {
     if (value < 0) {
       @Nonnull

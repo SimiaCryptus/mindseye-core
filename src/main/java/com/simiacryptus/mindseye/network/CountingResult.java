@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -41,20 +42,18 @@ public class CountingResult extends Result {
   private final Result inner;
 
   public CountingResult(@Nonnull final Result inner) {
-    super(inner.getData(), new CountingAccumulator(inner == null ? null : inner.addRef()));
-    Result temp_09_0001 = inner == null ? null : inner.addRef();
-    this.inner = temp_09_0001 == null ? null : temp_09_0001.addRef();
-    if (null != temp_09_0001)
-      temp_09_0001.freeRef();
+    super(inner.getData(), new CountingAccumulator(inner.addRef()));
+    Result temp_09_0001 = inner.addRef();
+    this.inner = temp_09_0001.addRef();
+    temp_09_0001.freeRef();
     inner.freeRef();
   }
 
-  public CountingResult(final Result r, final int samples) {
+  public CountingResult(@Nonnull final Result r, final int samples) {
     this(r);
     CountingResult.CountingAccumulator temp_09_0007 = getAccumulator();
     temp_09_0007.fwdLinks.set(samples);
-    if (null != temp_09_0007)
-      temp_09_0007.freeRef();
+    temp_09_0007.freeRef();
   }
 
   @Nonnull
@@ -68,14 +67,18 @@ public class CountingResult extends Result {
     return inner.isAlive();
   }
 
-  public static @SuppressWarnings("unused") CountingResult[] addRefs(CountingResult[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CountingResult[] addRefs(@Nullable CountingResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
         .toArray((x) -> new CountingResult[x]);
   }
 
-  public static @SuppressWarnings("unused") CountingResult[][] addRefs(CountingResult[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  CountingResult[][] addRefs(@Nullable CountingResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
@@ -86,20 +89,24 @@ public class CountingResult extends Result {
     inner.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") CountingResult addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  CountingResult addRef() {
     return (CountingResult) super.addRef();
   }
 
   static class CountingAccumulator extends Result.Accumulator {
     @Nonnull
     private final AtomicInteger fwdLinks;
+    @Nullable
     private final Result inner;
     @Nonnull
     private final RefLinkedList<TensorList> passbackBuffers;
     @Nonnull
     private final AtomicInteger accumulations;
 
-    public CountingAccumulator(Result inner) {
+    public CountingAccumulator(@Nullable Result inner) {
       Result temp_09_0002 = inner == null ? null : inner.addRef();
       this.inner = temp_09_0002 == null ? null : temp_09_0002.addRef();
       if (null != temp_09_0002)
@@ -108,9 +115,8 @@ public class CountingResult extends Result {
         inner.freeRef();
       fwdLinks = new AtomicInteger(0);
       RefLinkedList<TensorList> temp_09_0003 = new RefLinkedList<>();
-      passbackBuffers = temp_09_0003 == null ? null : temp_09_0003.addRef();
-      if (null != temp_09_0003)
-        temp_09_0003.freeRef();
+      passbackBuffers = temp_09_0003.addRef();
+      temp_09_0003.freeRef();
       accumulations = new AtomicInteger(0);
     }
 
@@ -118,7 +124,9 @@ public class CountingResult extends Result {
       return this.fwdLinks.get();
     }
 
-    public static @SuppressWarnings("unused") CountingAccumulator[] addRefs(CountingAccumulator[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    CountingAccumulator[] addRefs(@Nullable CountingAccumulator[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
@@ -130,23 +138,23 @@ public class CountingResult extends Result {
     }
 
     @Override
-    public void accept(DeltaSet<UUID> buffer, @Nonnull TensorList data) {
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       //assert null == CudaSystem.getThreadHandle();
       assertAlive();
       data.assertAlive();
       if (1 >= fwdLinks.get()) {
-        inner.accumulate(buffer == null ? null : buffer.addRef(), data == null ? null : data.addRef());
+        assert inner != null;
+        inner.accumulate(buffer == null ? null : buffer.addRef(), data.addRef());
       } else {
         @Nonnull
         TensorList reduced = null;
         synchronized (passbackBuffers) {
           assert passbackBuffers.stream().allMatch(x -> {
             boolean temp_09_0004 = x.assertAlive();
-            if (null != x)
-              x.freeRef();
+            x.freeRef();
             return temp_09_0004;
           });
-          passbackBuffers.add(data == null ? null : data.addRef());
+          passbackBuffers.add(data.addRef());
           if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
             RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
@@ -157,16 +165,14 @@ public class CountingResult extends Result {
               c = a.addAndFree(b == null ? null : b.addRef());
               if (null != b)
                 b.freeRef();
-              if (null != a)
-                a.freeRef();
+              a.freeRef();
               return c;
             }));
             passbackBuffers.clear();
-            passbackBuffers.add(compacted == null ? null : compacted);
+            passbackBuffers.add(compacted);
             assert passbackBuffers.stream().allMatch(x -> {
               boolean temp_09_0005 = x.assertAlive();
-              if (null != x)
-                x.freeRef();
+              x.freeRef();
               return temp_09_0005;
             });
           }
@@ -179,23 +185,23 @@ public class CountingResult extends Result {
               c = a.addAndFree(b == null ? null : b.addRef());
               if (null != b)
                 b.freeRef();
-              if (null != a)
-                a.freeRef();
+              a.freeRef();
               return c;
             }));
             passbackBuffers.clear();
           }
           assert passbackBuffers.stream().allMatch(x -> {
             boolean temp_09_0006 = x.assertAlive();
-            if (null != x)
-              x.freeRef();
+            x.freeRef();
             return temp_09_0006;
           });
         }
         if (null != reduced) {
-          inner.accumulate(buffer == null ? null : buffer.addRef(), reduced == null ? null : reduced.addRef());
+          assert inner != null;
+          inner.accumulate(buffer == null ? null : buffer.addRef(), reduced.addRef());
           accumulations.set(0);
         }
+        assert reduced != null;
         reduced.freeRef();
       }
       data.freeRef();
@@ -204,15 +210,18 @@ public class CountingResult extends Result {
     }
 
     public void _free() {
-      passbackBuffers.freeRef();
       if (null != inner)
         inner.freeRef();
       synchronized (passbackBuffers) {
         passbackBuffers.clear();
+        passbackBuffers.freeRef();
       }
     }
 
-    public @Override @SuppressWarnings("unused") CountingAccumulator addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    CountingAccumulator addRef() {
       return (CountingAccumulator) super.addRef();
     }
 

@@ -20,8 +20,10 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefAware;
+
+import javax.annotation.Nonnull;
 
 public interface Explodable {
+  @Nonnull
   Layer explode();
 }

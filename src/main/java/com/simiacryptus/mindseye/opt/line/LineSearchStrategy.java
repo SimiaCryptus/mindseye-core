@@ -21,9 +21,11 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
+
+import javax.annotation.Nullable;
 
 public interface LineSearchStrategy {
 
+  @Nullable
   PointSample step(LineSearchCursor cursor, TrainingMonitor monitor);
 }

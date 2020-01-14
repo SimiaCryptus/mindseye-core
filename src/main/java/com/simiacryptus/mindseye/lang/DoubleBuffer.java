@@ -20,11 +20,8 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefString;
+import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +46,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   public DoubleBuffer(@Nonnull final K key, final double[] target,
-      @org.jetbrains.annotations.Nullable final double[] delta) {
+                      @Nullable final double[] delta) {
     this.key = key;
     this.target = target;
     this.delta = delta;
@@ -82,13 +79,17 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return true;
   }
 
-  public static @SuppressWarnings("unused") DoubleBuffer[] addRefs(DoubleBuffer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DoubleBuffer[] addRefs(@Nullable DoubleBuffer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRef).toArray((x) -> new DoubleBuffer[x]);
   }
 
-  public static @SuppressWarnings("unused") DoubleBuffer[][] addRefs(DoubleBuffer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DoubleBuffer[][] addRefs(@Nullable DoubleBuffer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRefs)
@@ -110,22 +111,20 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     if (this.target != right.target) {
       IllegalArgumentException temp_51_0001 = new IllegalArgumentException(
           RefString.format("Deltas are not based on same buffer. %s != %s", this.key, right.key));
-      if (null != right)
-        right.freeRef();
+      right.freeRef();
       throw temp_51_0001;
     }
     if (!this.key.equals(right.key)) {
       IllegalArgumentException temp_51_0002 = new IllegalArgumentException(
           RefString.format("Deltas are not based on same key. %s != %s", this.key, right.key));
-      if (null != right)
-        right.freeRef();
+      right.freeRef();
       throw temp_51_0002;
     }
-    @Nullable
-    final double[] l = this.getDelta();
-    @Nullable
-    final double[] r = right.getDelta();
+    @Nullable final double[] l = this.getDelta();
+    @Nullable final double[] r = right.getDelta();
     right.freeRef();
+    assert r != null;
+    assert l != null;
     assert l.length == r.length;
     final double[] array = RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i]).toArray();
     return RefArrays.stream(array).summaryStatistics().getSum();
@@ -144,7 +143,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   public void set(@Nonnull final double[] data) {
     assert RefArrays.stream(data).allMatch(Double::isFinite);
-    com.simiacryptus.ref.wrappers.RefSystem.arraycopy(data, 0, this.getDelta(), 0, data.length);
+    RefSystem.arraycopy(data, 0, this.getDelta(), 0, data.length);
     //    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
     assert RefArrays.stream(getDelta()).allMatch(Double::isFinite);
   }
@@ -157,8 +156,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull
-    final com.simiacryptus.ref.wrappers.RefStringBuilder builder = new com.simiacryptus.ref.wrappers.RefStringBuilder();
+    @Nonnull final RefStringBuilder builder = new RefStringBuilder();
     builder.append(getClass().getSimpleName());
     builder.append("/");
     builder.append(this.key);
@@ -176,7 +174,10 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     }
   }
 
-  public @Override @SuppressWarnings("unused") DoubleBuffer<K> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  DoubleBuffer<K> addRef() {
     return (DoubleBuffer<K>) super.addRef();
   }
 }

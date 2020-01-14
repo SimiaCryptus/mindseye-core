@@ -23,13 +23,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefIntStream;
-import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,8 +47,7 @@ public class ValueLayer extends LayerBase {
     if (null != data)
       ReferenceCounting.freeRefs(data);
     data = Tensor.addRefs(temp_14_0001);
-    if (null != temp_14_0001)
-      ReferenceCounting.freeRefs(temp_14_0001);
+    ReferenceCounting.freeRefs(temp_14_0001);
   }
 
   public ValueLayer(final @Nonnull Tensor... data) {
@@ -61,8 +56,7 @@ public class ValueLayer extends LayerBase {
     if (null != this.data)
       ReferenceCounting.freeRefs(this.data);
     this.data = Tensor.addRefs(temp_14_0002);
-    if (null != temp_14_0002)
-      ReferenceCounting.freeRefs(temp_14_0002);
+    ReferenceCounting.freeRefs(temp_14_0002);
     ReferenceCounting.freeRefs(data);
     this.frozen = true;
   }
@@ -72,7 +66,7 @@ public class ValueLayer extends LayerBase {
     return Tensor.addRefs(data);
   }
 
-  public void setData(final Tensor... data) {
+  public void setData(@Nullable final Tensor... data) {
     Tensor[] temp_14_0003 = Tensor.addRefs(data);
     if (null != this.data)
       ReferenceCounting.freeRefs(this.data);
@@ -83,18 +77,23 @@ public class ValueLayer extends LayerBase {
       ReferenceCounting.freeRefs(data);
   }
 
+  @Nonnull
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new ValueLayer(json, rs);
   }
 
-  public static @SuppressWarnings("unused") ValueLayer[] addRefs(ValueLayer[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ValueLayer[] addRefs(@Nullable ValueLayer[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRef).toArray((x) -> new ValueLayer[x]);
   }
 
-  public static @SuppressWarnings("unused") ValueLayer[][] addRefs(ValueLayer[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  ValueLayer[][] addRefs(@Nullable ValueLayer[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(ValueLayer::addRefs).toArray((x) -> new ValueLayer[x][]);
@@ -112,30 +111,28 @@ public class ValueLayer extends LayerBase {
         }
 
         @Override
-        public void accept(DeltaSet<UUID> buffer, TensorList data) {
+        public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList data) {
           if (!ValueLayer.this.isFrozen()) {
             ValueLayer.this.assertAlive();
+            assert valueLayer.data != null;
             assert (1 == valueLayer.data.length || valueLayer.data.length == data.length());
             for (int i = 0; i < data.length(); i++) {
               Tensor delta = data.get(i);
               Tensor value = valueLayer.data[i % valueLayer.data.length].addRef();
               Delta<UUID> temp_14_0007 = buffer.get(value.getId(), value.getData());
+              assert temp_14_0007 != null;
               RefUtil.freeRef(temp_14_0007.addInPlace(delta.getData()));
-              if (null != temp_14_0007)
-                temp_14_0007.freeRef();
-              if (null != value)
-                value.freeRef();
-              if (null != delta)
-                delta.freeRef();
+              temp_14_0007.freeRef();
+              value.freeRef();
+              delta.freeRef();
             }
           }
-          if (null != data)
-            data.freeRef();
-          if (null != buffer)
-            buffer.freeRef();
+          data.freeRef();
+          buffer.freeRef();
         }
 
-        public @SuppressWarnings("unused") void _free() {
+        public @SuppressWarnings("unused")
+        void _free() {
         }
       }) {
 
@@ -151,21 +148,18 @@ public class ValueLayer extends LayerBase {
         }
       };
     } finally {
-      if (null != valueLayer)
-        valueLayer.freeRef();
+      valueLayer.freeRef();
     }
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
-    @Nonnull
-    final JsonObject json = super.getJsonStub();
+    @Nonnull final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
     RefArrays.stream(Tensor.addRefs(data)).map(datum -> {
       JsonElement temp_14_0005 = datum.getJson(resources, dataSerializer);
-      if (null != datum)
-        datum.freeRef();
+      datum.freeRef();
       return temp_14_0005;
     }).forEach(values::add);
     json.add("values", values);
@@ -177,8 +171,7 @@ public class ValueLayer extends LayerBase {
   public RefList<double[]> state() {
     return RefArrays.stream(Tensor.addRefs(data)).map(x -> {
       double[] temp_14_0006 = x.getData();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_14_0006;
     }).collect(RefCollectors.toList());
   }
@@ -189,7 +182,10 @@ public class ValueLayer extends LayerBase {
     data = null;
   }
 
-  public @Override @SuppressWarnings("unused") ValueLayer addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  ValueLayer addRef() {
     return (ValueLayer) super.addRef();
   }
 
@@ -201,7 +197,7 @@ public class ValueLayer extends LayerBase {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
       if (this == o)
         return true;
       if (o == null || getClass() != o.getClass())
@@ -212,7 +208,7 @@ public class ValueLayer extends LayerBase {
 
     @Override
     public int hashCode() {
-      return com.simiacryptus.ref.wrappers.RefSystem.identityHashCode(obj);
+      return RefSystem.identityHashCode(obj);
     }
   }
 }

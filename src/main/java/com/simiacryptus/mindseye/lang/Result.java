@@ -19,11 +19,12 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -40,61 +41,54 @@ public class Result extends ReferenceCountingBase {
 
   public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator) {
     super();
-    TensorList temp_16_0001 = data == null ? null : data.addRef();
-    this.data = temp_16_0001 == null ? null : temp_16_0001.addRef();
-    if (null != temp_16_0001)
-      temp_16_0001.freeRef();
-    Accumulator temp_16_0002 = accumulator == null ? null : accumulator.addRef();
-    this.accumulator = temp_16_0002 == null ? null : temp_16_0002.addRef();
-    if (null != temp_16_0002)
-      temp_16_0002.freeRef();
+    TensorList temp_16_0001 = data.addRef();
+    this.data = temp_16_0001.addRef();
+    temp_16_0001.freeRef();
+    Accumulator temp_16_0002 = accumulator.addRef();
+    this.accumulator = temp_16_0002.addRef();
+    temp_16_0002.freeRef();
     accumulator.freeRef();
     this.dims = data.getDimensions();
     this.dataLength = data.length();
     data.freeRef();
   }
 
+  @Nullable
   public Result.Accumulator getAccumulator() {
     assertAlive();
-    return accumulator == null ? null : accumulator.addRef();
+    return accumulator.addRef();
   }
 
+  @NotNull
   public final TensorList getData() {
     assertAlive();
     data.assertAlive();
-    return data == null ? null : data.addRef();
+    return data.addRef();
   }
 
   public double[] getSingleDelta() {
     DeltaSet<UUID> deltaBuffer = new DeltaSet<>();
-    accumulate(deltaBuffer == null ? null : deltaBuffer.addRef());
+    accumulate(deltaBuffer.addRef());
     RefMap<UUID, Delta<UUID>> temp_16_0005 = deltaBuffer.getMap();
     if (temp_16_0005.size() != 1) {
       RefMap<UUID, Delta<UUID>> temp_16_0006 = deltaBuffer.getMap();
       AssertionError temp_16_0004 = new AssertionError(temp_16_0006.size());
-      if (null != temp_16_0006)
-        temp_16_0006.freeRef();
-      if (null != deltaBuffer)
-        deltaBuffer.freeRef();
+      temp_16_0006.freeRef();
+      deltaBuffer.freeRef();
       throw temp_16_0004;
     }
-    if (null != temp_16_0005)
-      temp_16_0005.freeRef();
+    temp_16_0005.freeRef();
     RefMap<UUID, Delta<UUID>> temp_16_0007 = deltaBuffer.getMap();
     RefCollection<Delta<UUID>> temp_16_0008 = temp_16_0007.values();
     RefIterator<Delta<UUID>> temp_16_0009 = temp_16_0008.iterator();
     Delta<UUID> temp_16_0010 = temp_16_0009.next();
+    assert temp_16_0010 != null;
     double[] temp_16_0003 = copy(temp_16_0010.getDelta());
-    if (null != temp_16_0010)
-      temp_16_0010.freeRef();
-    if (null != temp_16_0009)
-      temp_16_0009.freeRef();
-    if (null != temp_16_0008)
-      temp_16_0008.freeRef();
-    if (null != temp_16_0007)
-      temp_16_0007.freeRef();
-    if (null != deltaBuffer)
-      deltaBuffer.freeRef();
+    temp_16_0010.freeRef();
+    temp_16_0009.freeRef();
+    temp_16_0008.freeRef();
+    temp_16_0007.freeRef();
+    deltaBuffer.freeRef();
     return temp_16_0003;
   }
 
@@ -106,13 +100,17 @@ public class Result extends ReferenceCountingBase {
     return temp_16_0011;
   }
 
-  public static @SuppressWarnings("unused") Result[] addRefs(Result[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Result[] addRefs(@Nullable Result[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Result::addRef).toArray((x) -> new Result[x]);
   }
 
-  public static @SuppressWarnings("unused") Result[][] addRefs(Result[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  Result[][] addRefs(@Nullable Result[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(Result::addRefs).toArray((x) -> new Result[x][]);
@@ -123,13 +121,13 @@ public class Result extends ReferenceCountingBase {
     return delta;
   }
 
-  public final void accumulate(final DeltaSet<UUID> buffer) {
+  public final void accumulate(@Nullable final DeltaSet<UUID> buffer) {
     accumulate(buffer == null ? null : buffer.addRef(), 1.0);
     if (null != buffer)
       buffer.freeRef();
   }
 
-  public final void accumulate(final DeltaSet<UUID> buffer, final double value) {
+  public final void accumulate(@Nullable final DeltaSet<UUID> buffer, final double value) {
 
     accumulate(buffer == null ? null : buffer.addRef(),
         new TensorArray(RefIntStream.range(0, dataLength).mapToObj(x -> {
@@ -139,39 +137,49 @@ public class Result extends ReferenceCountingBase {
       buffer.freeRef();
   }
 
-  public void accumulate(DeltaSet<UUID> buffer, TensorList delta) {
+  public void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
     Result.Accumulator temp_16_0013 = getAccumulator();
+    assert temp_16_0013 != null;
     temp_16_0013.accept(buffer == null ? null : buffer.addRef(), delta == null ? null : delta.addRef());
-    if (null != temp_16_0013)
-      temp_16_0013.freeRef();
+    temp_16_0013.freeRef();
     if (null != delta)
       delta.freeRef();
     if (null != buffer)
       buffer.freeRef();
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
     accumulator.freeRef();
     data.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") Result addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  Result addRef() {
     return (Result) super.addRef();
   }
 
   public static abstract class Accumulator extends ReferenceCountingBase
       implements BiConsumer<DeltaSet<UUID>, TensorList> {
 
-    public static @SuppressWarnings("unused") Accumulator[] addRefs(Accumulator[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    Accumulator[] addRefs(@Nullable Accumulator[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(Accumulator::addRef).toArray((x) -> new Accumulator[x]);
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") Accumulator addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    Accumulator addRef() {
       return (Accumulator) super.addRef();
     }
   }

@@ -22,10 +22,10 @@ package com.simiacryptus.mindseye.opt.line;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -33,14 +33,18 @@ public interface LineSearchCursor extends ReferenceCounting {
 
   CharSequence getDirectionType();
 
-  public static @SuppressWarnings("unused") LineSearchCursor[] addRefs(LineSearchCursor[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LineSearchCursor[] addRefs(@Nullable LineSearchCursor[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRef)
         .toArray((x) -> new LineSearchCursor[x]);
   }
 
-  public static @SuppressWarnings("unused") LineSearchCursor[][] addRefs(LineSearchCursor[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LineSearchCursor[][] addRefs(@Nullable LineSearchCursor[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRefs)
@@ -55,6 +59,7 @@ public interface LineSearchCursor extends ReferenceCounting {
 
   void reset();
 
+  @javax.annotation.Nullable
   LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
   public void _free();

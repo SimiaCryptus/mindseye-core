@@ -29,7 +29,6 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
 import com.simiacryptus.mindseye.opt.line.SimpleLineSearchCursor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 
@@ -41,6 +40,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
+  @Nullable
   public final OrientationStrategy<?> inner;
   private double factor_L1 = 0.000;
   private double zeroTol = 1e-20;
@@ -49,7 +49,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     this(new LBFGS());
   }
 
-  protected OwlQn(final OrientationStrategy<?> inner) {
+  protected OwlQn(@Nullable final OrientationStrategy<?> inner) {
     OrientationStrategy<?> temp_29_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_29_0001 == null ? null : temp_29_0001.addRef();
     if (null != temp_29_0001)
@@ -78,13 +78,17 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused") OwlQn[] addRefs(OwlQn[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  OwlQn[] addRefs(@Nullable OwlQn[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(OwlQn::addRef).toArray((x) -> new OwlQn[x]);
   }
 
-  public static @SuppressWarnings("unused") OwlQn[][] addRefs(OwlQn[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  OwlQn[][] addRefs(@Nullable OwlQn[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(OwlQn::addRefs).toArray((x) -> new OwlQn[x][]);
@@ -100,21 +104,20 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
 
   @Nonnull
   @Override
-  public LineSearchCursor orient(final Trainable subject, @Nonnull final PointSample measurement,
-      final TrainingMonitor monitor) {
-    @Nonnull
-    final SimpleLineSearchCursor gradient = (SimpleLineSearchCursor) inner
-        .orient(subject == null ? null : subject.addRef(), measurement == null ? null : measurement.addRef(), monitor);
-    @Nonnull
-    final DeltaSet<UUID> searchDirection = gradient.direction.copy();
-    @Nonnull
-    final DeltaSet<UUID> orthant = new DeltaSet<UUID>();
+  public LineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
+                                 final TrainingMonitor monitor) {
+    assert inner != null;
+    @Nonnull final SimpleLineSearchCursor gradient = (SimpleLineSearchCursor) inner
+        .orient(subject == null ? null : subject.addRef(), measurement.addRef(), monitor);
+    assert gradient.direction != null;
+    @Nonnull final DeltaSet<UUID> searchDirection = gradient.direction.copy();
+    @Nonnull final DeltaSet<UUID> orthant = new DeltaSet<UUID>();
     RefMap<UUID, Delta<UUID>> temp_29_0006 = gradient.direction.getMap();
     RefSet<UUID> keySet = temp_29_0006.keySet();
-    if (null != temp_29_0006)
-      temp_29_0006.freeRef();
+    temp_29_0006.freeRef();
     RefList<Layer> layerSet = keySet.stream()
         .map(RefUtil.wrapInterface((Function<? super UUID, ? extends Layer>) id -> {
+          assert subject != null;
           DAGNetwork layer = (DAGNetwork) subject.getLayer();
           RefMap<UUID, Layer> layersById = layer.getLayersById();
           Layer id_layer = layersById.get(id);
@@ -122,41 +125,37 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
           layer.freeRef();
           return id_layer;
         }, subject == null ? null : subject.addRef())).collect(RefCollectors.toList());
-    if (null != keySet)
-      keySet.freeRef();
+    keySet.freeRef();
     RefCollection<Layer> layers = getLayers(layerSet == null ? null : layerSet.addRef());
     for (@Nonnull final Layer layer : layers) {
       RefMap<UUID, Delta<UUID>> temp_29_0007 = gradient.direction.getMap();
       temp_29_0007
           .forEach(RefUtil.wrapInterface((BiConsumer<? super UUID, ? super Delta<UUID>>) (layerId, layerDelta) -> {
             final double[] weights = layerDelta.target;
-            @Nullable
-            final double[] delta = layerDelta.getDelta();
-            if (null != layerDelta)
-              layerDelta.freeRef();
+            @Nullable final double[] delta = layerDelta.getDelta();
+            layerDelta.freeRef();
             Delta<UUID> layerDelta1 = searchDirection.get(layerId, weights);
-            @Nullable
-            final double[] searchDir = layerDelta1.getDelta();
-            if (null != layerDelta1)
-              layerDelta1.freeRef();
+            assert layerDelta1 != null;
+            @Nullable final double[] searchDir = layerDelta1.getDelta();
+            layerDelta1.freeRef();
             Delta<UUID> layerDelta2 = orthant.get(layerId, weights);
-            @Nullable
-            final double[] suborthant = layerDelta2.getDelta();
-            if (null != layerDelta2)
-              layerDelta2.freeRef();
+            assert layerDelta2 != null;
+            @Nullable final double[] suborthant = layerDelta2.getDelta();
+            layerDelta2.freeRef();
+            assert searchDir != null;
             for (int i = 0; i < searchDir.length; i++) {
               final int positionSign = sign(weights[i]);
+              assert delta != null;
               final int directionSign = sign(delta[i]);
+              assert suborthant != null;
               suborthant[i] = 0 == positionSign ? directionSign : positionSign;
               searchDir[i] += factor_L1 * (weights[i] < 0 ? -1.0 : 1.0);
               if (sign(searchDir[i]) != directionSign) {
                 searchDir[i] = delta[i];
               }
             }
-            assert null != searchDir;
-          }, searchDirection == null ? null : searchDirection.addRef(), orthant == null ? null : orthant.addRef()));
-      if (null != temp_29_0007)
-        temp_29_0007.freeRef();
+          }, searchDirection.addRef(), orthant.addRef()));
+      temp_29_0007.freeRef();
     }
     layers.freeRef();
     if (null != layerSet)
@@ -172,64 +171,58 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
       public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
         origin.weights.stream().forEach(d -> {
           RefUtil.freeRef(d.restore());
-          if (null != d)
-            d.freeRef();
+          d.freeRef();
         });
-        @Nonnull
-        final DeltaSet<UUID> currentDirection = direction.copy();
+        assert direction != null;
+        @Nonnull final DeltaSet<UUID> currentDirection = direction.copy();
         RefMap<UUID, Delta<UUID>> temp_29_0008 = direction.getMap();
         temp_29_0008.forEach(RefUtil.wrapInterface((BiConsumer<? super UUID, ? super Delta<UUID>>) (layer, buffer) -> {
           if (null == buffer.getDelta()) {
-            if (null != buffer)
-              buffer.freeRef();
+            buffer.freeRef();
             return;
           }
           Delta<UUID> layerDelta = currentDirection.get(layer, buffer.target);
-          @Nullable
-          final double[] currentDelta = layerDelta.getDelta();
-          if (null != layerDelta)
-            layerDelta.freeRef();
+          assert layerDelta != null;
+          @Nullable final double[] currentDelta = layerDelta.getDelta();
+          layerDelta.freeRef();
           for (int i = 0; i < buffer.getDelta().length; i++) {
             final double prevValue = buffer.target[i];
             final double newValue = prevValue + buffer.getDelta()[i] * alpha;
             if (sign(prevValue) != 0 && sign(prevValue) != sign(newValue)) {
+              assert currentDelta != null;
               currentDelta[i] = 0;
               buffer.target[i] = 0;
             } else {
               buffer.target[i] = newValue;
             }
           }
-          if (null != buffer)
-            buffer.freeRef();
-        }, currentDirection == null ? null : currentDirection.addRef()));
-        if (null != temp_29_0008)
-          temp_29_0008.freeRef();
+          buffer.freeRef();
+        }, currentDirection.addRef()));
+        temp_29_0008.freeRef();
+        assert subject != null;
         PointSample temp_29_0009 = subject.measure(monitor);
-        @Nonnull
-        final PointSample measure = afterStep(temp_29_0009.setRate(alpha));
-        if (null != temp_29_0009)
-          temp_29_0009.freeRef();
+        @Nonnull final PointSample measure = afterStep(temp_29_0009.setRate(alpha));
+        temp_29_0009.freeRef();
         double dot = currentDirection.dot(measure.delta.addRef());
-        if (null != currentDirection)
-          currentDirection.freeRef();
-        LineSearchPoint temp_29_0003 = new LineSearchPoint(measure == null ? null : measure.addRef(), dot);
-        if (null != measure)
-          measure.freeRef();
+        currentDirection.freeRef();
+        LineSearchPoint temp_29_0003 = new LineSearchPoint(measure.addRef(), dot);
+        measure.freeRef();
         return temp_29_0003;
       }
 
-      public @SuppressWarnings("unused") void _free() {
+      public @SuppressWarnings("unused")
+      void _free() {
       }
     };
     SimpleLineSearchCursor temp_29_0002 = temp_29_0005.setDirectionType("OWL/QN");
-    if (null != temp_29_0005)
-      temp_29_0005.freeRef();
+    temp_29_0005.freeRef();
     searchDirection.freeRef();
     return temp_29_0002;
   }
 
   @Override
   public void reset() {
+    assert inner != null;
     inner.reset();
   }
 
@@ -238,7 +231,10 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
       inner.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") OwlQn addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  OwlQn addRef() {
     return (OwlQn) super.addRef();
   }
 

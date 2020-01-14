@@ -22,19 +22,19 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase implements TrainableDataMask {
 
+  @Nullable
   private final T inner;
 
-  public TrainableWrapper(final T inner) {
+  public TrainableWrapper(@Nullable final T inner) {
     T temp_21_0001 = RefUtil.addRef(inner);
     this.inner = RefUtil.addRef(temp_21_0001);
     if (null != temp_21_0001)
@@ -43,29 +43,36 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
       inner.freeRef();
   }
 
+  @Nullable
   public T getInner() {
     return RefUtil.addRef(inner);
   }
 
-  @NotNull
+  @Nonnull
   @Override
   public Layer getLayer() {
+    assert inner != null;
     return inner.getLayer();
   }
 
   @Override
   public boolean[] getMask() {
+    assert inner != null;
     return ((TrainableDataMask) inner).getMask();
   }
 
-  public static @SuppressWarnings("unused") TrainableWrapper[] addRefs(TrainableWrapper[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  TrainableWrapper[] addRefs(@Nullable TrainableWrapper[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
         .toArray((x) -> new TrainableWrapper[x]);
   }
 
-  public static @SuppressWarnings("unused") TrainableWrapper[][] addRefs(TrainableWrapper[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  TrainableWrapper[][] addRefs(@Nullable TrainableWrapper[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
@@ -74,21 +81,23 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
 
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
+    assert inner != null;
     return inner.measure(monitor);
   }
 
   @Override
   public boolean reseed(final long seed) {
     T temp_21_0003 = getInner();
+    assert temp_21_0003 != null;
     boolean temp_21_0002 = temp_21_0003.reseed(seed);
-    if (null != temp_21_0003)
-      temp_21_0003.freeRef();
+    temp_21_0003.freeRef();
     return temp_21_0002;
   }
 
   @Nonnull
   @Override
   public TrainableDataMask setMask(final boolean... mask) {
+    assert inner != null;
     RefUtil.freeRef(((TrainableDataMask) inner).setMask(mask));
     return this.addRef();
   }
@@ -105,7 +114,10 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     super._free();
   }
 
-  public @Override @SuppressWarnings("unused") TrainableWrapper<T> addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  TrainableWrapper<T> addRef() {
     return (TrainableWrapper<T>) super.addRef();
   }
 }

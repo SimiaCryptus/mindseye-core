@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -65,16 +66,18 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     return this.addRef();
   }
 
+  @Nullable
   public static @SuppressWarnings("unused")
-  CachedTrainable[] addRefs(CachedTrainable[] array) {
+  CachedTrainable[] addRefs(@Nullable CachedTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
         .toArray((x) -> new CachedTrainable[x]);
   }
 
+  @Nullable
   public static @SuppressWarnings("unused")
-  CachedTrainable[][] addRefs(CachedTrainable[][] array) {
+  CachedTrainable[][] addRefs(@Nullable CachedTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
@@ -87,6 +90,7 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     return this.addRef();
   }
 
+  @Nonnull
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     for (int i = 0; i < history.size(); i++) {
@@ -97,8 +101,7 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
             RefMap<UUID, State<UUID>> temp_53_0001 = result.weights.getMap();
             log.info(RefString.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
                 result.rate, result.getMean()));
-            if (null != temp_53_0001)
-              temp_53_0001.freeRef();
+            temp_53_0001.freeRef();
           }
           return result.copyFull();
         }
@@ -126,6 +129,7 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
       history.freeRef();
   }
 
+  @Nonnull
   public @Override
   @SuppressWarnings("unused")
   CachedTrainable<T> addRef() {

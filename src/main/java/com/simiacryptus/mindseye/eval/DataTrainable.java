@@ -20,23 +20,28 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Tensor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public interface DataTrainable extends Trainable {
+  @Nullable
   Tensor[][] getData();
 
-  public static @SuppressWarnings("unused") DataTrainable[] addRefs(DataTrainable[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DataTrainable[] addRefs(@Nullable DataTrainable[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRef)
         .toArray((x) -> new DataTrainable[x]);
   }
 
-  public static @SuppressWarnings("unused") DataTrainable[][] addRefs(DataTrainable[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  DataTrainable[][] addRefs(@Nullable DataTrainable[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(DataTrainable::addRefs)
@@ -48,5 +53,6 @@ public interface DataTrainable extends Trainable {
 
   public void _free();
 
+  @Nonnull
   public DataTrainable addRef();
 }

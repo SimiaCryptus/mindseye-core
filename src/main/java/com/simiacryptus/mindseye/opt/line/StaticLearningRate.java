@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
@@ -56,16 +55,21 @@ public class StaticLearningRate implements LineSearchStrategy {
     return this;
   }
 
+  @Nullable
   @Override
   public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
     double thisRate = rate;
     final LineSearchPoint startPoint = cursor.step(0, monitor);
+    assert startPoint != null;
+    assert startPoint.point != null;
     final double startValue = startPoint.point.sum; // theta(0)
     @Nullable
     LineSearchPoint lastStep = null;
     try {
       while (true) {
         lastStep = cursor.step(thisRate, monitor);
+        assert lastStep != null;
+        assert lastStep.point != null;
         double lastValue = lastStep.point.sum;
         if (!Double.isFinite(lastValue)) {
           lastValue = Double.POSITIVE_INFINITY;
@@ -75,18 +79,14 @@ public class StaticLearningRate implements LineSearchStrategy {
           thisRate /= 2;
           if (thisRate < getMinimumRate()) {
             PointSample temp_30_0001 = startPoint.point;
-            if (null != startPoint)
-              startPoint.freeRef();
-            if (null != lastStep)
-              lastStep.freeRef();
+            startPoint.freeRef();
+            lastStep.freeRef();
             return temp_30_0001;
           }
         } else {
-          if (null != startPoint)
-            startPoint.freeRef();
+          startPoint.freeRef();
           PointSample temp_30_0002 = lastStep.point;
-          if (null != lastStep)
-            lastStep.freeRef();
+          lastStep.freeRef();
           return temp_30_0002;
         }
       }

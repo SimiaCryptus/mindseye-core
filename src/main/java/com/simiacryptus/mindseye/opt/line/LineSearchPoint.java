@@ -20,18 +20,20 @@
 package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.PointSample;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefStringBuilder;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 
 public class LineSearchPoint extends ReferenceCountingBase {
 
   public final double derivative;
+  @Nullable
   public final PointSample point;
 
-  public LineSearchPoint(final PointSample point, final double derivative) {
+  public LineSearchPoint(@Nullable final PointSample point, final double derivative) {
     PointSample temp_04_0001 = point == null ? null : point.addRef();
     this.point = temp_04_0001 == null ? null : temp_04_0001.addRef();
     if (null != temp_04_0001)
@@ -41,14 +43,18 @@ public class LineSearchPoint extends ReferenceCountingBase {
     this.derivative = derivative;
   }
 
-  public static @SuppressWarnings("unused") LineSearchPoint[] addRefs(LineSearchPoint[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LineSearchPoint[] addRefs(@Nullable LineSearchPoint[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRef)
         .toArray((x) -> new LineSearchPoint[x]);
   }
 
-  public static @SuppressWarnings("unused") LineSearchPoint[][] addRefs(LineSearchPoint[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  LineSearchPoint[][] addRefs(@Nullable LineSearchPoint[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRefs)
@@ -58,9 +64,9 @@ public class LineSearchPoint extends ReferenceCountingBase {
   @Nonnull
   @Override
   public String toString() {
-    @Nonnull
-    final com.simiacryptus.ref.wrappers.RefStringBuilder sb = new com.simiacryptus.ref.wrappers.RefStringBuilder(
+    @Nonnull final RefStringBuilder sb = new RefStringBuilder(
         "LineSearchPoint{");
+    assert point != null;
     sb.append("point=").append(point.addRef());
     sb.append(", derivative=").append(derivative);
     sb.append('}');
@@ -72,7 +78,10 @@ public class LineSearchPoint extends ReferenceCountingBase {
       point.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") LineSearchPoint addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  LineSearchPoint addRef() {
     return (LineSearchPoint) super.addRef();
   }
 }

@@ -22,11 +22,10 @@ package com.simiacryptus.mindseye.lang;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
-import com.simiacryptus.ref.lang.RefAware;
 import org.apache.commons.io.IOUtils;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -38,11 +37,12 @@ import java.util.zip.ZipOutputStream;
 
 public interface ZipSerializable {
 
+  @Nullable
   default JsonElement getJson() {
     return getJson(null, SerialPrecision.Double);
   }
 
-  @NotNull
+  @Nonnull
   static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
     Enumeration<? extends ZipEntry> entries = zipfile.entries();
     @Nonnull
@@ -60,6 +60,7 @@ public interface ZipSerializable {
     return resources;
   }
 
+  @Nullable
   JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
 
   default void writeZip(@Nonnull File out) {
@@ -68,7 +69,7 @@ public interface ZipSerializable {
 
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull
-    ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
+         ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
       writeZip(zipOutputStream, precision, new HashMap<>(), "model.json");
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -76,7 +77,7 @@ public interface ZipSerializable {
   }
 
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
-      HashMap<CharSequence, byte[]> resources, String fileName) {
+                        @Nonnull HashMap<CharSequence, byte[]> resources, @Nonnull String fileName) {
     try {
       JsonElement json = getJson(resources, precision);
       out.putNextEntry(new ZipEntry(fileName));

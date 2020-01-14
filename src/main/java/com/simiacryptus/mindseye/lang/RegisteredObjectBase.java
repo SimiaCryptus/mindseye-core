@@ -27,6 +27,8 @@ import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Executors;
@@ -45,58 +47,63 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
   //    register();
   //  }
 
-  public static <T extends RegisteredObjectBase> RefStream<T> getLivingInstances(final Class<T> k) {
+  @Nonnull
+  public static <T extends RegisteredObjectBase> RefStream<T> getLivingInstances(@Nonnull final Class<T> k) {
     return getInstances(k).filter(x -> {
       boolean temp_32_0001 = !x.isFinalized();
-      if (null != x)
-        x.freeRef();
+      x.freeRef();
       return temp_32_0001;
     });
   }
 
-  public static <T extends RegisteredObjectBase> RefStream<T> getInstances(final Class<T> k) {
+  @Nonnull
+  public static <T extends RegisteredObjectBase> RefStream<T> getInstances(@Nonnull final Class<T> k) {
     RefSet<Map.Entry<Class<? extends RegisteredObjectBase>, RegisteredObjectBase.ObjectRecords<RegisteredObjectBase>>> temp_32_0006 = cache
         .entrySet();
     RefStream<T> temp_32_0005 = temp_32_0006.stream().filter(e -> {
       boolean temp_32_0002 = k.isAssignableFrom(e.getKey());
-      if (null != e)
-        RefUtil.freeRef(e);
+      RefUtil.freeRef(e);
       return temp_32_0002;
     }).flatMap(
         (Function<Map.Entry<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>>, RefStream<RefWeakReference<RegisteredObjectBase>>>) recordsEntry -> {
           ObjectRecords<RegisteredObjectBase> temp_32_0003 = recordsEntry.getValue();
-          if (null != recordsEntry)
-            RefUtil.freeRef(recordsEntry);
+          RefUtil.freeRef(recordsEntry);
           return temp_32_0003.stream();
         }).map(x -> (T) x.get()).filter(x -> {
-          boolean temp_32_0004 = x != null;
-          if (null != x)
-            x.freeRef();
-          return temp_32_0004;
-        });
-    if (null != temp_32_0006)
-      temp_32_0006.freeRef();
+      boolean temp_32_0004 = x != null;
+      if (null != x)
+        x.freeRef();
+      return temp_32_0004;
+    });
+    temp_32_0006.freeRef();
     return temp_32_0005;
   }
 
-  public static @SuppressWarnings("unused") RegisteredObjectBase[] addRefs(RegisteredObjectBase[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  RegisteredObjectBase[] addRefs(@Nullable RegisteredObjectBase[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRef)
         .toArray((x) -> new RegisteredObjectBase[x]);
   }
 
-  public static @SuppressWarnings("unused") RegisteredObjectBase[][] addRefs(RegisteredObjectBase[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  RegisteredObjectBase[][] addRefs(@Nullable RegisteredObjectBase[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRefs)
         .toArray((x) -> new RegisteredObjectBase[x][]);
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") RegisteredObjectBase addRef() {
+  public @Override
+  @SuppressWarnings("unused")
+  RegisteredObjectBase addRef() {
     return (RegisteredObjectBase) super.addRef();
   }
 
@@ -104,8 +111,7 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
     RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0007 = cache.computeIfAbsent(getClass(),
         k -> new ObjectRecords<>());
     temp_32_0007.add(new RefWeakReference<>(this.addRef()));
-    if (null != temp_32_0007)
-      temp_32_0007.freeRef();
+    temp_32_0007.freeRef();
   }
 
   private static class ObjectRecords<T extends RegisteredObjectBase>
@@ -114,7 +120,9 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
     private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(this::maintain, 1, 1,
         TimeUnit.SECONDS);
 
-    public static @SuppressWarnings("unused") ObjectRecords[] addRefs(ObjectRecords[] array) {
+    @Nullable
+    public static @SuppressWarnings("unused")
+    ObjectRecords[] addRefs(@Nullable ObjectRecords[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter((x) -> x != null).map(ObjectRecords::addRef)
@@ -122,7 +130,7 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
     }
 
     @Override
-    public boolean add(final @com.simiacryptus.ref.lang.RefAware RefWeakReference<T> tWeakReference) {
+    public boolean add(final @RefAware RefWeakReference<T> tWeakReference) {
       dirty = true;
       return super.add(tWeakReference);
     }
@@ -133,10 +141,14 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
       return super.stream();
     }
 
-    public @SuppressWarnings("unused") void _free() {
+    public @SuppressWarnings("unused")
+    void _free() {
     }
 
-    public @Override @SuppressWarnings("unused") ObjectRecords<T> addRef() {
+    @Nonnull
+    public @Override
+    @SuppressWarnings("unused")
+    ObjectRecords<T> addRef() {
       return (ObjectRecords<T>) super.addRef();
     }
 
@@ -145,8 +157,9 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
         this.removeIf(ref -> {
           T t = ref.get();
           boolean isNull = null == t;
+          assert t != null;
           t.freeRef();
-          return isNull;
+          return false;
         });
         dirty = false;
       }

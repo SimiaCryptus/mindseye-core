@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.network;
 import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -39,9 +38,11 @@ import java.util.function.Function;
 public final class InnerNode extends LazyResult {
   @SuppressWarnings("unused")
   public final CharSequence[] createdBy = Util.currentStack();
+  @Nullable
   private final DAGNetwork dagNetwork;
   @Nonnull
   private final DAGNode[] inputNodes;
+  @Nullable
   private volatile Layer layer;
   private boolean parallel = true;
 
@@ -51,8 +52,8 @@ public final class InnerNode extends LazyResult {
   }
 
   @SafeVarargs
-  InnerNode(final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key,
-      @Nonnull final DAGNode... inputNodes) {
+  InnerNode(@Nullable final DAGNetwork dagNetwork, @Nonnull final Layer layer, final UUID key,
+            @Nonnull final DAGNode... inputNodes) {
     super(key);
     DAGNetwork temp_12_0001 = dagNetwork == null ? null : dagNetwork.addRef();
     this.dagNetwork = temp_12_0001 == null ? null : temp_12_0001.addRef();
@@ -60,18 +61,15 @@ public final class InnerNode extends LazyResult {
       temp_12_0001.freeRef();
     if (null != dagNetwork)
       dagNetwork.freeRef();
-    assert null != inputNodes;
-    setLayer(layer == null ? null : layer);
+    setLayer(layer);
     if (0 == inputNodes.length) {
-      DAGNode[] temp_12_0002 = new DAGNode[] {};
+      DAGNode[] temp_12_0002 = new DAGNode[]{};
       this.inputNodes = DAGNode.addRefs(temp_12_0002);
-      if (null != temp_12_0002)
-        ReferenceCounting.freeRefs(temp_12_0002);
+      ReferenceCounting.freeRefs(temp_12_0002);
     } else {
       DAGNode[] temp_12_0003 = RefArrays.copyOf(DAGNode.addRefs(inputNodes), inputNodes.length);
       this.inputNodes = DAGNode.addRefs(temp_12_0003);
-      if (null != temp_12_0003)
-        ReferenceCounting.freeRefs(temp_12_0003);
+      ReferenceCounting.freeRefs(temp_12_0003);
       assert RefArrays.stream(DAGNode.addRefs(inputNodes)).parallel().allMatch(x -> {
         boolean temp_12_0006 = x != null;
         if (null != x)
@@ -80,8 +78,7 @@ public final class InnerNode extends LazyResult {
       });
       assert RefArrays.stream(DAGNode.addRefs(inputNodes)).parallel().allMatch(x -> {
         boolean temp_12_0007 = x.assertAlive();
-        if (null != x)
-          x.freeRef();
+        x.freeRef();
         return temp_12_0007;
       });
     }
@@ -104,11 +101,12 @@ public final class InnerNode extends LazyResult {
   @Override
   public synchronized void setLayer(@Nonnull final Layer newLayer) {
     assertAlive();
+    assert dagNetwork != null;
     dagNetwork.assertAlive();
     newLayer.assertAlive();
     Layer prevLayer = this.layer.addRef();
     if (newLayer != prevLayer) {
-      Layer temp_12_0004 = newLayer == null ? null : newLayer.addRef();
+      Layer temp_12_0004 = newLayer.addRef();
       if (null != this.layer)
         this.layer.freeRef();
       this.layer = temp_12_0004 == null ? null : temp_12_0004.addRef();
@@ -121,6 +119,7 @@ public final class InnerNode extends LazyResult {
       prevLayer.freeRef();
   }
 
+  @Nullable
   @Override
   public DAGNetwork getNetwork() {
     return dagNetwork == null ? null : dagNetwork.addRef();
@@ -130,52 +129,51 @@ public final class InnerNode extends LazyResult {
     return parallel;
   }
 
+  @Nonnull
   public InnerNode setParallel(boolean parallel) {
     this.parallel = parallel;
     return this.addRef();
   }
 
-  public static @SuppressWarnings("unused") InnerNode[] addRefs(InnerNode[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  InnerNode[] addRefs(@Nullable InnerNode[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRef).toArray((x) -> new InnerNode[x]);
   }
 
-  public static @SuppressWarnings("unused") InnerNode[][] addRefs(InnerNode[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  InnerNode[][] addRefs(@Nullable InnerNode[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRefs).toArray((x) -> new InnerNode[x][]);
   }
 
   public void _free() {
-    if (null != layer)
+    if (null != layer) {
       layer.freeRef();
-    layer = null;
+      layer = null;
+    }
     ReferenceCounting.freeRefs(inputNodes);
     if (null != dagNetwork)
       dagNetwork.freeRef();
     super._free();
-    if (null != this.inputNodes) {
-      RefArrays.fill(DAGNode.addRefs(this.inputNodes), null);
-    }
-    Layer temp_12_0005 = null;
-    if (null != this.layer)
-      this.layer.freeRef();
-    this.layer = temp_12_0005 == null ? null : temp_12_0005.addRef();
-    if (null != temp_12_0005)
-      temp_12_0005.freeRef();
   }
 
-  public @Override @SuppressWarnings("unused") InnerNode addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  InnerNode addRef() {
     return (InnerNode) super.addRef();
   }
 
   @Nullable
   @Override
-  protected Result eval(final GraphEvaluationContext ctx) {
+  protected Result eval(@Nullable final GraphEvaluationContext ctx) {
     assertAlive();
-    @Nonnull
-    final Layer innerLayer = getLayer();
+    @Nonnull final Layer innerLayer = getLayer();
     assert RefArrays.stream(DAGNode.addRefs(inputNodes)).allMatch(x -> {
       boolean temp_12_0009 = x != null;
       if (null != x)
@@ -201,8 +199,7 @@ public final class InnerNode extends LazyResult {
       return temp_12_0011;
     });
     Result temp_12_0008 = innerLayer.eval(Result.addRefs(in));
-    if (null != in)
-      ReferenceCounting.freeRefs(in);
+    ReferenceCounting.freeRefs(in);
     innerLayer.freeRef();
     return temp_12_0008;
   }

@@ -22,11 +22,9 @@ package com.simiacryptus.mindseye.util;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.simiacryptus.mindseye.lang.Coordinate;
 import com.simiacryptus.mindseye.lang.Tensor;
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.data.DoubleStatistics;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,11 +57,10 @@ public class ImageUtil {
         .mapToObj(RefUtil.wrapInterface((IntFunction<DoubleStatistics>) band -> {
           return new DoubleStatistics().accept(tensor.coordStream(false).filter(x -> x.getCoords()[2] == band)
               .mapToDouble(RefUtil.wrapInterface((ToDoubleFunction<? super Coordinate>) c -> tensor.get(c),
-                  tensor == null ? null : tensor.addRef()))
+                  tensor.addRef()))
               .toArray());
-        }, tensor == null ? null : tensor.addRef())).toArray(i -> new DoubleStatistics[i]);
-    @Nonnull
-    final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
+        }, tensor.addRef())).toArray(i -> new DoubleStatistics[i]);
+    @Nonnull final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
       final double width = Math.sqrt(2) * stats.getStandardDeviation();
       final double centered = value - stats.getAverage();
       final double distance = Math.abs(value - stats.getAverage());
@@ -88,16 +85,13 @@ public class ImageUtil {
     RefUtil.freeRef(
         tensor.coordStream(true).collect(RefCollectors.groupingBy(x -> x.getCoords()[2], RefCollectors.toList())));
     Tensor temp_35_0004 = tensor.mapCoords(RefUtil.wrapInterface(
-        (c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]), tensor == null ? null : tensor.addRef()));
-    @Nullable
-    final Tensor normal = temp_35_0004.map(v -> Math.min(0xFF, Math.max(0, v)));
-    if (null != temp_35_0004)
-      temp_35_0004.freeRef();
+        (c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]), tensor.addRef()));
+    @Nullable final Tensor normal = temp_35_0004.map(v -> Math.min(0xFF, Math.max(0, v)));
+    temp_35_0004.freeRef();
     RefList<BufferedImage> temp_35_0005 = (normalize ? normal : tensor).toImages();
     tensor.freeRef();
     RefStream<BufferedImage> temp_35_0001 = temp_35_0005.stream();
-    if (null != temp_35_0005)
-      temp_35_0005.freeRef();
+    temp_35_0005.freeRef();
     return temp_35_0001;
   }
 
@@ -124,6 +118,7 @@ public class ImageUtil {
     return img;
   }
 
+  @Nonnull
   public static BufferedImage resizePx(@Nonnull final BufferedImage source, final long size) {
     if (size < 0)
       return source;
@@ -134,11 +129,9 @@ public class ImageUtil {
   }
 
   @Nonnull
-  public static BufferedImage resize(BufferedImage source, int width, int height) {
-    @Nonnull
-    final BufferedImage image = new BufferedImage(width, height, source.getType());
-    @Nonnull
-    final Graphics2D graphics = (Graphics2D) image.getGraphics();
+  public static BufferedImage resize(@Nonnull BufferedImage source, int width, int height) {
+    @Nonnull final BufferedImage image = new BufferedImage(width, height, source.getType());
+    @Nonnull final Graphics2D graphics = (Graphics2D) image.getGraphics();
     HashMap<Object, Object> hints = new HashMap<>();
     hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
     hints.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
@@ -149,20 +142,21 @@ public class ImageUtil {
     return image;
   }
 
-  public static void monitorImage(final Tensor input, final boolean exitOnClose, final boolean normalize) {
+  public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final boolean normalize) {
     monitorImage(input == null ? null : input.addRef(), exitOnClose, 30, normalize);
     if (null != input)
       input.freeRef();
   }
 
-  public static void monitorImage(final Tensor input, final boolean exitOnClose, final int period,
-      final boolean normalize) {
+  public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final int period,
+                                  final boolean normalize) {
     if (GraphicsEnvironment.isHeadless() || !Desktop.isDesktopSupported()
         || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
       if (null != input)
         input.freeRef();
       return;
     }
+    assert input != null;
     JLabel label = new JLabel(new ImageIcon(input.toImage()));
     final AtomicReference<JDialog> dialog = new AtomicReference<JDialog>();
     RefWeakReference<JLabel> labelWeakReference = new RefWeakReference<>(label);
@@ -184,15 +178,11 @@ public class ImageUtil {
       JDialog jDialog = dialog.get();
       jDialog.setVisible(false);
       jDialog.dispose();
-    }, input == null ? null : input.addRef(), tensor.addRef()), 0, period, TimeUnit.SECONDS);
+    }, input.addRef(), tensor.addRef()), 0, period, TimeUnit.SECONDS);
     new Thread(RefUtil.wrapInterface((Runnable) () -> {
       Window window = JOptionPane.getRootFrame();
       String title = "Image: " + RefArrays.toString(input.getDimensions());
-      if (window instanceof Frame) {
-        dialog.set(new JDialog((Frame) window, title, true));
-      } else {
-        dialog.set(new JDialog((Dialog) window, title, true));
-      }
+      dialog.set(new JDialog((Frame) window, title, true));
       dialog.get().setResizable(false);
       dialog.get().setSize(input.getDimensions()[0], input.getDimensions()[1]);
       JMenuBar menu = new JMenuBar();
@@ -205,13 +195,14 @@ public class ImageUtil {
           JFileChooser fileChooser = new JFileChooser();
           fileChooser.setAcceptAllFileFilterUsed(false);
           fileChooser.addChoosableFileFilter(new FileFilter() {
+            @Nonnull
             @Override
             public String getDescription() {
               return "*.png";
             }
 
             @Override
-            public boolean accept(final File f) {
+            public boolean accept(@Nonnull final File f) {
               return f.getName().toUpperCase().endsWith(".PNG");
             }
           });
@@ -230,7 +221,7 @@ public class ImageUtil {
             }
           }
         }
-      }, input == null ? null : input.addRef(), tensor.addRef()));
+      }, input.addRef(), tensor.addRef()));
       menu.add(fileMenu);
       dialog.get().setJMenuBar(menu);
 
@@ -249,7 +240,7 @@ public class ImageUtil {
       dialog.get().setLocationRelativeTo(null);
       dialog.get().addComponentListener(new ComponentAdapter() {
         @Override
-        public void componentResized(final ComponentEvent e) {
+        public void componentResized(@Nonnull final ComponentEvent e) {
           //dialog.pack();
           super.componentResized(e);
           BufferedImage image = input.toImage();
@@ -268,7 +259,7 @@ public class ImageUtil {
           updater.cancel(false);
           if (exitOnClose) {
             logger.warn("Exiting test", new RuntimeException("Stack Trace"));
-            com.simiacryptus.ref.wrappers.RefSystem.exit(0);
+            RefSystem.exit(0);
           }
         }
 
@@ -282,35 +273,36 @@ public class ImageUtil {
       });
       dialog.get().setVisible(true);
       dialog.get().dispose();
-    }, input == null ? null : input.addRef(), tensor.addRef())).start();
-    if (null != input)
-      input.freeRef();
+    }, input.addRef(), tensor.addRef())).start();
+    input.freeRef();
   }
 
-  public static Tensor normalizeBands(final Tensor image) {
+  @Nonnull
+  public static Tensor normalizeBands(@Nullable final Tensor image) {
     Tensor temp_35_0002 = normalizeBands(image == null ? null : image.addRef(), 255);
     if (null != image)
       image.freeRef();
     return temp_35_0002;
   }
 
-  public static Tensor normalizeBands(final Tensor image, final int max) {
+  @Nonnull
+  public static Tensor normalizeBands(@Nonnull final Tensor image, final int max) {
     DoubleStatistics[] statistics = RefIntStream.range(0, image.getDimensions()[2])
         .mapToObj(i -> new DoubleStatistics()).toArray(i -> new DoubleStatistics[i]);
     image.coordStream(false).forEach(RefUtil.wrapInterface((Consumer<? super Coordinate>) c -> {
       double value = image.get(c);
       statistics[c.getCoords()[2]].accept(value);
-    }, image == null ? null : image.addRef()));
+    }, image.addRef()));
     Tensor temp_35_0003 = image.mapCoords(RefUtil.wrapInterface(c -> {
       double value = image.get(c);
       DoubleStatistics statistic = statistics[c.getCoords()[2]];
       return max * (value - statistic.getMin()) / (statistic.getMax() - statistic.getMin());
-    }, image == null ? null : image.addRef()));
-    if (null != image)
-      image.freeRef();
+    }, image.addRef()));
+    image.freeRef();
     return temp_35_0003;
   }
 
+  @Nonnull
   public static BufferedImage load(@Nonnull final Supplier<BufferedImage> image, final int imageSize) {
     return imageSize <= 0 ? image.get() : resize(image.get(), imageSize, true);
   }
@@ -320,7 +312,7 @@ public class ImageUtil {
     return width <= 0 ? image.get() : resize(image.get(), width, height);
   }
 
-  @NotNull
+  @Nonnull
   public static Tensor getTensor(@Nonnull CharSequence file) {
     String fileStr = file.toString();
     if (fileStr.startsWith("http")) {

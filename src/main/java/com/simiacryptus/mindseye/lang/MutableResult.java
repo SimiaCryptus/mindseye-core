@@ -19,11 +19,12 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public class MutableResult extends Result {
     this(RefArrays.stream(Tensor.addRefs(tensors)).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
   }
 
-  public MutableResult(UUID[] objectId, final Tensor... tensors) {
+  public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
     super(new TensorArray(Tensor.addRefs(tensors)), handler(Tensor.addRefs(tensors), objectId));
     if (null != tensors)
       ReferenceCounting.freeRefs(tensors);
@@ -44,21 +45,26 @@ public class MutableResult extends Result {
     return true;
   }
 
-  public static @SuppressWarnings("unused") MutableResult[] addRefs(MutableResult[] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  MutableResult[] addRefs(@Nullable MutableResult[] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRef)
         .toArray((x) -> new MutableResult[x]);
   }
 
-  public static @SuppressWarnings("unused") MutableResult[][] addRefs(MutableResult[][] array) {
+  @Nullable
+  public static @SuppressWarnings("unused")
+  MutableResult[][] addRefs(@Nullable MutableResult[][] array) {
     if (array == null)
       return null;
     return Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRefs)
         .toArray((x) -> new MutableResult[x][]);
   }
 
-  private static Result.Accumulator handler(final Tensor[] tensors, UUID[] objectId) {
+  @Nonnull
+  private static Result.Accumulator handler(@Nullable final Tensor[] tensors, @Nonnull UUID[] objectId) {
     try {
       return new Accumulator() {
         {
@@ -66,23 +72,22 @@ public class MutableResult extends Result {
         }
 
         @Override
-        public void accept(DeltaSet<UUID> buffer, TensorList delta) {
+        public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
           for (int index = 0; index < delta.length(); index++) {
+            assert tensors != null;
             Delta<UUID> temp_50_0002 = buffer.get(objectId[index], tensors[index].getData());
             Tensor temp_50_0003 = delta.get(index);
+            assert temp_50_0002 != null;
             RefUtil.freeRef(temp_50_0002.addInPlace(temp_50_0003.getData()));
-            if (null != temp_50_0003)
-              temp_50_0003.freeRef();
-            if (null != temp_50_0002)
-              temp_50_0002.freeRef();
+            temp_50_0003.freeRef();
+            temp_50_0002.freeRef();
           }
-          if (null != delta)
-            delta.freeRef();
-          if (null != buffer)
-            buffer.freeRef();
+          delta.freeRef();
+          buffer.freeRef();
         }
 
-        public @SuppressWarnings("unused") void _free() {
+        public @SuppressWarnings("unused")
+        void _free() {
           if (null != tensors)
             ReferenceCounting.freeRefs(tensors);
           RefUtil.freeRefs(objectId);
@@ -94,10 +99,14 @@ public class MutableResult extends Result {
     }
   }
 
-  public @SuppressWarnings("unused") void _free() {
+  public @SuppressWarnings("unused")
+  void _free() {
   }
 
-  public @Override @SuppressWarnings("unused") MutableResult addRef() {
+  @Nonnull
+  public @Override
+  @SuppressWarnings("unused")
+  MutableResult addRef() {
     return (MutableResult) super.addRef();
   }
 }
