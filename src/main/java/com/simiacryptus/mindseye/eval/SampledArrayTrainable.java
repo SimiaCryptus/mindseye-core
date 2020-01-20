@@ -78,9 +78,9 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
       ReferenceCounting.freeRefs(trainingData);
       throw new IllegalArgumentException();
     }
-    RefList<? extends Supplier<Tensor[]>> temp_00_0002 = RefArrays.stream(Tensor.addRefs(trainingData)).map(obj -> {
+    RefList<? extends Supplier<Tensor[]>> temp_00_0002 = RefArrays.stream(RefUtil.addRefs(trainingData)).map(obj -> {
       WeakCachedSupplier<Tensor[]> temp_00_0003 = new WeakCachedSupplier<>(
-          RefUtil.wrapInterface(() -> obj, Tensor.addRefs(obj)));
+          RefUtil.wrapInterface(() -> obj, RefUtil.addRefs(obj)));
       if (null != obj)
         ReferenceCounting.freeRefs(obj);
       return temp_00_0003;
@@ -97,10 +97,8 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     return minSamples;
   }
 
-  @Nonnull
-  public SampledArrayTrainable setMinSamples(final int minSamples) {
+  public void setMinSamples(int minSamples) {
     this.minSamples = minSamples;
-    return this.addRef();
   }
 
   @Override
@@ -120,24 +118,6 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
       return;
     seed = newValue;
     refreshSampledData();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SampledArrayTrainable[] addRefs(@Nullable SampledArrayTrainable[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRef)
-        .toArray((x) -> new SampledArrayTrainable[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SampledArrayTrainable[][] addRefs(@Nullable SampledArrayTrainable[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SampledArrayTrainable::addRefs)
-        .toArray((x) -> new SampledArrayTrainable[x][]);
   }
 
   @Nonnull
@@ -171,27 +151,35 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
 
   protected void refreshSampledData() {
     assert 0 < trainingData.size();
-    Tensor[][] trainingData;
+    Tensor[][] trainingData = null;
     if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
       @Nonnull final Random random = new Random(seed);
+      if (null != trainingData) RefUtil.freeRefs(trainingData);
       trainingData = RefIntStream.generate(() -> random.nextInt(this.trainingData.size())).distinct()
           .mapToObj(i -> this.trainingData.get(i)).filter(x -> {
             if (x != null) {
               Tensor[] tensors = x.get();
-              if (tensors != null) {
+              try {
+                if (tensors != null) {
+                  return true;
+                }
+              } finally {
                 ReferenceCounting.freeRefs(tensors);
-                return true;
               }
             }
             return false;
           }).limit(getTrainingSize()).map(x -> x.get()).toArray(i -> new Tensor[i][]);
     } else {
+      if (null != trainingData) RefUtil.freeRefs(trainingData);
       trainingData = this.trainingData.stream().filter(x -> {
         if (x != null) {
           Tensor[] tensors = x.get();
-          if (tensors != null) {
+          try {
+            if (tensors != null) {
+              return true;
+            }
+          } finally {
             ReferenceCounting.freeRefs(tensors);
-            return true;
           }
         }
         return false;
@@ -199,8 +187,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     }
     ArrayTrainable temp_00_0005 = getInner();
     assert temp_00_0005 != null;
-    temp_00_0005.setTrainingData(Tensor.addRefs(trainingData));
+    temp_00_0005.setTrainingData(trainingData);
     temp_00_0005.freeRef();
-    ReferenceCounting.freeRefs(trainingData);
   }
 }

@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -26,9 +27,7 @@ import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
   @Nonnull
@@ -39,19 +38,19 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
       ReferenceCounting.freeRefs(data);
       throw new IllegalArgumentException();
     }
-    this.data = RefArrays.copyOf(Tensor.addRefs(data), data.length);
-    ReferenceCounting.freeRefs(data);
+    this.data = RefArrays.copyOf(data, data.length);
+    int[] dimensions0 = this.data[0].getDimensions();
     for (@Nonnull Tensor tensor : this.data) {
-      assert RefArrays.equals(tensor.getDimensions(),
-          this.data[0].getDimensions()) : RefArrays.toString(tensor.getDimensions()) + " != "
-          + RefArrays.toString(tensor.getDimensions());
+      int[] dimensions = tensor.getDimensions();
+      assert RefArrays.equals(dimensions, dimensions0) :
+          RefArrays.toString(dimensions) + " != " + RefArrays.toString(dimensions);
     }
     register();
   }
 
   @Nonnull
   public Tensor[] getData() {
-    return Tensor.addRefs(data);
+    return RefUtil.addRefs(data);
   }
 
   @Nonnull
@@ -67,26 +66,11 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
         + ", ...]";
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TensorArray[] addRefs(@Nullable TensorArray[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRef).toArray((x) -> new TensorArray[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TensorArray[][] addRefs(@Nullable TensorArray[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorArray::addRefs).toArray((x) -> new TensorArray[x][]);
-  }
-
   @Override
   @Nonnull
+  @RefAware
   public Tensor get(final int i) {
-    return data[i];
+    return data[i].addRef();
   }
 
   @Override
@@ -108,13 +92,6 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
 
   public void _free() {
     ReferenceCounting.freeRefs(data);
-    try {
-      ReferenceCounting.freeRefs(getData());
-    } catch (@Nonnull final RuntimeException e) {
-      throw e;
-    } catch (@Nonnull final Throwable e) {
-      throw new RuntimeException(e);
-    }
   }
 
   @Nonnull

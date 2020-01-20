@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -51,21 +50,6 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return id;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LazyResult[] addRefs(@Nullable LazyResult[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRef).toArray((x) -> new LazyResult[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LazyResult[][] addRefs(@Nullable LazyResult[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LazyResult::addRefs).toArray((x) -> new LazyResult[x][]);
-  }
 
   @Nullable
   @Override
@@ -78,8 +62,9 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
       Singleton singleton = null;
       synchronized (context) {
         if (!context.calculated.containsKey(id)) {
+          if (null != singleton) singleton.freeRef();
           singleton = new Singleton();
-          context.calculated.put(id, singleton);
+          context.calculated.put(id, singleton.addRef());
         }
       }
       if (null != singleton) {
@@ -95,6 +80,8 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
         } catch (Throwable e) {
           log.warn("Error execuing network component", e);
           singleton.set(e);
+        } finally {
+          singleton.freeRef();
         }
       }
     }

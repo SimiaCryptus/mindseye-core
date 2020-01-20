@@ -33,7 +33,6 @@ import com.simiacryptus.util.ArrayUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
@@ -58,28 +57,8 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     return carryOver;
   }
 
-  @Nonnull
-  public MomentumStrategy setCarryOver(final double carryOver) {
+  public void setCarryOver(double carryOver) {
     this.carryOver = carryOver;
-    return this.addRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MomentumStrategy[] addRefs(@Nullable MomentumStrategy[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRef)
-        .toArray((x) -> new MomentumStrategy[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MomentumStrategy[][] addRefs(@Nullable MomentumStrategy[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MomentumStrategy::addRefs)
-        .toArray((x) -> new MomentumStrategy[x][]);
   }
 
   @Nonnull
@@ -109,8 +88,7 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
       Delta<UUID> temp_05_0005 = newDelta.get(layer, delta.target);
       assert prevBuffer != null;
       assert temp_05_0005 != null;
-      RefUtil.freeRef(temp_05_0005
-          .addInPlace(ArrayUtil.add(ArrayUtil.multiply(prevBuffer.getDelta(), carryOver), delta.getDelta())));
+      temp_05_0005.addInPlace(ArrayUtil.add(ArrayUtil.multiply(prevBuffer.getDelta(), carryOver), delta.getDelta()));
       temp_05_0005.freeRef();
       prevBuffer.freeRef();
       delta.freeRef();

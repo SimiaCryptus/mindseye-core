@@ -33,8 +33,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public abstract class RegisteredObjectBase extends ReferenceCountingBase {
@@ -66,9 +64,11 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
       return temp_32_0002;
     }).flatMap(
         (Function<Map.Entry<Class<? extends RegisteredObjectBase>, ObjectRecords<RegisteredObjectBase>>, RefStream<RefWeakReference<RegisteredObjectBase>>>) recordsEntry -> {
-          ObjectRecords<RegisteredObjectBase> temp_32_0003 = recordsEntry.getValue();
+          ObjectRecords<RegisteredObjectBase> temp_32_0003 = recordsEntry.getValue().addRef();
+          RefStream<RefWeakReference<RegisteredObjectBase>> stream = temp_32_0003.stream();
           RefUtil.freeRef(recordsEntry);
-          return temp_32_0003.stream();
+          temp_32_0003.freeRef();
+          return stream;
         }).map(x -> (T) x.get()).filter(x -> {
       boolean temp_32_0004 = x != null;
       if (null != x)
@@ -77,24 +77,6 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
     });
     temp_32_0006.freeRef();
     return temp_32_0005;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  RegisteredObjectBase[] addRefs(@Nullable RegisteredObjectBase[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRef)
-        .toArray((x) -> new RegisteredObjectBase[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  RegisteredObjectBase[][] addRefs(@Nullable RegisteredObjectBase[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(RegisteredObjectBase::addRefs)
-        .toArray((x) -> new RegisteredObjectBase[x][]);
   }
 
   public @SuppressWarnings("unused")
@@ -110,15 +92,13 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
   protected void register() {
     RegisteredObjectBase.ObjectRecords<RegisteredObjectBase> temp_32_0007 = cache.computeIfAbsent(getClass(),
         k -> new ObjectRecords<>());
-    temp_32_0007.add(new RefWeakReference<>(this.addRef()));
+    temp_32_0007.add(new RefWeakReference<>(this));
     temp_32_0007.freeRef();
   }
 
   private static class ObjectRecords<T extends RegisteredObjectBase>
       extends RefConcurrentLinkedDeque<RefWeakReference<T>> {
     private volatile boolean dirty = false;
-    private final ScheduledFuture<?> maintenanceFuture = maintenanceThread.scheduleAtFixedRate(this::maintain, 1, 1,
-        TimeUnit.SECONDS);
 
     @Nullable
     public static @SuppressWarnings("unused")

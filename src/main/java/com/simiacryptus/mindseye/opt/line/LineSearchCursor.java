@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.opt.line;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nonnull;
@@ -32,24 +33,6 @@ import java.util.UUID;
 public interface LineSearchCursor extends ReferenceCounting {
 
   CharSequence getDirectionType();
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LineSearchCursor[] addRefs(@Nullable LineSearchCursor[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRef)
-        .toArray((x) -> new LineSearchCursor[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LineSearchCursor[][] addRefs(@Nullable LineSearchCursor[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LineSearchCursor::addRefs)
-        .toArray((x) -> new LineSearchCursor[x][]);
-  }
 
   default PointSample afterStep(@Nonnull PointSample step) {
     return step;
@@ -62,7 +45,7 @@ public interface LineSearchCursor extends ReferenceCounting {
   @javax.annotation.Nullable
   LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
-  public void _free();
+  void _free();
 
-  public LineSearchCursor addRef();
+  LineSearchCursor addRef();
 }

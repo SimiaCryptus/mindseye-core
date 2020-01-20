@@ -58,24 +58,6 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     return direction.getDirectionType();
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  FailsafeLineSearchCursor[] addRefs(@Nullable FailsafeLineSearchCursor[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(FailsafeLineSearchCursor::addRef)
-        .toArray((x) -> new FailsafeLineSearchCursor[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  FailsafeLineSearchCursor[][] addRefs(@Nullable FailsafeLineSearchCursor[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(FailsafeLineSearchCursor::addRefs)
-        .toArray((x) -> new FailsafeLineSearchCursor[x][]);
-  }
-
   @Nonnull
   @Override
   public synchronized PointSample afterStep(@Nonnull final PointSample step) {

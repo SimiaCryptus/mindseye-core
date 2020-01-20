@@ -22,9 +22,11 @@ package com.simiacryptus.mindseye.util;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.simiacryptus.mindseye.lang.Coordinate;
 import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.data.DoubleStatistics;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,6 +92,7 @@ public class ImageUtil {
     temp_35_0004.freeRef();
     RefList<BufferedImage> temp_35_0005 = (normalize ? normal : tensor).toImages();
     tensor.freeRef();
+    normal.freeRef();
     RefStream<BufferedImage> temp_35_0001 = temp_35_0005.stream();
     temp_35_0005.freeRef();
     return temp_35_0001;
@@ -148,6 +151,7 @@ public class ImageUtil {
       input.freeRef();
   }
 
+  @RefIgnore
   public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final int period,
                                   final boolean normalize) {
     if (GraphicsEnvironment.isHeadless() || !Desktop.isDesktopSupported()
@@ -161,24 +165,7 @@ public class ImageUtil {
     final AtomicReference<JDialog> dialog = new AtomicReference<JDialog>();
     RefWeakReference<JLabel> labelWeakReference = new RefWeakReference<>(label);
     final Tensor tensor = normalize ? normalizeBands(input.addRef()) : input.addRef();
-    ScheduledFuture<?> updater = scheduledThreadPool.scheduleAtFixedRate(RefUtil.wrapInterface(() -> {
-      try {
-        JLabel jLabel = labelWeakReference.get();
-        if (null != jLabel && !input.isFinalized()) {
-          BufferedImage image = tensor.toImage();
-          int width = jLabel.getWidth();
-          if (width > 0)
-            resize(image, width, jLabel.getHeight());
-          jLabel.setIcon(new ImageIcon(image));
-          return;
-        }
-      } catch (Throwable e) {
-        logger.warn("Error updating png", e);
-      }
-      JDialog jDialog = dialog.get();
-      jDialog.setVisible(false);
-      jDialog.dispose();
-    }, input.addRef(), tensor.addRef()), 0, period, TimeUnit.SECONDS);
+    ScheduledFuture<?> updater = monitor(input, period, dialog, labelWeakReference, tensor);
     new Thread(RefUtil.wrapInterface((Runnable) () -> {
       Window window = JOptionPane.getRootFrame();
       String title = "Image: " + RefArrays.toString(input.getDimensions());
@@ -269,12 +256,34 @@ public class ImageUtil {
             gotFocus = true;
           }
         }
-
       });
       dialog.get().setVisible(true);
       dialog.get().dispose();
     }, input.addRef(), tensor.addRef())).start();
     input.freeRef();
+  }
+
+  @NotNull
+  @RefIgnore
+  public static ScheduledFuture<?> monitor(@NotNull Tensor input, int period, AtomicReference<JDialog> dialog, RefWeakReference<JLabel> labelWeakReference, Tensor tensor) {
+    return scheduledThreadPool.scheduleAtFixedRate(RefUtil.wrapInterface(() -> {
+      try {
+        JLabel jLabel = labelWeakReference.get();
+        if (null != jLabel && !input.isFinalized()) {
+          BufferedImage image = tensor.toImage();
+          int width = jLabel.getWidth();
+          if (width > 0)
+            resize(image, width, jLabel.getHeight());
+          jLabel.setIcon(new ImageIcon(image));
+          return;
+        }
+      } catch (Throwable e) {
+        logger.warn("Error updating png", e);
+      }
+      JDialog jDialog = dialog.get();
+      jDialog.setVisible(false);
+      jDialog.dispose();
+    }, input.addRef(), tensor.addRef()), 0, period, TimeUnit.SECONDS);
   }
 
   @Nonnull
@@ -289,7 +298,7 @@ public class ImageUtil {
   public static Tensor normalizeBands(@Nonnull final Tensor image, final int max) {
     DoubleStatistics[] statistics = RefIntStream.range(0, image.getDimensions()[2])
         .mapToObj(i -> new DoubleStatistics()).toArray(i -> new DoubleStatistics[i]);
-    image.coordStream(false).forEach(RefUtil.wrapInterface((Consumer<? super Coordinate>) c -> {
+    image.coordStream(false).forEach(RefUtil.wrapInterface((Consumer<Coordinate>) c -> {
       double value = image.get(c);
       statistics[c.getCoords()[2]].accept(value);
     }, image.addRef()));

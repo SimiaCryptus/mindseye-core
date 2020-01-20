@@ -53,7 +53,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
       temp_13_0001.freeRef();
     if (null != network)
       network.freeRef();
-    RefList<Tensor[]> temp_13_0002 = null;
     data = null;
   }
 
@@ -65,15 +64,10 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   @Nonnull
-  @Override
-  public synchronized BasicTrainable setData(@Nonnull final RefList<Tensor[]> data) {
-    RefList<Tensor[]> temp_13_0003 = data.addRef();
+  public synchronized void setData(@Nonnull final RefList<Tensor[]> data) {
     if (null != this.data)
       this.data.freeRef();
-    this.data = temp_13_0003.addRef();
-    temp_13_0003.freeRef();
-    data.freeRef();
-    return this.addRef();
+    this.data = data;
   }
 
   @Nonnull
@@ -90,15 +84,12 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   @Nonnull
   @Override
-  public BasicTrainable setMask(final boolean... mask) {
+  public void setMask(final boolean... mask) {
     this.mask = mask;
-    return this.addRef();
   }
 
-  @Nonnull
-  public BasicTrainable setVerbosity(final int verbose) {
+  public void setVerbosity(int verbose) {
     verbosity = verbose;
-    return this.addRef();
   }
 
   @Nonnull
@@ -125,35 +116,17 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
                   data.addRef()))
               .toArray(i -> new Tensor[i]);
           if (null == mask || col >= mask.length || !mask[col]) {
-            ConstantResult temp_13_0004 = new ConstantResult(new TensorArray(Tensor.addRefs(tensors)));
+            ConstantResult temp_13_0004 = new ConstantResult(new TensorArray(RefUtil.addRefs(tensors)));
             ReferenceCounting.freeRefs(tensors);
             return temp_13_0004;
           } else {
-            MutableResult temp_13_0005 = new MutableResult(Tensor.addRefs(tensors));
+            MutableResult temp_13_0005 = new MutableResult(RefUtil.addRefs(tensors));
             ReferenceCounting.freeRefs(tensors);
             return temp_13_0005;
           }
         }, data.addRef())).toArray(x1 -> new Result[x1]);
     data.freeRef();
     return temp_13_0007;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BasicTrainable[] addRefs(@Nullable BasicTrainable[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRef)
-        .toArray((x) -> new BasicTrainable[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BasicTrainable[][] addRefs(@Nullable BasicTrainable[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BasicTrainable::addRefs)
-        .toArray((x) -> new BasicTrainable[x][]);
   }
 
   @Override
@@ -163,12 +136,14 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     @Nonnull final TimedResult<PointSample> timedResult = TimedResult
         .time(() -> eval(data == null ? null : data.addRef(), monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
+    PointSample result = timedResult.getResult();
     if (null != monitor && verbosity() > 1) {
       monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", data.size(), timedResult.timeNanos / 1e9,
-          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
+          result.getMean(), result.delta.getMagnitude()));
     }
-    assert null != timedResult.result;
-    return timedResult.result;
+    timedResult.freeRef();
+    assert null != result;
+    return result;
   }
 
   public int verbosity() {
@@ -196,45 +171,39 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
         .time(RefUtil.wrapInterface((UncheckedSupplier<PointSample>) () -> {
           final Result[] nnContext = BasicTrainable.getNNContext(list.addRef(), mask);
           assert network != null;
-          final Result result = network.eval(Result.addRefs(nnContext));
+          final Result result = network.eval(RefUtil.addRefs(nnContext));
           ReferenceCounting.freeRefs(nnContext);
           assert result != null;
           final TensorList resultData = result.getData();
           @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
-          try {
-            final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
-              double[] array = RefArrays.stream(x.getData()).toArray();
-              x.freeRef();
-              return RefArrays.stream(array);
-            }).summaryStatistics();
-            final double sum = statistics.getSum();
-            result.accumulate(deltaSet.addRef());
-            StateSet<UUID> stateSet = new StateSet<>(deltaSet.addRef());
-            try {
-              RefMap<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
-              list.stream().flatMap(Arrays::stream).filter(tensor -> deltaSetMap.containsKey(tensor.getId()))
-                  .forEach(tensor -> stateSet.get(tensor.getId(), tensor.getData()));
-              deltaSetMap.freeRef();
-              result.freeRef();
-              resultData.freeRef();
-              PointSample temp_13_0006 = new PointSample(deltaSet,
-                  stateSet, sum, 0.0, list.size());
-              //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
-              return temp_13_0006;
-            } finally {
-              stateSet.freeRefAsync();
-            }
-          } finally {
-            resultData.freeRefAsync();
-            result.freeRefAsync();
-            deltaSet.freeRefAsync();
-          }
+          final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
+            double[] array = RefArrays.stream(x.getData()).toArray();
+            x.freeRef();
+            return RefArrays.stream(array);
+          }).summaryStatistics();
+          final double sum = statistics.getSum();
+          result.accumulate(deltaSet.addRef());
+          StateSet<UUID> stateSet = new StateSet<>(deltaSet.addRef());
+          RefMap<UUID, Delta<UUID>> deltaSetMap = deltaSet.getMap();
+          list.stream().flatMap(Arrays::stream).filter(tensor -> deltaSetMap.containsKey(tensor.getId()))
+              .forEach(tensor -> stateSet.get(tensor.getId(), tensor.getData()));
+          PointSample temp_13_0006 = new PointSample(deltaSet,
+              stateSet, sum, 0.0, list.size());
+          deltaSetMap.freeRef();
+          resultData.freeRef();
+          result.freeRef();
+          //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
+          return temp_13_0006;
         }, list.addRef()));
     if (null != monitor && verbosity() > 0) {
       monitor.log(RefString.format("Device completed %s items in %.3f sec", list.size(), timedResult.timeNanos / 1e9));
     }
     list.freeRef();
-    return timedResult.result.normalize();
+    PointSample result = timedResult.getResult();
+    PointSample normalize = result.normalize();
+    result.freeRef();
+    timedResult.freeRef();
+    return normalize;
   }
 
 }

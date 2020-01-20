@@ -30,7 +30,6 @@ import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.Function;
 
 public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
@@ -58,28 +57,8 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
     return verbose;
   }
 
-  @Nonnull
-  public BatchedTrainable setVerbose(final boolean verbose) {
+  public void setVerbose(boolean verbose) {
     this.verbose = verbose;
-    return this.addRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BatchedTrainable[] addRefs(@Nullable BatchedTrainable[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRef)
-        .toArray((x) -> new BatchedTrainable[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  BatchedTrainable[][] addRefs(@Nullable BatchedTrainable[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(BatchedTrainable::addRefs)
-        .toArray((x) -> new BatchedTrainable[x][]);
   }
 
   @Override
@@ -99,10 +78,10 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
                     throw new RuntimeException();
                   }
                   assert inner != null;
-                  RefUtil.freeRef(inner.setData(trainingData.addRef()));
+                  inner.setData(trainingData.addRef());
                   trainingData.freeRef();
                   PointSample measure = super.measure(monitor).addRef();
-                  RefUtil.freeRef(inner.setData(new RefArrayList<>()));
+                  inner.setData(new RefArrayList<>());
                   return measure;
                 }, inner == null ? null : inner.addRef())).reduce((a, b) -> {
                   PointSample temp_36_0002 = a.add(b == null ? null : b.addRef());
@@ -117,19 +96,21 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
             return temp_36_0001;
           } else {
             assert inner != null;
-            RefUtil.freeRef(inner.setData(tensors.addRef()));
+            inner.setData(tensors.addRef());
             PointSample measure = super.measure(monitor).addRef();
-            RefUtil.freeRef(inner.setData(new RefArrayList<>()));
+            inner.setData(new RefArrayList<>());
             inner.freeRef();
             return measure;
           }
         }, tensors.addRef()));
+    PointSample result = timedResult.getResult();
     if (null != monitor && isVerbose()) {
       monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9,
-          timedResult.result.getMean(), timedResult.result.delta.getMagnitude()));
+          result.getMean(), result.delta.getMagnitude()));
     }
+    timedResult.freeRef();
     tensors.freeRef();
-    return timedResult.result;
+    return result;
   }
 
   public @SuppressWarnings("unused")

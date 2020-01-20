@@ -58,9 +58,7 @@ public class TensorTest {
         .map(c -> RefString.format("%s - %s", c.getIndex(), RefArrays.toString(c.getCoords())))
         .collect(RefCollectors.toList());
     temp_52_0001.freeRef();
-    for (final CharSequence c : coordinates) {
-      log.info(c.toString());
-    }
+    coordinates.forEach(msg -> log.info(msg.toString()));
     coordinates.freeRef();
   }
   //

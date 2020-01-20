@@ -30,7 +30,6 @@ import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -39,7 +38,6 @@ public abstract class WrapperLayer extends LayerBase {
   private Layer inner;
 
   protected WrapperLayer() {
-    Layer temp_19_0001 = null;
     if (null != inner)
       inner.freeRef();
     inner = null;
@@ -70,12 +68,10 @@ public abstract class WrapperLayer extends LayerBase {
     return inner == null ? null : inner.addRef();
   }
 
-  @Nonnull
-  public WrapperLayer setInner(@Nullable Layer inner) {
+  public void setInner(@Nullable Layer inner) {
     if (null != this.inner)
       this.inner.freeRef();
     this.inner = inner;
-    return this.addRef();
   }
 
   @Override
@@ -86,27 +82,10 @@ public abstract class WrapperLayer extends LayerBase {
   }
 
   @Nullable
-  public static @SuppressWarnings("unused")
-  WrapperLayer[] addRefs(@Nullable WrapperLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRef).toArray((x) -> new WrapperLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  WrapperLayer[][] addRefs(@Nullable WrapperLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(WrapperLayer::addRefs)
-        .toArray((x) -> new WrapperLayer[x][]);
-  }
-
-  @Nullable
   @Override
   public Result eval(@Nullable final Result... array) {
     assert inner != null;
-    Result temp_19_0005 = inner.eval(Result.addRefs(array));
+    Result temp_19_0005 = inner.eval(RefUtil.addRefs(array));
     if (null != array)
       ReferenceCounting.freeRefs(array);
     return temp_19_0005;
@@ -125,11 +104,10 @@ public abstract class WrapperLayer extends LayerBase {
 
   @Nonnull
   @Override
-  public Layer setFrozen(final boolean frozen) {
+  public void setFrozen(final boolean frozen) {
     if (null == inner)
-      return this.addRef();
-    RefUtil.freeRef(inner.setFrozen(frozen));
-    return this.addRef();
+      return;
+    inner.setFrozen(frozen);
   }
 
   @Nullable

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
@@ -27,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 public class DoubleBuffer<K> extends ReferenceCountingBase {
@@ -77,23 +77,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
         return false;
     }
     return true;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DoubleBuffer[] addRefs(@Nullable DoubleBuffer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRef).toArray((x) -> new DoubleBuffer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DoubleBuffer[][] addRefs(@Nullable DoubleBuffer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBuffer::addRefs)
-        .toArray((x) -> new DoubleBuffer[x][]);
   }
 
   @Nullable

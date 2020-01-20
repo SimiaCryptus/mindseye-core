@@ -26,14 +26,13 @@ import com.simiacryptus.ref.wrappers.RefIntStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
 public final class ConstantResult extends Result {
 
   public ConstantResult(@Nullable final Tensor... data) {
-    this(new TensorArray(Tensor.addRefs(data)));
+    this(new TensorArray(RefUtil.addRefs(data)));
     if (null != data)
       ReferenceCounting.freeRefs(data);
   }
@@ -77,68 +76,30 @@ public final class ConstantResult extends Result {
 
   @Nonnull
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
-    Result[] temp_44_0003 = RefIntStream.range(0, input[0].length)
-        .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor[]>) x -> RefIntStream.range(0, input.length)
-            .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) y -> input[y][x], Tensor.addRefs(input)))
-            .toArray(i -> new Tensor[i]), Tensor.addRefs(input)))
-        .map(tensors -> {
-          TensorArray temp_44_0001 = new TensorArray(Tensor.addRefs(tensors));
-          if (null != tensors)
-            ReferenceCounting.freeRefs(tensors);
-          return temp_44_0001;
-        }).map(tensorArray -> {
-          ConstantResult temp_44_0002 = new ConstantResult(tensorArray.addRef());
-          tensorArray.freeRef();
-          return temp_44_0002;
-        }).toArray(x -> new Result[x]);
-    ReferenceCounting.freeRefs(input);
-    return temp_44_0003;
+    return RefIntStream.range(0, input[0].length)
+        .mapToObj(
+            RefUtil.wrapInterface((IntFunction<Tensor[]>) x ->
+                    RefIntStream.range(0, input.length)
+                        .mapToObj(y -> input[y][x].addRef())
+                        .toArray(i -> new Tensor[i]),
+                input))
+        .map(tensors -> new TensorArray(tensors))
+        .map(tensorArray -> new ConstantResult(tensorArray))
+        .toArray(x -> new Result[x]);
   }
 
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
-    Result[] temp_44_0004 = RefArrays.stream(Tensor.addRefs(input)).map((@Nonnull final Tensor x) -> {
-      ConstantResult temp_44_0005 = new ConstantResult(new TensorArray(x == null ? null : x.addRef()));
-      if (null != x)
-        x.freeRef();
-      return temp_44_0005;
-    }).toArray(i -> new Result[i]);
-    ReferenceCounting.freeRefs(input);
-    return temp_44_0004;
+    return RefArrays.stream(input)
+        .map(x -> new ConstantResult(new TensorArray(x)))
+        .toArray(i -> new Result[i]);
   }
 
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
-    Result[] temp_44_0006 = RefArrays.stream(Tensor.addRefs(input)).map((@Nonnull final Tensor[] x) -> {
-      ConstantResult temp_44_0007 = new ConstantResult(new TensorArray(Tensor.addRefs(x)));
-      if (null != x)
-        ReferenceCounting.freeRefs(x);
-      return temp_44_0007;
-    }).toArray(i -> new Result[i]);
-    ReferenceCounting.freeRefs(input);
-    return temp_44_0006;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConstantResult[] addRefs(@Nullable ConstantResult[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRef)
-        .toArray((x) -> new ConstantResult[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConstantResult[][] addRefs(@Nullable ConstantResult[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConstantResult::addRefs)
-        .toArray((x) -> new ConstantResult[x][]);
-  }
-
-  public @SuppressWarnings("unused")
-  void _free() {
+    return RefArrays.stream(input)
+        .map((@Nonnull final Tensor[] x) -> new ConstantResult(new TensorArray(x)))
+        .toArray(i -> new Result[i]);
   }
 
   @Nonnull
@@ -148,4 +109,8 @@ public final class ConstantResult extends Result {
     return (ConstantResult) super.addRef();
   }
 
+  @Override
+  public void _free() {
+    super._free();
+  }
 }

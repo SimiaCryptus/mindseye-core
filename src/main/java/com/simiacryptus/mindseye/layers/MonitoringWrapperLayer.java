@@ -122,11 +122,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     @Nullable final RefList<double[]> state = state();
     @Nonnull final ScalarStatistics statistics = new PercentileStatistics();
     assert state != null;
-    for (@Nonnull final double[] s : state) {
-      for (final double v : s) {
-        statistics.add(v);
-      }
-    }
+    state.stream().flatMapToDouble(Arrays::stream).forEach(statistics::add);
     if (statistics.getCount() > 0) {
       @Nonnull final Map<CharSequence, Object> weightStats = new HashMap<>();
       weightStats.put("buffers", state.size());
@@ -153,58 +149,39 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return new MonitoringWrapperLayer(json, rs);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MonitoringWrapperLayer[] addRefs(@Nullable MonitoringWrapperLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRef)
-        .toArray((x) -> new MonitoringWrapperLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MonitoringWrapperLayer[][] addRefs(@Nullable MonitoringWrapperLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MonitoringWrapperLayer::addRefs)
-        .toArray((x) -> new MonitoringWrapperLayer[x][]);
-  }
-
   @Nonnull
-  public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj) {
+  public MonitoringWrapperLayer addTo2(@Nonnull final MonitoredObject obj) {
     Layer temp_31_0008 = getInner();
     assert temp_31_0008 != null;
-    MonitoringWrapperLayer temp_31_0004 = addTo(obj, temp_31_0008.getName());
+    addTo(obj, temp_31_0008.getName());
+    MonitoringWrapperLayer temp_31_0004 = this.addRef();
     temp_31_0008.freeRef();
     return temp_31_0004;
   }
 
-  @Nonnull
-  public MonitoringWrapperLayer addTo(@Nonnull final MonitoredObject obj, final String name) {
-    RefUtil.freeRef(setName(name));
-    RefUtil.freeRef(obj.addObj(getName(), this.addRef()));
+  public void addTo(@Nonnull MonitoredObject obj, String name) {
+    setName(name);
+    obj.addObj(getName(), this.addRef());
     obj.freeRef();
-    return this.addRef();
   }
 
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
-    final Result[] wrappedInput = RefArrays.stream(Result.addRefs(inObj)).map(result -> {
+    final Result[] wrappedInput = RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> {
       try {
-        return new Result(result.getData(), new Result.Accumulator() {
-          {
-          }
+        Result.Accumulator accumulator = new Result.Accumulator() {
 
           @Override
           public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
-            passbackNanos.addAndGet(TimedResult.time(RefUtil.wrapInterface(
+            TimedResult<Void> timedResult = TimedResult.time(RefUtil.wrapInterface(
                 (UncheckedRunnable<Object>) () -> result.accumulate(buffer == null ? null : buffer.addRef(),
                     data == null ? null : data.addRef()),
                 result.addRef(), data == null ? null : data.addRef(),
-                buffer == null ? null : buffer.addRef())).timeNanos);
+                buffer == null ? null : buffer.addRef()));
+            passbackNanos.addAndGet(timedResult.timeNanos);
+            timedResult.freeRef();
             if (null != data)
               data.freeRef();
             if (null != buffer)
@@ -214,9 +191,10 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
           public @SuppressWarnings("unused")
           void _free() {
           }
-        }) {
-
+        };
+        return new Result(result.getData(), accumulator) {
           {
+            result.addRef();
           }
 
           @Override
@@ -224,7 +202,10 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
             return result.isAlive();
           }
 
+          @Override
           public void _free() {
+            result.freeRef();
+            super._free();
           }
         };
       } finally {
@@ -236,15 +217,16 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     TimedResult<Result> timedResult = TimedResult.time(RefUtil.wrapInterface((UncheckedSupplier<Result>) () -> {
       Layer inner = getInner();
       assert inner != null;
-      Result eval = inner.eval(Result.addRefs(wrappedInput));
+      Result eval = inner.eval(RefUtil.addRefs(wrappedInput));
       inner.freeRef();
       return eval;
-    }, Result.addRefs(wrappedInput)));
+    }, RefUtil.addRefs(wrappedInput)));
     ReferenceCounting.freeRefs(wrappedInput);
-    final Result output = timedResult.result.addRef();
+    final Result output = timedResult.getResult();
     forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
+    timedResult.freeRef();
     totalBatches++;
-    final int items = RefArrays.stream(Result.addRefs(inObj)).mapToInt(x -> {
+    final int items = RefArrays.stream(RefUtil.addRefs(inObj)).mapToInt(x -> {
       TensorList temp_31_0009 = x.getData();
       int temp_31_0003 = temp_31_0009.length();
       temp_31_0009.freeRef();
@@ -263,7 +245,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       temp_31_0010.freeRef();
     }
     try {
-      return new Result(output.getData(), new Result.Accumulator() {
+      Result.Accumulator accumulator = new Result.Accumulator() {
         {
         }
 
@@ -276,13 +258,15 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
               t.freeRef();
             });
           }
-          backwardPerformance.add((TimedResult
+          TimedResult<Void> timedResult1 = TimedResult
               .time(RefUtil.wrapInterface(
                   (UncheckedRunnable<Object>) () -> output.accumulate(buffer == null ? null : buffer.addRef(),
                       data.addRef()),
                   data.addRef(), output.addRef(),
-                  buffer == null ? null : buffer.addRef())).timeNanos
+                  buffer == null ? null : buffer.addRef()));
+          backwardPerformance.add((timedResult1.timeNanos
               - passbackNanos.getAndSet(0)) / (items * 1e9));
+          timedResult1.freeRef();
           data.freeRef();
           if (null != buffer)
             buffer.freeRef();
@@ -291,9 +275,10 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
         public @SuppressWarnings("unused")
         void _free() {
         }
-      }) {
-
+      };
+      return new Result(output.getData(), accumulator) {
         {
+          output.addRef();
         }
 
         @Override
@@ -301,7 +286,10 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
           return output.isAlive();
         }
 
+        @Override
         public void _free() {
+          output.freeRef();
+          super._free();
         }
       };
     } finally {
@@ -323,22 +311,19 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
   @Nonnull
   @Override
-  public Layer setName(final String name) {
+  public void setName(final String name) {
     Layer temp_31_0011 = getInner();
     if (null != temp_31_0011) {
       Layer temp_31_0012 = getInner();
-      RefUtil.freeRef(temp_31_0012.setName(name));
+      temp_31_0012.setName(name);
       temp_31_0012.freeRef();
     }
     if (null != temp_31_0011)
       temp_31_0011.freeRef();
-    return this.addRef();
   }
 
-  @Nonnull
-  public MonitoringWrapperLayer shouldRecordSignalMetrics(final boolean recordSignalMetrics) {
+  public void shouldRecordSignalMetrics(boolean recordSignalMetrics) {
     this.recordSignalMetrics = recordSignalMetrics;
-    return this.addRef();
   }
 
   public @SuppressWarnings("unused")

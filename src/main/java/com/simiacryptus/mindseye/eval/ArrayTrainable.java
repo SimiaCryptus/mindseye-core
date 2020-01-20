@@ -21,12 +21,12 @@ package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
 
@@ -39,10 +39,10 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
 
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[][] trainingData, int batchSize) {
     super(inner, batchSize);
-    Tensor[][] temp_03_0001 = Tensor.addRefs(trainingData);
+    Tensor[][] temp_03_0001 = RefUtil.addRefs(trainingData);
     if (null != this.trainingData)
       ReferenceCounting.freeRefs(this.trainingData);
-    this.trainingData = Tensor.addRefs(temp_03_0001);
+    this.trainingData = RefUtil.addRefs(temp_03_0001);
     ReferenceCounting.freeRefs(temp_03_0001);
     ReferenceCounting.freeRefs(trainingData);
   }
@@ -57,10 +57,10 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
 
   public ArrayTrainable(@Nullable final Tensor[][] trainingData, final Layer network, final int batchSize) {
     super(network, batchSize);
-    Tensor[][] temp_03_0002 = Tensor.addRefs(trainingData);
+    Tensor[][] temp_03_0002 = RefUtil.addRefs(trainingData);
     if (null != this.trainingData)
       ReferenceCounting.freeRefs(this.trainingData);
-    this.trainingData = Tensor.addRefs(temp_03_0002);
+    this.trainingData = RefUtil.addRefs(temp_03_0002);
     if (null != temp_03_0002)
       ReferenceCounting.freeRefs(temp_03_0002);
     if (null != trainingData)
@@ -70,58 +70,24 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   @Nullable
   @Override
   public Tensor[][] getData() {
-    return Tensor.addRefs(trainingData);
-  }
-
-  @Nonnull
-  @Override
-  public ArrayTrainable setMask(boolean... mask) {
-    return (ArrayTrainable) super.setMask(mask);
+    return RefUtil.addRefs(trainingData);
   }
 
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
-    Tensor[][] temp_03_0003 = Tensor.addRefs(tensors);
+    Tensor[][] temp_03_0003 = RefUtil.addRefs(tensors);
     if (null != this.trainingData)
       ReferenceCounting.freeRefs(this.trainingData);
-    this.trainingData = Tensor.addRefs(temp_03_0003);
+    this.trainingData = RefUtil.addRefs(temp_03_0003);
     ReferenceCounting.freeRefs(temp_03_0003);
     ReferenceCounting.freeRefs(tensors);
   }
 
-  @Nonnull
   @Override
-  public ArrayTrainable setVerbose(final boolean verbose) {
-    return (ArrayTrainable) super.setVerbose(verbose);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ArrayTrainable[] addRefs(@Nullable ArrayTrainable[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRef)
-        .toArray((x) -> new ArrayTrainable[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ArrayTrainable[][] addRefs(@Nullable ArrayTrainable[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ArrayTrainable::addRefs)
-        .toArray((x) -> new ArrayTrainable[x][]);
-  }
-
-  @Nonnull
-  @Override
-  public Trainable setData(@Nonnull final RefList<Tensor[]> tensors) {
-    Tensor[][] temp_03_0004 = tensors.toArray(new Tensor[][]{});
+  public void setData(@Nonnull RefList<Tensor[]> tensors) {
     if (null != trainingData)
       ReferenceCounting.freeRefs(trainingData);
-    trainingData = Tensor.addRefs(temp_03_0004);
-    ReferenceCounting.freeRefs(temp_03_0004);
+    trainingData = tensors.toArray(new Tensor[][]{});
     tensors.freeRef();
-    return this.addRef();
   }
 
   public void _free() {

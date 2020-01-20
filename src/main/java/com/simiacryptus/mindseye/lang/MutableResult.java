@@ -25,17 +25,16 @@ import com.simiacryptus.ref.wrappers.RefArrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
-    this(RefArrays.stream(Tensor.addRefs(tensors)).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
+    this(RefArrays.stream(RefUtil.addRefs(tensors)).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
   }
 
   public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
-    super(new TensorArray(Tensor.addRefs(tensors)), handler(Tensor.addRefs(tensors), objectId));
+    super(new TensorArray(RefUtil.addRefs(tensors)), handler(RefUtil.addRefs(tensors), objectId));
     if (null != tensors)
       ReferenceCounting.freeRefs(tensors);
   }
@@ -45,30 +44,12 @@ public class MutableResult extends Result {
     return true;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MutableResult[] addRefs(@Nullable MutableResult[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRef)
-        .toArray((x) -> new MutableResult[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  MutableResult[][] addRefs(@Nullable MutableResult[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(MutableResult::addRefs)
-        .toArray((x) -> new MutableResult[x][]);
-  }
-
   @Nonnull
   private static Result.Accumulator handler(@Nullable final Tensor[] tensors, @Nonnull UUID[] objectId) {
     try {
       return new Accumulator() {
         {
-          Tensor.addRefs(tensors);
+          RefUtil.addRefs(tensors);
         }
 
         @Override
@@ -78,7 +59,7 @@ public class MutableResult extends Result {
             Delta<UUID> temp_50_0002 = buffer.get(objectId[index], tensors[index].getData());
             Tensor temp_50_0003 = delta.get(index);
             assert temp_50_0002 != null;
-            RefUtil.freeRef(temp_50_0002.addInPlace(temp_50_0003.getData()));
+            temp_50_0002.addInPlace(temp_50_0003.getData());
             temp_50_0003.freeRef();
             temp_50_0002.freeRef();
           }
@@ -99,14 +80,15 @@ public class MutableResult extends Result {
     }
   }
 
-  public @SuppressWarnings("unused")
-  void _free() {
-  }
-
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
   MutableResult addRef() {
     return (MutableResult) super.addRef();
+  }
+
+  @Override
+  public void _free() {
+    super._free();
   }
 }

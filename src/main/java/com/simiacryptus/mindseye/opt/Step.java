@@ -25,7 +25,6 @@ import com.simiacryptus.ref.wrappers.RefSystem;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class Step extends ReferenceCountingBase {
   public final long iteration;
@@ -43,21 +42,6 @@ public class Step extends ReferenceCountingBase {
     this.iteration = iteration;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  Step[] addRefs(@Nullable Step[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Step::addRef).toArray((x) -> new Step[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  Step[][] addRefs(@Nullable Step[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Step::addRefs).toArray((x) -> new Step[x][]);
-  }
 
   public @SuppressWarnings("unused")
   void _free() {

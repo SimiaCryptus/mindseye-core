@@ -24,7 +24,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class ConstL12Normalizer extends L12Normalizer implements SampledTrainable, TrainableDataMask {
   private double factor_L1 = 0.0;
@@ -38,20 +37,16 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     return factor_L1;
   }
 
-  @Nonnull
-  public ConstL12Normalizer setFactor_L1(final double factor_L1) {
+  public void setFactor_L1(double factor_L1) {
     this.factor_L1 = factor_L1;
-    return this.addRef();
   }
 
   public double getFactor_L2() {
     return factor_L2;
   }
 
-  @Nonnull
-  public ConstL12Normalizer setFactor_L2(final double factor_L2) {
+  public void setFactor_L2(double factor_L2) {
     this.factor_L2 = factor_L2;
-    return this.addRef();
   }
 
   @Nonnull
@@ -81,24 +76,6 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     ((SampledTrainable) inner).setTrainingSize(trainingSize);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConstL12Normalizer[] addRefs(@Nullable ConstL12Normalizer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRef)
-        .toArray((x) -> new ConstL12Normalizer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ConstL12Normalizer[][] addRefs(@Nullable ConstL12Normalizer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ConstL12Normalizer::addRefs)
-        .toArray((x) -> new ConstL12Normalizer[x][]);
-  }
-
   @Nonnull
   @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
@@ -107,10 +84,9 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
 
   @Nonnull
   @Override
-  public TrainableDataMask setMask(final boolean... mask) {
+  public void setMask(final boolean... mask) {
     assert inner != null;
-    RefUtil.freeRef(((TrainableDataMask) inner).setMask(mask));
-    return this.addRef();
+    ((TrainableDataMask) inner).setMask(mask);
   }
 
   public @SuppressWarnings("unused")

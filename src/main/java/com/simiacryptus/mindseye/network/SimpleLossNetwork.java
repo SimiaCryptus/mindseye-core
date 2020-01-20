@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,24 +50,6 @@ public class SimpleLossNetwork extends SupervisedNetwork {
   @Override
   public DAGNode getHead() {
     return lossNode == null ? null : lossNode.addRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SimpleLossNetwork[] addRefs(@Nullable SimpleLossNetwork[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRef)
-        .toArray((x) -> new SimpleLossNetwork[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SimpleLossNetwork[][] addRefs(@Nullable SimpleLossNetwork[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLossNetwork::addRefs)
-        .toArray((x) -> new SimpleLossNetwork[x][]);
   }
 
   public @SuppressWarnings("unused")

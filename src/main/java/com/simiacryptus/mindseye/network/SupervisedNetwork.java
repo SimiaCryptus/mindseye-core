@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.ref.lang.RefUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -27,24 +29,6 @@ import java.util.Arrays;
 public abstract class SupervisedNetwork extends DAGNetwork {
   public SupervisedNetwork(final int inputs) {
     super(inputs);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SupervisedNetwork[] addRefs(@Nullable SupervisedNetwork[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRef)
-        .toArray((x) -> new SupervisedNetwork[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SupervisedNetwork[][] addRefs(@Nullable SupervisedNetwork[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SupervisedNetwork::addRefs)
-        .toArray((x) -> new SupervisedNetwork[x][]);
   }
 
   public @SuppressWarnings("unused")

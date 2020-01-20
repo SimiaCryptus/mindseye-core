@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.eval;
 
+import com.simiacryptus.ref.lang.RefUtil;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -27,29 +29,12 @@ public interface TrainableDataMask extends Trainable {
   @Nullable
   boolean[] getMask();
 
-  @Nonnull
-  TrainableDataMask setMask(boolean... mask);
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TrainableDataMask[] addRefs(@Nullable TrainableDataMask[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TrainableDataMask::addRef)
-        .toArray((x) -> new TrainableDataMask[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TrainableDataMask[][] addRefs(@Nullable TrainableDataMask[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TrainableDataMask::addRefs)
-        .toArray((x) -> new TrainableDataMask[x][]);
-  }
-
-  public void _free();
 
   @Nonnull
-  public TrainableDataMask addRef();
+  void setMask(boolean... mask);
+
+  void _free();
+
+  @Nonnull
+  TrainableDataMask addRef();
 }

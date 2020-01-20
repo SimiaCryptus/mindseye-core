@@ -26,7 +26,6 @@ import com.simiacryptus.ref.lang.ReferenceCounting;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.UUID;
 
 public interface DAGNode extends Serializable, ReferenceCounting {
@@ -45,28 +44,13 @@ public interface DAGNode extends Serializable, ReferenceCounting {
   @Nullable
   DAGNetwork getNetwork();
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DAGNode[] addRefs(@Nullable DAGNode[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRef).toArray((x) -> new DAGNode[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DAGNode[][] addRefs(@Nullable DAGNode[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DAGNode::addRefs).toArray((x) -> new DAGNode[x][]);
-  }
 
   @Nullable
   Result get(GraphEvaluationContext buildExeCtx);
 
-  public void _free();
+  void _free();
 
   @Nonnull
-  public DAGNode addRef();
+  DAGNode addRef();
 
 }

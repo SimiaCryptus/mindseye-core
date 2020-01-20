@@ -25,7 +25,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
@@ -66,21 +65,6 @@ final class InputNode extends LazyResult {
     return this.dagNetwork;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  InputNode[] addRefs(@Nullable InputNode[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRef).toArray((x) -> new InputNode[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  InputNode[][] addRefs(@Nullable InputNode[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(InputNode::addRefs).toArray((x) -> new InputNode[x][]);
-  }
 
   @NotNull
   public DAGNode add(@Nonnull final Layer nextHead) {

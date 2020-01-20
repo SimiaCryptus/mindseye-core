@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.layers;
 
 import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,30 +36,12 @@ public interface StochasticComponent extends Layer {
     }
   };
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  StochasticComponent[] addRefs(@Nullable StochasticComponent[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRef)
-        .toArray((x) -> new StochasticComponent[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  StochasticComponent[][] addRefs(@Nullable StochasticComponent[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(StochasticComponent::addRefs)
-        .toArray((x) -> new StochasticComponent[x][]);
-  }
-
   void shuffle(final long seed);
 
   void clearNoise();
 
-  public void _free();
+  void _free();
 
   @Nonnull
-  public StochasticComponent addRef();
+  StochasticComponent addRef();
 }

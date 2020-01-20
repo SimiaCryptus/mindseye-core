@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.opt.line;
 
 import com.simiacryptus.mindseye.lang.PointSample;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefStringBuilder;
 
@@ -41,24 +42,6 @@ public class LineSearchPoint extends ReferenceCountingBase {
     if (null != point)
       point.freeRef();
     this.derivative = derivative;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LineSearchPoint[] addRefs(@Nullable LineSearchPoint[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRef)
-        .toArray((x) -> new LineSearchPoint[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LineSearchPoint[][] addRefs(@Nullable LineSearchPoint[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LineSearchPoint::addRefs)
-        .toArray((x) -> new LineSearchPoint[x][]);
   }
 
   @Nonnull

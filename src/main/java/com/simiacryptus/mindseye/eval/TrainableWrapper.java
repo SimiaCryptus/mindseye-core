@@ -27,7 +27,6 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase implements TrainableDataMask {
 
@@ -61,24 +60,6 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return ((TrainableDataMask) inner).getMask();
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TrainableWrapper[] addRefs(@Nullable TrainableWrapper[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRef)
-        .toArray((x) -> new TrainableWrapper[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TrainableWrapper[][] addRefs(@Nullable TrainableWrapper[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TrainableWrapper::addRefs)
-        .toArray((x) -> new TrainableWrapper[x][]);
-  }
-
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     assert inner != null;
@@ -95,11 +76,9 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
   }
 
   @Nonnull
-  @Override
-  public TrainableDataMask setMask(final boolean... mask) {
+  public void setMask(final boolean... mask) {
     assert inner != null;
-    RefUtil.freeRef(((TrainableDataMask) inner).setMask(mask));
-    return this.addRef();
+    ((TrainableDataMask) inner).setMask(mask);
   }
 
   @Nonnull

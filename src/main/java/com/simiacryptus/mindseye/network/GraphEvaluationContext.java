@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
@@ -39,49 +38,24 @@ class GraphEvaluationContext extends ReferenceCountingBase {
 
   final RefMap<UUID, Supplier<CountingResult>> calculated = new RefConcurrentHashMap<>();
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GraphEvaluationContext[] addRefs(@Nullable GraphEvaluationContext[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRef)
-        .toArray((x) -> new GraphEvaluationContext[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GraphEvaluationContext[][] addRefs(@Nullable GraphEvaluationContext[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GraphEvaluationContext::addRefs)
-        .toArray((x) -> new GraphEvaluationContext[x][]);
-  }
-
   public void _free() {
     RefSet<Map.Entry<UUID, Supplier<CountingResult>>> temp_43_0004 = calculated.entrySet();
     temp_43_0004.stream().filter(entry -> {
-      ReferenceCounting o = entry.getValue().get();
-      CountingResult countingNNResult = (CountingResult) o;
-      if (null != o)
-        o.freeRef();
-      if (expectedCounts.containsKey(entry.getKey())) {
+      CountingResult countingNNResult = entry.getValue().get();
+      UUID key = entry.getKey();
+      RefUtil.freeRef(entry);
+      if (expectedCounts.containsKey(key)) {
         CountingResult.CountingAccumulator temp_43_0005 = countingNNResult.getAccumulator();
-        boolean temp_43_0001 = expectedCounts.get(entry.getKey()) > temp_43_0005.getCount();
+        boolean temp_43_0001 = expectedCounts.get(key) > temp_43_0005.getCount();
         temp_43_0005.freeRef();
-        RefUtil.freeRef(entry);
         countingNNResult.freeRef();
         return temp_43_0001;
       } else {
-        RefUtil.freeRef(entry);
-        if (null != countingNNResult)
-          countingNNResult.freeRef();
+        countingNNResult.freeRef();
         return true;
       }
     }).forEach(entry -> {
-      CountingResult result = entry.getValue().get();
       RefUtil.freeRef(entry);
-      RefUtil.freeRef(result.getData());
-      result.freeRef();
     });
     temp_43_0004.freeRef();
     expectedCounts.freeRef();

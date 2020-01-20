@@ -20,56 +20,69 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefLinkedBlockingQueue;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
-public class Singleton<T> implements Supplier<T> {
-  private final BlockingDeque<T> deque = new LinkedBlockingDeque<>();
+public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
+  private final RefLinkedBlockingQueue<T> queue = new RefLinkedBlockingQueue<T>();
 
   public Singleton() {
   }
 
   public boolean isDefined() {
-    return !deque.isEmpty();
+    return !queue.isEmpty();
   }
 
   @Nonnull
+  @RefAware
   public synchronized T getOrInit(@Nonnull Supplier<T> fn) {
-    if (deque.isEmpty())
+    if (queue.isEmpty()) {
       set(fn.get());
+    }
     return get();
   }
 
   @Nonnull
   @Override
+  @RefAware
   public T get() {
     try {
-      T take = deque.take();
-      deque.add(take);
+      T take = queue.take();
+      queue.add(take);
       return take;
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
   }
 
-  @Nonnull
-  public Singleton<T> set(@Nonnull @RefAware T obj) {
-    assert deque.isEmpty();
-    deque.add(obj);
-    return this;
+  public void set(@RefAware @Nonnull T obj) {
+    assert queue.isEmpty();
+    queue.add(obj);
   }
 
   @Nullable
+  @RefAware
   public T remove() {
     try {
-      return deque.poll(1, TimeUnit.SECONDS);
+      return queue.poll(1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  @Override
+  public Singleton<T> addRef() {
+    return (Singleton<T>) super.addRef();
+  }
+
+  @Override
+  protected void _free() {
+    queue.freeRef();
+    super._free();
   }
 }

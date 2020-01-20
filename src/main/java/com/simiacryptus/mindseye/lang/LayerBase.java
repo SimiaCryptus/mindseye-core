@@ -26,7 +26,6 @@ import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
@@ -52,7 +51,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
       this.frozen = json.get("isFrozen").getAsBoolean();
     }
     if (json.has("name")) {
-      RefUtil.freeRef(setName(json.get("name").getAsString()));
+      setName(json.get("name").getAsString());
     }
     register();
   }
@@ -81,21 +80,6 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     return frozen;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LayerBase[] addRefs(@Nullable LayerBase[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRef).toArray((x) -> new LayerBase[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LayerBase[][] addRefs(@Nullable LayerBase[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LayerBase::addRefs).toArray((x) -> new LayerBase[x][]);
-  }
 
   @Override
   public final boolean equals(@Nullable final Object obj) {
@@ -121,9 +105,8 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   }
 
   @Nonnull
-  public Layer setName(final String name) {
+  public void setName(final String name) {
     this.name = name;
-    return this.addRef();
   }
 
   @Override
@@ -133,9 +116,8 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   }
 
   @Nonnull
-  public Layer setFrozen(final boolean frozen) {
+  public void setFrozen(final boolean frozen) {
     this.frozen = frozen;
-    return self();
   }
 
   @Nullable
@@ -145,18 +127,12 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   }
 
   public void _free() {
-
   }
 
   public @Override
   @SuppressWarnings("unused")
   LayerBase addRef() {
     return (LayerBase) super.addRef();
-  }
-
-  @Nonnull
-  protected final Layer self() {
-    return this.addRef();
   }
 
 }

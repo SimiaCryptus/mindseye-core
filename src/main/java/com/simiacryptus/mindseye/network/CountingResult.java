@@ -67,26 +67,9 @@ public class CountingResult extends Result {
     return inner.isAlive();
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CountingResult[] addRefs(@Nullable CountingResult[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRef)
-        .toArray((x) -> new CountingResult[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CountingResult[][] addRefs(@Nullable CountingResult[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CountingResult::addRefs)
-        .toArray((x) -> new CountingResult[x][]);
-  }
-
   public void _free() {
     inner.freeRef();
+    super._free();
   }
 
   @Nonnull
@@ -161,8 +144,7 @@ public class CountingResult extends Result {
               stream = stream.parallel();
             @Nonnull
             TensorList compacted = RefUtil.get(stream.reduce((a, b) -> {
-              TensorList c;
-              c = a.addAndFree(b == null ? null : b.addRef());
+              TensorList c = a.addAndFree(b == null ? null : b.addRef());
               if (null != b)
                 b.freeRef();
               a.freeRef();
@@ -180,9 +162,9 @@ public class CountingResult extends Result {
             RefStream<TensorList> stream = passbackBuffers.stream();
             if (!CoreSettings.INSTANCE().isSingleThreaded())
               stream = stream.parallel();
+            if (null != reduced) reduced.freeRef();
             reduced = RefUtil.get(stream.reduce((a, b) -> {
-              TensorList c;
-              c = a.addAndFree(b == null ? null : b.addRef());
+              TensorList c = a.addAndFree(b == null ? null : b.addRef());
               if (null != b)
                 b.freeRef();
               a.freeRef();
@@ -224,6 +206,5 @@ public class CountingResult extends Result {
     CountingAccumulator addRef() {
       return (CountingAccumulator) super.addRef();
     }
-
   }
 }

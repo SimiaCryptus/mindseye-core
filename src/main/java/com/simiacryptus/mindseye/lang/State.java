@@ -24,8 +24,6 @@ import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefSystem;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -39,30 +37,13 @@ public class State<K> extends DoubleBuffer<K> {
     super(layer, target, delta);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  State[] addRefs(@Nullable State[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(State::addRef).toArray((x) -> new State[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  State[][] addRefs(@Nullable State[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(State::addRefs).toArray((x) -> new State[x][]);
-  }
 
   public boolean areEqual() {
     return areEqual(getDelta(), target);
   }
 
-  @Nonnull
-  public final synchronized State<K> backup() {
+  public synchronized void backup() {
     RefSystem.arraycopy(target, 0, getDelta(), 0, target.length);
-    return this.addRef();
   }
 
   @Nonnull
@@ -78,10 +59,8 @@ public class State<K> extends DoubleBuffer<K> {
     return new State(key, target, RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
   }
 
-  @Nonnull
-  public final synchronized State<K> restore() {
+  public synchronized void restore() {
     RefSystem.arraycopy(getDelta(), 0, target, 0, target.length);
-    return this.addRef();
   }
 
   public @SuppressWarnings("unused")

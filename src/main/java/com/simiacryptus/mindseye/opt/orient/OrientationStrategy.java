@@ -23,6 +23,7 @@ import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
 import javax.annotation.Nullable;
@@ -30,29 +31,11 @@ import java.util.Arrays;
 
 public interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  OrientationStrategy[] addRefs(@Nullable OrientationStrategy[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategy::addRef)
-        .toArray((x) -> new OrientationStrategy[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  OrientationStrategy[][] addRefs(@Nullable OrientationStrategy[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(OrientationStrategy::addRefs)
-        .toArray((x) -> new OrientationStrategy[x][]);
-  }
-
   T orient(Trainable subject, PointSample measurement, TrainingMonitor monitor);
 
   void reset();
 
-  public void _free();
+  void _free();
 
-  public OrientationStrategy<T> addRef();
+  OrientationStrategy<T> addRef();
 }

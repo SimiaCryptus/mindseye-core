@@ -30,7 +30,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
@@ -43,47 +42,17 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   public DoubleBufferSet(@Nonnull final DoubleBufferSet<K, T> toCopy) {
-    this(toCopy.map);
+    this(toCopy.getMap());
     toCopy.freeRef();
   }
 
   public DoubleBufferSet(@Nonnull final RefMap<K, ? extends T> collect) {
-    collect.forEach((k, v) -> {
-      assert null != k;
-      assert null != v;
-      v.freeRef();
-    });
-    synchronized (collect) {
-      map.putAll(collect.addRef());
-      map.forEach((k, v) -> {
-        if (null != v)
-          v.freeRef();
-      });
-    }
-    collect.freeRef();
+    map.putAll(collect);
   }
 
   @Nonnull
   public RefMap<K, T> getMap() {
-    return RefCollections.unmodifiableMap(RefUtil.addRef(map));
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DoubleBufferSet[] addRefs(@Nullable DoubleBufferSet[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRef)
-        .toArray((x) -> new DoubleBufferSet[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DoubleBufferSet[][] addRefs(@Nullable DoubleBufferSet[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DoubleBufferSet::addRefs)
-        .toArray((x) -> new DoubleBufferSet[x][]);
+    return RefCollections.unmodifiableMap(map.addRef());
   }
 
   @Nonnull
@@ -112,7 +81,7 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   @Nonnull
-  public DoubleBufferSet<K, T> map(@Nonnull final Function<T, T> mapper) {
+  public DoubleBufferSet<K, T> map(@Nonnull final RefFunction<T, T> mapper) {
     @Nonnull final DoubleBufferSet<K, T> parent = this.addRef();
     RefHashSet<Map.Entry<K, T>> temp_15_0009 = map.entrySet();
     RefStream<Map.Entry<K, T>> stream = temp_15_0009.stream();
@@ -121,32 +90,27 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
       stream = stream.parallel();
     }
     final RefMap<K, T> newMap = stream.collect(RefCollectors.toMap(e -> {
-      K temp_15_0004 = e.getKey();
+      K temp_15_0004 = RefUtil.addRef(e.getKey());
       RefUtil.freeRef(e);
       return temp_15_0004;
     }, e -> {
-      T temp_15_0010 = e.getValue();
-      T temp_15_0005 = mapper.apply(temp_15_0010);
-      if (null != temp_15_0010)
-        temp_15_0010.freeRef();
+      T temp_15_0010 = (T) e.getValue().addRef();
       RefUtil.freeRef(e);
-      return temp_15_0005;
+      return mapper.apply(temp_15_0010);
     }));
-    DoubleBufferSet.Delegate temp_15_0003 = new Delegate(parent,
-        newMap == null ? null : newMap.addRef());
-    if (null != newMap)
-      newMap.freeRef();
-    return temp_15_0003;
+    return new Delegate(parent, newMap);
   }
 
   @Nonnull
   public RefStream<T> stream() {
     RefHashSet<T> temp_15_0012 = map.values();
     RefStream<T> temp_15_0011 = temp_15_0012.stream().filter(n -> {
-      boolean temp_15_0006 = null != n;
-      if (null != n)
+      if (null != n) {
         n.freeRef();
-      return temp_15_0006;
+        return true;
+      } else {
+        return false;
+      }
     }).distinct().sorted(RefComparator.comparing(y -> {
       int temp_15_0007 = RefSystem.identityHashCode(y.target);
       y.freeRef();
@@ -196,26 +160,14 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
 
     public Delegate(@Nullable final DoubleBufferSet<K, T> parent, @Nonnull final RefMap<K, T> newMap) {
       super(newMap);
-      DoubleBufferSet<K, T> temp_15_0001 = parent == null ? null : parent.addRef();
-      this.parent = temp_15_0001 == null ? null : temp_15_0001.addRef();
-      if (null != temp_15_0001)
-        temp_15_0001.freeRef();
-      if (null != parent)
-        parent.freeRef();
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    Delegate[] addRefs(@Nullable Delegate[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(Delegate::addRef).toArray((x) -> new Delegate[x]);
+      this.parent = parent;
     }
 
     public @SuppressWarnings("unused")
     void _free() {
       if (null != parent)
         parent.freeRef();
+      super._free();
     }
 
     @Nonnull

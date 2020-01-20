@@ -27,7 +27,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class SimpleLineSearchCursor extends LineSearchCursorBase {
@@ -64,28 +63,8 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     return type;
   }
 
-  @Nonnull
-  public SimpleLineSearchCursor setDirectionType(final String type) {
+  public void setDirectionType(String type) {
     this.type = type;
-    return this.addRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SimpleLineSearchCursor[] addRefs(@Nullable SimpleLineSearchCursor[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRef)
-        .toArray((x) -> new SimpleLineSearchCursor[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SimpleLineSearchCursor[][] addRefs(@Nullable SimpleLineSearchCursor[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SimpleLineSearchCursor::addRefs)
-        .toArray((x) -> new SimpleLineSearchCursor[x][]);
   }
 
   @Nonnull
@@ -97,7 +76,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
 
   @Override
   public void reset() {
-    RefUtil.freeRef(origin.restore());
+    origin.restore();
   }
 
   @Nullable
@@ -112,7 +91,8 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     }
     assert subject != null;
     PointSample temp_25_0005 = subject.measure(monitor);
-    @Nonnull final PointSample sample = afterStep(temp_25_0005.setRate(alpha));
+    temp_25_0005.setRate(alpha);
+    @Nonnull final PointSample sample = afterStep(temp_25_0005.addRef());
     temp_25_0005.freeRef();
     assert direction != null;
     final double dot = direction.dot(sample.delta.addRef());

@@ -36,7 +36,6 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -68,12 +67,12 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   String getName();
 
   @Nonnull
-  Layer setName(final String name);
+  void setName(final String name);
 
   boolean isFrozen();
 
   @Nonnull
-  Layer setFrozen(final boolean frozen);
+  void setFrozen(final boolean frozen);
 
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json) {
@@ -114,21 +113,6 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     }
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  Layer[] addRefs(@Nullable Layer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Layer::addRef).toArray((x) -> new Layer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  Layer[][] addRefs(@Nullable Layer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Layer::addRefs).toArray((x) -> new Layer[x][]);
-  }
 
   @Nonnull
   default int[] evalDims(int[] inputDims) {
@@ -177,36 +161,10 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     });
   }
 
-  @Nonnull
-  default PipelineNetwork andThen(@Nullable Layer append) {
-    PipelineNetwork temp_34_0007 = PipelineNetwork.build(1, this.addRef(), append == null ? null : append.addRef());
-    if (null != append)
-      append.freeRef();
-    return temp_34_0007;
-  }
-
-  @Nonnull
-  default PipelineNetwork freeAndThen(@Nullable Layer append) {
-    PipelineNetwork temp_34_0008 = andThen(append == null ? null : append.addRef());
-    if (null != append)
-      append.freeRef();
-    return temp_34_0008;
-  }
-
-  default PipelineNetwork andThenWrap(@Nonnull Layer append) {
+  default PipelineNetwork andThen(@Nonnull Layer append) {
     assert append.assertAlive();
     assert assertAlive();
-    PipelineNetwork temp_34_0009 = PipelineNetwork.build(1, this.addRef(), append.addRef());
-    append.freeRef();
-    return temp_34_0009;
-  }
-
-  @Nonnull
-  default PipelineNetwork freeAndThenWrap(@Nullable Layer append) {
-    PipelineNetwork temp_34_0010 = PipelineNetwork.build(1, this.addRef(), append == null ? null : append.addRef());
-    if (null != append)
-      append.freeRef();
-    return temp_34_0010;
+    return PipelineNetwork.build(1, this.addRef(), append);
   }
 
   @Nonnull
@@ -235,33 +193,20 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   @Nullable
-  default Result eval(@Nullable Result... array) {
-    assertAlive();
-    Result temp_34_0011 = eval(Result.addRefs(array));
-    if (null != array)
-      ReferenceCounting.freeRefs(array);
-    return temp_34_0011;
-  }
+  Result eval(@Nullable Result... array);
 
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
-    Result[] input = ConstantResult.singleResultArray(Tensor.addRefs(array));
-    ReferenceCounting.freeRefs(array);
-    Result temp_34_0004 = eval(Result.addRefs(input));
-    ReferenceCounting.freeRefs(input);
-    return temp_34_0004;
+    return eval(ConstantResult.singleResultArray(array));
   }
 
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
-    Result temp_34_0012 = eval(ConstantResult.singleResultArray(Tensor.addRefs(array)));
-    ReferenceCounting.freeRefs(array);
-    return temp_34_0012;
+    return eval(ConstantResult.singleResultArray(array));
   }
 
-  @Nonnull
-  default Layer freeze() {
-    return setFrozen(true);
+  default void freeze() {
+    setFrozen(true);
   }
 
   @Nullable
@@ -282,8 +227,8 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     };
   }
 
-  public void _free();
+  void _free();
 
-  public Layer addRef();
+  Layer addRef();
 
 }

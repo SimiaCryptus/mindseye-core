@@ -77,12 +77,11 @@ public class BisectionSearch implements LineSearchStrategy {
   public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
 
     double leftX = 0;
-    double leftValue;
     final LineSearchPoint searchPoint = cursor.step(leftX, monitor);
-    monitor.log(RefString.format("F(%s) = %s", leftX, searchPoint));
+    monitor.log(RefString.format("F(%s) = %s", leftX, searchPoint.addRef()));
     assert searchPoint != null;
     assert searchPoint.point != null;
-    leftValue = searchPoint.point.sum;
+    double leftValue = searchPoint.point.sum;
     searchPoint.freeRef();
     double rightRight = getMaxRate();
     double rightX;
@@ -93,8 +92,9 @@ public class BisectionSearch implements LineSearchStrategy {
     int loopCount = 0;
     while (true) {
       rightX = (leftX + Math.min(rightRight, rightRightSoft)) / 2;
+      if (null != rightPoint) rightPoint.freeRef();
       rightPoint = cursor.step(rightX, monitor);
-      monitor.log(RefString.format("F(%s)@%s = %s", rightX, loopCount, rightPoint));
+      monitor.log(RefString.format("F(%s)@%s = %s", rightX, loopCount, rightPoint.addRef()));
       assert rightPoint != null;
       rightLineDeriv = rightPoint.derivative;
       assert rightPoint.point != null;
@@ -142,40 +142,41 @@ public class BisectionSearch implements LineSearchStrategy {
     int loopCount = 0;
     try {
       while (true) {
-        double thisX;
-        thisX = (rightX + leftX) / 2;
+        double thisX = (rightX + leftX) / 2;
+        if (null != searchPoint) searchPoint.freeRef();
         searchPoint = cursor.step(thisX, monitor);
-        monitor.log(RefString.format("F(%s) = %s", thisX, searchPoint));
+        monitor.log(RefString.format("F(%s) = %s", thisX, searchPoint.addRef()));
         if (loopCount++ > 1000) {
-          return searchPoint;
+          return searchPoint.addRef();
         }
         assert searchPoint != null;
         if (searchPoint.derivative < -zeroTol) {
           if (leftX == thisX) {
             monitor.log(RefString.format("End (static left) at %s", thisX));
             currentRate = thisX;
-            return searchPoint;
+            return searchPoint.addRef();
           }
           leftX = thisX;
         } else if (searchPoint.derivative > zeroTol) {
           if (rightX == thisX) {
             monitor.log(RefString.format("End (static right) at %s", thisX));
             currentRate = thisX;
-            return searchPoint;
+            return searchPoint.addRef();
           }
           rightX = thisX;
         } else {
           monitor.log(RefString.format("End (at min) at %s", thisX));
           currentRate = thisX;
-          return searchPoint;
+          return searchPoint.addRef();
         }
         if (Math.log10((rightX - leftX) * 2.0 / (leftX + rightX)) < -1) {
           monitor.log(RefString.format("End (narrow range) at %s to %s", rightX, leftX));
           currentRate = thisX;
-          return searchPoint;
+          return searchPoint.addRef();
         }
       }
     } finally {
+      if (null != searchPoint) searchPoint.freeRef();
       cursor.freeRef();
     }
   }

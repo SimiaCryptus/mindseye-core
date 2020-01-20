@@ -50,38 +50,16 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     return historySize;
   }
 
-  @Nonnull
-  public CachedTrainable<T> setHistorySize(final int historySize) {
+  public void setHistorySize(int historySize) {
     this.historySize = historySize;
-    return this.addRef();
   }
 
   public boolean isVerbose() {
     return verbose;
   }
 
-  @Nonnull
-  public CachedTrainable<T> setVerbose(final boolean verbose) {
+  public void setVerbose(boolean verbose) {
     this.verbose = verbose;
-    return this.addRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CachedTrainable[] addRefs(@Nullable CachedTrainable[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRef)
-        .toArray((x) -> new CachedTrainable[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  CachedTrainable[][] addRefs(@Nullable CachedTrainable[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(CachedTrainable::addRefs)
-        .toArray((x) -> new CachedTrainable[x][]);
   }
 
   @Nonnull

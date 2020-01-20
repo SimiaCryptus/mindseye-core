@@ -54,24 +54,6 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     return new LoggingWrapperLayer(json, rs);
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LoggingWrapperLayer[] addRefs(@Nullable LoggingWrapperLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRef)
-        .toArray((x) -> new LoggingWrapperLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  LoggingWrapperLayer[][] addRefs(@Nullable LoggingWrapperLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(LoggingWrapperLayer::addRefs)
-        .toArray((x) -> new LoggingWrapperLayer[x][]);
-  }
-
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... inObj) {
@@ -80,7 +62,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
         .mapToObj(RefUtil.wrapInterface((IntFunction<Result>) i -> {
           final Result inputToWrap = inObj[i].addRef();
           try {
-            return new Result(inputToWrap.getData(), new Result.Accumulator() {
+            Result.Accumulator accumulator = new Result.Accumulator() {
               @Override
               public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
                 @Nonnull final String formatted = RefUtil.get(data.stream().map(loggingWrapperLayer::getString)
@@ -99,20 +81,28 @@ public final class LoggingWrapperLayer extends WrapperLayer {
               public @SuppressWarnings("unused")
               void _free() {
               }
-            }) {
+            };
+            return new Result(inputToWrap.getData(), accumulator) {
+
+              {
+                inputToWrap.addRef();
+              }
 
               @Override
               public boolean isAlive() {
                 return inputToWrap.isAlive();
               }
 
+              @Override
               public void _free() {
+                inputToWrap.freeRef();
+                super._free();
               }
             };
           } finally {
             inputToWrap.freeRef();
           }
-        }, loggingWrapperLayer.addRef(), Result.addRefs(inObj)))
+        }, loggingWrapperLayer.addRef(), RefUtil.addRefs(inObj)))
         .toArray(i -> new Result[i]);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
@@ -130,7 +120,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     loggingWrapperLayer.freeRef();
     Layer temp_46_0008 = getInner();
     assert temp_46_0008 != null;
-    @Nullable final Result output = temp_46_0008.eval(Result.addRefs(wrappedInput));
+    @Nullable final Result output = temp_46_0008.eval(RefUtil.addRefs(wrappedInput));
     temp_46_0008.freeRef();
     ReferenceCounting.freeRefs(wrappedInput);
     {
@@ -149,7 +139,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       temp_46_0009.freeRef();
     }
     try {
-      return new Result(output.getData(), new Result.Accumulator() {
+      Result.Accumulator accumulator = new Result.Accumulator() {
         {
         }
 
@@ -174,17 +164,20 @@ public final class LoggingWrapperLayer extends WrapperLayer {
         public @SuppressWarnings("unused")
         void _free() {
         }
-      }) {
-
+      };
+      return new Result(output.getData(), accumulator) {
         {
+          output.addRef();
         }
 
         @Override
         public boolean isAlive() {
           return output.isAlive();
         }
-
+        @Override
         public void _free() {
+          output.freeRef();
+          super._free();
         }
       };
     } finally {

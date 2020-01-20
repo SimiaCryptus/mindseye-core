@@ -19,6 +19,10 @@
 
 package com.simiacryptus.mindseye.eval;
 
+import com.simiacryptus.mindseye.lang.Tensor;
+import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.wrappers.RefList;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -50,24 +54,6 @@ public class SampledCachedTrainable<T extends SampledTrainable> extends CachedTr
       temp_54_0003.freeRef();
       reseed(seed);
     }
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SampledCachedTrainable[] addRefs(@Nullable SampledCachedTrainable[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRef)
-        .toArray((x) -> new SampledCachedTrainable[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  SampledCachedTrainable[][] addRefs(@Nullable SampledCachedTrainable[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(SampledCachedTrainable::addRefs)
-        .toArray((x) -> new SampledCachedTrainable[x][]);
   }
 
   @Nonnull

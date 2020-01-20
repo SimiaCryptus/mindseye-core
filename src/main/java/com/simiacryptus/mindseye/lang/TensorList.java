@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefIntStream;
@@ -26,7 +27,6 @@ import com.simiacryptus.ref.wrappers.RefStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.IntFunction;
 
 public interface TensorList extends ReferenceCounting {
@@ -37,21 +37,6 @@ public interface TensorList extends ReferenceCounting {
     return length() * Tensor.length(getDimensions());
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TensorList[] addRefs(@Nullable TensorList[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRef).toArray((x) -> new TensorList[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  TensorList[][] addRefs(@Nullable TensorList[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(TensorList::addRefs).toArray((x) -> new TensorList[x][]);
-  }
 
   default TensorList add(@Nonnull final TensorList right) {
     if (right.length() == 0) {
@@ -63,7 +48,7 @@ public interface TensorList extends ReferenceCounting {
       throw new IllegalArgumentException();
     }
     assert length() == right.length();
-    TensorArray temp_40_0004 = new TensorArray(
+    return new TensorArray(
         RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
           Tensor b = right.get(i);
           Tensor temp_40_0007 = get(i);
@@ -72,7 +57,6 @@ public interface TensorList extends ReferenceCounting {
           b.freeRef();
           return temp_40_0001;
         }, right)).toArray(i -> new Tensor[i]));
-    return temp_40_0004;
   }
 
   default TensorList addAndFree(@Nonnull final TensorList right) {
@@ -93,7 +77,7 @@ public interface TensorList extends ReferenceCounting {
       throw new IllegalArgumentException();
     }
     assert length() == right.length();
-    TensorArray temp_40_0006 = new TensorArray(
+    return new TensorArray(
         RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
           @Nullable
           Tensor a = get(i);
@@ -104,7 +88,6 @@ public interface TensorList extends ReferenceCounting {
           a.freeRef();
           return temp_40_0002;
         }, right)).toArray(i -> new Tensor[i]));
-    return temp_40_0006;
   }
 
   default TensorList copy() {
@@ -118,6 +101,7 @@ public interface TensorList extends ReferenceCounting {
   }
 
   @Nonnull
+  @RefAware
   Tensor get(int i);
 
   int length();
@@ -125,9 +109,9 @@ public interface TensorList extends ReferenceCounting {
   @Nonnull
   RefStream<Tensor> stream();
 
-  public void _free();
+  void _free();
 
   @Nonnull
-  public TensorList addRef();
+  TensorList addRef();
 
 }

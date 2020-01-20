@@ -61,7 +61,6 @@ public enum SerialPrecision implements DataSerializer {
       while (inBuffer.hasRemaining()) {
         outBuffer.put((float) inBuffer.get());
       }
-
     }
 
     @Override
@@ -95,7 +94,6 @@ public enum SerialPrecision implements DataSerializer {
       while (inBuffer.hasRemaining()) {
         byteBuffer.put((int) (Integer.MAX_VALUE * (inBuffer.get() - center) / radius));
       }
-
     }
 
     @Override
@@ -115,7 +113,6 @@ public enum SerialPrecision implements DataSerializer {
         int v = intBuffer.get();
         outBuffer.put((v * radius / Integer.MAX_VALUE) + center);
       }
-
     }
 
     @Override
@@ -143,7 +140,6 @@ public enum SerialPrecision implements DataSerializer {
       while (inBuffer.hasRemaining()) {
         shortBuffer.put((short) (Short.MAX_VALUE * (inBuffer.get() - center) / radius));
       }
-
     }
 
     @Override
@@ -163,7 +159,6 @@ public enum SerialPrecision implements DataSerializer {
         short v = shortBuffer.get();
         outBuffer.put((v * radius / Short.MAX_VALUE) + center);
       }
-
     }
 
     @Override
@@ -191,7 +186,6 @@ public enum SerialPrecision implements DataSerializer {
       while (inBuffer.hasRemaining()) {
         byteBuffer.put((byte) (Byte.MAX_VALUE * (inBuffer.get() - center) / radius));
       }
-
     }
 
     @Override
@@ -211,7 +205,6 @@ public enum SerialPrecision implements DataSerializer {
         byte v = byteBuffer.get();
         outBuffer.put((v * radius / Byte.MAX_VALUE) + center);
       }
-
     }
 
     @Override
@@ -288,6 +281,5 @@ public enum SerialPrecision implements DataSerializer {
       this.numerator = numerator;
       this.denominator = denominator;
     }
-
   }
 }

@@ -25,7 +25,6 @@ import com.simiacryptus.ref.wrappers.RefArrays;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 public class Delta<K> extends DoubleBuffer<K> {
@@ -80,21 +79,6 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  Delta[] addRefs(@Nullable Delta[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Delta::addRef).toArray((x) -> new Delta[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  Delta[][] addRefs(@Nullable Delta[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(Delta::addRefs).toArray((x) -> new Delta[x][]);
-  }
 
   public final void accumulate(final double factor) {
     synchronized (target) {
@@ -111,22 +95,21 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   @Nonnull
-  public void addInPlace(@Nonnull final Delta<K> buffer) {
+  public void addInPlace2(@Nonnull final Delta<K> buffer) {
     assertAlive();
-    Delta<K> temp_55_0001 = addInPlace(buffer.delta);
+    addInPlace(buffer.delta);
+    Delta<K> temp_55_0001 = this.addRef();
     assert buffer.deltaCompensation != null;
-    RefUtil.freeRef(temp_55_0001.addInPlace(buffer.deltaCompensation));
+    temp_55_0001.addInPlace(buffer.deltaCompensation);
     temp_55_0001.freeRef();
     buffer.freeRef();
   }
 
-  @Nonnull
-  public Delta<K> addInPlace(@Nonnull final double[] data) {
+  public void addInPlace(@Nonnull double[] data) {
     assert data.length == this.target.length;
     //assert Arrays.stream(data).allMatch(Double::isFinite);
     Delta.accumulate(getDelta(), data, deltaCompensation);
     //assert Arrays.stream(read()).allMatch(Double::isFinite);
-    return this.addRef();
   }
 
   @Nonnull

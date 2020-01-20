@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
@@ -57,26 +59,9 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     return inner.addRef();
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ReshapedTensorList[] addRefs(@Nullable ReshapedTensorList[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRef)
-        .toArray((x) -> new ReshapedTensorList[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ReshapedTensorList[][] addRefs(@Nullable ReshapedTensorList[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ReshapedTensorList::addRefs)
-        .toArray((x) -> new ReshapedTensorList[x][]);
-  }
-
   @Nonnull
   @Override
+  @RefAware
   public Tensor get(int i) {
     assertAlive();
     @Nonnull

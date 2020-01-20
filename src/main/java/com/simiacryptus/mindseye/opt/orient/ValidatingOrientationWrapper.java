@@ -26,6 +26,7 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursorBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
@@ -45,26 +46,6 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       temp_26_0001.freeRef();
     if (null != inner)
       inner.freeRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ValidatingOrientationWrapper[] addRefs(
-      @Nullable ValidatingOrientationWrapper[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRef)
-        .toArray((x) -> new ValidatingOrientationWrapper[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  ValidatingOrientationWrapper[][] addRefs(
-      @Nullable ValidatingOrientationWrapper[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(ValidatingOrientationWrapper::addRefs)
-        .toArray((x) -> new ValidatingOrientationWrapper[x][]);
   }
 
   @Nonnull

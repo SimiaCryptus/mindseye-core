@@ -26,8 +26,6 @@ import com.simiacryptus.ref.wrappers.RefSet;
 import com.simiacryptus.ref.wrappers.RefStringBuilder;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Predicate;
 
@@ -61,7 +59,7 @@ public final class PointSample extends ReferenceCountingBase {
       temp_08_0010.freeRef();
       this.sum = sum;
       this.count = count;
-      RefUtil.freeRef(setRate(rate));
+      setRate(rate);
     } catch (RuntimeException e) {
       throw e;
     } catch (Throwable e) {
@@ -82,10 +80,8 @@ public final class PointSample extends ReferenceCountingBase {
     return rate;
   }
 
-  @Nonnull
-  public PointSample setRate(final double rate) {
+  public void setRate(double rate) {
     this.rate = rate;
-    return this.addRef();
   }
 
   @Nonnull
@@ -112,21 +108,6 @@ public final class PointSample extends ReferenceCountingBase {
     return temp_08_0003;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PointSample[] addRefs(@Nullable PointSample[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRef).toArray((x) -> new PointSample[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PointSample[][] addRefs(@Nullable PointSample[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PointSample::addRefs).toArray((x) -> new PointSample[x][]);
-  }
 
   @Nonnull
   public PointSample add(@Nonnull final PointSample right) {
@@ -147,7 +128,8 @@ public final class PointSample extends ReferenceCountingBase {
     temp_08_0019.freeRef();
     temp_08_0018.freeRef();
     assert rate == right.rate;
-    PointSample temp_08_0007 = new PointSample(delta.addInPlace(right.delta.addRef()),
+    delta.addInPlace(right.delta.addRef());
+    PointSample temp_08_0007 = new PointSample(delta.addRef(),
         StateSet.union(weights.addRef(), right.weights.addRef()), sum + right.sum, rate,
         count + right.count);
     right.freeRef();
@@ -178,22 +160,18 @@ public final class PointSample extends ReferenceCountingBase {
     }
   }
 
-  @Nonnull
-  public PointSample restore() {
+  public void restore() {
     weights.stream().forEach(d -> {
-      RefUtil.freeRef(d.restore());
+      d.restore();
       d.freeRef();
     });
-    return this.addRef();
   }
 
-  @Nonnull
-  public PointSample backup() {
+  public void backup() {
     weights.stream().forEach(d -> {
-      RefUtil.freeRef(d.backup());
+      d.backup();
       d.freeRef();
     });
-    return this.addRef();
   }
 
   @Override

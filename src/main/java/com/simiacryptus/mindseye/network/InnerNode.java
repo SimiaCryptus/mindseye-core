@@ -30,7 +30,6 @@ import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -64,19 +63,19 @@ public final class InnerNode extends LazyResult {
     setLayer(layer);
     if (0 == inputNodes.length) {
       DAGNode[] temp_12_0002 = new DAGNode[]{};
-      this.inputNodes = DAGNode.addRefs(temp_12_0002);
+      this.inputNodes = RefUtil.addRefs(temp_12_0002);
       ReferenceCounting.freeRefs(temp_12_0002);
     } else {
-      DAGNode[] temp_12_0003 = RefArrays.copyOf(DAGNode.addRefs(inputNodes), inputNodes.length);
-      this.inputNodes = DAGNode.addRefs(temp_12_0003);
+      DAGNode[] temp_12_0003 = RefArrays.copyOf(RefUtil.addRefs(inputNodes), inputNodes.length);
+      this.inputNodes = RefUtil.addRefs(temp_12_0003);
       ReferenceCounting.freeRefs(temp_12_0003);
-      assert RefArrays.stream(DAGNode.addRefs(inputNodes)).parallel().allMatch(x -> {
+      assert RefArrays.stream(RefUtil.addRefs(inputNodes)).parallel().allMatch(x -> {
         boolean temp_12_0006 = x != null;
         if (null != x)
           x.freeRef();
         return temp_12_0006;
       });
-      assert RefArrays.stream(DAGNode.addRefs(inputNodes)).parallel().allMatch(x -> {
+      assert RefArrays.stream(RefUtil.addRefs(inputNodes)).parallel().allMatch(x -> {
         boolean temp_12_0007 = x.assertAlive();
         x.freeRef();
         return temp_12_0007;
@@ -88,7 +87,7 @@ public final class InnerNode extends LazyResult {
   @Nonnull
   @Override
   public DAGNode[] getInputs() {
-    return DAGNode.addRefs(inputNodes);
+    return RefUtil.addRefs(inputNodes);
   }
 
   @Nonnull
@@ -129,27 +128,10 @@ public final class InnerNode extends LazyResult {
     return parallel;
   }
 
-  @Nonnull
-  public InnerNode setParallel(boolean parallel) {
+  public void setParallel(boolean parallel) {
     this.parallel = parallel;
-    return this.addRef();
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  InnerNode[] addRefs(@Nullable InnerNode[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRef).toArray((x) -> new InnerNode[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  InnerNode[][] addRefs(@Nullable InnerNode[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(InnerNode::addRefs).toArray((x) -> new InnerNode[x][]);
-  }
 
   public void _free() {
     if (null != layer) {
@@ -174,14 +156,14 @@ public final class InnerNode extends LazyResult {
   protected Result eval(@Nullable final GraphEvaluationContext ctx) {
     assertAlive();
     @Nonnull final Layer innerLayer = getLayer();
-    assert RefArrays.stream(DAGNode.addRefs(inputNodes)).allMatch(x -> {
+    assert RefArrays.stream(RefUtil.addRefs(inputNodes)).allMatch(x -> {
       boolean temp_12_0009 = x != null;
       if (null != x)
         x.freeRef();
       return temp_12_0009;
     });
     @Nonnull
-    RefStream<DAGNode> stream = RefArrays.stream(DAGNode.addRefs(inputNodes));
+    RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRefs(inputNodes));
     if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
       stream = stream.parallel();
     final Result[] in = stream.map(RefUtil.wrapInterface((Function<? super DAGNode, ? extends Result>) x -> {
@@ -192,13 +174,13 @@ public final class InnerNode extends LazyResult {
     }, ctx == null ? null : ctx.addRef())).toArray(i -> new Result[i]);
     if (null != ctx)
       ctx.freeRef();
-    assert RefArrays.stream(Result.addRefs(in)).allMatch(x -> {
+    assert RefArrays.stream(RefUtil.addRefs(in)).allMatch(x -> {
       boolean temp_12_0011 = x != null;
       if (null != x)
         x.freeRef();
       return temp_12_0011;
     });
-    Result temp_12_0008 = innerLayer.eval(Result.addRefs(in));
+    Result temp_12_0008 = innerLayer.eval(RefUtil.addRefs(in));
     ReferenceCounting.freeRefs(in);
     innerLayer.freeRef();
     return temp_12_0008;

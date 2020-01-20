@@ -28,28 +28,9 @@ import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GradientDescent[] addRefs(@Nullable GradientDescent[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRef)
-        .toArray((x) -> new GradientDescent[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  GradientDescent[][] addRefs(@Nullable GradientDescent[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(GradientDescent::addRefs)
-        .toArray((x) -> new GradientDescent[x][]);
-  }
 
   @Nonnull
   @Override
@@ -64,7 +45,8 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
     }
     SimpleLineSearchCursor temp_42_0002 = new SimpleLineSearchCursor(subject == null ? null : subject.addRef(),
         measurement, direction);
-    SimpleLineSearchCursor temp_42_0001 = temp_42_0002.setDirectionType("GD");
+    temp_42_0002.setDirectionType("GD");
+    SimpleLineSearchCursor temp_42_0001 = temp_42_0002.addRef();
     temp_42_0002.freeRef();
     if (null != subject)
       subject.freeRef();
@@ -73,11 +55,9 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
 
   @Override
   public void reset() {
-
   }
 
   public void _free() {
-
   }
 
   @Nonnull

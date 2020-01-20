@@ -107,7 +107,7 @@ public class QuadraticSearch implements LineSearchStrategy {
     final LineSearchPoint initialPoint = thisPoint == null ? null : thisPoint.addRef();
     double leftX = thisX;
     LineSearchPoint leftPoint = thisPoint == null ? null : thisPoint.addRef();
-    monitor.log(RefString.format("F(%s) = %s", leftX, leftPoint));
+    monitor.log(RefString.format("F(%s) = %s", leftX, leftPoint.addRef()));
     assert leftPoint != null;
     if (0 == leftPoint.derivative) {
       thisPoint.freeRef();
@@ -118,15 +118,12 @@ public class QuadraticSearch implements LineSearchStrategy {
       return temp_17_0007;
     }
 
-    QuadraticSearch.LocateInitialRightPoint temp_17_0017 = new LocateInitialRightPoint(
-        cursor.addRef(), monitor, leftPoint.addRef(),
-        QuadraticSearch.this);
-    @Nonnull final LocateInitialRightPoint locateInitialRightPoint = temp_17_0017.apply();
-    temp_17_0017.freeRef();
+    QuadraticSearch.LocateInitialRightPoint locateInitialRightPoint = new LocateInitialRightPoint(
+        cursor.addRef(), monitor, leftPoint.addRef(), QuadraticSearch.this);
+    locateInitialRightPoint.apply();
     @Nonnull
     LineSearchPoint rightPoint = locateInitialRightPoint.getRightPoint();
     double rightX = locateInitialRightPoint.getRightX();
-
     locateInitialRightPoint.freeRef();
     int loops = 0;
     try {
@@ -148,46 +145,29 @@ public class QuadraticSearch implements LineSearchStrategy {
           thisX = getMaxRate();
         if (isSame(leftX, thisX, 1.0)) {
           monitor.log(RefString.format("Converged to left"));
-          thisPoint.freeRef();
-          initialPoint.freeRef();
           assert leftPoint.point != null;
-          PointSample temp_17_0008 = filter(cursor.addRef(), leftPoint.point.addRef(), monitor);
-          leftPoint.freeRef();
-          rightPoint.freeRef();
-          return temp_17_0008;
+          return filter(cursor.addRef(), leftPoint.point.addRef(), monitor);
         } else if (isSame(thisX, rightX, 1.0)) {
           monitor.log(RefString.format("Converged to right"));
           assert rightPoint.point != null;
           return filter(cursor.addRef(), rightPoint.point.addRef(), monitor);
         }
-        thisPoint = null;
+        if (null != thisPoint) thisPoint.freeRef();
         thisPoint = cursor.step(thisX, monitor);
         if (isSame(cursor.addRef(), monitor, leftPoint.addRef(),
             thisPoint == null ? null : thisPoint.addRef())) {
           monitor.log(RefString.format("%s ~= %s", leftX, thisX));
-          if (null != thisPoint)
-            thisPoint.freeRef();
-          initialPoint.freeRef();
           assert leftPoint.point != null;
-          PointSample temp_17_0009 = filter(cursor.addRef(), leftPoint.point.addRef(), monitor);
-          leftPoint.freeRef();
-          rightPoint.freeRef();
-          return temp_17_0009;
+          return filter(cursor.addRef(), leftPoint.point.addRef(), monitor);
         }
         if (isSame(cursor.addRef(), monitor, thisPoint == null ? null : thisPoint.addRef(),
             rightPoint.addRef())) {
           monitor.log(RefString.format("%s ~= %s", thisX, rightX));
-          if (null != thisPoint)
-            thisPoint.freeRef();
-          initialPoint.freeRef();
-          leftPoint.freeRef();
           assert rightPoint.point != null;
-          PointSample temp_17_0011 = filter(cursor.addRef(), rightPoint.point.addRef(),
-              monitor);
-          rightPoint.freeRef();
-          return temp_17_0011;
+          return filter(cursor.addRef(), rightPoint.point.addRef(), monitor);
         }
-        thisPoint = null;
+        if (null != thisPoint)
+          thisPoint.freeRef();
         thisPoint = cursor.step(thisX, monitor);
         boolean isLeft;
         if (!isBracketed) {
@@ -204,43 +184,29 @@ public class QuadraticSearch implements LineSearchStrategy {
         //monitor.log(String.format("isLeft=%s; isBracketed=%s; leftPoint=%s; rightPoint=%s", isLeft, isBracketed, leftPoint, rightPoint));
         assert initialPoint.point != null;
         assert thisPoint.point != null;
-        monitor.log(RefString.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint,
+        monitor.log(RefString.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint.addRef(),
             thisPoint.point.getMean() - initialPoint.point.getMean()));
         if (loops++ > 10) {
           monitor.log(RefString.format("Loops = %s", loops));
           PointSample temp_17_0005 = filter(cursor.addRef(), thisPoint.point.addRef(), monitor);
-          thisPoint.freeRef();
-          initialPoint.freeRef();
-          leftPoint.freeRef();
-          rightPoint.freeRef();
           return temp_17_0005;
         }
-        if (isSame(cursor.addRef(), monitor, leftPoint.addRef(),
-            rightPoint.addRef())) {
+        if (isSame(cursor.addRef(), monitor, leftPoint.addRef(), rightPoint.addRef())) {
           monitor.log(RefString.format("%s ~= %s", leftX, rightX));
-          PointSample temp_17_0006 = filter(cursor.addRef(), thisPoint.point.addRef(), monitor);
-          thisPoint.freeRef();
-          initialPoint.freeRef();
-          leftPoint.freeRef();
-          rightPoint.freeRef();
-          return temp_17_0006;
+          return filter(cursor.addRef(), thisPoint.point.addRef(), monitor);
         }
         if (isLeft) {
           assert leftPoint.point != null;
           if (thisPoint.point.getMean() > leftPoint.point.getMean()) {
             monitor.log(RefString.format("%s > %s", thisPoint.point.getMean(), leftPoint.point.getMean()));
-            thisPoint.freeRef();
-            initialPoint.freeRef();
-            PointSample temp_17_0010 = filter(cursor.addRef(), leftPoint.point.addRef(),
-                monitor);
-            leftPoint.freeRef();
-            rightPoint.freeRef();
-            return temp_17_0010;
+            return filter(cursor.addRef(), leftPoint.point.addRef(), monitor);
           }
           if (!isBracketed && leftPoint.point.getMean() < rightPoint.point.getMean()) {
             rightX = leftX;
+            rightPoint.freeRef();
             rightPoint = leftPoint.addRef();
           }
+          leftPoint.freeRef();
           leftPoint = thisPoint.addRef();
           leftX = thisX;
           monitor.log(RefString.format("Left bracket at %s", thisX));
@@ -248,24 +214,24 @@ public class QuadraticSearch implements LineSearchStrategy {
           assert rightPoint.point != null;
           if (thisPoint.point.getMean() > rightPoint.point.getMean()) {
             monitor.log(RefString.format("%s > %s", thisPoint.point.getMean(), rightPoint.point.getMean()));
-            thisPoint.freeRef();
-            initialPoint.freeRef();
-            leftPoint.freeRef();
-            PointSample temp_17_0012 = filter(cursor.addRef(), rightPoint.point.addRef(),
-                monitor);
-            rightPoint.freeRef();
-            return temp_17_0012;
+            return filter(cursor.addRef(), rightPoint.point.addRef(), monitor);
           }
           if (!isBracketed && rightPoint.point.getMean() < leftPoint.point.getMean()) {
             leftX = rightX;
+            leftPoint.freeRef();
             leftPoint = rightPoint.addRef();
           }
           rightX = thisX;
+          rightPoint.freeRef();
           rightPoint = thisPoint.addRef();
           monitor.log(RefString.format("Right bracket at %s", thisX));
         }
       }
     } finally {
+      leftPoint.freeRef();
+      initialPoint.freeRef();
+      thisPoint.freeRef();
+      rightPoint.freeRef();
       cursor.freeRef();
     }
   }
@@ -427,56 +393,58 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
 
     @Nonnull
-    public LocateInitialRightPoint apply() {
+    public void apply() {
       assertAlive();
       @Nullable
       LineSearchPoint lastPoint = null;
       int loops = 0;
-      while (true) {
-        lastPoint = thisPoint == null ? null : thisPoint.addRef();
-        if (parent.isSame(cursor.addRef(), monitor,
-            initialPoint.addRef(), thisPoint == null ? null : thisPoint.addRef())) {
-          assert initialPoint.point != null;
-          monitor.log(RefString.format("%s ~= %s", initialPoint.point.rate, thisX));
+      try {
+        while (true) {
           if (null != lastPoint)
             lastPoint.freeRef();
-          return this.addRef();
-        } else {
-          assert initialPoint.point != null;
-          assert thisPoint.point != null;
-          if (thisPoint.point.getMean() > initialPoint.point.getMean() && thisX > parent.minRate) {
-            thisX = thisX / 13;
-          } else if (thisPoint.derivative < parent.initialDerivFactor * thisPoint.derivative && thisX < parent.maxRate) {
-            thisX = thisX * 7;
+          lastPoint = thisPoint == null ? null : thisPoint.addRef();
+          if (parent.isSame(cursor.addRef(), monitor,
+              initialPoint.addRef(), thisPoint == null ? null : thisPoint.addRef())) {
+            assert initialPoint.point != null;
+            monitor.log(RefString.format("%s ~= %s", initialPoint.point.rate, thisX));
+            return;
           } else {
-            monitor.log(RefString.format("%s <= %s", thisPoint.point.getMean(), initialPoint.point.getMean()));
-            return this.addRef();
+            assert initialPoint.point != null;
+            assert thisPoint.point != null;
+            if (thisPoint.point.getMean() > initialPoint.point.getMean() && thisX > parent.minRate) {
+              thisX = thisX / 13;
+            } else if (thisPoint.derivative < parent.initialDerivFactor * thisPoint.derivative && thisX < parent.maxRate) {
+              thisX = thisX * 7;
+            } else {
+              monitor.log(RefString.format("%s <= %s", thisPoint.point.getMean(), initialPoint.point.getMean()));
+              return;
+            }
+          }
+
+          LineSearchPoint temp_17_0004 = cursor.step(thisX, monitor);
+          if (null != thisPoint)
+            thisPoint.freeRef();
+          thisPoint = temp_17_0004 == null ? null : temp_17_0004.addRef();
+          if (null != temp_17_0004)
+            temp_17_0004.freeRef();
+          if (parent.isSame(cursor.addRef(), monitor,
+              lastPoint == null ? null : lastPoint.addRef(), thisPoint == null ? null : thisPoint.addRef())) {
+            assert lastPoint != null;
+            assert lastPoint.point != null;
+            monitor.log(RefString.format("%s ~= %s", lastPoint.point.rate, thisX));
+            return;
+          }
+          assert thisPoint.point != null;
+          monitor.log(RefString.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint.addRef(),
+              thisPoint.point.getMean() - initialPoint.point.getMean()));
+          if (loops++ > 50) {
+            monitor.log(RefString.format("Loops = %s", loops));
+            return;
           }
         }
-
-        LineSearchPoint temp_17_0004 = cursor.step(thisX, monitor);
-        if (null != thisPoint)
-          thisPoint.freeRef();
-        thisPoint = temp_17_0004 == null ? null : temp_17_0004.addRef();
-        if (null != temp_17_0004)
-          temp_17_0004.freeRef();
-        if (parent.isSame(cursor.addRef(), monitor,
-            lastPoint == null ? null : lastPoint.addRef(), thisPoint == null ? null : thisPoint.addRef())) {
-          assert lastPoint != null;
-          assert lastPoint.point != null;
-          monitor.log(RefString.format("%s ~= %s", lastPoint.point.rate, thisX));
+      } finally {
+        if (null != lastPoint)
           lastPoint.freeRef();
-          return this.addRef();
-        }
-        assert thisPoint.point != null;
-        monitor.log(RefString.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint.addRef(),
-            thisPoint.point.getMean() - initialPoint.point.getMean()));
-        if (loops++ > 50) {
-          monitor.log(RefString.format("Loops = %s", loops));
-          if (null != lastPoint)
-            lastPoint.freeRef();
-          return this.addRef();
-        }
       }
     }
 

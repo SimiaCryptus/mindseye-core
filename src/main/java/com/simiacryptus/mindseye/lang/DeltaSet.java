@@ -20,17 +20,11 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefHashSet;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefStream;
+import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.ToDoubleFunction;
 
 public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
@@ -75,21 +69,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return Math.sqrt(RefArrays.stream(elementArray).sum());
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DeltaSet[] addRefs(@Nullable DeltaSet[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRef).toArray((x) -> new DeltaSet[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DeltaSet[][] addRefs(@Nullable DeltaSet[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DeltaSet::addRefs).toArray((x) -> new DeltaSet[x][]);
-  }
 
   @Nonnull
   public void accumulate(final double alpha) {
@@ -102,22 +81,21 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Nonnull
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> temp_37_0012 = this.copy();
-    DeltaSet<K> temp_37_0009 = temp_37_0012.addInPlace(right);
+    temp_37_0012.addInPlace(right);
+    DeltaSet<K> temp_37_0009 = temp_37_0012.addRef();
     temp_37_0012.freeRef();
     return temp_37_0009;
   }
 
-  @Nonnull
-  public DeltaSet<K> addInPlace(@Nonnull final DeltaSet<K> right) {
+  public void addInPlace(@Nonnull DeltaSet<K> right) {
     right.map.forEach((layer, buffer) -> {
       Delta<K> temp_37_0013 = get(layer, buffer.target);
       assert temp_37_0013 != null;
-      temp_37_0013.addInPlace(buffer.addRef());
+      temp_37_0013.addInPlace2(buffer.addRef());
       temp_37_0013.freeRef();
       buffer.freeRef();
     });
     right.freeRef();
-    return this.addRef();
   }
 
   @Nonnull
@@ -137,11 +115,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Nonnull
   @Override
   public DeltaSet<K> copy() {
-    return this.map(x -> {
+    return new DeltaSet(this.map(x -> {
       Delta<K> temp_37_0004 = x.copy();
       x.freeRef();
       return temp_37_0004;
-    });
+    }));
   }
 
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
@@ -173,7 +151,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   @Override
-  public DeltaSet<K> map(@Nonnull final Function<Delta<K>, Delta<K>> mapper) {
+  public DeltaSet<K> map(@Nonnull final RefFunction<Delta<K>, Delta<K>> mapper) {
     @Nonnull
     DoubleBufferSet<K, Delta<K>> map = super.map(mapper).addRef();
     DeltaSet<K> temp_37_0006 = new DeltaSet<>(map);
@@ -205,6 +183,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

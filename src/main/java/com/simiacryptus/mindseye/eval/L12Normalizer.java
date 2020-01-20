@@ -19,12 +19,14 @@
 
 package com.simiacryptus.mindseye.eval;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.simiacryptus.mindseye.lang.Delta;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefCollection;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -47,24 +49,6 @@ public abstract class L12Normalizer extends TrainableBase {
       temp_01_0001.freeRef();
     if (null != inner)
       inner.freeRef();
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  L12Normalizer[] addRefs(@Nullable L12Normalizer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRef)
-        .toArray((x) -> new L12Normalizer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  L12Normalizer[][] addRefs(@Nullable L12Normalizer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(L12Normalizer::addRefs)
-        .toArray((x) -> new L12Normalizer[x][]);
   }
 
   @javax.annotation.Nullable
@@ -92,10 +76,10 @@ public abstract class L12Normalizer extends TrainableBase {
     assert inner != null;
     final PointSample innerMeasure = inner.measure(monitor);
     @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
-    double valueAdj = 0;
+    AtomicDouble valueAdj = new AtomicDouble(0);
     RefMap<UUID, Delta<UUID>> temp_01_0006 = innerMeasure.delta.getMap();
     RefCollection<Layer> layers = getLayers(temp_01_0006.keySet());
-    for (@Nonnull final Layer layer : layers) {
+    layers.forEach(layer -> {
       RefMap<UUID, Delta<UUID>> temp_01_0007 = innerMeasure.delta.getMap();
       Delta<UUID> temp_01_0008 = temp_01_0007.get(layer.getId());
       assert temp_01_0008 != null;
@@ -112,14 +96,17 @@ public abstract class L12Normalizer extends TrainableBase {
       for (int i = 0; i < gradientAdj.length; i++) {
         final double sign = weights[i] < 0 ? -1.0 : 1.0;
         gradientAdj[i] += factor_L1 * sign + 2 * factor_L2 * weights[i];
-        valueAdj += (factor_L1 * sign + factor_L2 * weights[i]) * weights[i];
+        valueAdj.addAndGet((factor_L1 * sign + factor_L2 * weights[i]) * weights[i]);
       }
-    }
+    });
+
     layers.freeRef();
     temp_01_0006.freeRef();
     final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector);
     final PointSample pointSample = new PointSample(deltaSet.addRef(),
-        innerMeasure.weights.addRef(), innerMeasure.sum + (hideAdj ? 0 : valueAdj), innerMeasure.rate,
+        innerMeasure.weights.addRef(),
+        innerMeasure.sum + (hideAdj ? 0 : valueAdj.get()),
+        innerMeasure.rate,
         innerMeasure.count);
     deltaSet.freeRef();
     innerMeasure.freeRef();

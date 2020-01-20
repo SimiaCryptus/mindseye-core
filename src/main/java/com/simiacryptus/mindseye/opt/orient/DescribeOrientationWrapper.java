@@ -93,7 +93,7 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
         return temp_27_0005;
       } else {
         CharSequence temp_27_0004 = deltaList.stream()
-            .map(RefUtil.wrapInterface((Function<? super State<UUID>, ? extends CharSequence>) weightDelta -> {
+            .map(RefUtil.wrapInterface((Function<State<UUID>, CharSequence>) weightDelta -> {
               RefMap<UUID, Delta<UUID>> temp_27_0013 = direction.getMap();
               assert weightDelta != null;
               CharSequence temp_27_0006 = DescribeOrientationWrapper
@@ -120,25 +120,6 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return temp_27_0007;
   }
 
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DescribeOrientationWrapper[] addRefs(@Nullable DescribeOrientationWrapper[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRef)
-        .toArray((x) -> new DescribeOrientationWrapper[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  DescribeOrientationWrapper[][] addRefs(
-      @Nullable DescribeOrientationWrapper[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(DescribeOrientationWrapper::addRefs)
-        .toArray((x) -> new DescribeOrientationWrapper[x][]);
-  }
-
   @Override
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
                                  @Nonnull final TrainingMonitor monitor) {
@@ -150,25 +131,27 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     if (null != subject)
       subject.freeRef();
     if (cursor instanceof SimpleLineSearchCursor) {
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      assert ((SimpleLineSearchCursor) cursor).direction != null;
-      final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction.addRef();
-      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights.addRef();
+      SimpleLineSearchCursor simpleLineSearchCursor = (SimpleLineSearchCursor) cursor.addRef();
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      assert simpleLineSearchCursor.direction != null;
+      final DeltaSet<UUID> direction = simpleLineSearchCursor.direction.addRef();
+      @Nonnull final StateSet<UUID> weights = simpleLineSearchCursor.origin.weights.addRef();
+      simpleLineSearchCursor.freeRef();
       final CharSequence asString = DescribeOrientationWrapper.render(weights,
           direction.addRef());
       direction.freeRef();
       monitor.log(RefString.format("Orientation Details: %s", asString));
     } else {
-      monitor.log(RefString.format("Non-simple cursor: %s", cursor));
+      monitor.log(RefString.format("Non-simple cursor: %s", cursor.addRef()));
     }
     return cursor;
   }

@@ -29,7 +29,6 @@ import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,10 +42,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
     if (null == key)
       throw new UnsupportedOperationException();
     this.key = key;
-    if (this.getKey() instanceof ReferenceCounting) {
-      this.getKey();
-    }
-    RefUtil.freeRef(setName(getClass().getSimpleName() + "/" + getId()));
+    setName(getClass().getSimpleName() + "/" + getId());
   }
 
   @Nonnull
@@ -60,24 +56,6 @@ public final class PlaceholderLayer<T> extends LayerBase {
   @Nullable
   public T getKey() {
     return key;
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PlaceholderLayer[] addRefs(@Nullable PlaceholderLayer[] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRef)
-        .toArray((x) -> new PlaceholderLayer[x]);
-  }
-
-  @Nullable
-  public static @SuppressWarnings("unused")
-  PlaceholderLayer[][] addRefs(@Nullable PlaceholderLayer[][] array) {
-    if (array == null)
-      return null;
-    return Arrays.stream(array).filter((x) -> x != null).map(PlaceholderLayer::addRefs)
-        .toArray((x) -> new PlaceholderLayer[x][]);
   }
 
   @Nonnull
@@ -101,9 +79,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
   }
 
   public void _free() {
-    if (this.getKey() instanceof ReferenceCounting) {
-      this.getKey();
-    }
+    RefUtil.freeRef(key);
     super._free();
   }
 

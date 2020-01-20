@@ -145,8 +145,6 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     double mu = 0;
     double nu = Double.POSITIVE_INFINITY;
     final LineSearchPoint startPoint = cursor.step(0, monitor);
-    @Nullable
-    LineSearchPoint lastStep = null;
     assert startPoint != null;
     final double startLineDeriv = startPoint.derivative; // theta'(0)
     assert startPoint.point != null;
@@ -165,15 +163,13 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     int stepBias = 0;
     double bestAlpha = 0;
     double bestValue = startPoint.point.getMean();
+    @Nullable LineSearchPoint lastStep = null;
     try {
       while (true) {
         if (!isAlphaValid()) {
           PointSample point = stepPoint(cursor.addRef(), monitor, bestAlpha);
           assert point != null;
           monitor.log(RefString.format("INVALID ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
-          startPoint.freeRef();
-          if (null != lastStep)
-            lastStep.freeRef();
           return point;
         }
         if (mu >= nu - absoluteTolerance) {
@@ -181,9 +177,6 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           PointSample point = stepPoint(cursor.addRef(), monitor, bestAlpha);
           assert point != null;
           monitor.log(RefString.format("mu >= nu (%s): th(%s)=%s", mu, bestAlpha, point.getMean()));
-          startPoint.freeRef();
-          if (null != lastStep)
-            lastStep.freeRef();
           return point;
         }
         if (nu - mu < nu * relativeTolerance) {
@@ -191,9 +184,6 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           PointSample point = stepPoint(cursor.addRef(), monitor, bestAlpha);
           assert point != null;
           monitor.log(RefString.format("mu ~= nu (%s): th(%s)=%s", mu, bestAlpha, point.getMean()));
-          startPoint.freeRef();
-          if (null != lastStep)
-            lastStep.freeRef();
           return point;
         }
         if (Math.abs(alpha) < minAlpha) {
@@ -201,9 +191,6 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           assert point != null;
           monitor.log(RefString.format("MIN ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           alpha = minAlpha;
-          startPoint.freeRef();
-          if (null != lastStep)
-            lastStep.freeRef();
           return point;
         }
         if (Math.abs(alpha) > maxAlpha) {
@@ -211,11 +198,9 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           assert point != null;
           monitor.log(RefString.format("MAX ALPHA (%s): th(%s)=%s", alpha, bestAlpha, point.getMean()));
           alpha = maxAlpha;
-          startPoint.freeRef();
-          if (null != lastStep)
-            lastStep.freeRef();
           return point;
         }
+        lastStep.freeRef();
         lastStep = cursor.step(alpha, monitor);
         assert lastStep != null;
         assert lastStep.point != null;
@@ -259,7 +244,10 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
         }
       }
     } finally {
+      if (null != lastStep)
+        lastStep.freeRef();
       cursor.freeRef();
+      startPoint.freeRef();
     }
   }
 
