@@ -73,6 +73,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
   }
 
   public void _free() {
+    super._free();
     if (null != inner)
       inner.freeRef();
   }
@@ -165,6 +166,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     public void _free() {
+      super._free();
       if (null != cursor)
         cursor.freeRef();
     }

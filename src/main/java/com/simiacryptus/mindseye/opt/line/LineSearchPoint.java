@@ -57,6 +57,7 @@ public class LineSearchPoint extends ReferenceCountingBase {
   }
 
   public void _free() {
+    super._free();
     if (null != point)
       point.freeRef();
   }

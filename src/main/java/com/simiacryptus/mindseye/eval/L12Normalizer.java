@@ -122,6 +122,7 @@ public abstract class L12Normalizer extends TrainableBase {
   }
 
   public void _free() {
+    super._free();
     if (null != inner)
       inner.freeRef();
   }

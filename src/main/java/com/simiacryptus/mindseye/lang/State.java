@@ -65,6 +65,7 @@ public class State<K> extends DoubleBuffer<K> {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

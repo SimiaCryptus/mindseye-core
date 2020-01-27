@@ -449,6 +449,7 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
 
     public void _free() {
+      super._free();
       if (null != thisPoint)
         thisPoint.freeRef();
       thisPoint = null;

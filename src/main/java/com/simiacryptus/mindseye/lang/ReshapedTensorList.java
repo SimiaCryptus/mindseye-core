@@ -87,6 +87,7 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
   }
 
   public void _free() {
+    super._free();
     inner.freeRef();
   }
 

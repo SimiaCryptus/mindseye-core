@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -62,7 +61,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
   @Override
   public Result eval(@Nullable final Result... array) {
     if (null != array)
-      ReferenceCounting.freeRefs(array);
+      RefUtil.freeRefs(array);
     throw new UnsupportedOperationException();
   }
 

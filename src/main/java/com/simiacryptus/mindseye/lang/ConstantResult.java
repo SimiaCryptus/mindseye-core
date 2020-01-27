@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 
@@ -34,7 +33,7 @@ public final class ConstantResult extends Result {
   public ConstantResult(@Nullable final Tensor... data) {
     this(new TensorArray(RefUtil.addRefs(data)));
     if (null != data)
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
   }
 
   public ConstantResult(@Nonnull TensorArray tensorArray) {
@@ -49,6 +48,7 @@ public final class ConstantResult extends Result {
 
       public @SuppressWarnings("unused")
       void _free() {
+        super._free();
       }
     });
   }
@@ -65,6 +65,7 @@ public final class ConstantResult extends Result {
 
       public @SuppressWarnings("unused")
       void _free() {
+        super._free();
       }
     });
   }

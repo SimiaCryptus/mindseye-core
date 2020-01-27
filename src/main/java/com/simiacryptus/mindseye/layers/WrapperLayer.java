@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -87,7 +86,7 @@ public abstract class WrapperLayer extends LayerBase {
     assert inner != null;
     Result temp_19_0005 = inner.eval(RefUtil.addRefs(array));
     if (null != array)
-      ReferenceCounting.freeRefs(array);
+      RefUtil.freeRefs(array);
     return temp_19_0005;
   }
 

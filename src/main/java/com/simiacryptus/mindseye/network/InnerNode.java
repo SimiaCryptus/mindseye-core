@@ -23,7 +23,6 @@ import com.simiacryptus.mindseye.lang.CoreSettings;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.util.Util;
@@ -64,11 +63,11 @@ public final class InnerNode extends LazyResult {
     if (0 == inputNodes.length) {
       DAGNode[] temp_12_0002 = new DAGNode[]{};
       this.inputNodes = RefUtil.addRefs(temp_12_0002);
-      ReferenceCounting.freeRefs(temp_12_0002);
+      RefUtil.freeRefs(temp_12_0002);
     } else {
       DAGNode[] temp_12_0003 = RefArrays.copyOf(RefUtil.addRefs(inputNodes), inputNodes.length);
       this.inputNodes = RefUtil.addRefs(temp_12_0003);
-      ReferenceCounting.freeRefs(temp_12_0003);
+      RefUtil.freeRefs(temp_12_0003);
       assert RefArrays.stream(RefUtil.addRefs(inputNodes)).parallel().allMatch(x -> {
         boolean temp_12_0006 = x != null;
         if (null != x)
@@ -81,7 +80,7 @@ public final class InnerNode extends LazyResult {
         return temp_12_0007;
       });
     }
-    ReferenceCounting.freeRefs(inputNodes);
+    RefUtil.freeRefs(inputNodes);
   }
 
   @Nonnull
@@ -103,7 +102,7 @@ public final class InnerNode extends LazyResult {
     assert dagNetwork != null;
     dagNetwork.assertAlive();
     newLayer.assertAlive();
-    Layer prevLayer = this.layer.addRef();
+    Layer prevLayer = (null == this.layer) ? null : this.layer.addRef();
     if (newLayer != prevLayer) {
       Layer temp_12_0004 = newLayer.addRef();
       if (null != this.layer)
@@ -138,7 +137,7 @@ public final class InnerNode extends LazyResult {
       layer.freeRef();
       layer = null;
     }
-    ReferenceCounting.freeRefs(inputNodes);
+    RefUtil.freeRefs(inputNodes);
     if (null != dagNetwork)
       dagNetwork.freeRef();
     super._free();
@@ -181,7 +180,7 @@ public final class InnerNode extends LazyResult {
       return temp_12_0011;
     });
     Result temp_12_0008 = innerLayer.eval(RefUtil.addRefs(in));
-    ReferenceCounting.freeRefs(in);
+    RefUtil.freeRefs(in);
     innerLayer.freeRef();
     return temp_12_0008;
   }

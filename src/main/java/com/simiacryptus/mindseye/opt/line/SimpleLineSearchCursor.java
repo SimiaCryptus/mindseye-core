@@ -101,6 +101,7 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
   }
 
   public void _free() {
+    super._free();
     if (null != subject)
       subject.freeRef();
     origin.freeRef();

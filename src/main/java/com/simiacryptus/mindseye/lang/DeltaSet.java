@@ -35,10 +35,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   public DeltaSet(@Nonnull final DoubleBufferSet<K, Delta<K>> toCopy) {
     super(toCopy);
     assert stream().allMatch(x -> {
-      boolean temp_37_0001 = x instanceof Delta;
-      if (null != x)
-        x.freeRef();
-      return temp_37_0001;
+      try {
+        return x instanceof Delta;
+      } finally {
+        if (null != x) x.freeRef();
+      }
     });
   }
 

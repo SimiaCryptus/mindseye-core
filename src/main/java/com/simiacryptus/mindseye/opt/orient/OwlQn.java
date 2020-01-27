@@ -189,6 +189,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
 
       public @SuppressWarnings("unused")
       void _free() {
+        super._free();
       }
     };
     temp_29_0005.setDirectionType("OWL/QN");
@@ -204,6 +205,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   }
 
   public void _free() {
+    super._free();
     if (null != inner)
       inner.freeRef();
   }

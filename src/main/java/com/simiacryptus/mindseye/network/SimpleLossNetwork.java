@@ -54,6 +54,7 @@ public class SimpleLossNetwork extends SupervisedNetwork {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     if (null != studentNode)
       studentNode.freeRef();
     if (null != lossNode)

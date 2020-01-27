@@ -48,8 +48,6 @@ public interface Trainable extends ReferenceCounting {
     return false;
   }
 
-  void _free();
-
   Trainable addRef();
 
 }

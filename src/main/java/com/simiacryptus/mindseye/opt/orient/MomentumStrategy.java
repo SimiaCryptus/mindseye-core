@@ -113,6 +113,7 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
   }
 
   public void _free() {
+    super._free();
     prevDelta.freeRef();
     prevDelta = null;
     if (null != inner)

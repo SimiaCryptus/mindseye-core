@@ -25,7 +25,6 @@ import com.simiacryptus.lang.UncheckedRunnable;
 import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.util.MonitoredItem;
@@ -172,6 +171,9 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     final Result[] wrappedInput = RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> {
       try {
         Result.Accumulator accumulator = new Result.Accumulator() {
+          {
+            result.addRef();
+          }
 
           @Override
           public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
@@ -190,6 +192,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
           public @SuppressWarnings("unused")
           void _free() {
+            super._free();
+            result.freeRef();
           }
         };
         return new Result(result.getData(), accumulator) {
@@ -221,7 +225,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       inner.freeRef();
       return eval;
     }, RefUtil.addRefs(wrappedInput)));
-    ReferenceCounting.freeRefs(wrappedInput);
+    RefUtil.freeRefs(wrappedInput);
     final Result output = timedResult.getResult();
     forwardPerformance.add((timedResult.timeNanos) / 1000000000.0);
     timedResult.freeRef();
@@ -233,7 +237,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       x.freeRef();
       return temp_31_0003;
     }).max().orElse(1);
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     totalItems += items;
     if (recordSignalMetrics) {
       forwardSignal.clear();
@@ -247,6 +251,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          output.addRef();
         }
 
         @Override
@@ -274,6 +279,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          output.freeRef();
         }
       };
       return new Result(output.getData(), accumulator) {
@@ -328,6 +335,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

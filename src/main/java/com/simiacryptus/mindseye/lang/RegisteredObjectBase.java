@@ -81,6 +81,7 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   public @Override
@@ -123,6 +124,7 @@ public abstract class RegisteredObjectBase extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
     }
 
     @Nonnull

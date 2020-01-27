@@ -177,6 +177,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   public void _free() {
+    super._free();
     history.clear();
     history.freeRef();
   }
@@ -235,6 +236,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
       public @SuppressWarnings("unused")
       void _free() {
+        super._free();
       }
     };
     temp_47_0014.setDirectionType(type);

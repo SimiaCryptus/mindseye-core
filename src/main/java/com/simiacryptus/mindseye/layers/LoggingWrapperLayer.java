@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.layers;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
@@ -63,6 +61,10 @@ public final class LoggingWrapperLayer extends WrapperLayer {
           final Result inputToWrap = inObj[i].addRef();
           try {
             Result.Accumulator accumulator = new Result.Accumulator() {
+              {
+                loggingWrapperLayer.addRef();
+                inputToWrap.addRef();
+              }
               @Override
               public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
                 @Nonnull final String formatted = RefUtil.get(data.stream().map(loggingWrapperLayer::getString)
@@ -80,6 +82,9 @@ public final class LoggingWrapperLayer extends WrapperLayer {
 
               public @SuppressWarnings("unused")
               void _free() {
+                super._free();
+                loggingWrapperLayer.freeRef();
+                inputToWrap.freeRef();
               }
             };
             return new Result(inputToWrap.getData(), accumulator) {
@@ -116,13 +121,13 @@ public final class LoggingWrapperLayer extends WrapperLayer {
           formatted.replaceAll("\n", "\n\t")));
       temp_46_0007.freeRef();
     }
-    ReferenceCounting.freeRefs(inObj);
+    RefUtil.freeRefs(inObj);
     loggingWrapperLayer.freeRef();
     Layer temp_46_0008 = getInner();
     assert temp_46_0008 != null;
     @Nullable final Result output = temp_46_0008.eval(RefUtil.addRefs(wrappedInput));
     temp_46_0008.freeRef();
-    ReferenceCounting.freeRefs(wrappedInput);
+    RefUtil.freeRefs(wrappedInput);
     {
       assert output != null;
       final TensorList tensorList = output.getData();
@@ -141,6 +146,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          output.addRef();
         }
 
         @Override
@@ -163,6 +169,8 @@ public final class LoggingWrapperLayer extends WrapperLayer {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          output.freeRef();
         }
       };
       return new Result(output.getData(), accumulator) {
@@ -194,6 +202,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

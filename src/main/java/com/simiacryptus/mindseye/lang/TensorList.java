@@ -50,12 +50,7 @@ public interface TensorList extends ReferenceCounting {
     assert length() == right.length();
     return new TensorArray(
         RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
-          Tensor b = right.get(i);
-          Tensor temp_40_0007 = get(i);
-          Tensor temp_40_0001 = temp_40_0007.addAndFree(b.addRef());
-          temp_40_0007.freeRef();
-          b.freeRef();
-          return temp_40_0001;
+          return Tensor.add(get(i), right.get(i));
         }, right)).toArray(i -> new Tensor[i]));
   }
 

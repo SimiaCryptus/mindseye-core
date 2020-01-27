@@ -24,7 +24,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
@@ -44,19 +43,19 @@ public class ValueLayer extends LayerBase {
     Tensor[] temp_14_0001 = RefIntStream.range(0, values.size())
         .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
     if (null != data)
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
     data = RefUtil.addRefs(temp_14_0001);
-    ReferenceCounting.freeRefs(temp_14_0001);
+    RefUtil.freeRefs(temp_14_0001);
   }
 
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
     Tensor[] temp_14_0002 = RefArrays.copyOf(RefUtil.addRefs(data), data.length);
     if (null != this.data)
-      ReferenceCounting.freeRefs(this.data);
+      RefUtil.freeRefs(this.data);
     this.data = RefUtil.addRefs(temp_14_0002);
-    ReferenceCounting.freeRefs(temp_14_0002);
-    ReferenceCounting.freeRefs(data);
+    RefUtil.freeRefs(temp_14_0002);
+    RefUtil.freeRefs(data);
     this.frozen = true;
   }
 
@@ -68,12 +67,12 @@ public class ValueLayer extends LayerBase {
   public void setData(@Nullable final Tensor... data) {
     Tensor[] temp_14_0003 = RefUtil.addRefs(data);
     if (null != this.data)
-      ReferenceCounting.freeRefs(this.data);
+      RefUtil.freeRefs(this.data);
     this.data = RefUtil.addRefs(temp_14_0003);
     if (null != temp_14_0003)
-      ReferenceCounting.freeRefs(temp_14_0003);
+      RefUtil.freeRefs(temp_14_0003);
     if (null != data)
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
   }
 
   @Nonnull
@@ -87,11 +86,12 @@ public class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    ReferenceCounting.freeRefs(array);
+    RefUtil.freeRefs(array);
     final ValueLayer valueLayer = ValueLayer.this.addRef();
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
         {
+          valueLayer.addRef();
         }
 
         @Override
@@ -117,6 +117,8 @@ public class ValueLayer extends LayerBase {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
+          valueLayer.freeRef();
         }
       };
       TensorArray data = new TensorArray(RefUtil.addRefs(this.data));
@@ -165,8 +167,9 @@ public class ValueLayer extends LayerBase {
   }
 
   public void _free() {
+    super._free();
     if (null != data)
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
     data = null;
   }
 

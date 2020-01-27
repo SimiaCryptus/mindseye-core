@@ -152,9 +152,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
           new Delta<K>(layer, state.target, RecycleBin.DOUBLES.copyOf(state.delta, state.delta.length))));
       state.freeRef();
     }, RefUtil.addRef(newMap)));
-    DeltaSet<K> temp_41_0009 = new DeltaSet<>(RefUtil.addRef(RefUtil.addRef(newMap)));
-    newMap.freeRef();
-    return temp_41_0009;
+    return new DeltaSet<>(newMap);
   }
 
   @Nonnull

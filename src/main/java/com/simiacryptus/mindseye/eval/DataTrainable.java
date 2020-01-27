@@ -34,8 +34,6 @@ public interface DataTrainable extends Trainable {
   @Nonnull
   void setData(RefList<Tensor[]> tensors);
 
-  void _free();
-
   @Nonnull
   DataTrainable addRef();
 }

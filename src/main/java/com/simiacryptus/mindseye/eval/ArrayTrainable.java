@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -41,10 +40,10 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     super(inner, batchSize);
     Tensor[][] temp_03_0001 = RefUtil.addRefs(trainingData);
     if (null != this.trainingData)
-      ReferenceCounting.freeRefs(this.trainingData);
+      RefUtil.freeRefs(this.trainingData);
     this.trainingData = RefUtil.addRefs(temp_03_0001);
-    ReferenceCounting.freeRefs(temp_03_0001);
-    ReferenceCounting.freeRefs(trainingData);
+    RefUtil.freeRefs(temp_03_0001);
+    RefUtil.freeRefs(trainingData);
   }
 
   public ArrayTrainable(final Layer network, final int batchSize) {
@@ -59,12 +58,12 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     super(network, batchSize);
     Tensor[][] temp_03_0002 = RefUtil.addRefs(trainingData);
     if (null != this.trainingData)
-      ReferenceCounting.freeRefs(this.trainingData);
+      RefUtil.freeRefs(this.trainingData);
     this.trainingData = RefUtil.addRefs(temp_03_0002);
     if (null != temp_03_0002)
-      ReferenceCounting.freeRefs(temp_03_0002);
+      RefUtil.freeRefs(temp_03_0002);
     if (null != trainingData)
-      ReferenceCounting.freeRefs(trainingData);
+      RefUtil.freeRefs(trainingData);
   }
 
   @Nullable
@@ -76,23 +75,23 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
     Tensor[][] temp_03_0003 = RefUtil.addRefs(tensors);
     if (null != this.trainingData)
-      ReferenceCounting.freeRefs(this.trainingData);
+      RefUtil.freeRefs(this.trainingData);
     this.trainingData = RefUtil.addRefs(temp_03_0003);
-    ReferenceCounting.freeRefs(temp_03_0003);
-    ReferenceCounting.freeRefs(tensors);
+    RefUtil.freeRefs(temp_03_0003);
+    RefUtil.freeRefs(tensors);
   }
 
   @Override
   public void setData(@Nonnull RefList<Tensor[]> tensors) {
     if (null != trainingData)
-      ReferenceCounting.freeRefs(trainingData);
+      RefUtil.freeRefs(trainingData);
     trainingData = tensors.toArray(new Tensor[][]{});
     tensors.freeRef();
   }
 
   public void _free() {
     if (null != trainingData)
-      ReferenceCounting.freeRefs(trainingData);
+      RefUtil.freeRefs(trainingData);
     trainingData = null;
     super._free();
   }

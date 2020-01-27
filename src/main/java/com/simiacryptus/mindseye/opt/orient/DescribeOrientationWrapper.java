@@ -163,6 +163,7 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   public void _free() {
+    super._free();
     if (null != inner)
       inner.freeRef();
   }

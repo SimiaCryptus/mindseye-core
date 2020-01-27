@@ -58,6 +58,7 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
   }
 
   public void _free() {
+    super._free();
   }
 
   @Nonnull

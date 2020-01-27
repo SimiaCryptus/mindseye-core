@@ -115,6 +115,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       }
 
       public void _free() {
+        super._free();
         validationSubject.freeRef();
       }
     };
@@ -450,6 +451,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     validationSubject.freeRef();
     regimen.freeRef();
   }
@@ -771,6 +773,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
       if (null != trainingSubject)
         trainingSubject.freeRef();
       trainingSubject = null;
@@ -812,6 +815,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
       if (null != validation)
         validation.freeRef();
       validation = null;
@@ -848,6 +852,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
       if (null != currentPoint)
         currentPoint.freeRef();
     }
@@ -925,6 +930,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
       parent.freeRef();
     }
 
@@ -949,6 +955,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
       if (null != previous)
         previous.freeRef();
       if (null != currentPoint)

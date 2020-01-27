@@ -40,7 +40,9 @@ public abstract class LineSearchCursorBase extends ReferenceCountingBase impleme
   @javax.annotation.Nullable
   public abstract LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
-  public abstract void _free();
+  public void _free() {
+    super._free();
+  }
 
   @Nonnull
   public @Override

@@ -91,6 +91,7 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

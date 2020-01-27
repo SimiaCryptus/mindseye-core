@@ -180,11 +180,9 @@ public class CountingResult extends Result {
         }
         if (null != reduced) {
           assert inner != null;
-          inner.accumulate(buffer == null ? null : buffer.addRef(), reduced.addRef());
+          inner.accumulate(buffer == null ? null : buffer.addRef(), reduced);
           accumulations.set(0);
         }
-        assert reduced != null;
-        reduced.freeRef();
       }
       data.freeRef();
       if (null != buffer)
@@ -192,6 +190,7 @@ public class CountingResult extends Result {
     }
 
     public void _free() {
+      super._free();
       if (null != inner)
         inner.freeRef();
       synchronized (passbackBuffers) {

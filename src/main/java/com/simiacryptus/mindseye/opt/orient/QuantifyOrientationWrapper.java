@@ -138,6 +138,7 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   public void _free() {
+    super._free();
     if (null != inner)
       inner.freeRef();
   }

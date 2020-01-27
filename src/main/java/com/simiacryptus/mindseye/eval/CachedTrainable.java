@@ -103,6 +103,7 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     if (null != history)
       history.freeRef();
   }

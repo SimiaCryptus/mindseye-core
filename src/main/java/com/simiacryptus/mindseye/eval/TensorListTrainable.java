@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.layers.PlaceholderLayer;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
@@ -58,9 +57,9 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     TensorList[] temp_20_0002 = RefUtil.addRefs(data);
     this.data = RefUtil.addRefs(temp_20_0002);
     if (null != temp_20_0002)
-      ReferenceCounting.freeRefs(temp_20_0002);
+      RefUtil.freeRefs(temp_20_0002);
     if (null != data)
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
   }
 
   @Nonnull
@@ -101,11 +100,14 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
           @Nonnull
           TensorArray tensorArray = new TensorArray(RefUtil.addRefs(tensors));
           if (null == mask || col >= mask.length || !mask[col]) {
-            ReferenceCounting.freeRefs(tensors);
+            RefUtil.freeRefs(tensors);
             return new ConstantResult(tensorArray);
           } else {
             try {
               Result.Accumulator accumulator = new Result.Accumulator() {
+                {
+                  RefUtil.addRefs(tensors);
+                }
 
                 @Override
                 public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
@@ -130,15 +132,17 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
 
                 public @SuppressWarnings("unused")
                 void _free() {
+                  super._free();
+                  RefUtil.freeRefs(tensors);
                 }
               };
               return new Result(tensorArray, accumulator);
             } finally {
-              ReferenceCounting.freeRefs(tensors);
+              RefUtil.freeRefs(tensors);
             }
           }
         }, RefUtil.addRefs(data))).toArray(x1 -> new Result[x1]);
-    ReferenceCounting.freeRefs(data);
+    RefUtil.freeRefs(data);
     return temp_20_0007;
   }
 
@@ -169,10 +173,10 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < items;
     TensorList[] temp_20_0003 = RefUtil.addRefs(data);
     if (null != this.data)
-      ReferenceCounting.freeRefs(this.data);
+      RefUtil.freeRefs(this.data);
     this.data = RefUtil.addRefs(temp_20_0003);
-    ReferenceCounting.freeRefs(temp_20_0003);
-    ReferenceCounting.freeRefs(data);
+    RefUtil.freeRefs(temp_20_0003);
+    RefUtil.freeRefs(data);
   }
 
   @Nonnull
@@ -186,8 +190,9 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   }
 
   public void _free() {
+    super._free();
     if (null != data)
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
     data = null;
     if (null != network)
       network.freeRef();
@@ -233,7 +238,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
           result.freeRef();
           return pointSample;
         }, RefUtil.addRefs(list)));
-    ReferenceCounting.freeRefs(list);
+    RefUtil.freeRefs(list);
     if (null != monitor && verbosity() > 0) {
       monitor.log(RefString.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
     }

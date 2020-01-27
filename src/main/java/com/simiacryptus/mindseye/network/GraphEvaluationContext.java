@@ -19,16 +19,11 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefSet;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -39,27 +34,8 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   final RefMap<UUID, Supplier<CountingResult>> calculated = new RefConcurrentHashMap<>();
 
   public void _free() {
-    RefSet<Map.Entry<UUID, Supplier<CountingResult>>> temp_43_0004 = calculated.entrySet();
-    temp_43_0004.stream().filter(entry -> {
-      CountingResult countingNNResult = entry.getValue().get();
-      UUID key = entry.getKey();
-      RefUtil.freeRef(entry);
-      if (expectedCounts.containsKey(key)) {
-        CountingResult.CountingAccumulator temp_43_0005 = countingNNResult.getAccumulator();
-        boolean temp_43_0001 = expectedCounts.get(key) > temp_43_0005.getCount();
-        temp_43_0005.freeRef();
-        countingNNResult.freeRef();
-        return temp_43_0001;
-      } else {
-        countingNNResult.freeRef();
-        return true;
-      }
-    }).forEach(entry -> {
-      RefUtil.freeRef(entry);
-    });
-    temp_43_0004.freeRef();
+    super._free();
     expectedCounts.freeRef();
-    calculated.clear();
     calculated.freeRef();
   }
 

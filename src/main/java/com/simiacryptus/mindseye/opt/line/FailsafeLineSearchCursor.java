@@ -113,6 +113,7 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
 
   @Override
   public void _free() {
+    super._free();
     if (null != direction)
       direction.freeRef();
     if (null != best) {

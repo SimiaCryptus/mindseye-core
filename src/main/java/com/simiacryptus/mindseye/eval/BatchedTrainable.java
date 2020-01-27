@@ -115,6 +115,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

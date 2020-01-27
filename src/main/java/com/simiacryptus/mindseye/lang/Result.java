@@ -97,6 +97,7 @@ public class Result extends ReferenceCountingBase {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     accumulator.freeRef();
     data.freeRef();
   }
@@ -113,6 +114,7 @@ public class Result extends ReferenceCountingBase {
 
     public @SuppressWarnings("unused")
     void _free() {
+      super._free();
     }
 
     @Nonnull

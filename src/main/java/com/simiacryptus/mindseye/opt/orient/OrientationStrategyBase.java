@@ -31,6 +31,7 @@ public abstract class OrientationStrategyBase<T extends LineSearchCursor> extend
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   public @Override

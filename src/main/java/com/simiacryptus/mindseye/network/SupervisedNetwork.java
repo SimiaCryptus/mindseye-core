@@ -33,6 +33,7 @@ public abstract class SupervisedNetwork extends DAGNetwork {
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

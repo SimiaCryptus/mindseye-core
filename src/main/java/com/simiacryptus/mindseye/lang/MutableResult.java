@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 
 import javax.annotation.Nonnull;
@@ -36,7 +35,7 @@ public class MutableResult extends Result {
   public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
     super(new TensorArray(RefUtil.addRefs(tensors)), handler(RefUtil.addRefs(tensors), objectId));
     if (null != tensors)
-      ReferenceCounting.freeRefs(tensors);
+      RefUtil.freeRefs(tensors);
   }
 
   @Override
@@ -69,14 +68,15 @@ public class MutableResult extends Result {
 
         public @SuppressWarnings("unused")
         void _free() {
+          super._free();
           if (null != tensors)
-            ReferenceCounting.freeRefs(tensors);
+            RefUtil.freeRefs(tensors);
           RefUtil.freeRefs(objectId);
         }
       };
     } finally {
       if (null != tensors)
-        ReferenceCounting.freeRefs(tensors);
+        RefUtil.freeRefs(tensors);
     }
   }
 

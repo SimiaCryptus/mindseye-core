@@ -30,6 +30,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.FastRandom;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -455,6 +456,20 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     };
   }
 
+  @NotNull
+  public static Tensor add(Tensor a, Tensor b) {
+    if (1 == a.currentRefCount()) {
+      a.addInPlace(b);
+      return a;
+    } else {
+      try {
+        return a.add(b);
+      } finally {
+        a.freeRef();
+      }
+    }
+  }
+
   private static double bound8bit(final double value) {
     final int max = 0xFF;
     final int min = 0;
@@ -506,6 +521,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public void addInPlace(@Nonnull final Tensor tensor) {
+    assertAlive();
     assert RefArrays.equals(getDimensions(), tensor.getDimensions()) : RefArrays.toString(getDimensions()) + " != "
         + RefArrays.toString(tensor.getDimensions());
     double[] toAdd = tensor.getData();
@@ -537,28 +553,15 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   @Nonnull
   public Tensor add(@Nonnull final Tensor right) {
-    assert RefArrays.equals(getDimensions(), right.getDimensions());
-    final double[] data = getData();
-    final double[] rightData = right.getData();
-    right.freeRef();
-    return new Tensor(getDimensions(),
-        RefIntStream.range(0, length()).mapToDouble(i -> rightData[i] + data[i]).toArray());
-  }
-
-  @Nonnull
-  public Tensor addAndFree(@Nonnull final Tensor right) {
-    assertAlive();
-    right.assertAlive();
-    if (1 == currentRefCount()) {
-      addInPlace(right);
-      return this.addRef();
-    } else {
-      assert RefArrays.equals(getDimensions(), right.getDimensions());
+    try {
+      int[] dimensions = getDimensions();
+      assert RefArrays.equals(dimensions, right.getDimensions());
       final double[] data = getData();
       final double[] rightData = right.getData();
-      right.freeRef();
-      return new Tensor(getDimensions(),
+      return new Tensor(dimensions,
           RefIntStream.range(0, length()).mapToDouble(i -> rightData[i] + data[i]).toArray());
+    } finally {
+      right.freeRef();
     }
   }
 
@@ -605,6 +608,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
       public @SuppressWarnings("unused")
       void _free() {
+        super._free();
       }
     }, length(), Spliterator.ORDERED), parallel);
   }
@@ -1240,6 +1244,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public void _free() {
+    super._free();
     if (null != data) {
       if (RecycleBin.DOUBLES.want(data.length)) {
         RecycleBin.DOUBLES.recycle(data, data.length);

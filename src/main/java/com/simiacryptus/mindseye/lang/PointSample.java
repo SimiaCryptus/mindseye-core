@@ -44,19 +44,15 @@ public final class PointSample extends ReferenceCountingBase {
     RefMap<UUID, State<UUID>> weightsMap = weights.getMap();
     try {
       assert deltaMap.size() == weightsMap.size();
-      DeltaSet<UUID> temp_08_0001 = new DeltaSet<>(delta.addRef());
-      this.delta = temp_08_0001.addRef();
-      temp_08_0001.freeRef();
-      StateSet<UUID> temp_08_0002 = new StateSet<>(weights.addRef());
-      this.weights = temp_08_0002.addRef();
-      temp_08_0002.freeRef();
+      this.delta = new DeltaSet<>(delta.addRef());
+      this.weights = new StateSet<>(weights.addRef());
       RefMap<UUID, Delta<UUID>> temp_08_0010 = delta.getMap();
       RefSet<UUID> temp_08_0011 = temp_08_0010.keySet();
+      temp_08_0010.freeRef();
       assert temp_08_0011.stream().allMatch(RefUtil.wrapInterface((Predicate<? super UUID>) x -> {
         return weightsMap.containsKey(x);
       }, weights.addRef()));
       temp_08_0011.freeRef();
-      temp_08_0010.freeRef();
       this.sum = sum;
       this.count = count;
       setRate(rate);
@@ -67,9 +63,9 @@ public final class PointSample extends ReferenceCountingBase {
     } finally {
       weightsMap.freeRef();
       deltaMap.freeRef();
+      weights.freeRef();
+      delta.freeRef();
     }
-    weights.freeRef();
-    delta.freeRef();
   }
 
   public double getMean() {
@@ -184,6 +180,7 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   public void _free() {
+    super._free();
     weights.freeRef();
     delta.freeRef();
   }

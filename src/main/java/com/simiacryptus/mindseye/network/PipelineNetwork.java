@@ -36,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -72,7 +71,7 @@ public class PipelineNetwork extends DAGNetwork {
     this();
     addAll(RefUtil.addRefs(layers));
     if (null != layers)
-      ReferenceCounting.freeRefs(layers);
+      RefUtil.freeRefs(layers);
   }
 
   public PipelineNetwork(int inputs, UUID id, String name) {
@@ -117,7 +116,7 @@ public class PipelineNetwork extends DAGNetwork {
     for (final Layer layer : layers) {
       RefUtil.freeRef(pipelineNetwork.add(layer == null ? null : layer.addRef()));
     }
-    ReferenceCounting.freeRefs(layers);
+    RefUtil.freeRefs(layers);
     return pipelineNetwork;
   }
 
@@ -172,7 +171,7 @@ public class PipelineNetwork extends DAGNetwork {
           }
         }, pipelineNetwork.addRef())).toArray(i -> new DAGNode[i]);
     InnerNode temp_06_0006 = pipelineNetwork.add(node.getLayer(), RefUtil.addRefs(dagNodes));
-    ReferenceCounting.freeRefs(dagNodes);
+    RefUtil.freeRefs(dagNodes);
     pipelineNetwork.freeRef();
     node.freeRef();
     return temp_06_0006;
@@ -184,7 +183,7 @@ public class PipelineNetwork extends DAGNetwork {
       if (null != combiner)
         combiner.freeRef();
       PipelineNetwork temp_06_0010 = networks[0].addRef();
-      ReferenceCounting.freeRefs(networks);
+      RefUtil.freeRefs(networks);
       return temp_06_0010;
     }
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
@@ -196,7 +195,7 @@ public class PipelineNetwork extends DAGNetwork {
               network.freeRef();
               return temp_06_0007;
             }, pipelineNetwork.addRef())).toArray(i -> new DAGNode[i])));
-    ReferenceCounting.freeRefs(networks);
+    RefUtil.freeRefs(networks);
     if (null != combiner)
       combiner.freeRef();
     return pipelineNetwork;
@@ -206,11 +205,11 @@ public class PipelineNetwork extends DAGNetwork {
     RefArrays.stream(RefUtil.addRefs(networks)).forEach(ReferenceCountingBase::assertAlive);
     if (1 == networks.length) {
       PipelineNetwork temp_06_0011 = networks[0].addRef();
-      ReferenceCounting.freeRefs(networks);
+      RefUtil.freeRefs(networks);
       return temp_06_0011;
     }
     if (1 != networks[0].inputHandles.size()) {
-      ReferenceCounting.freeRefs(networks);
+      RefUtil.freeRefs(networks);
       throw new IllegalArgumentException();
     }
     if (1 != RefArrays.stream(RefUtil.addRefs(networks)).mapToInt(x -> {
@@ -218,14 +217,14 @@ public class PipelineNetwork extends DAGNetwork {
       x.freeRef();
       return temp_06_0008;
     }).distinct().count()) {
-      ReferenceCounting.freeRefs(networks);
+      RefUtil.freeRefs(networks);
       throw new IllegalArgumentException();
     }
     PipelineNetwork pipelineNetwork = new PipelineNetwork(networks[0].inputHandles.size());
     for (PipelineNetwork network : networks) {
       RefUtil.freeRef(transferNode(pipelineNetwork.addRef(), network.getHead()));
     }
-    ReferenceCounting.freeRefs(networks);
+    RefUtil.freeRefs(networks);
     return pipelineNetwork;
   }
 
@@ -271,9 +270,9 @@ public class PipelineNetwork extends DAGNetwork {
 
   public void addAll(InnerNode node, @Nonnull final Layer... layers) {
     for (final Layer l : layers) {
-      node = add(l == null ? null : l.addRef(), node == null ? null : node);
+      node = add(l == null ? null : l.addRef(), node);
     }
-    ReferenceCounting.freeRefs(layers);
+    RefUtil.freeRefs(layers);
     if (null != node)
       node.freeRef();
   }
@@ -281,7 +280,7 @@ public class PipelineNetwork extends DAGNetwork {
   public void addAll(@Nullable final Layer... layers) {
     addAll((InnerNode) getHead(), RefUtil.addRefs(layers));
     if (null != layers)
-      ReferenceCounting.freeRefs(layers);
+      RefUtil.freeRefs(layers);
   }
 
   @Nullable

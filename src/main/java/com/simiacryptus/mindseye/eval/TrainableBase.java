@@ -30,6 +30,7 @@ public abstract class TrainableBase extends ReferenceCountingBase implements Tra
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

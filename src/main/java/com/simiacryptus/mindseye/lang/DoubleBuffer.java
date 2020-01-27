@@ -147,6 +147,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   public void _free() {
+    super._free();
     @Nullable
     double[] delta = this.delta;
     if (null != delta) {

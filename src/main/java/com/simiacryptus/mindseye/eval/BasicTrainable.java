@@ -24,7 +24,6 @@ import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 
@@ -103,25 +102,25 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     }
     Tensor[] temp_13_0008 = data.get(0);
     final int cols = temp_13_0008.length;
-    ReferenceCounting.freeRefs(temp_13_0008);
+    RefUtil.freeRefs(temp_13_0008);
     Result[] temp_13_0007 = RefIntStream.range(0, cols)
         .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Result>) col -> {
           final Tensor[] tensors = RefIntStream.range(0, data.size())
               .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) row -> {
                     Tensor[] rowData = data.get(row);
                     Tensor cell = rowData[col].addRef();
-                    ReferenceCounting.freeRefs(rowData);
+                    RefUtil.freeRefs(rowData);
                     return cell;
                   },
                   data.addRef()))
               .toArray(i -> new Tensor[i]);
           if (null == mask || col >= mask.length || !mask[col]) {
             ConstantResult temp_13_0004 = new ConstantResult(new TensorArray(RefUtil.addRefs(tensors)));
-            ReferenceCounting.freeRefs(tensors);
+            RefUtil.freeRefs(tensors);
             return temp_13_0004;
           } else {
             MutableResult temp_13_0005 = new MutableResult(RefUtil.addRefs(tensors));
-            ReferenceCounting.freeRefs(tensors);
+            RefUtil.freeRefs(tensors);
             return temp_13_0005;
           }
         }, data.addRef())).toArray(x1 -> new Result[x1]);
@@ -151,6 +150,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   public void _free() {
+    super._free();
     if (null != data)
       data.freeRef();
     data = null;
@@ -172,7 +172,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
           final Result[] nnContext = BasicTrainable.getNNContext(list.addRef(), mask);
           assert network != null;
           final Result result = network.eval(RefUtil.addRefs(nnContext));
-          ReferenceCounting.freeRefs(nnContext);
+          RefUtil.freeRefs(nnContext);
           assert result != null;
           final TensorList resultData = result.getData();
           @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();

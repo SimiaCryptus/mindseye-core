@@ -28,73 +28,72 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Supplier;
 
-public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends ReferenceCountingBase {
+public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends ReferenceCountingBase {
   static final Logger log = LoggerFactory.getLogger(DoubleBufferSet.class);
 
   @Nonnull
-  protected final RefHashMap<K, T> map = new RefHashMap<>();
+  protected final RefHashMap<K, V> map = new RefHashMap<>();
 
   public DoubleBufferSet() {
   }
 
-  public DoubleBufferSet(@Nonnull final DoubleBufferSet<K, T> toCopy) {
+  public DoubleBufferSet(@Nonnull final DoubleBufferSet<K, V> toCopy) {
     this(toCopy.getMap());
     toCopy.freeRef();
   }
 
-  public DoubleBufferSet(@Nonnull final RefMap<K, ? extends T> collect) {
+  public DoubleBufferSet(@Nonnull final RefMap<K, ? extends V> collect) {
     map.putAll(collect);
   }
 
   @Nonnull
-  public RefMap<K, T> getMap() {
+  public RefMap<K, V> getMap() {
     return RefCollections.unmodifiableMap(map.addRef());
   }
 
   @Nonnull
   @SuppressWarnings("unchecked")
-  public DoubleBufferSet<K, T> copy() {
+  public DoubleBufferSet<K, V> copy() {
     return map(x -> {
-      T temp_15_0002 = (T) x.copy();
+      V temp_15_0002 = (V) x.copy();
       x.freeRef();
       return temp_15_0002;
     });
   }
 
   @javax.annotation.Nullable
-  public T get(final K layer, final double[] ptr) {
-    final T delta = get(layer, () -> factory(layer, ptr));
+  public V get(final K layer, final double[] ptr) {
+    final V delta = get(layer, () -> factory(layer, ptr));
     assert delta.key.equals(layer);
     assert delta.target == ptr;
     return delta;
   }
 
   @javax.annotation.Nullable
-  public T get(final K layer, @Nonnull final Tensor ptr) {
-    T temp_15_0008 = get(layer, ptr.getData());
+  public V get(final K layer, @Nonnull final Tensor ptr) {
+    V temp_15_0008 = get(layer, ptr.getData());
     ptr.freeRef();
     return temp_15_0008;
   }
 
   @Nonnull
-  public DoubleBufferSet<K, T> map(@Nonnull final RefFunction<T, T> mapper) {
-    @Nonnull final DoubleBufferSet<K, T> parent = this.addRef();
-    RefHashSet<Map.Entry<K, T>> temp_15_0009 = map.entrySet();
-    RefStream<Map.Entry<K, T>> stream = temp_15_0009.stream();
+  public DoubleBufferSet<K, V> map(@Nonnull final RefFunction<V, V> mapper) {
+    @Nonnull final DoubleBufferSet<K, V> parent = this.addRef();
+    RefHashSet<Map.Entry<K, V>> temp_15_0009 = map.entrySet();
+    RefStream<Map.Entry<K, V>> stream = temp_15_0009.stream();
     temp_15_0009.freeRef();
     if (map.size() > 100) {
       stream = stream.parallel();
     }
-    final RefMap<K, T> newMap = stream.collect(RefCollectors.toMap(e -> {
+    final RefMap<K, V> newMap = stream.collect(RefCollectors.toMap(e -> {
       K temp_15_0004 = RefUtil.addRef(e.getKey());
       RefUtil.freeRef(e);
       return temp_15_0004;
     }, e -> {
-      T temp_15_0010 = (T) e.getValue().addRef();
+      V temp_15_0010 = (V) e.getValue().addRef();
       RefUtil.freeRef(e);
       return mapper.apply(temp_15_0010);
     }));
@@ -102,46 +101,47 @@ public abstract class DoubleBufferSet<K, T extends DoubleBuffer<K>> extends Refe
   }
 
   @Nonnull
-  public RefStream<T> stream() {
-    RefHashSet<T> temp_15_0012 = map.values();
-    RefStream<T> temp_15_0011 = temp_15_0012.stream().filter(n -> {
-      if (null != n) {
-        n.freeRef();
+  public RefStream<V> stream() {
+    RefHashSet<V> values = map.values();
+    RefStream<V> stream = values.stream().filter(v -> {
+      if (null != v) {
+        v.freeRef();
         return true;
       } else {
         return false;
       }
-    }).distinct().sorted(RefComparator.comparing(y -> {
-      int temp_15_0007 = RefSystem.identityHashCode(y.target);
-      y.freeRef();
-      return temp_15_0007;
-    }));
-    temp_15_0012.freeRef();
-    return temp_15_0011;
+    }).sorted(RefComparator.comparingInt(v -> {
+      int hashCode = RefSystem.identityHashCode(v.target);
+      v.freeRef();
+      return hashCode;
+    })).distinct();
+    values.freeRef();
+    return stream;
   }
 
   public void _free() {
+    super._free();
     map.freeRef();
   }
 
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
-  DoubleBufferSet<K, T> addRef() {
-    return (DoubleBufferSet<K, T>) super.addRef();
+  DoubleBufferSet<K, V> addRef() {
+    return (DoubleBufferSet<K, V>) super.addRef();
   }
 
-  protected abstract T factory(final K layer, final double[] target);
+  protected abstract V factory(final K layer, final double[] target);
 
   @NotNull
-  private T get(@Nullable final K layer, @Nullable final Supplier<T> factory) {
+  private V get(@Nullable final K layer, @Nullable final Supplier<V> factory) {
     if (null == factory)
       throw new IllegalArgumentException();
     if (null == layer)
       throw new IllegalArgumentException();
     synchronized (map) {
       return map.computeIfAbsent(layer, l -> {
-        T delta = factory.get();
+        V delta = factory.get();
         assert null != delta;
         if (log.isDebugEnabled())
           log.debug(RefString.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));

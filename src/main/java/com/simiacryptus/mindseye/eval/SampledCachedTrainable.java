@@ -70,6 +70,7 @@ public class SampledCachedTrainable<T extends SampledTrainable> extends CachedTr
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
   }
 
   @Nonnull

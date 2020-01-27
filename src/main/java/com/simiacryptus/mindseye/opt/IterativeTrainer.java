@@ -325,6 +325,7 @@ mainLoop:
   }
 
   public void _free() {
+    super._free();
     if (null != orientation)
       orientation.freeRef();
     orientation = null;

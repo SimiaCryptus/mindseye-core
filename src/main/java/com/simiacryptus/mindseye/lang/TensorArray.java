@@ -21,7 +21,6 @@ package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -35,7 +34,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
 
   public TensorArray(@Nonnull final Tensor... data) {
     if (0 >= data.length) {
-      ReferenceCounting.freeRefs(data);
+      RefUtil.freeRefs(data);
       throw new IllegalArgumentException();
     }
     this.data = RefArrays.copyOf(data, data.length);
@@ -91,7 +90,8 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
   }
 
   public void _free() {
-    ReferenceCounting.freeRefs(data);
+    super._free();
+    RefUtil.freeRefs(data);
   }
 
   @Nonnull

@@ -127,6 +127,7 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   }
 
   public void _free() {
+    super._free();
   }
 
   public @Override

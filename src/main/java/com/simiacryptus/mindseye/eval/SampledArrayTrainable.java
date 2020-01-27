@@ -22,14 +22,12 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.*;
 import com.simiacryptus.util.Util;
 import com.simiacryptus.util.function.WeakCachedSupplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -75,20 +73,20 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
       network.freeRef();
     RefUtil.freeRef(getInner());
     if (0 == trainingData.length) {
-      ReferenceCounting.freeRefs(trainingData);
+      RefUtil.freeRefs(trainingData);
       throw new IllegalArgumentException();
     }
     RefList<? extends Supplier<Tensor[]>> temp_00_0002 = RefArrays.stream(RefUtil.addRefs(trainingData)).map(obj -> {
       WeakCachedSupplier<Tensor[]> temp_00_0003 = new WeakCachedSupplier<>(
           RefUtil.wrapInterface(() -> obj, RefUtil.addRefs(obj)));
       if (null != obj)
-        ReferenceCounting.freeRefs(obj);
+        RefUtil.freeRefs(obj);
       return temp_00_0003;
     }).collect(RefCollectors.toList());
     this.trainingData = temp_00_0002 == null ? null : temp_00_0002.addRef();
     if (null != temp_00_0002)
       temp_00_0002.freeRef();
-    ReferenceCounting.freeRefs(trainingData);
+    RefUtil.freeRefs(trainingData);
     this.trainingSize = trainingSize;
     reseed(RefSystem.nanoTime());
   }
@@ -139,6 +137,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
 
   public @SuppressWarnings("unused")
   void _free() {
+    super._free();
     trainingData.freeRef();
   }
 
@@ -164,7 +163,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
                   return true;
                 }
               } finally {
-                ReferenceCounting.freeRefs(tensors);
+                RefUtil.freeRefs(tensors);
               }
             }
             return false;
@@ -179,7 +178,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
               return true;
             }
           } finally {
-            ReferenceCounting.freeRefs(tensors);
+            RefUtil.freeRefs(tensors);
           }
         }
         return false;
