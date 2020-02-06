@@ -200,7 +200,7 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           alpha = maxAlpha;
           return point;
         }
-        lastStep.freeRef();
+        if(null != lastStep) lastStep.freeRef();
         lastStep = cursor.step(alpha, monitor);
         assert lastStep != null;
         assert lastStep.point != null;

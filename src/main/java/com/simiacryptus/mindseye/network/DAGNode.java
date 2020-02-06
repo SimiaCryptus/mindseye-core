@@ -42,10 +42,6 @@ public interface DAGNode extends Serializable, ReferenceCounting {
   void setLayer(Layer layer);
 
   @Nullable
-  DAGNetwork getNetwork();
-
-
-  @Nullable
   Result get(GraphEvaluationContext buildExeCtx);
 
   void _free();

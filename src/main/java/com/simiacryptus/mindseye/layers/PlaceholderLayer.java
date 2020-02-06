@@ -61,7 +61,7 @@ public final class PlaceholderLayer<T> extends LayerBase {
   @Override
   public Result eval(@Nullable final Result... array) {
     if (null != array)
-      RefUtil.freeRefs(array);
+      RefUtil.freeRef(array);
     throw new UnsupportedOperationException();
   }
 

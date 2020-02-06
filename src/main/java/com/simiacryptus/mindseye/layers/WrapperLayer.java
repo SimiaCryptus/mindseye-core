@@ -34,7 +34,7 @@ import java.util.Map;
 @SuppressWarnings("serial")
 public abstract class WrapperLayer extends LayerBase {
   @Nullable
-  private Layer inner;
+  protected Layer inner;
 
   protected WrapperLayer() {
     if (null != inner)
@@ -44,22 +44,14 @@ public abstract class WrapperLayer extends LayerBase {
 
   public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
-    Layer temp_19_0002 = Layer.fromJson(json.getAsJsonObject("inner"), rs);
-    if (null != this.inner)
-      this.inner.freeRef();
-    this.inner = temp_19_0002.addRef();
-    temp_19_0002.freeRef();
+    if (null != this.inner) this.inner.freeRef();
+    this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
   }
 
   public WrapperLayer(@Nullable final Layer inner) {
-    Layer temp_19_0003 = inner == null ? null : inner.addRef();
     if (null != this.inner)
       this.inner.freeRef();
-    this.inner = temp_19_0003 == null ? null : temp_19_0003.addRef();
-    if (null != temp_19_0003)
-      temp_19_0003.freeRef();
-    if (null != inner)
-      inner.freeRef();
+    this.inner = inner;
   }
 
   @Nullable
@@ -84,20 +76,14 @@ public abstract class WrapperLayer extends LayerBase {
   @Override
   public Result eval(@Nullable final Result... array) {
     assert inner != null;
-    Result temp_19_0005 = inner.eval(RefUtil.addRefs(array));
-    if (null != array)
-      RefUtil.freeRefs(array);
-    return temp_19_0005;
+    return inner.eval(array);
   }
 
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
-    Layer temp_19_0007 = getInner();
-    assert temp_19_0007 != null;
-    json.add("inner", temp_19_0007.getJson(resources, dataSerializer));
-    temp_19_0007.freeRef();
+    json.add("inner", inner.getJson(resources, dataSerializer));
     return json;
   }
 

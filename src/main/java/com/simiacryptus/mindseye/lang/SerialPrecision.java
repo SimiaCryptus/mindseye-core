@@ -111,7 +111,7 @@ public enum SerialPrecision implements DataSerializer {
       intBuffer.position(2);
       while (intBuffer.hasRemaining()) {
         int v = intBuffer.get();
-        outBuffer.put((v * radius / Integer.MAX_VALUE) + center);
+        outBuffer.put(v * radius / Integer.MAX_VALUE + center);
       }
     }
 
@@ -157,7 +157,7 @@ public enum SerialPrecision implements DataSerializer {
       shortBuffer.position(4);
       while (shortBuffer.hasRemaining()) {
         short v = shortBuffer.get();
-        outBuffer.put((v * radius / Short.MAX_VALUE) + center);
+        outBuffer.put(v * radius / Short.MAX_VALUE + center);
       }
     }
 
@@ -203,7 +203,7 @@ public enum SerialPrecision implements DataSerializer {
       byteBuffer.position(8);
       while (byteBuffer.hasRemaining()) {
         byte v = byteBuffer.get();
-        outBuffer.put((v * radius / Byte.MAX_VALUE) + center);
+        outBuffer.put(v * radius / Byte.MAX_VALUE + center);
       }
     }
 
@@ -263,7 +263,7 @@ public enum SerialPrecision implements DataSerializer {
       int scalar = (int) value;
       @Nonnull
       Rational rational = rationalRecursion(value - scalar, recursions);
-      return new Rational(rational.numerator + (scalar * rational.denominator), rational.denominator);
+      return new Rational(rational.numerator + scalar * rational.denominator, rational.denominator);
     } else if (recursions <= 0) {
       return new Rational((int) Math.round(value), 1);
     } else {

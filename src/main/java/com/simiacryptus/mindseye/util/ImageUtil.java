@@ -40,6 +40,7 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -58,10 +59,10 @@ public class ImageUtil {
     final DoubleStatistics[] statistics = RefIntStream.range(0, tensor.getDimensions()[2])
         .mapToObj(RefUtil.wrapInterface((IntFunction<DoubleStatistics>) band -> {
           return new DoubleStatistics().accept(tensor.coordStream(false).filter(x -> x.getCoords()[2] == band)
-              .mapToDouble(RefUtil.wrapInterface((ToDoubleFunction<? super Coordinate>) c -> tensor.get(c),
+              .mapToDouble(RefUtil.wrapInterface((ToDoubleFunction<? super Coordinate>) tensor::get,
                   tensor.addRef()))
               .toArray());
-        }, tensor.addRef())).toArray(i -> new DoubleStatistics[i]);
+        }, tensor.addRef())).toArray(DoubleStatistics[]::new);
     @Nonnull final BiFunction<Double, DoubleStatistics, Double> transform = (value, stats) -> {
       final double width = Math.sqrt(2) * stats.getStandardDeviation();
       final double centered = value - stats.getAverage();
@@ -87,7 +88,7 @@ public class ImageUtil {
     RefUtil.freeRef(
         tensor.coordStream(true).collect(RefCollectors.groupingBy(x -> x.getCoords()[2], RefCollectors.toList())));
     Tensor temp_35_0004 = tensor.mapCoords(RefUtil.wrapInterface(
-        (c) -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]), tensor.addRef()));
+        c -> transform.apply(tensor.get(c), statistics[c.getCoords()[2]]), tensor.addRef()));
     @Nullable final Tensor normal = temp_35_0004.map(v -> Math.min(0xFF, Math.max(0, v)));
     temp_35_0004.freeRef();
     RefList<BufferedImage> temp_35_0005 = (normalize ? normal : tensor).toImages();
@@ -111,11 +112,11 @@ public class ImageUtil {
     int steps = (int) Math.ceil(Math.abs(Math.log(zoom)) / Math.log(1.5));
     BufferedImage img = source;
     for (int i = 1; i <= steps; i++) {
-      double pos = ((double) i / steps);
+      double pos = (double) i / steps;
       double z = Math.pow(zoom, pos);
       int targetWidth = (int) (source.getWidth() * z);
-      int targetHeight = (int) ((source.getWidth() == source.getHeight()) ? targetWidth
-          : ((preserveAspect ? source.getHeight() : source.getWidth()) * z));
+      int targetHeight = (int) (source.getWidth() == source.getHeight() ? targetWidth
+          : (preserveAspect ? source.getHeight() : source.getWidth()) * z);
       img = resize(img, targetWidth, targetHeight);
     }
     return img;
@@ -163,7 +164,7 @@ public class ImageUtil {
     assert input != null;
     JLabel label = new JLabel(new ImageIcon(input.toImage()));
     final AtomicReference<JDialog> dialog = new AtomicReference<JDialog>();
-    RefWeakReference<JLabel> labelWeakReference = new RefWeakReference<>(label);
+    WeakReference<JLabel> labelWeakReference = new WeakReference<>(label);
     final Tensor tensor = normalize ? normalizeBands(input.addRef()) : input.addRef();
     ScheduledFuture<?> updater = monitor(input, period, dialog, labelWeakReference, tensor);
     new Thread(RefUtil.wrapInterface((Runnable) () -> {
@@ -265,7 +266,7 @@ public class ImageUtil {
 
   @NotNull
   @RefIgnore
-  public static ScheduledFuture<?> monitor(@NotNull Tensor input, int period, AtomicReference<JDialog> dialog, RefWeakReference<JLabel> labelWeakReference, Tensor tensor) {
+  public static ScheduledFuture<?> monitor(@NotNull Tensor input, int period, AtomicReference<JDialog> dialog, WeakReference<JLabel> labelWeakReference, Tensor tensor) {
     return scheduledThreadPool.scheduleAtFixedRate(RefUtil.wrapInterface(() -> {
       try {
         JLabel jLabel = labelWeakReference.get();
@@ -297,7 +298,7 @@ public class ImageUtil {
   @Nonnull
   public static Tensor normalizeBands(@Nonnull final Tensor image, final int max) {
     DoubleStatistics[] statistics = RefIntStream.range(0, image.getDimensions()[2])
-        .mapToObj(i -> new DoubleStatistics()).toArray(i -> new DoubleStatistics[i]);
+        .mapToObj(i -> new DoubleStatistics()).toArray(DoubleStatistics[]::new);
     image.coordStream(false).forEach(RefUtil.wrapInterface((Consumer<Coordinate>) c -> {
       double value = image.get(c);
       statistics[c.getCoords()[2]].accept(value);

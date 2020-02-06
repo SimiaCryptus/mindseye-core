@@ -29,13 +29,15 @@ import java.util.UUID;
 public class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
-    this(RefArrays.stream(RefUtil.addRefs(tensors)).map(Tensor::getId).toArray(i -> new UUID[i]), tensors);
+    this(RefArrays.stream(RefUtil.addRefs(tensors)).map(tensor -> {
+      UUID id = tensor.getId();
+      tensor.freeRef();
+      return id;
+    }).toArray(UUID[]::new), tensors);
   }
 
   public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
-    super(new TensorArray(RefUtil.addRefs(tensors)), handler(RefUtil.addRefs(tensors), objectId));
-    if (null != tensors)
-      RefUtil.freeRefs(tensors);
+    super(new TensorArray(tensors), handler(RefUtil.addRefs(tensors), objectId));
   }
 
   @Override
@@ -45,39 +47,7 @@ public class MutableResult extends Result {
 
   @Nonnull
   private static Result.Accumulator handler(@Nullable final Tensor[] tensors, @Nonnull UUID[] objectId) {
-    try {
-      return new Accumulator() {
-        {
-          RefUtil.addRefs(tensors);
-        }
-
-        @Override
-        public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
-          for (int index = 0; index < delta.length(); index++) {
-            assert tensors != null;
-            Delta<UUID> temp_50_0002 = buffer.get(objectId[index], tensors[index].getData());
-            Tensor temp_50_0003 = delta.get(index);
-            assert temp_50_0002 != null;
-            temp_50_0002.addInPlace(temp_50_0003.getData());
-            temp_50_0003.freeRef();
-            temp_50_0002.freeRef();
-          }
-          delta.freeRef();
-          buffer.freeRef();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          if (null != tensors)
-            RefUtil.freeRefs(tensors);
-          RefUtil.freeRefs(objectId);
-        }
-      };
-    } finally {
-      if (null != tensors)
-        RefUtil.freeRefs(tensors);
-    }
+    return new MutableAccumulator(tensors, objectId);
   }
 
   @Nonnull
@@ -90,5 +60,39 @@ public class MutableResult extends Result {
   @Override
   public void _free() {
     super._free();
+  }
+
+  private static class MutableAccumulator extends Accumulator {
+
+    private final Tensor[] tensors;
+    private final UUID[] objectId;
+
+    public MutableAccumulator(Tensor[] tensors, UUID[] objectId) {
+      this.tensors = tensors;
+      this.objectId = objectId;
+    }
+
+    @Override
+    public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
+      for (int index = 0; index < delta.length(); index++) {
+        assert tensors != null;
+        Delta<UUID> temp_50_0002 = buffer.get(objectId[index], tensors[index].getData());
+        Tensor temp_50_0003 = delta.get(index);
+        assert temp_50_0002 != null;
+        temp_50_0002.addInPlace(temp_50_0003.getData());
+        temp_50_0003.freeRef();
+        temp_50_0002.freeRef();
+      }
+      delta.freeRef();
+      buffer.freeRef();
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      if (null != tensors)
+        RefUtil.freeRef(tensors);
+      RefUtil.freeRef(objectId);
+    }
   }
 }

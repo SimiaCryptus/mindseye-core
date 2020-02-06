@@ -91,7 +91,7 @@ public abstract class L12Normalizer extends TrainableBase {
       @Nullable final double[] gradientAdj = temp_01_0009.getDelta();
       temp_01_0009.freeRef();
       final double factor_L1 = getL1(layer.addRef());
-      final double factor_L2 = getL2(layer.addRef());
+      final double factor_L2 = getL2(layer);
       assert null != gradientAdj;
       for (int i = 0; i < gradientAdj.length; i++) {
         final double sign = weights[i] < 0 ? -1.0 : 1.0;

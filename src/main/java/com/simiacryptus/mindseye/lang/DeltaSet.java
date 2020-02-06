@@ -34,29 +34,28 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   public DeltaSet(@Nonnull final DoubleBufferSet<K, Delta<K>> toCopy) {
     super(toCopy);
-    assert stream().allMatch(x -> {
-      try {
-        return x instanceof Delta;
-      } finally {
-        if (null != x) x.freeRef();
-      }
-    });
+//    assert stream().allMatch(x -> {
+//      try {
+//        return x instanceof Delta;
+//      } finally {
+//        if (null != x) x.freeRef();
+//      }
+//    });
   }
 
   public DeltaSet(@Nonnull final RefMap<K, ? extends Delta<K>> collect) {
     super(collect);
-    assert stream().allMatch(x -> {
-      boolean temp_37_0002 = x instanceof Delta;
-      if (null != x)
-        x.freeRef();
-      return temp_37_0002;
-    });
+//    assert stream().allMatch(x -> {
+//      boolean temp_37_0002 = x instanceof Delta;
+//      if (null != x)
+//        x.freeRef();
+//      return temp_37_0002;
+//    });
   }
 
   public double getMagnitude() {
     RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0011 = map.entrySet();
     RefStream<Map.Entry<K, Delta<K>>> stream = temp_37_0011.stream();
-    temp_37_0011.freeRef();
     if (100 < map.size()) {
       stream = stream.parallel();
     }
@@ -67,6 +66,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
       value.freeRef();
       return temp_37_0003;
     }).toArray();
+    temp_37_0011.freeRef();
     return Math.sqrt(RefArrays.stream(elementArray).sum());
   }
 
@@ -81,20 +81,17 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
-    DeltaSet<K> temp_37_0012 = this.copy();
-    temp_37_0012.addInPlace(right);
-    DeltaSet<K> temp_37_0009 = temp_37_0012.addRef();
-    temp_37_0012.freeRef();
-    return temp_37_0009;
+    DeltaSet<K> copy = this.copy();
+    copy.addInPlace(right);
+    return copy;
   }
 
   public void addInPlace(@Nonnull DeltaSet<K> right) {
     right.map.forEach((layer, buffer) -> {
       Delta<K> temp_37_0013 = get(layer, buffer.target);
       assert temp_37_0013 != null;
-      temp_37_0013.addInPlace2(buffer.addRef());
+      temp_37_0013.addInPlace(buffer);
       temp_37_0013.freeRef();
-      buffer.freeRef();
     });
     right.freeRef();
   }
@@ -124,9 +121,8 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
-    RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0014 = map.entrySet();
-    RefStream<Map.Entry<K, Delta<K>>> stream = temp_37_0014.stream();
-    temp_37_0014.freeRef();
+    RefHashSet<Map.Entry<K, Delta<K>>> entries = map.entrySet();
+    RefStream<Map.Entry<K, Delta<K>>> stream = entries.stream();
     if (100 < map.size()) {
       stream = stream.parallel();
     }
@@ -137,26 +133,22 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
           RefUtil.freeRef(entry);
           final Delta<K> rValue = right.map.get(key);
           if (null != rValue) {
-            double temp_37_0005 = value.dot(rValue.addRef());
-            value.freeRef();
-            rValue.freeRef();
+            double temp_37_0005 = value.dot(rValue);
+            if (null != value) value.freeRef();
             return temp_37_0005;
           } else {
-            if (null != value)
-              value.freeRef();
+            if (null != value) value.freeRef();
             return 0;
           }
         }, right)).sum();
+    entries.freeRef();
     return temp_37_0010;
   }
 
   @Nonnull
   @Override
   public DeltaSet<K> map(@Nonnull final RefFunction<Delta<K>, Delta<K>> mapper) {
-    @Nonnull
-    DoubleBufferSet<K, Delta<K>> map = super.map(mapper).addRef();
-    DeltaSet<K> temp_37_0006 = new DeltaSet<>(map);
-    return temp_37_0006;
+    return new DeltaSet<>(super.map(mapper));
   }
 
   @Nonnull
@@ -172,9 +164,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   public DeltaSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> scale = right.scale(-1);
     right.freeRef();
-    DeltaSet<K> temp_37_0008 = this.add(scale.addRef());
-    scale.freeRef();
-    return temp_37_0008;
+    return this.add(scale);
   }
 
   @Nonnull

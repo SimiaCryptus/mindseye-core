@@ -40,6 +40,7 @@ import com.simiacryptus.util.data.DoubleStatistics;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -490,11 +491,11 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       }
       final long startTime = RefSystem.nanoTime();
       final long prevGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
-          .mapToLong(x -> x.getCollectionTime()).sum();
+          .mapToLong(GarbageCollectorMXBean::getCollectionTime).sum();
       @Nonnull final StepResult epoch = runStep(currentPoint.addRef(),
           phase.addRef());
       final long newGcTime = ManagementFactory.getGarbageCollectorMXBeans().stream()
-          .mapToLong(x -> x.getCollectionTime()).sum();
+          .mapToLong(GarbageCollectorMXBean::getCollectionTime).sum();
       final long endTime = RefSystem.nanoTime();
       final CharSequence performance = RefString.format(
           "%s in %.3f seconds; %.3f in orientation, %.3f in gc, %.3f in line search; %.3f trainAll time",
@@ -542,7 +543,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     } else {
       monitor.log(RefString.format("Constructing line search parameters: %s", directionType));
       lineSearchStrategy = phase.lineSearchFactory.apply(direction.getDirectionType());
-      phase.lineSearchStrategyMap.put(directionType, lineSearchStrategy);
+      RefUtil.freeRef(phase.lineSearchStrategyMap.put(directionType, lineSearchStrategy));
     }
     phase.freeRef();
     @Nonnull final TimedResult<PointSample> timedLineSearch = TimedResult
@@ -614,8 +615,8 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }, RefUtil
         .wrapInterface((Function<? super Map.Entry<State<UUID>, RefList<State<UUID>>>, ? extends String>) list -> {
           RefList<State<UUID>> temp_07_0034 = list.getValue();
-          final RefList<Double> doubleList = temp_07_0034.stream()
-              .map(RefUtil.wrapInterface((Function<? super State<UUID>, ? extends Double>) prevWeight -> {
+          final double[] doubleList = temp_07_0034.stream()
+              .mapToDouble(RefUtil.wrapInterface(prevWeight -> {
                 RefMap<UUID, State<UUID>> temp_07_0035 = nextWeights.getMap();
                 final DoubleBuffer<UUID> dirDelta = temp_07_0035.get(prevWeight.key);
                 temp_07_0035.freeRef();
@@ -625,18 +626,14 @@ public class ValidatingTrainer extends ReferenceCountingBase {
                 if (null != dirDelta)
                   dirDelta.freeRef();
                 return numerator / (0 == denominator ? 1 : denominator);
-              }, nextWeights.addRef())).collect(RefCollectors.toList());
+              }, nextWeights.addRef())).toArray();
           temp_07_0034.freeRef();
           RefUtil.freeRef(list);
-          if (1 == doubleList.size()) {
-            String temp_07_0022 = Double.toString(doubleList.get(0));
-            doubleList.freeRef();
-            return temp_07_0022;
+          if (1 == doubleList.length) {
+            return Double.toString(doubleList[0]);
           }
-          String temp_07_0021 = new DoubleStatistics().accept(doubleList.stream().mapToDouble(x -> x).toArray())
+          return new DoubleStatistics().accept(doubleList)
               .toString();
-          doubleList.freeRef();
-          return temp_07_0021;
         }, nextWeights)));
     String temp_07_0019 = RefString.format("Overall network state change: %s", temp_07_0036);
     temp_07_0033.freeRef();
@@ -684,7 +681,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   public static class TrainingPhase extends ReferenceCountingBase {
-    private Function<CharSequence, LineSearchStrategy> lineSearchFactory = (s) -> new ArmijoWolfeSearch();
+    private Function<CharSequence, LineSearchStrategy> lineSearchFactory = s -> new ArmijoWolfeSearch();
     @Nullable
     private RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap = new RefHashMap<>();
     @Nullable
@@ -754,15 +751,6 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         temp_07_0005.freeRef();
       if (null != trainingSubject)
         trainingSubject.freeRef();
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    TrainingPhase[] addRefs(@Nullable TrainingPhase[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(TrainingPhase::addRef)
-          .toArray((x) -> new TrainingPhase[x]);
     }
 
     @Nonnull
@@ -896,15 +884,6 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       assert temp_07_0039 != null;
       temp_07_0039.setTrainingSize(trainingSize);
       temp_07_0039.freeRef();
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    PerformanceWrapper[] addRefs(@Nullable PerformanceWrapper[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(PerformanceWrapper::addRef)
-          .toArray((x) -> new PerformanceWrapper[x]);
     }
 
     @Nonnull

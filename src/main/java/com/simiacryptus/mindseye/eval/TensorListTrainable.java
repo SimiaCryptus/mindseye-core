@@ -57,9 +57,9 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     TensorList[] temp_20_0002 = RefUtil.addRefs(data);
     this.data = RefUtil.addRefs(temp_20_0002);
     if (null != temp_20_0002)
-      RefUtil.freeRefs(temp_20_0002);
+      RefUtil.freeRef(temp_20_0002);
     if (null != data)
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
   }
 
   @Nonnull
@@ -96,11 +96,11 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
         .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Result>) col -> {
           final Tensor[] tensors = RefIntStream.range(0, items).mapToObj(RefUtil
               .wrapInterface((IntFunction<? extends Tensor>) row -> data[col].get(row), RefUtil.addRefs(data)))
-              .toArray(i -> new Tensor[i]);
+              .toArray(Tensor[]::new);
           @Nonnull
           TensorArray tensorArray = new TensorArray(RefUtil.addRefs(tensors));
           if (null == mask || col >= mask.length || !mask[col]) {
-            RefUtil.freeRefs(tensors);
+            RefUtil.freeRef(tensors);
             return new ConstantResult(tensorArray);
           } else {
             try {
@@ -133,16 +133,16 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
                 public @SuppressWarnings("unused")
                 void _free() {
                   super._free();
-                  RefUtil.freeRefs(tensors);
+                  RefUtil.freeRef(tensors);
                 }
               };
               return new Result(tensorArray, accumulator);
             } finally {
-              RefUtil.freeRefs(tensors);
+              RefUtil.freeRef(tensors);
             }
           }
-        }, RefUtil.addRefs(data))).toArray(x1 -> new Result[x1]);
-    RefUtil.freeRefs(data);
+        }, RefUtil.addRefs(data))).toArray(Result[]::new);
+    RefUtil.freeRef(data);
     return temp_20_0007;
   }
 
@@ -173,10 +173,10 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < items;
     TensorList[] temp_20_0003 = RefUtil.addRefs(data);
     if (null != this.data)
-      RefUtil.freeRefs(this.data);
+      RefUtil.freeRef(this.data);
     this.data = RefUtil.addRefs(temp_20_0003);
-    RefUtil.freeRefs(temp_20_0003);
-    RefUtil.freeRefs(data);
+    RefUtil.freeRef(temp_20_0003);
+    RefUtil.freeRef(data);
   }
 
   @Nonnull
@@ -192,7 +192,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   public void _free() {
     super._free();
     if (null != data)
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
     data = null;
     if (null != network)
       network.freeRef();
@@ -238,7 +238,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
           result.freeRef();
           return pointSample;
         }, RefUtil.addRefs(list)));
-    RefUtil.freeRefs(list);
+    RefUtil.freeRef(list);
     if (null != monitor && verbosity() > 0) {
       monitor.log(RefString.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));
     }

@@ -61,7 +61,7 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Nonnull
   @Override
   public synchronized PointSample afterStep(@Nonnull final PointSample step) {
-    super.afterStep(step.addRef());
+    super.afterStep(step.addRef()).freeRef();
     assert direction != null;
     RefUtil.freeRef(direction.afterStep(step.addRef()));
     if (null == best || best.getMean() > step.getMean()) {

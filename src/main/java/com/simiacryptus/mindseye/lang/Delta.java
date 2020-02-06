@@ -95,7 +95,7 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   @Nonnull
-  public void addInPlace2(@Nonnull final Delta<K> buffer) {
+  public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
     addInPlace(buffer.delta);
     Delta<K> temp_55_0001 = this.addRef();

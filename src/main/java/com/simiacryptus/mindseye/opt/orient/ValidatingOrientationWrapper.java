@@ -109,13 +109,16 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     ValidatingLineSearchCursor[] addRefs(@Nullable ValidatingLineSearchCursor[] array) {
       if (array == null)
         return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(ValidatingLineSearchCursor::addRef)
-          .toArray((x) -> new ValidatingLineSearchCursor[x]);
+      return Arrays.stream(array).filter(x -> {
+        boolean notNull = x != null;
+        x.freeRef();
+        return notNull;
+      }).toArray(ValidatingLineSearchCursor[]::new);
     }
 
     @Override
     public PointSample afterStep(@Nonnull PointSample step) {
-      super.afterStep(step.addRef());
+      super.afterStep(step.addRef()).freeRef();
       assert cursor != null;
       return cursor.afterStep(step);
     }

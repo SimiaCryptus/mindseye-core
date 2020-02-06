@@ -81,23 +81,25 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
 
   @Nonnull
   public DoubleBufferSet<K, V> map(@Nonnull final RefFunction<V, V> mapper) {
-    @Nonnull final DoubleBufferSet<K, V> parent = this.addRef();
-    RefHashSet<Map.Entry<K, V>> temp_15_0009 = map.entrySet();
-    RefStream<Map.Entry<K, V>> stream = temp_15_0009.stream();
-    temp_15_0009.freeRef();
-    if (map.size() > 100) {
-      stream = stream.parallel();
+    RefHashSet<Map.Entry<K, V>> entries = map.entrySet();
+    try {
+      RefStream<Map.Entry<K, V>> stream = entries.stream();
+      if (map.size() > 100) {
+        stream = stream.parallel();
+      }
+      final RefMap<K, V> newMap = stream.collect(RefCollectors.toMap(e -> {
+        K temp_15_0004 = e.getKey();
+        RefUtil.freeRef(e);
+        return temp_15_0004;
+      }, e -> {
+        V temp_15_0010 = e.getValue();
+        RefUtil.freeRef(e);
+        return mapper.apply(temp_15_0010);
+      }));
+      return new Delegate(this.addRef(), newMap);
+    } finally {
+      entries.freeRef();
     }
-    final RefMap<K, V> newMap = stream.collect(RefCollectors.toMap(e -> {
-      K temp_15_0004 = RefUtil.addRef(e.getKey());
-      RefUtil.freeRef(e);
-      return temp_15_0004;
-    }, e -> {
-      V temp_15_0010 = (V) e.getValue().addRef();
-      RefUtil.freeRef(e);
-      return mapper.apply(temp_15_0010);
-    }));
-    return new Delegate(parent, newMap);
   }
 
   @Nonnull
@@ -110,11 +112,14 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
       } else {
         return false;
       }
-    }).sorted(RefComparator.comparingInt(v -> {
-      int hashCode = RefSystem.identityHashCode(v.target);
-      v.freeRef();
-      return hashCode;
-    })).distinct();
+    })
+        .distinct()
+//        .sorted(RefComparator.comparingInt(v -> {
+//          int hashCode = RefSystem.identityHashCode(v.target);
+//          v.freeRef();
+//          return hashCode;
+//        }))
+        ;
     values.freeRef();
     return stream;
   }
@@ -131,6 +136,10 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     return (DoubleBufferSet<K, V>) super.addRef();
   }
 
+  public int size() {
+    return map.size();
+  }
+
   protected abstract V factory(final K layer, final double[] target);
 
   @NotNull
@@ -139,14 +148,19 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
       throw new IllegalArgumentException();
     if (null == layer)
       throw new IllegalArgumentException();
-    synchronized (map) {
-      return map.computeIfAbsent(layer, l -> {
-        V delta = factory.get();
-        assert null != delta;
-        if (log.isDebugEnabled())
-          log.debug(RefString.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));
-        return delta;
-      });
+    try {
+      synchronized (map) {
+        return map.computeIfAbsent(layer, l -> {
+          RefUtil.freeRef(l);
+          V delta = factory.get();
+          assert null != delta;
+          if (log.isDebugEnabled())
+            log.debug(RefString.format("Init key buffer for %s - %s params", l.getClass(), delta.target.length));
+          return delta;
+        });
+      }
+    } finally {
+      RefUtil.freeRef(factory);
     }
   }
 

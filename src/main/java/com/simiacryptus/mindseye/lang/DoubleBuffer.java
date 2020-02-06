@@ -120,7 +120,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
     return new DoubleBuffer<K>(this.key, this.target,
-        RefArrays.stream(this.getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+        RefArrays.stream(this.getDelta()).map(mapper::applyAsDouble).toArray());
   }
 
   @Nonnull

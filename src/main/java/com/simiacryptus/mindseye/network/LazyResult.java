@@ -56,71 +56,75 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   public CountingResult get(@Nonnull final GraphEvaluationContext context) {
     context.assertAlive();
     assertAlive();
-    Long expectedCount = context.expectedCounts.getOrDefault(id, -1L);
-    if (!context.calculated.containsKey(id)) {
+    try {
+      Long expectedCount = context.expectedCounts.getOrDefault(id, -1L);
+      if (!context.calculated.containsKey(id)) {
+        @Nullable final Singleton singleton = newSingleton(context.addRef());
+        if (null != singleton) {
+          try {
+            @Nullable
+            Result result = eval(context.addRef());
+            if (null == result) {
+              throw new IllegalStateException();
+            }
+            singleton.set(new CountingResult(result));
+          } catch (Throwable e) {
+            log.warn("Error execuing network component", e);
+            singleton.set(e);
+          } finally {
+            singleton.freeRef();
+          }
+        }
+      }
+      Supplier resultSupplier = context.calculated.get(id);
+      if (null == resultSupplier) {
+        throw new IllegalStateException();
+      }
+      Object obj = resultSupplier.get();
+      RefUtil.freeRef(resultSupplier);
+      if (obj != null && obj instanceof Throwable) {
+        throw new RuntimeException((Throwable) obj);
+      }
       @Nullable
-      Singleton singleton = null;
+      CountingResult nnResult = (CountingResult) obj;
+      if (null == nnResult) {
+        throw new IllegalStateException();
+      }
+      CountingResult.CountingAccumulator temp_56_0001 = nnResult.getAccumulator();
+      int references = temp_56_0001.increment();
+      temp_56_0001.freeRef();
+      if (references <= 0) {
+        nnResult.freeRef();
+        throw new IllegalStateException();
+      }
+      if (null != expectedCount && expectedCount >= 0 && references > expectedCount) {
+        nnResult.freeRef();
+        throw new IllegalStateException();
+      }
+      if (null != expectedCount && expectedCount > 0 && references >= expectedCount) {
+        RefUtil.freeRef(context.calculated.remove(id));
+      }
+      return nnResult;
+    } finally {
+      context.freeRef();
+    }
+  }
+
+  @org.jetbrains.annotations.Nullable
+  private Singleton newSingleton(@Nonnull GraphEvaluationContext context) {
+    try {
       synchronized (context) {
         if (!context.calculated.containsKey(id)) {
-          if (null != singleton) singleton.freeRef();
-          singleton = new Singleton();
-          context.calculated.put(id, singleton.addRef());
+          Singleton singleton = new Singleton();
+          RefUtil.freeRef(context.calculated.put(id, singleton.addRef()));
+          return singleton;
+        } else {
+          return null;
         }
       }
-      if (null != singleton) {
-        try {
-          @Nullable
-          Result result = eval(context.addRef());
-          if (null == result) {
-            context.freeRef();
-            throw new IllegalStateException();
-          }
-          singleton.set(new CountingResult(result.addRef()));
-          result.freeRef();
-        } catch (Throwable e) {
-          log.warn("Error execuing network component", e);
-          singleton.set(e);
-        } finally {
-          singleton.freeRef();
-        }
-      }
-    }
-    Supplier resultSupplier = context.calculated.get(id);
-    if (null == resultSupplier) {
+    } finally {
       context.freeRef();
-      throw new IllegalStateException();
     }
-    Object obj = resultSupplier.get();
-    if (obj != null && obj instanceof Throwable) {
-      context.freeRef();
-      throw new RuntimeException((Throwable) obj);
-    }
-    @Nullable
-    CountingResult nnResult = (CountingResult) obj;
-    if (null == nnResult) {
-      context.freeRef();
-      throw new IllegalStateException();
-    }
-    CountingResult.CountingAccumulator temp_56_0001 = nnResult.getAccumulator();
-    int references = temp_56_0001.increment();
-    temp_56_0001.freeRef();
-    if (references <= 0) {
-      nnResult.freeRef();
-      context.freeRef();
-      throw new IllegalStateException();
-    }
-    if (null != expectedCount && expectedCount >= 0 && references > expectedCount) {
-      nnResult.freeRef();
-      context.freeRef();
-      throw new IllegalStateException();
-    }
-    if (null == expectedCount || expectedCount <= 0 || references < expectedCount) {
-      RefUtil.freeRef(nnResult.getData());
-    } else {
-      context.calculated.remove(id);
-    }
-    context.freeRef();
-    return nnResult;
   }
 
   public @SuppressWarnings("unused")

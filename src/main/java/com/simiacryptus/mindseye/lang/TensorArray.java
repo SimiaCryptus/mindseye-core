@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.ref.wrappers.RefString;
@@ -28,13 +29,13 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 
-public class TensorArray extends RegisteredObjectBase implements TensorList, Serializable {
+public class TensorArray extends ReferenceCountingBase implements TensorList, Serializable {
   @Nonnull
   private final Tensor[] data;
 
   public TensorArray(@Nonnull final Tensor... data) {
     if (0 >= data.length) {
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
       throw new IllegalArgumentException();
     }
     this.data = RefArrays.copyOf(data, data.length);
@@ -44,7 +45,6 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
       assert RefArrays.equals(dimensions, dimensions0) :
           RefArrays.toString(dimensions) + " != " + RefArrays.toString(dimensions);
     }
-    register();
   }
 
   @Nonnull
@@ -60,8 +60,8 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
 
   @Nonnull
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
-    return (data.length < limit) ? RefArrays.toString(data)
-        : "[" + RefUtil.get(RefArrays.stream(data).limit(limit).map(x -> x.toString()).reduce((a, b) -> a + ", " + b))
+    return data.length < limit ? RefArrays.toString(data)
+        : "[" + RefUtil.get(RefArrays.stream(data).limit(limit).map(Object::toString).reduce((a, b) -> a + ", " + b))
         + ", ...]";
   }
 
@@ -91,7 +91,7 @@ public class TensorArray extends RegisteredObjectBase implements TensorList, Ser
 
   public void _free() {
     super._free();
-    RefUtil.freeRefs(data);
+    RefUtil.freeRef(data);
   }
 
   @Nonnull

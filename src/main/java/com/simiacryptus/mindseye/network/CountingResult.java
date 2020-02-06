@@ -24,6 +24,7 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefLinkedList;
 import com.simiacryptus.ref.wrappers.RefStream;
 import org.slf4j.Logger;
@@ -43,10 +44,7 @@ public class CountingResult extends Result {
 
   public CountingResult(@Nonnull final Result inner) {
     super(inner.getData(), new CountingAccumulator(inner.addRef()));
-    Result temp_09_0001 = inner.addRef();
-    this.inner = temp_09_0001.addRef();
-    temp_09_0001.freeRef();
-    inner.freeRef();
+    this.inner = inner;
   }
 
   public CountingResult(@Nonnull final Result r, final int samples) {
@@ -90,30 +88,14 @@ public class CountingResult extends Result {
     private final AtomicInteger accumulations;
 
     public CountingAccumulator(@Nullable Result inner) {
-      Result temp_09_0002 = inner == null ? null : inner.addRef();
-      this.inner = temp_09_0002 == null ? null : temp_09_0002.addRef();
-      if (null != temp_09_0002)
-        temp_09_0002.freeRef();
-      if (null != inner)
-        inner.freeRef();
+      this.inner = inner;
       fwdLinks = new AtomicInteger(0);
-      RefLinkedList<TensorList> temp_09_0003 = new RefLinkedList<>();
-      passbackBuffers = temp_09_0003.addRef();
-      temp_09_0003.freeRef();
+      passbackBuffers = new RefLinkedList<>();
       accumulations = new AtomicInteger(0);
     }
 
     public int getCount() {
       return this.fwdLinks.get();
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    CountingAccumulator[] addRefs(@Nullable CountingAccumulator[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(CountingAccumulator::addRef)
-          .toArray((x) -> new CountingAccumulator[x]);
     }
 
     public int increment() {

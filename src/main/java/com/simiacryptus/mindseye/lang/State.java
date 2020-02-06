@@ -56,7 +56,7 @@ public class State<K> extends DoubleBuffer<K> {
   @Nonnull
   @Override
   public State<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new State(key, target, RefArrays.stream(getDelta()).map(x -> mapper.applyAsDouble(x)).toArray());
+    return new State(key, target, RefArrays.stream(getDelta()).map(mapper::applyAsDouble).toArray());
   }
 
   public synchronized void restore() {

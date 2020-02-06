@@ -20,7 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.google.gson.JsonObject;
-import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefList;
 
@@ -29,8 +29,8 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 @SuppressWarnings("serial")
-public abstract class LayerBase extends RegisteredObjectBase implements Layer {
-  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
+public abstract class LayerBase extends ReferenceCountingBase implements Layer {
+//  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
   protected boolean frozen = false;
   @Nullable
@@ -39,7 +39,6 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
   protected LayerBase() {
     id = UUID.randomUUID();
     name = getClass().getSimpleName();// + "/" + getId();
-    register();
   }
 
   protected LayerBase(@Nonnull final JsonObject json) {
@@ -53,13 +52,11 @@ public abstract class LayerBase extends RegisteredObjectBase implements Layer {
     if (json.has("name")) {
       setName(json.get("name").getAsString());
     }
-    register();
   }
 
   protected LayerBase(final UUID id, @Nullable final String name) {
     this.id = id;
     this.name = name;
-    register();
   }
 
   public RefList<Layer> getChildren() {

@@ -21,29 +21,23 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
 final class InputNode extends LazyResult {
-  @Nullable
-  private final DAGNetwork dagNetwork;
 
-  InputNode(final DAGNetwork dagNetwork) {
-    this(dagNetwork, null);
+  InputNode() {
+    this(null);
   }
 
-  public InputNode(@Nullable final DAGNetwork dagNetwork, final UUID key) {
+  public InputNode(final UUID key) {
     super(key);
-    DAGNetwork temp_10_0001 = dagNetwork == null ? null : dagNetwork.addRef();
-    this.dagNetwork = temp_10_0001 == null ? null : temp_10_0001.addRef();
-    if (null != temp_10_0001)
-      temp_10_0001.freeRef();
-    if (null != dagNetwork)
-      dagNetwork.freeRef();
   }
 
   @Nullable
@@ -59,23 +53,13 @@ final class InputNode extends LazyResult {
     throw new IllegalStateException();
   }
 
-  @Nullable
-  @Override
-  public DAGNetwork getNetwork() {
-    return this.dagNetwork;
-  }
-
-
-  @NotNull
-  public DAGNode add(@Nonnull final Layer nextHead) {
-    assert dagNetwork != null;
-    InnerNode temp_10_0002 = dagNetwork.add(nextHead, InputNode.this.addRef());
-    return temp_10_0002;
-  }
+//  @NotNull
+//  public DAGNode add(@Nonnull final Layer nextHead) {
+//    InnerNode temp_10_0002 = dagNetwork.add(nextHead, InputNode.this.addRef());
+//    return temp_10_0002;
+//  }
 
   public void _free() {
-    if (null != dagNetwork)
-      dagNetwork.freeRef();
     super._free();
   }
 
@@ -89,12 +73,14 @@ final class InputNode extends LazyResult {
   @Override
   protected Result eval(@Nonnull final GraphEvaluationContext context) {
     assertAlive();
-    assert this.dagNetwork != null;
-    this.dagNetwork.assertAlive();
     synchronized (context) {
-      CountingResult temp_10_0003 = context.calculated.get(id).get();
-      context.freeRef();
-      return temp_10_0003;
+      Supplier<CountingResult> supplier = context.calculated.get(id);
+      try {
+        return supplier.get();
+      } finally {
+        RefUtil.freeRef(supplier);
+        context.freeRef();
+      }
     }
   }
 }

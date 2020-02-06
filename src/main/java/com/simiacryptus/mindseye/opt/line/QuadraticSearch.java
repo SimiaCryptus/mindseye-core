@@ -370,7 +370,7 @@ public class QuadraticSearch implements LineSearchStrategy {
       assert initialPoint.point != null;
       assert thisPoint != null;
       assert thisPoint.point != null;
-      monitor.log(RefString.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint,
+      monitor.log(RefString.format("F(%s) = %s, evalInputDelta = %s", thisX, thisPoint.addRef(),
           thisPoint.point.getMean() - initialPoint.point.getMean()));
     }
 
@@ -381,15 +381,6 @@ public class QuadraticSearch implements LineSearchStrategy {
 
     public double getRightX() {
       return thisX;
-    }
-
-    @Nullable
-    public static @SuppressWarnings("unused")
-    LocateInitialRightPoint[] addRefs(@Nullable LocateInitialRightPoint[] array) {
-      if (array == null)
-        return null;
-      return Arrays.stream(array).filter((x) -> x != null).map(LocateInitialRightPoint::addRef)
-          .toArray((x) -> new LocateInitialRightPoint[x]);
     }
 
     @Nonnull

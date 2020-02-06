@@ -41,21 +41,21 @@ public class ValueLayer extends LayerBase {
     super(json);
     JsonArray values = json.getAsJsonArray("values");
     Tensor[] temp_14_0001 = RefIntStream.range(0, values.size())
-        .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(i -> new Tensor[i]);
+        .mapToObj(i -> Tensor.fromJson(values.get(i), resources)).toArray(Tensor[]::new);
     if (null != data)
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
     data = RefUtil.addRefs(temp_14_0001);
-    RefUtil.freeRefs(temp_14_0001);
+    RefUtil.freeRef(temp_14_0001);
   }
 
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
     Tensor[] temp_14_0002 = RefArrays.copyOf(RefUtil.addRefs(data), data.length);
     if (null != this.data)
-      RefUtil.freeRefs(this.data);
+      RefUtil.freeRef(this.data);
     this.data = RefUtil.addRefs(temp_14_0002);
-    RefUtil.freeRefs(temp_14_0002);
-    RefUtil.freeRefs(data);
+    RefUtil.freeRef(temp_14_0002);
+    RefUtil.freeRef(data);
     this.frozen = true;
   }
 
@@ -67,12 +67,12 @@ public class ValueLayer extends LayerBase {
   public void setData(@Nullable final Tensor... data) {
     Tensor[] temp_14_0003 = RefUtil.addRefs(data);
     if (null != this.data)
-      RefUtil.freeRefs(this.data);
+      RefUtil.freeRef(this.data);
     this.data = RefUtil.addRefs(temp_14_0003);
     if (null != temp_14_0003)
-      RefUtil.freeRefs(temp_14_0003);
+      RefUtil.freeRef(temp_14_0003);
     if (null != data)
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
   }
 
   @Nonnull
@@ -86,7 +86,7 @@ public class ValueLayer extends LayerBase {
   @Override
   public Result eval(@Nonnull final Result... array) {
     assert 0 == array.length;
-    RefUtil.freeRefs(array);
+    RefUtil.freeRef(array);
     final ValueLayer valueLayer = ValueLayer.this.addRef();
     try {
       Result.Accumulator accumulator = new Result.Accumulator() {
@@ -99,7 +99,7 @@ public class ValueLayer extends LayerBase {
           if (!ValueLayer.this.isFrozen()) {
             ValueLayer.this.assertAlive();
             assert valueLayer.data != null;
-            assert (1 == valueLayer.data.length || valueLayer.data.length == data.length());
+            assert 1 == valueLayer.data.length || valueLayer.data.length == data.length();
             for (int i = 0; i < data.length(); i++) {
               Tensor delta = data.get(i);
               Tensor value = valueLayer.data[i % valueLayer.data.length].addRef();
@@ -169,7 +169,7 @@ public class ValueLayer extends LayerBase {
   public void _free() {
     super._free();
     if (null != data)
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
     data = null;
   }
 

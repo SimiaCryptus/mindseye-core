@@ -87,7 +87,7 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
         result.freeRef();
       }
     }
-    final PointSample result = super.measure(monitor).addRef();
+    final PointSample result = super.measure(monitor);
     history.add(result.copyFull());
     while (getHistorySize() < history.size()) {
       RefUtil.freeRef(history.remove(0));

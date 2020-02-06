@@ -73,20 +73,20 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
       network.freeRef();
     RefUtil.freeRef(getInner());
     if (0 == trainingData.length) {
-      RefUtil.freeRefs(trainingData);
+      RefUtil.freeRef(trainingData);
       throw new IllegalArgumentException();
     }
     RefList<? extends Supplier<Tensor[]>> temp_00_0002 = RefArrays.stream(RefUtil.addRefs(trainingData)).map(obj -> {
       WeakCachedSupplier<Tensor[]> temp_00_0003 = new WeakCachedSupplier<>(
           RefUtil.wrapInterface(() -> obj, RefUtil.addRefs(obj)));
       if (null != obj)
-        RefUtil.freeRefs(obj);
+        RefUtil.freeRef(obj);
       return temp_00_0003;
     }).collect(RefCollectors.toList());
     this.trainingData = temp_00_0002 == null ? null : temp_00_0002.addRef();
     if (null != temp_00_0002)
       temp_00_0002.freeRef();
-    RefUtil.freeRefs(trainingData);
+    RefUtil.freeRef(trainingData);
     this.trainingSize = trainingSize;
     reseed(RefSystem.nanoTime());
   }
@@ -153,9 +153,9 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     Tensor[][] trainingData = null;
     if (0 < getTrainingSize() && getTrainingSize() < this.trainingData.size() - 1) {
       @Nonnull final Random random = new Random(seed);
-      if (null != trainingData) RefUtil.freeRefs(trainingData);
+      if (null != trainingData) RefUtil.freeRef(trainingData);
       trainingData = RefIntStream.generate(() -> random.nextInt(this.trainingData.size())).distinct()
-          .mapToObj(i -> this.trainingData.get(i)).filter(x -> {
+          .mapToObj(this.trainingData::get).filter(x -> {
             if (x != null) {
               Tensor[] tensors = x.get();
               try {
@@ -163,13 +163,13 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
                   return true;
                 }
               } finally {
-                RefUtil.freeRefs(tensors);
+                RefUtil.freeRef(tensors);
               }
             }
             return false;
-          }).limit(getTrainingSize()).map(x -> x.get()).toArray(i -> new Tensor[i][]);
+          }).limit(getTrainingSize()).map(Supplier::get).toArray(Tensor[][]::new);
     } else {
-      if (null != trainingData) RefUtil.freeRefs(trainingData);
+      if (null != trainingData) RefUtil.freeRef(trainingData);
       trainingData = this.trainingData.stream().filter(x -> {
         if (x != null) {
           Tensor[] tensors = x.get();
@@ -178,11 +178,11 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
               return true;
             }
           } finally {
-            RefUtil.freeRefs(tensors);
+            RefUtil.freeRef(tensors);
           }
         }
         return false;
-      }).limit(getTrainingSize()).map(x -> x.get()).toArray(i -> new Tensor[i][]);
+      }).limit(getTrainingSize()).map(Supplier::get).toArray(Tensor[][]::new);
     }
     ArrayTrainable temp_00_0005 = getInner();
     assert temp_00_0005 != null;

@@ -20,6 +20,7 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefLinkedBlockingQueue;
 
@@ -50,24 +51,21 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   @Nonnull
   @Override
   @RefAware
-  public T get() {
-    try {
-      T take = queue.take();
-      queue.add(take);
-      return take;
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+  public synchronized T get() {
+    return queue.peek();
   }
 
-  public void set(@RefAware @Nonnull T obj) {
-    assert queue.isEmpty();
+  public synchronized void set(@RefAware @Nonnull T obj) {
+    if (!queue.isEmpty()) {
+      RefUtil.freeRef(obj);
+      throw new IllegalStateException();
+    }
     queue.add(obj);
   }
 
   @Nullable
   @RefAware
-  public T remove() {
+  public synchronized T remove() {
     try {
       return queue.poll(1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {

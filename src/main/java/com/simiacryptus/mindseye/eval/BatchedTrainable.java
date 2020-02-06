@@ -64,12 +64,13 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     @Nonnull final RefList<Tensor[]> tensors = RefArrays.asList(getData());
+    int size = tensors.size();
     TimedResult<PointSample> timedResult = TimedResult
         .time(RefUtil.wrapInterface((UncheckedSupplier<PointSample>) () -> {
           DataTrainable inner = getInner();
-          if (batchSize < tensors.size()) {
-            final int batches = (int) Math.ceil(tensors.size() * 1.0 / batchSize);
-            final int evenBatchSize = (int) Math.ceil(tensors.size() * 1.0 / batches);
+          if (batchSize < size) {
+            final int batches = (int) Math.ceil(size * 1.0 / batchSize);
+            final int evenBatchSize = (int) Math.ceil(size * 1.0 / batches);
             @Nonnull final RefList<RefList<Tensor[]>> collection = RefLists.partition(tensors.addRef(), evenBatchSize);
             PointSample temp_36_0001 = RefUtil.get(collection.stream()
                 .map(RefUtil.wrapInterface((Function<RefList<Tensor[]>, PointSample>) trainingData -> {
@@ -80,7 +81,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
                   assert inner != null;
                   inner.setData(trainingData.addRef());
                   trainingData.freeRef();
-                  PointSample measure = super.measure(monitor).addRef();
+                  PointSample measure = super.measure(monitor);
                   inner.setData(new RefArrayList<>());
                   return measure;
                 }, inner == null ? null : inner.addRef())).reduce((a, b) -> {
@@ -97,19 +98,18 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
           } else {
             assert inner != null;
             inner.setData(tensors.addRef());
-            PointSample measure = super.measure(monitor).addRef();
+            PointSample measure = super.measure(monitor);
             inner.setData(new RefArrayList<>());
             inner.freeRef();
             return measure;
           }
-        }, tensors.addRef()));
+        }, tensors));
     PointSample result = timedResult.getResult();
     if (null != monitor && isVerbose()) {
-      monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", tensors.size(), timedResult.timeNanos / 1e9,
+      monitor.log(RefString.format("Evaluated %s items in %.4fs (%s/%s)", size, timedResult.timeNanos / 1e9,
           result.getMean(), result.delta.getMagnitude()));
     }
     timedResult.freeRef();
-    tensors.freeRef();
     return result;
   }
 

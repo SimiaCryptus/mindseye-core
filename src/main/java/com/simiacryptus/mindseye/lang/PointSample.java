@@ -49,9 +49,7 @@ public final class PointSample extends ReferenceCountingBase {
       RefMap<UUID, Delta<UUID>> temp_08_0010 = delta.getMap();
       RefSet<UUID> temp_08_0011 = temp_08_0010.keySet();
       temp_08_0010.freeRef();
-      assert temp_08_0011.stream().allMatch(RefUtil.wrapInterface((Predicate<? super UUID>) x -> {
-        return weightsMap.containsKey(x);
-      }, weights.addRef()));
+      assert temp_08_0011.stream().allMatch(RefUtil.wrapInterface((Predicate<? super UUID>) weightsMap::containsKey, weights.addRef()));
       temp_08_0011.freeRef();
       this.sum = sum;
       this.count = count;
@@ -113,34 +111,28 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Nonnull
   public PointSample addInPlace(@Nonnull final PointSample right) {
-    RefMap<UUID, Delta<UUID>> temp_08_0016 = delta.getMap();
-    RefMap<UUID, State<UUID>> temp_08_0017 = weights.getMap();
-    assert temp_08_0016.size() == temp_08_0017.size();
-    temp_08_0017.freeRef();
-    temp_08_0016.freeRef();
-    RefMap<UUID, Delta<UUID>> temp_08_0018 = right.delta.getMap();
-    RefMap<UUID, State<UUID>> temp_08_0019 = right.weights.getMap();
-    assert temp_08_0018.size() == temp_08_0019.size();
-    temp_08_0019.freeRef();
-    temp_08_0018.freeRef();
-    assert rate == right.rate;
-    delta.addInPlace(right.delta.addRef());
-    PointSample temp_08_0007 = new PointSample(delta.addRef(),
-        StateSet.union(weights.addRef(), right.weights.addRef()), sum + right.sum, rate,
-        count + right.count);
-    right.freeRef();
-    return temp_08_0007;
+    try {
+      assert delta.size() == weights.size();
+      assert right.delta.size() == right.weights.size();
+      assert rate == right.rate;
+      delta.addInPlace(right.delta.addRef());
+      return new PointSample(
+          delta.addRef(),
+          StateSet.union(weights.addRef(), right.weights.addRef()),
+          sum + right.sum,
+          rate,
+          count + right.count);
+    } finally {
+      right.freeRef();
+    }
   }
 
   @Nonnull
   public PointSample copyFull() {
-    @Nonnull
-    DeltaSet<UUID> deltaCopy = delta.copy();
-    @Nonnull
-    StateSet<UUID> weightsCopy = weights.copy();
-    PointSample temp_08_0004 = new PointSample(deltaCopy,
-        weightsCopy, sum, rate, count);
-    return temp_08_0004;
+    return new PointSample(
+        delta.copy(),
+        weights.copy(),
+        sum, rate, count);
   }
 
   @Nonnull
@@ -148,11 +140,12 @@ public final class PointSample extends ReferenceCountingBase {
     if (count == 1) {
       return this.addRef();
     } else {
-      @Nonnull
-      DeltaSet<UUID> scale = delta.scale(1.0 / count);
-      PointSample temp_08_0005 = new PointSample(scale,
-          weights.addRef(), sum / count, rate, 1);
-      return temp_08_0005;
+      return new PointSample(
+          delta.scale(1.0 / count),
+          weights.addRef(),
+          sum / count,
+          rate,
+          1);
     }
   }
 

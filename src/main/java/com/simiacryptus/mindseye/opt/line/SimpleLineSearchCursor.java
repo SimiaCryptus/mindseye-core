@@ -40,22 +40,10 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
 
   public SimpleLineSearchCursor(@Nullable final Trainable subject, @Nonnull final PointSample origin,
                                 @Nullable final DeltaSet<UUID> direction) {
-    PointSample temp_25_0001 = origin.copyFull();
-    this.origin = temp_25_0001.addRef();
-    temp_25_0001.freeRef();
+    this.direction = direction;
+    this.subject = subject;
+    this.origin = origin.copyFull();
     origin.freeRef();
-    DeltaSet<UUID> temp_25_0002 = direction == null ? null : direction.addRef();
-    this.direction = temp_25_0002 == null ? null : temp_25_0002.addRef();
-    if (null != temp_25_0002)
-      temp_25_0002.freeRef();
-    if (null != direction)
-      direction.freeRef();
-    Trainable temp_25_0003 = subject == null ? null : subject.addRef();
-    this.subject = temp_25_0003 == null ? null : temp_25_0003.addRef();
-    if (null != temp_25_0003)
-      temp_25_0003.freeRef();
-    if (null != subject)
-      subject.freeRef();
   }
 
   @Override

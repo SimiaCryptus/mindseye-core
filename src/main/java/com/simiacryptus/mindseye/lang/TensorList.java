@@ -51,7 +51,7 @@ public interface TensorList extends ReferenceCounting {
     return new TensorArray(
         RefIntStream.range(0, length()).mapToObj(RefUtil.wrapInterface((IntFunction<? extends Tensor>) i -> {
           return Tensor.add(get(i), right.get(i));
-        }, right)).toArray(i -> new Tensor[i]));
+        }, right)).toArray(Tensor[]::new));
   }
 
   default TensorList addAndFree(@Nonnull final TensorList right) {
@@ -82,7 +82,7 @@ public interface TensorList extends ReferenceCounting {
           b.freeRef();
           a.freeRef();
           return temp_40_0002;
-        }, right)).toArray(i -> new Tensor[i]));
+        }, right)).toArray(Tensor[]::new));
   }
 
   default TensorList copy() {
@@ -92,7 +92,7 @@ public interface TensorList extends ReferenceCounting {
       Tensor temp_40_0003 = element.copy();
       element.freeRef();
       return temp_40_0003;
-    }).toArray(i -> new Tensor[i]));
+    }).toArray(Tensor[]::new));
   }
 
   @Nonnull

@@ -111,7 +111,8 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
             temp_02_0009.freeRef();
             RefUtil.freeRef(list);
             if (1 == doubleList.size()) {
-              String temp_02_0005 = Double.toString(doubleList.get(0));
+              double d = doubleList.get(0);
+              String temp_02_0005 = Double.toString(d);
               doubleList.freeRef();
               return temp_02_0005;
             }

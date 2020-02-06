@@ -33,7 +33,7 @@ public final class ConstantResult extends Result {
   public ConstantResult(@Nullable final Tensor... data) {
     this(new TensorArray(RefUtil.addRefs(data)));
     if (null != data)
-      RefUtil.freeRefs(data);
+      RefUtil.freeRef(data);
   }
 
   public ConstantResult(@Nonnull TensorArray tensorArray) {
@@ -82,25 +82,25 @@ public final class ConstantResult extends Result {
             RefUtil.wrapInterface((IntFunction<Tensor[]>) x ->
                     RefIntStream.range(0, input.length)
                         .mapToObj(y -> input[y][x].addRef())
-                        .toArray(i -> new Tensor[i]),
+                        .toArray(Tensor[]::new),
                 input))
-        .map(tensors -> new TensorArray(tensors))
-        .map(tensorArray -> new ConstantResult(tensorArray))
-        .toArray(x -> new Result[x]);
+        .map(TensorArray::new)
+        .map(ConstantResult::new)
+        .toArray(Result[]::new);
   }
 
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
     return RefArrays.stream(input)
         .map(x -> new ConstantResult(new TensorArray(x)))
-        .toArray(i -> new Result[i]);
+        .toArray(Result[]::new);
   }
 
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
     return RefArrays.stream(input)
         .map((@Nonnull final Tensor[] x) -> new ConstantResult(new TensorArray(x)))
-        .toArray(i -> new Result[i]);
+        .toArray(Result[]::new);
   }
 
   @Nonnull

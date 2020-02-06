@@ -35,9 +35,9 @@ public class Result extends ReferenceCountingBase {
   protected final int dataLength;
   //public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
-  private final TensorList data;
+  protected final TensorList data;
   @Nonnull
-  private final Result.Accumulator accumulator;
+  protected final Result.Accumulator accumulator;
 
   public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator) {
     super();
@@ -84,7 +84,7 @@ public class Result extends ReferenceCountingBase {
           Tensor tensor = new Tensor(dims);
           tensor.setAll(value);
           return tensor;
-        }).toArray(i -> new Tensor[i])));
+        }).toArray(Tensor[]::new)));
     if (null != buffer)
       buffer.freeRef();
   }

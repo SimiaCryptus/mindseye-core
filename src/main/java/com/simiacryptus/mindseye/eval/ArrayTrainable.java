@@ -38,12 +38,9 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
 
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[][] trainingData, int batchSize) {
     super(inner, batchSize);
-    Tensor[][] temp_03_0001 = RefUtil.addRefs(trainingData);
     if (null != this.trainingData)
-      RefUtil.freeRefs(this.trainingData);
-    this.trainingData = RefUtil.addRefs(temp_03_0001);
-    RefUtil.freeRefs(temp_03_0001);
-    RefUtil.freeRefs(trainingData);
+      RefUtil.freeRef(this.trainingData);
+    this.trainingData = trainingData;
   }
 
   public ArrayTrainable(final Layer network, final int batchSize) {
@@ -56,14 +53,9 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
 
   public ArrayTrainable(@Nullable final Tensor[][] trainingData, final Layer network, final int batchSize) {
     super(network, batchSize);
-    Tensor[][] temp_03_0002 = RefUtil.addRefs(trainingData);
     if (null != this.trainingData)
-      RefUtil.freeRefs(this.trainingData);
-    this.trainingData = RefUtil.addRefs(temp_03_0002);
-    if (null != temp_03_0002)
-      RefUtil.freeRefs(temp_03_0002);
-    if (null != trainingData)
-      RefUtil.freeRefs(trainingData);
+      RefUtil.freeRef(this.trainingData);
+    this.trainingData = trainingData;
   }
 
   @Nullable
@@ -73,25 +65,22 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   }
 
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
-    Tensor[][] temp_03_0003 = RefUtil.addRefs(tensors);
     if (null != this.trainingData)
-      RefUtil.freeRefs(this.trainingData);
-    this.trainingData = RefUtil.addRefs(temp_03_0003);
-    RefUtil.freeRefs(temp_03_0003);
-    RefUtil.freeRefs(tensors);
+      RefUtil.freeRef(this.trainingData);
+    this.trainingData = tensors;
   }
 
   @Override
   public void setData(@Nonnull RefList<Tensor[]> tensors) {
     if (null != trainingData)
-      RefUtil.freeRefs(trainingData);
+      RefUtil.freeRef(trainingData);
     trainingData = tensors.toArray(new Tensor[][]{});
     tensors.freeRef();
   }
 
   public void _free() {
     if (null != trainingData)
-      RefUtil.freeRefs(trainingData);
+      RefUtil.freeRef(trainingData);
     trainingData = null;
     super._free();
   }
