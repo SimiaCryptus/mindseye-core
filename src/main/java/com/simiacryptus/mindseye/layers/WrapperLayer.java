@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -32,7 +31,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public abstract class WrapperLayer extends LayerBase {
+public class WrapperLayer extends LayerBase {
   @Nullable
   protected Layer inner;
 
@@ -72,6 +71,14 @@ public abstract class WrapperLayer extends LayerBase {
     return inner.isFrozen();
   }
 
+  @Nonnull
+  @Override
+  public void setFrozen(final boolean frozen) {
+    if (null == inner)
+      return;
+    inner.setFrozen(frozen);
+  }
+
   @Nullable
   @Override
   public Result eval(@Nullable final Result... array) {
@@ -85,14 +92,6 @@ public abstract class WrapperLayer extends LayerBase {
     @Nonnull final JsonObject json = super.getJsonStub();
     json.add("inner", inner.getJson(resources, dataSerializer));
     return json;
-  }
-
-  @Nonnull
-  @Override
-  public void setFrozen(final boolean frozen) {
-    if (null == inner)
-      return;
-    inner.setFrozen(frozen);
   }
 
   @Nullable

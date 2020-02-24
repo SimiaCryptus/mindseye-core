@@ -68,6 +68,19 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   }
 
   @Nonnull
+  public synchronized void setData(@Nonnull final TensorList[] data) {
+    int inputs = data.length;
+    assert 0 < inputs;
+    int items = data[0].length();
+    assert 0 < items;
+    TensorList[] temp_20_0003 = RefUtil.addRefs(data);
+    if (null != this.data)
+      RefUtil.freeRef(this.data);
+    this.data = RefUtil.addRefs(temp_20_0003);
+    RefUtil.freeRef(temp_20_0003);
+    RefUtil.freeRef(data);
+  }
+
   @Override
   public Layer getLayer() {
     return network == null ? null : network.addRef();
@@ -77,6 +90,12 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   @Override
   public boolean[] getMask() {
     return mask;
+  }
+
+  @Nonnull
+  @Override
+  public void setMask(final boolean... mask) {
+    this.mask = mask;
   }
 
   public void setVerbosity(int verbose) {
@@ -163,26 +182,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     timedResult.freeRef();
     assert null != result;
     return result;
-  }
-
-  @Nonnull
-  public synchronized void setData(@Nonnull final TensorList[] data) {
-    int inputs = data.length;
-    assert 0 < inputs;
-    int items = data[0].length();
-    assert 0 < items;
-    TensorList[] temp_20_0003 = RefUtil.addRefs(data);
-    if (null != this.data)
-      RefUtil.freeRef(this.data);
-    this.data = RefUtil.addRefs(temp_20_0003);
-    RefUtil.freeRef(temp_20_0003);
-    RefUtil.freeRef(data);
-  }
-
-  @Nonnull
-  @Override
-  public void setMask(final boolean... mask) {
-    this.mask = mask;
   }
 
   public int verbosity() {

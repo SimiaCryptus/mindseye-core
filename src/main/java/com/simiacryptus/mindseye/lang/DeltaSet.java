@@ -73,7 +73,7 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
   @Nonnull
   public void accumulate(final double alpha) {
-    stream().forEach(d -> {
+    stream().forEach((Delta<K> d) -> {
       d.accumulate(alpha);
       d.freeRef();
     });
@@ -114,9 +114,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @Override
   public DeltaSet<K> copy() {
     return new DeltaSet(this.map(x -> {
-      Delta<K> temp_37_0004 = x.copy();
-      x.freeRef();
-      return temp_37_0004;
+      try {
+        return x.copy();
+      } finally {
+        x.freeRef();
+      }
     }));
   }
 
@@ -182,6 +184,14 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   @SuppressWarnings("unused")
   DeltaSet<K> addRef() {
     return (DeltaSet<K>) super.addRef();
+  }
+
+  public DeltaSet<K> allFinite(double defaultValue) {
+    return map((Delta<K> delta) -> {
+      Delta<K> map = delta.map(d -> Double.isFinite(d) ? d : defaultValue);
+      delta.freeRef();
+      return map;
+    });
   }
 
   @Nonnull

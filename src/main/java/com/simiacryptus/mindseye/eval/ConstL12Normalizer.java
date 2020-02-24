@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.eval;
 
 import com.simiacryptus.mindseye.lang.Layer;
-import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -49,7 +48,6 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     this.factor_L2 = factor_L2;
   }
 
-  @Nonnull
   @Override
   public Layer getLayer() {
     assert inner != null;
@@ -61,6 +59,13 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
   public boolean[] getMask() {
     assert inner != null;
     return ((TrainableDataMask) inner).getMask();
+  }
+
+  @Nonnull
+  @Override
+  public void setMask(final boolean... mask) {
+    assert inner != null;
+    ((TrainableDataMask) inner).setMask(mask);
   }
 
   @Override
@@ -80,13 +85,6 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
   @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
     return new SampledCachedTrainable<>(this.addRef());
-  }
-
-  @Nonnull
-  @Override
-  public void setMask(final boolean... mask) {
-    assert inner != null;
-    ((TrainableDataMask) inner).setMask(mask);
   }
 
   public @SuppressWarnings("unused")

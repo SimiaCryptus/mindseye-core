@@ -28,11 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 public final class ObjectRegistry {
   private static final Logger logger = LoggerFactory.getLogger(ObjectRegistry.class);
@@ -41,10 +39,10 @@ public final class ObjectRegistry {
       new ThreadFactoryBuilder().setDaemon(true).build());
 
   {
-    maintenanceThread.scheduleAtFixedRate(()->{
+    maintenanceThread.scheduleAtFixedRate(() -> {
       RefCollection<ObjectRecords<ReferenceCountingBase>> values = cache.values();
       try {
-        values.forEach(v->{
+        values.forEach(v -> {
           try {
             v.maintain();
           } finally {
@@ -72,27 +70,26 @@ public final class ObjectRegistry {
 
   @Nonnull
   public static <T extends ReferenceCountingBase> RefStream<T> getInstances(@Nonnull final Class<T> k) {
-    RefSet<Map.Entry<Class<? extends ReferenceCountingBase>, ObjectRegistry.ObjectRecords<ReferenceCountingBase>>> temp_32_0006 = cache
-        .entrySet();
-    RefStream<T> temp_32_0005 = temp_32_0006.stream().filter(e -> {
-      boolean temp_32_0002 = k.isAssignableFrom(e.getKey());
+    return stream(cache.entrySet()).filter(e -> {
+      Class<? extends ReferenceCountingBase> aClass = e.getKey();
       RefUtil.freeRef(e);
-      return temp_32_0002;
-    }).flatMap(
-        (Function<Map.Entry<Class<? extends ReferenceCountingBase>, ObjectRecords<ReferenceCountingBase>>, RefStream<RefWeakReference<ReferenceCountingBase>>>) recordsEntry -> {
-          ObjectRecords<ReferenceCountingBase> temp_32_0003 = recordsEntry.getValue().addRef();
-          RefStream<RefWeakReference<ReferenceCountingBase>> stream = temp_32_0003.stream();
-          RefUtil.freeRef(recordsEntry);
-          temp_32_0003.freeRef();
-          return stream;
-        }).map(x -> (T) x.get()).filter(x -> {
-      boolean temp_32_0004 = x != null;
-      if (null != x)
+      return k.isAssignableFrom(aClass);
+    }).flatMap(recordsEntry -> {
+      ObjectRecords<ReferenceCountingBase> value = recordsEntry.getValue();
+      RefUtil.freeRef(recordsEntry);
+      RefStream<RefWeakReference<ReferenceCountingBase>> stream = value.stream();
+      value.freeRef();
+      return stream;
+    }).map((RefWeakReference<ReferenceCountingBase> x) -> {
+      return (T) x.get();
+    }).filter(x -> {
+      if (x != null) {
         x.freeRef();
-      return temp_32_0004;
+        return true;
+      } else {
+        return false;
+      }
     });
-    temp_32_0006.freeRef();
-    return temp_32_0005;
   }
 
   public static void register(ReferenceCountingBase registeredObjectBase) {
@@ -100,6 +97,12 @@ public final class ObjectRegistry {
         k -> new ObjectRecords<>());
     objectRecords.add(RefWeakReference.wrap(registeredObjectBase));
     objectRecords.freeRef();
+  }
+
+  private static <T> RefStream<T> stream(RefSet<T> entries) {
+    RefStream<T> refStream = entries.stream();
+    entries.freeRef();
+    return refStream;
   }
 
   private static class ObjectRecords<T extends ReferenceCountingBase>

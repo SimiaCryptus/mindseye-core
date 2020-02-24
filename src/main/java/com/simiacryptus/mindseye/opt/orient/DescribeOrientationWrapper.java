@@ -29,7 +29,6 @@ import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -124,31 +123,14 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
                                  @Nonnull final TrainingMonitor monitor) {
     assert inner != null;
-    final LineSearchCursor cursor = inner.orient(subject == null ? null : subject.addRef(),
-        measurement == null ? null : measurement.addRef(), monitor);
-    if (null != measurement)
-      measurement.freeRef();
-    if (null != subject)
-      subject.freeRef();
+    final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
       SimpleLineSearchCursor simpleLineSearchCursor = (SimpleLineSearchCursor) cursor.addRef();
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
       assert simpleLineSearchCursor.direction != null;
       final DeltaSet<UUID> direction = simpleLineSearchCursor.direction.addRef();
       @Nonnull final StateSet<UUID> weights = simpleLineSearchCursor.origin.weights.addRef();
       simpleLineSearchCursor.freeRef();
-      final CharSequence asString = DescribeOrientationWrapper.render(weights,
-          direction.addRef());
-      direction.freeRef();
+      final CharSequence asString = DescribeOrientationWrapper.render(weights, direction);
       monitor.log(RefString.format("Orientation Details: %s", asString));
     } else {
       monitor.log(RefString.format("Non-simple cursor: %s", cursor.addRef()));

@@ -25,7 +25,6 @@ import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
-import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -71,6 +70,7 @@ public final class InnerNode extends LazyResult {
   @SuppressWarnings("unchecked")
   @Override
   public <T extends Layer> T getLayer() {
+    assertAlive();
     return (T) layer.addRef();
   }
 
@@ -78,18 +78,13 @@ public final class InnerNode extends LazyResult {
   public synchronized void setLayer(@Nonnull final Layer newLayer) {
     assertAlive();
     newLayer.assertAlive();
-    Layer prevLayer = null == this.layer ? null : this.layer.addRef();
-    if (newLayer != prevLayer) {
-      Layer temp_12_0004 = newLayer.addRef();
+    if (newLayer != this.layer) {
       if (null != this.layer)
         this.layer.freeRef();
-      this.layer = temp_12_0004 == null ? null : temp_12_0004.addRef();
-      if (null != temp_12_0004)
-        temp_12_0004.freeRef();
+      this.layer = newLayer;
+    } else {
+      newLayer.freeRef();
     }
-    newLayer.freeRef();
-    if (null != prevLayer)
-      prevLayer.freeRef();
   }
 
   public boolean isParallel() {
@@ -122,21 +117,23 @@ public final class InnerNode extends LazyResult {
   protected Result eval(@Nullable final GraphEvaluationContext ctx) {
     assertAlive();
     @Nonnull final Layer innerLayer = getLayer();
-    @Nonnull
-    RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRefs(inputNodes));
-    if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
-      stream = stream.parallel();
-    final Result[] in = stream.map(RefUtil.wrapInterface((Function<? super DAGNode, ? extends Result>) x -> {
-      Result temp_12_0010 = x == null ? null : x.get(ctx == null ? null : ctx.addRef());
-      if (null != x)
-        x.freeRef();
-      return temp_12_0010;
-    }, ctx)).toArray(Result[]::new);
-    for (Result result : in) {
-      assert result != null;
+    try {
+      @Nonnull
+      RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRefs(inputNodes));
+      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+        stream = stream.parallel();
+      return innerLayer.eval(stream.map(RefUtil.wrapInterface((Function<? super DAGNode, ? extends Result>) node -> {
+        assert node != null;
+        try {
+          Result result = node.get(ctx == null ? null : ctx.addRef());
+          assert result != null;
+          return result;
+        } finally {
+          node.freeRef();
+        }
+      }, ctx)).toArray(Result[]::new));
+    } finally {
+      innerLayer.freeRef();
     }
-    Result temp_12_0008 = innerLayer.eval(in);
-    innerLayer.freeRef();
-    return temp_12_0008;
   }
 }

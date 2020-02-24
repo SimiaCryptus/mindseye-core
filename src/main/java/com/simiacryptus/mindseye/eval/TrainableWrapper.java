@@ -47,7 +47,6 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return RefUtil.addRef(inner);
   }
 
-  @Nonnull
   @Override
   public Layer getLayer() {
     assert inner != null;
@@ -60,6 +59,12 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return ((TrainableDataMask) inner).getMask();
   }
 
+  @Nonnull
+  public void setMask(final boolean... mask) {
+    assert inner != null;
+    ((TrainableDataMask) inner).setMask(mask);
+  }
+
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
     assert inner != null;
@@ -68,17 +73,8 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
 
   @Override
   public boolean reseed(final long seed) {
-    T temp_21_0003 = getInner();
-    assert temp_21_0003 != null;
-    boolean temp_21_0002 = temp_21_0003.reseed(seed);
-    temp_21_0003.freeRef();
-    return temp_21_0002;
-  }
-
-  @Nonnull
-  public void setMask(final boolean... mask) {
     assert inner != null;
-    ((TrainableDataMask) inner).setMask(mask);
+    return inner.reseed(seed);
   }
 
   @Nonnull

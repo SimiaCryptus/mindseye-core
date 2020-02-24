@@ -19,29 +19,42 @@
 
 package com.simiacryptus.mindseye.opt.line;
 
+import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefStringBuilder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
+import java.util.UUID;
 
 public class LineSearchPoint extends ReferenceCountingBase {
 
   public final double derivative;
   @Nullable
-  public final PointSample point;
+  private final PointSample point;
 
   public LineSearchPoint(@Nullable final PointSample point, final double derivative) {
-    PointSample temp_04_0001 = point == null ? null : point.addRef();
-    this.point = temp_04_0001 == null ? null : temp_04_0001.addRef();
-    if (null != temp_04_0001)
-      temp_04_0001.freeRef();
-    if (null != point)
-      point.freeRef();
+    this.point = point;
     this.derivative = derivative;
+  }
+
+  @Nullable
+  public PointSample getPoint() {
+    if (null == point) return null;
+    return point.addRef();
+  }
+
+  public double getPointMean() {
+    return point.getMean();
+  }
+
+  public double getPointRate() {
+    return point.rate;
+  }
+
+  public double getPointSum() {
+    return point.sum;
   }
 
   @Nonnull
@@ -49,8 +62,7 @@ public class LineSearchPoint extends ReferenceCountingBase {
   public String toString() {
     @Nonnull final RefStringBuilder sb = new RefStringBuilder(
         "LineSearchPoint{");
-    assert point != null;
-    sb.append("point=").append(point.addRef());
+    sb.append("point=").append(getPoint());
     sb.append(", derivative=").append(derivative);
     sb.append('}');
     return sb.toString();
@@ -67,5 +79,9 @@ public class LineSearchPoint extends ReferenceCountingBase {
   @SuppressWarnings("unused")
   LineSearchPoint addRef() {
     return (LineSearchPoint) super.addRef();
+  }
+
+  public DeltaSet<UUID> copyPointDelta() {
+    return point.delta.copy();
   }
 }

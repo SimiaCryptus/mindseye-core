@@ -23,7 +23,6 @@ import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefUtil;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -78,14 +77,12 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
       direction.accumulate(alpha);
     }
     assert subject != null;
-    PointSample temp_25_0005 = subject.measure(monitor);
-    temp_25_0005.setRate(alpha);
-    @Nonnull final PointSample sample = afterStep(temp_25_0005.addRef());
-    temp_25_0005.freeRef();
+    PointSample pointSample = subject.measure(monitor);
+    pointSample.setRate(alpha);
+    @Nonnull final PointSample sample = afterStep(pointSample);
     assert direction != null;
     final double dot = direction.dot(sample.delta.addRef());
-    LineSearchPoint temp_25_0004 = new LineSearchPoint(sample, dot);
-    return temp_25_0004;
+    return new LineSearchPoint(sample, dot);
   }
 
   public void _free() {

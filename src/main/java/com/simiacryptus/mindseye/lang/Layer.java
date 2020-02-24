@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 public interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
@@ -197,6 +198,10 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
 
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
+    for (int i = 0; i < array.length; i++) {
+      assert array[i] != null;
+      assert array[i].assertAlive();
+    }
     return eval(ConstantResult.singleResultArray(array));
   }
 

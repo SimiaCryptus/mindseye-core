@@ -80,8 +80,7 @@ public class BisectionSearch implements LineSearchStrategy {
     final LineSearchPoint searchPoint = cursor.step(leftX, monitor);
     monitor.log(RefString.format("F(%s) = %s", leftX, searchPoint.addRef()));
     assert searchPoint != null;
-    assert searchPoint.point != null;
-    double leftValue = searchPoint.point.sum;
+    double leftValue = searchPoint.getPointSum();
     searchPoint.freeRef();
     double rightRight = getMaxRate();
     double rightX;
@@ -97,8 +96,7 @@ public class BisectionSearch implements LineSearchStrategy {
       monitor.log(RefString.format("F(%s)@%s = %s", rightX, loopCount, rightPoint.addRef()));
       assert rightPoint != null;
       rightLineDeriv = rightPoint.derivative;
-      assert rightPoint.point != null;
-      rightValue = rightPoint.point.sum;
+      rightValue = rightPoint.getPointSum();
       if (loopCount++ > 100) {
         monitor.log(RefString.format("Loop overflow"));
         break;
@@ -109,7 +107,7 @@ public class BisectionSearch implements LineSearchStrategy {
         rightPoint.freeRef();
         LineSearchPoint temp_49_0003 = cursor.step(leftX, monitor);
         assert temp_49_0003 != null;
-        PointSample temp_49_0002 = temp_49_0003.point;
+        PointSample temp_49_0002 = temp_49_0003.getPoint();
         temp_49_0003.freeRef();
         cursor.freeRef();
         return temp_49_0002;
@@ -130,7 +128,7 @@ public class BisectionSearch implements LineSearchStrategy {
     monitor.log(RefString.format("Starting bisection search from %s to %s", leftX, rightX));
     LineSearchPoint temp_49_0004 = iterate(cursor, monitor, leftX, rightX);
     assert temp_49_0004 != null;
-    PointSample temp_49_0001 = temp_49_0004.point;
+    PointSample temp_49_0001 = temp_49_0004.getPoint();
     temp_49_0004.freeRef();
     return temp_49_0001;
   }

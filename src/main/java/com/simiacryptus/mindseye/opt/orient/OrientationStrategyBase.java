@@ -20,11 +20,7 @@
 package com.simiacryptus.mindseye.opt.orient;
 
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public abstract class OrientationStrategyBase<T extends LineSearchCursor> extends ReferenceCountingBase
     implements OrientationStrategy<T> {

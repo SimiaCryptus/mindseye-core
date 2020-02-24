@@ -20,7 +20,6 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.*;
 import org.slf4j.Logger;
@@ -109,8 +108,8 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     assert r != null;
     assert l != null;
     assert l.length == r.length;
-    final double[] array = RefIntStream.range(0, l.length).mapToDouble(i -> l[i] * r[i]).toArray();
-    return RefArrays.stream(array).summaryStatistics().getSum();
+    final double[] array = RefIntStream.range(0, l.length).parallel().mapToDouble(i -> l[i] * r[i]).toArray();
+    return RefArrays.stream(array).parallel().reduce((a, b) -> a + b).getAsDouble();
   }
 
   public int length() {
@@ -119,16 +118,23 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
+    return map(mapper, !CoreSettings.INSTANCE().isSingleThreaded());
+  }
+
+  @Nonnull
+  public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper, boolean parallel) {
+    RefDoubleStream stream = RefArrays.stream(this.getDelta());
+    if (parallel) stream = stream.parallel();
     return new DoubleBuffer<K>(this.key, this.target,
-        RefArrays.stream(this.getDelta()).map(mapper::applyAsDouble).toArray());
+        stream.map(mapper::applyAsDouble).toArray());
   }
 
   @Nonnull
   public void set(@Nonnull final double[] data) {
-    assert RefArrays.stream(data).allMatch(Double::isFinite);
+    assert RefArrays.stream(data).parallel().allMatch(Double::isFinite);
     RefSystem.arraycopy(data, 0, this.getDelta(), 0, data.length);
     //    Arrays.parallelSetAll(this.getDelta(), i -> data[i]);
-    assert RefArrays.stream(getDelta()).allMatch(Double::isFinite);
+    assert RefArrays.stream(getDelta()).parallel().allMatch(Double::isFinite);
   }
 
   @Nonnull

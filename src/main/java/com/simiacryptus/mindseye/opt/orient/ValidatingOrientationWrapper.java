@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursorBase;
 import com.simiacryptus.mindseye.opt.line.LineSearchPoint;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
@@ -53,17 +52,8 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
                                  final TrainingMonitor monitor) {
     assert inner != null;
-    final LineSearchCursor cursor = inner.orient(subject == null ? null : subject.addRef(),
-        measurement == null ? null : measurement.addRef(), monitor);
-    if (null != measurement)
-      measurement.freeRef();
-    if (null != subject)
-      subject.freeRef();
-    ValidatingOrientationWrapper.ValidatingLineSearchCursor temp_26_0003 = new ValidatingLineSearchCursor(
-        cursor == null ? null : cursor.addRef());
-    if (null != cursor)
-      cursor.freeRef();
-    return temp_26_0003;
+    final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
+    return new ValidatingLineSearchCursor(cursor);
   }
 
   @Override
@@ -90,12 +80,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     private final LineSearchCursor cursor;
 
     public ValidatingLineSearchCursor(@Nullable final LineSearchCursor cursor) {
-      LineSearchCursor temp_26_0002 = cursor == null ? null : cursor.addRef();
-      this.cursor = temp_26_0002 == null ? null : temp_26_0002.addRef();
-      if (null != temp_26_0002)
-        temp_26_0002.freeRef();
-      if (null != cursor)
-        cursor.freeRef();
+      this.cursor = cursor;
     }
 
     @Override
@@ -149,17 +134,15 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
                      final double probeSize) {
-      assert primaryPoint.point != null;
-      final double alpha = primaryPoint.point.rate;
-      double probeAlpha = alpha + primaryPoint.point.sum * probeSize / primaryPoint.derivative;
+      final double alpha = primaryPoint.getPointRate();
+      double probeAlpha = alpha + primaryPoint.getPointSum() * probeSize / primaryPoint.derivative;
       if (!Double.isFinite(probeAlpha) || probeAlpha == alpha) {
         probeAlpha = alpha + probeSize;
       }
       assert cursor != null;
       final LineSearchPoint probePoint = cursor.step(probeAlpha, monitor);
       assert probePoint != null;
-      assert probePoint.point != null;
-      final double dy = probePoint.point.sum - primaryPoint.point.sum;
+      final double dy = probePoint.getPointSum() - primaryPoint.getPointSum();
       final double dx = probeAlpha - alpha;
       final double measuredDerivative = dy / dx;
       monitor.log(RefString.format("%s vs (%s, %s); probe=%s", measuredDerivative, primaryPoint.derivative,

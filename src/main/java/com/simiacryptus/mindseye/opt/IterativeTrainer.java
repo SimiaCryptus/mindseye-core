@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.opt;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.eval.Trainable;
-import com.simiacryptus.mindseye.lang.Delta;
 import com.simiacryptus.mindseye.lang.IterativeStopException;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
@@ -45,7 +44,6 @@ import javax.annotation.Nullable;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -67,12 +65,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
   private Duration timeout;
 
   public IterativeTrainer(@Nullable final Trainable subject) {
-    Trainable temp_18_0001 = subject == null ? null : subject.addRef();
-    this.subject = temp_18_0001 == null ? null : temp_18_0001.addRef();
-    if (null != temp_18_0001)
-      temp_18_0001.freeRef();
-    if (null != subject)
-      subject.freeRef();
+    this.subject = subject;
     timeout = Duration.of(5, ChronoUnit.MINUTES);
     terminateThreshold = 0;
   }
@@ -148,22 +141,18 @@ public class IterativeTrainer extends ReferenceCountingBase {
   public PointSample measure() {
     assert subject != null;
     final PointSample currentPoint = subject.measure(monitor);
-    RefMap<UUID, Delta<UUID>> temp_18_0004 = currentPoint.delta.getMap();
-    if (0 >= temp_18_0004.size()) {
-      temp_18_0004.freeRef();
+    int size = currentPoint.delta.size();
+    if (0 >= size) {
       currentPoint.freeRef();
       throw new AssertionError("Nothing to optimize");
     }
-    temp_18_0004.freeRef();
     double mean = currentPoint.getMean();
     if (!Double.isFinite(mean)) {
-      if (monitor.onStepFail(new Step(currentPoint.addRef(), currentIteration.get()))) {
+      if (monitor.onStepFail(new Step(currentPoint, currentIteration.get()))) {
         monitor.log(RefString.format("Retrying iteration %s", currentIteration.get()));
-        currentPoint.freeRef();
         return measure();
       } else {
         monitor.log(RefString.format("Optimization terminated %s", currentIteration.get()));
-        currentPoint.freeRef();
         throw new IterativeStopException(Double.toString(mean));
       }
     }
@@ -178,10 +167,13 @@ public class IterativeTrainer extends ReferenceCountingBase {
     assert subject != null;
     subject.reseed(seed);
     Layer layer = subject.getLayer();
-    if (layer instanceof DAGNetwork) {
-      ((DAGNetwork) layer).shuffle(seed);
+    try {
+      if (layer instanceof DAGNetwork) {
+        ((DAGNetwork) layer).shuffle(seed);
+      }
+    } finally {
+      if(null != layer) layer.freeRef();
     }
-    layer.freeRef();
   }
 
   public double run() {
@@ -216,8 +208,7 @@ mainLoop:
                     _currentPoint == null ? null : _currentPoint.addRef(),
                     monitor
                 );
-              },
-              _currentPoint));
+              }, _currentPoint));
           final LineSearchCursor direction = timedOrientation.getResult();
           final CharSequence directionType = direction.getDirectionType();
           @Nullable final PointSample previous = currentPoint == null ? null : currentPoint.addRef();
@@ -236,7 +227,6 @@ mainLoop:
             final CharSequence perfString = RefString.format("Total: %.4f; Orientation: %.4f; Line Search: %.4f",
                 (now - lastIterationTime) / 1e9, timedOrientation.timeNanos / 1e9, timedLineSearch.timeNanos / 1e9);
             timedLineSearch.freeRef();
-            timedOrientation.freeRef();
             lastIterationTime = now;
             assert previous != null;
             monitor.log(RefString.format("Fitness changed from %s to %s", previous.getMean(), currentPoint.getMean()));
@@ -245,9 +235,8 @@ mainLoop:
                 monitor.log(RefString.format("Resetting Iteration %s", perfString));
                 LineSearchPoint temp_18_0005 = direction.step(0, monitor);
                 assert temp_18_0005 != null;
-                assert temp_18_0005.point != null;
                 if (null != currentPoint) currentPoint.freeRef();
-                currentPoint = temp_18_0005.point.addRef();
+                currentPoint = temp_18_0005.getPoint();
                 temp_18_0005.freeRef();
               } else {
                 monitor.log(RefString.format("Static Iteration %s", perfString));
@@ -271,6 +260,7 @@ mainLoop:
             }
             monitor.onStepComplete(new Step(currentPoint.addRef(), currentIteration.get()));
           } finally {
+            timedOrientation.freeRef();
             previous.freeRef();
             direction.freeRef();
           }
@@ -281,7 +271,7 @@ mainLoop:
       if (subjectLayer instanceof DAGNetwork) {
         ((DAGNetwork) subjectLayer).clearNoise();
       }
-      subjectLayer.freeRef();
+      if(null != subjectLayer) subjectLayer.freeRef();
       return null == currentPoint ? Double.NaN : currentPoint.getMean();
     } catch (Throwable e) {
       monitor.log(RefString.format("Error %s", Util.toString(e)));
@@ -317,10 +307,12 @@ mainLoop:
     @Nonnull final FailsafeLineSearchCursor wrapped = new FailsafeLineSearchCursor(direction,
         previous, monitor);
     assert lineSearchStrategy != null;
-    RefUtil.freeRef(lineSearchStrategy.step(wrapped.addRef(), monitor));
-    PointSample currentPoint = wrapped.getBest(monitor);
-    wrapped.freeRef();
-    return currentPoint;
+    try {
+      RefUtil.freeRef(lineSearchStrategy.step(wrapped.addRef(), monitor));
+      return wrapped.getBest();
+    } finally {
+      wrapped.freeRef();
+    }
   }
 
   public void _free() {

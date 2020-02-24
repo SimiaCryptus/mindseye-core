@@ -20,7 +20,10 @@
 package com.simiacryptus.mindseye.opt.orient;
 
 import com.simiacryptus.mindseye.eval.Trainable;
-import com.simiacryptus.mindseye.lang.*;
+import com.simiacryptus.mindseye.lang.Delta;
+import com.simiacryptus.mindseye.lang.DeltaSet;
+import com.simiacryptus.mindseye.lang.Layer;
+import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
@@ -96,6 +99,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
         .map(RefUtil.wrapInterface((Function<? super UUID, ? extends Layer>) id -> {
           assert subject != null;
           DAGNetwork layer = (DAGNetwork) subject.getLayer();
+          if(null == layer) return null;
           RefMap<UUID, Layer> layersById = layer.getLayersById();
           Layer id_layer = layersById.get(id);
           layersById.freeRef();
@@ -132,13 +136,12 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
                 searchDir[i] = delta[i];
               }
             }
-          }, searchDirection.addRef(), orthant.addRef()));
+          }, searchDirection.addRef(), orthant));
       temp_29_0007.freeRef();
     }
     //layers.freeRef();
     if (null != layerSet)
       layerSet.freeRef();
-    orthant.freeRef();
     gradient.freeRef();
     SimpleLineSearchCursor temp_29_0005 = new SimpleLineSearchCursor(subject, measurement, searchDirection) {
 
@@ -178,13 +181,10 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
         assert subject != null;
         PointSample temp_29_0009 = subject.measure(monitor);
         temp_29_0009.setRate(alpha);
-        @Nonnull final PointSample measure = afterStep(temp_29_0009.addRef());
-        temp_29_0009.freeRef();
+        @Nonnull final PointSample measure = afterStep(temp_29_0009);
         double dot = currentDirection.dot(measure.delta.addRef());
         currentDirection.freeRef();
-        LineSearchPoint temp_29_0003 = new LineSearchPoint(measure.addRef(), dot);
-        measure.freeRef();
-        return temp_29_0003;
+        return new LineSearchPoint(measure, dot);
       }
 
       public @SuppressWarnings("unused")
@@ -193,9 +193,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
       }
     };
     temp_29_0005.setDirectionType("OWL/QN");
-    SimpleLineSearchCursor temp_29_0002 = temp_29_0005.addRef();
-    temp_29_0005.freeRef();
-    return temp_29_0002;
+    return temp_29_0005;
   }
 
   @Override

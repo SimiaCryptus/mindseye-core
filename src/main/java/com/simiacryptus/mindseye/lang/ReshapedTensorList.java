@@ -20,32 +20,27 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefAware;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefStream;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
   @Nonnull
   private final TensorList inner;
   private final int[] dims;
 
-  public ReshapedTensorList(@Nonnull TensorList inner, int[] toDim) {
-    if (Tensor.length(inner.getDimensions()) != Tensor.length(toDim)) {
-      IllegalArgumentException temp_28_0004 = new IllegalArgumentException(
-          RefArrays.toString(inner.getDimensions()) + " != " + RefArrays.toString(toDim));
+  public ReshapedTensorList(@Nonnull TensorList inner, int[] dims) {
+    int[] dimensions = inner.getDimensions();
+    if (Tensor.length(dimensions) != Tensor.length(dims)) {
       inner.freeRef();
-      throw temp_28_0004;
+      throw new IllegalArgumentException(
+          RefArrays.toString(dimensions) + " != " + RefArrays.toString(dims));
     }
-    TensorList temp_28_0001 = inner.addRef();
-    this.inner = temp_28_0001.addRef();
-    temp_28_0001.freeRef();
-    inner.freeRef();
-    this.dims = toDim;
+    this.inner = inner;
+    this.dims = dims;
   }
 
   @Nonnull
@@ -64,11 +59,7 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
   @RefAware
   public Tensor get(int i) {
     assertAlive();
-    @Nonnull
-    Tensor tensor = inner.get(i);
-    Tensor temp_28_0002 = tensor.reshapeCast(dims);
-    tensor.freeRef();
-    return temp_28_0002;
+    return reshape(inner.get(i));
   }
 
   @Override
@@ -79,11 +70,7 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
   @Nonnull
   @Override
   public RefStream<Tensor> stream() {
-    return inner.stream().map(t -> {
-      Tensor temp_28_0003 = t.reshapeCast(dims);
-      t.freeRef();
-      return temp_28_0003;
-    });
+    return inner.stream().map(tensor -> reshape(tensor));
   }
 
   public void _free() {
@@ -96,5 +83,12 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
   @SuppressWarnings("unused")
   ReshapedTensorList addRef() {
     return (ReshapedTensorList) super.addRef();
+  }
+
+  @NotNull
+  private Tensor reshape(Tensor tensor) {
+    Tensor reshapeCast = tensor.reshapeCast(dims);
+    tensor.freeRef();
+    return reshapeCast;
   }
 }

@@ -20,8 +20,8 @@
 package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RecycleBin;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefDoubleStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -82,7 +82,7 @@ public class Delta<K> extends DoubleBuffer<K> {
 
   public final void accumulate(final double factor) {
     synchronized (target) {
-      assert RefArrays.stream(target).allMatch(Double::isFinite);
+      assert RefArrays.stream(target).parallel().allMatch(Double::isFinite);
       @Nullable final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
         assert delta != null;
@@ -90,7 +90,7 @@ public class Delta<K> extends DoubleBuffer<K> {
         if (!Double.isFinite(target[i]))
           target[i] = 0;
       }
-      assert RefArrays.stream(target).allMatch(Double::isFinite);
+      assert RefArrays.stream(target).parallel().allMatch(Double::isFinite);
     }
   }
 
@@ -98,10 +98,8 @@ public class Delta<K> extends DoubleBuffer<K> {
   public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
     addInPlace(buffer.delta);
-    Delta<K> temp_55_0001 = this.addRef();
     assert buffer.deltaCompensation != null;
-    temp_55_0001.addInPlace(buffer.deltaCompensation);
-    temp_55_0001.freeRef();
+    this.addInPlace(buffer.deltaCompensation);
     buffer.freeRef();
   }
 
@@ -123,7 +121,15 @@ public class Delta<K> extends DoubleBuffer<K> {
   @Nonnull
   @Override
   public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return new Delta<K>(key, target, RefArrays.stream(getDelta()).map(mapper).toArray());
+    return map(mapper, !CoreSettings.INSTANCE().isSingleThreaded());
+  }
+
+  @Nonnull
+  @Override
+  public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper, boolean parallel) {
+    RefDoubleStream stream = RefArrays.stream(getDelta());
+    if (parallel) stream = stream.parallel();
+    return new Delta<K>(key, target, stream.map(mapper).toArray());
   }
 
   @Nonnull

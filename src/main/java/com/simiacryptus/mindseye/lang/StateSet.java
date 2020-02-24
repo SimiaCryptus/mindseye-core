@@ -24,7 +24,6 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
@@ -41,7 +40,7 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 //    });
     RefMap<K, Delta<K>> temp_41_0018 = toCopy.getMap();
     temp_41_0018.forEach((layer, layerDelta) -> {
-      State<K> state = this.get(layer, layerDelta.target);
+      State<K> state = get(layer, layerDelta.target);
       assert state != null;
       state.backup();
       RefUtil.freeRef(state);

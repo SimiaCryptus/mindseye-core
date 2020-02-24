@@ -30,7 +30,7 @@ import java.util.UUID;
 
 @SuppressWarnings("serial")
 public abstract class LayerBase extends ReferenceCountingBase implements Layer {
-//  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
+  //  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
   protected boolean frozen = false;
   @Nullable
@@ -73,10 +73,19 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     return name;
   }
 
+  @Nonnull
+  public void setName(final String name) {
+    this.name = name;
+  }
+
   public boolean isFrozen() {
     return frozen;
   }
 
+  @Nonnull
+  public void setFrozen(final boolean frozen) {
+    this.frozen = frozen;
+  }
 
   @Override
   public final boolean equals(@Nullable final Object obj) {
@@ -101,20 +110,10 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     }
   }
 
-  @Nonnull
-  public void setName(final String name) {
-    this.name = name;
-  }
-
   @Override
   public final int hashCode() {
     assert getId() != null;
     return getId().hashCode();
-  }
-
-  @Nonnull
-  public void setFrozen(final boolean frozen) {
-    this.frozen = frozen;
   }
 
   @Nullable

@@ -36,11 +36,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
-import java.util.Base64;
-import java.util.Map;
-import java.util.Spliterator;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.*;
+import java.util.stream.DoubleStream;
 
 @SuppressWarnings("serial")
 public final class Tensor extends ReferenceCountingBase implements Serializable, ZipSerializable {
@@ -299,9 +297,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     final int width = img.getWidth();
     final int height = img.getHeight();
     @Nonnull final Tensor a = new Tensor(width, height, 3);
-    RefIntStream.range(0, width).parallel().forEach(RefUtil.wrapInterface(x -> {
+    RefIntStream.range(0, width).parallel().forEach(x -> {
       @Nonnull final int[] coords = {0, 0, 0};
-      RefIntStream.range(0, height).forEach(RefUtil.wrapInterface(y -> {
+      RefIntStream.range(0, height).forEach(y -> {
         coords[0] = x;
         coords[1] = y;
         coords[2] = 0;
@@ -310,8 +308,8 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
         a.set(coords, img.getRGB(x, y) >> 8 & 0xFF);
         coords[2] = 2;
         a.set(coords, img.getRGB(x, y) >> 16 & 0x0FF);
-      }, a.addRef()));
-    }, a.addRef()));
+      });
+    });
     return a;
   }
 
@@ -331,8 +329,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   @Nonnull
   public static Tensor product(@Nonnull final Tensor left, @Nonnull final Tensor right) {
     if (left.length() == 1 && right.length() != 1) {
-      Tensor temp_33_0004 = Tensor.product(right, left);
-      return temp_33_0004;
+      return Tensor.product(right, left);
     }
     assert left.length() == right.length() || 1 == right.length();
     @Nonnull final Tensor result = new Tensor(left.getDimensions());
@@ -516,8 +513,12 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   public void addInPlace(@Nonnull final Tensor tensor) {
     assertAlive();
-    assert RefArrays.equals(getDimensions(), tensor.getDimensions()) : RefArrays.toString(getDimensions()) + " != "
-        + RefArrays.toString(tensor.getDimensions());
+    if (!RefArrays.equals(getDimensions(), tensor.getDimensions())) {
+      String tensorDimensions = RefArrays.toString(tensor.getDimensions());
+      String dimensions = RefArrays.toString(getDimensions());
+      tensor.freeRef();
+      throw new AssertionError(dimensions + " != " + tensorDimensions);
+    }
     double[] toAdd = tensor.getData();
     tensor.freeRef();
     double[] data = getData();
@@ -866,15 +867,17 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public double rms() {
-    double v = 0;
-    int c = 0;
-    for (final double element : getData()) {
-      if (Double.isFinite(element)) {
-        v += element * element;
-        c++;
-      }
+    double[] data = getData();
+    DoubleSummaryStatistics finiteStats = Arrays.stream(data).filter(Double::isFinite).summaryStatistics();
+    double average = Math.max(1.0, Math.abs(finiteStats.getAverage()));
+    DoubleStream doubleStream = Arrays.stream(data).filter(Double::isFinite);
+    if(average > 1) doubleStream=doubleStream.map(x -> x / average);
+    double sumSq = doubleStream.map(x -> x * x).sum();
+    double sqrt = Math.sqrt(sumSq / finiteStats.getCount()) * average;
+    if (!Double.isFinite(sqrt)) {
+      throw new IllegalStateException();
     }
-    return Math.sqrt(v / c);
+    return sqrt;
   }
 
   @Nonnull
@@ -969,7 +972,11 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public void set(@Nonnull IntToDoubleFunction f) {
-    RefArrays.parallelSetAll(getData(), f);
+    try {
+      RefArrays.parallelSetAll(getData(), f);
+    } finally {
+      RefUtil.freeRef(f);
+    }
   }
 
   public void set(@Nonnull final Tensor right) {
@@ -1166,8 +1173,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
       throw new IllegalArgumentException();
     if (length(dims) != length())
       throw new IllegalArgumentException(RefArrays.toString(dims) + " != " + length());
-    double[] data = getData();
-    return new Tensor(dims, RecycleBin.DOUBLES.copyOf(data, data.length));
+    return new Tensor(data, dims);
   }
 
   public void forEach(@Nonnull @RefAware CoordOperator fn, boolean parallel) {

@@ -45,7 +45,6 @@ import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +93,6 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         validationSubject.addRef();
       }
 
-      @Nonnull
       @Override
       public Layer getLayer() {
         return validationSubject.getLayer();
@@ -438,7 +436,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     } catch (@Nonnull final Throwable e) {
       throw new RuntimeException(e);
     } finally {
-      validationSubjectLayer.freeRef();
+      if(null != validationSubjectLayer) validationSubjectLayer.freeRef();
     }
   }
 
@@ -553,7 +551,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
               monitor);
           assert lineSearchStrategy != null;
           RefUtil.freeRef(lineSearchStrategy.step(cursor.addRef(), monitor));
-          PointSample temp_07_0031 = cursor.getBest(monitor);
+          PointSample temp_07_0031 = cursor.getBest();
           assert temp_07_0031 != null;
           temp_07_0031.restore();
           PointSample temp_07_0016 = temp_07_0031.addRef();
@@ -676,7 +674,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     if (trainingSubjectLayer instanceof DAGNetwork) {
       ((DAGNetwork) trainingSubjectLayer).shuffle(StochasticComponent.random.get().nextLong());
     }
-    trainingSubjectLayer.freeRef();
+    if(null != trainingSubjectLayer) trainingSubjectLayer.freeRef();
     phase.freeRef();
   }
 

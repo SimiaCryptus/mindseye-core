@@ -58,9 +58,11 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   @SuppressWarnings("unchecked")
   public DoubleBufferSet<K, V> copy() {
     return map(x -> {
-      V temp_15_0002 = (V) x.copy();
-      x.freeRef();
-      return temp_15_0002;
+      try {
+        return (V) x.copy();
+      } finally {
+        x.freeRef();
+      }
     });
   }
 
@@ -88,13 +90,17 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
         stream = stream.parallel();
       }
       final RefMap<K, V> newMap = stream.collect(RefCollectors.toMap(e -> {
-        K temp_15_0004 = e.getKey();
-        RefUtil.freeRef(e);
-        return temp_15_0004;
+        try {
+          return e.getKey();
+        } finally {
+          RefUtil.freeRef(e);
+        }
       }, e -> {
-        V temp_15_0010 = e.getValue();
-        RefUtil.freeRef(e);
-        return mapper.apply(temp_15_0010);
+        try {
+          return mapper.apply(e.getValue());
+        } finally {
+          RefUtil.freeRef(e);
+        }
       }));
       return new Delegate(this.addRef(), newMap);
     } finally {
@@ -138,6 +144,14 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
 
   public int size() {
     return map.size();
+  }
+
+  public DoubleBufferSet<K, V> allFinite(double defaultValue) {
+    return map((V doubleBuffer) -> {
+      V v = (V) doubleBuffer.map(d -> Double.isFinite(d) ? d : defaultValue);
+      doubleBuffer.freeRef();
+      return v;
+    });
   }
 
   protected abstract V factory(final K layer, final double[] target);

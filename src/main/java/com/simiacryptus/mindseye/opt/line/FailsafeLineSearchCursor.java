@@ -27,7 +27,6 @@ import com.simiacryptus.ref.wrappers.RefString;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 public class FailsafeLineSearchCursor extends LineSearchCursorBase {
@@ -39,17 +38,17 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
 
   public FailsafeLineSearchCursor(@Nullable final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
                                   final TrainingMonitor monitor) {
-    LineSearchCursor temp_11_0001 = direction == null ? null : direction.addRef();
-    this.direction = temp_11_0001 == null ? null : temp_11_0001.addRef();
-    if (null != temp_11_0001)
-      temp_11_0001.freeRef();
-    if (null != direction)
-      direction.freeRef();
-    PointSample temp_11_0002 = previousPoint.copyFull();
-    best = temp_11_0002.addRef();
-    temp_11_0002.freeRef();
+    this.direction = direction;
+    best = previousPoint.copyFull();
     previousPoint.freeRef();
     this.monitor = monitor;
+  }
+
+  @Nullable
+  public PointSample getBest() {
+    if (best == null) return null;
+    best.weights.restore();
+    return best.addRef();
   }
 
   @Override
@@ -58,34 +57,25 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     return direction.getDirectionType();
   }
 
-  @Nonnull
   @Override
-  public synchronized PointSample afterStep(@Nonnull final PointSample step) {
-    super.afterStep(step.addRef()).freeRef();
+  public synchronized PointSample afterStep(final PointSample step) {
+    if (null == step) return null;
     assert direction != null;
-    RefUtil.freeRef(direction.afterStep(step.addRef()));
-    if (null == best || best.getMean() > step.getMean()) {
-      @Nonnull
-      PointSample newValue = step.copyFull();
-      if (null != this.best) {
-        monitor.log(RefString.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
+    try {
+      RefUtil.freeRef(direction.afterStep(step.addRef()));
+      if (null == best || best.getMean() > step.getMean()) {
+        @Nonnull
+        PointSample newValue = step.copyFull();
+        if (null != this.best) {
+          monitor.log(RefString.format("New Minimum: %s > %s", best.getMean(), step.getMean()));
+          this.best.freeRef();
+        }
+        this.best = newValue;
       }
-      PointSample temp_11_0003 = newValue.addRef();
-      if (null != this.best)
-        this.best.freeRef();
-      this.best = temp_11_0003.addRef();
-      temp_11_0003.freeRef();
-      newValue.freeRef();
+      return step.addRef();
+    } finally {
+      step.freeRef();
     }
-    return step;
-  }
-
-  @Nullable
-  public PointSample getBest(final TrainingMonitor monitor) {
-    if (null != this.best) {
-      best.weights.restore();
-    }
-    return best == null ? null : best.addRef();
   }
 
   @Override
@@ -106,9 +96,12 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     assert direction != null;
     final LineSearchPoint step = direction.step(alpha, monitor);
     assert step != null;
-    assert step.point != null;
-    RefUtil.freeRef(afterStep(step.point.addRef()));
-    return step;
+    try {
+      RefUtil.freeRef(afterStep(step.getPoint()));
+      return step.addRef();
+    } finally {
+      step.freeRef();
+    }
   }
 
   @Override

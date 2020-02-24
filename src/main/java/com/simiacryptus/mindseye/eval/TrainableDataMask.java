@@ -19,11 +19,8 @@
 
 package com.simiacryptus.mindseye.eval;
 
-import com.simiacryptus.ref.lang.RefUtil;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public interface TrainableDataMask extends Trainable {
   @Nullable

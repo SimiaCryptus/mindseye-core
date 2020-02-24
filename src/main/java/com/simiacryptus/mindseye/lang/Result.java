@@ -19,17 +19,19 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefIntStream;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
 public class Result extends ReferenceCountingBase {
+  private static final Result.Accumulator NULL_ACCUMULATOR = new NullAccumulator();
   @Nonnull
   protected final int[] dims;
   protected final int dataLength;
@@ -38,10 +40,25 @@ public class Result extends ReferenceCountingBase {
   protected final TensorList data;
   @Nonnull
   protected final Result.Accumulator accumulator;
+  private final boolean alive;
 
-  public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator) {
+  public Result(@Nonnull final TensorList data) {
+    this(data, NULL_ACCUMULATOR.addRef());
+  }
+
+  public Result(@Nonnull final TensorList data, @Nonnull Accumulator accumulator) {
+    this(data, accumulator, null != accumulator && accumulator != NULL_ACCUMULATOR);
+  }
+
+  public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator, boolean alive) {
     super();
-    this.accumulator = accumulator;
+    this.alive = alive;
+    if(this.alive) {
+      this.accumulator = accumulator;
+    } else {
+      accumulator.freeRef();
+      this.accumulator = Result.NULL_ACCUMULATOR.addRef();
+    }
     this.dims = data.getDimensions();
     this.dataLength = data.length();
     this.data = data;
@@ -50,6 +67,7 @@ public class Result extends ReferenceCountingBase {
   @Nullable
   public Result.Accumulator getAccumulator() {
     assertAlive();
+    if(accumulator == null) return NULL_ACCUMULATOR.addRef();
     return accumulator.addRef();
   }
 
@@ -62,9 +80,27 @@ public class Result extends ReferenceCountingBase {
 
   public boolean isAlive() {
     assertAlive();
-    return null != accumulator;
+    return alive;
   }
 
+  @NotNull
+  public static TensorList getData(Result result) {
+    TensorList data = result.getData();
+    result.freeRef();
+    return data;
+  }
+
+  public static boolean anyAlive(Result[] inObj) {
+    try {
+      for (@Nonnull final Result element : inObj)
+        if (element.isAlive()) {
+          return true;
+        }
+      return false;
+    } finally {
+      RefUtil.freeRef(inObj);
+    }
+  }
 
   public double[] copy(double[] delta) {
     delta = RefArrays.copyOf(delta, delta.length);
@@ -72,24 +108,18 @@ public class Result extends ReferenceCountingBase {
   }
 
   public final void accumulate(@Nullable final DeltaSet<UUID> buffer) {
-    accumulate(buffer == null ? null : buffer.addRef(), 1.0);
-    if (null != buffer)
-      buffer.freeRef();
+    accumulate(buffer, 1.0);
   }
 
   public final void accumulate(@Nullable final DeltaSet<UUID> buffer, final double value) {
-
-    accumulate(buffer == null ? null : buffer.addRef(),
-        new TensorArray(RefIntStream.range(0, dataLength).mapToObj(x -> {
-          Tensor tensor = new Tensor(dims);
-          tensor.setAll(value);
-          return tensor;
-        }).toArray(Tensor[]::new)));
-    if (null != buffer)
-      buffer.freeRef();
+    accumulate(buffer, new TensorArray(IntStream.range(0, dataLength).mapToObj(x -> {
+      Tensor tensor = new Tensor(dims);
+      tensor.setAll(value);
+      return tensor;
+    }).toArray(Tensor[]::new)));
   }
 
-  public void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
+  public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
     assertAlive();
     assert accumulator != null;
     accumulator.accept(buffer, delta);
@@ -122,6 +152,19 @@ public class Result extends ReferenceCountingBase {
     @SuppressWarnings("unused")
     Accumulator addRef() {
       return (Accumulator) super.addRef();
+    }
+  }
+
+  private static final class NullAccumulator extends Result.Accumulator {
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> deltaSet, @Nullable TensorList tensorList) {
+      RefUtil.freeRef(tensorList);
+      RefUtil.freeRef(deltaSet);
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
     }
   }
 }

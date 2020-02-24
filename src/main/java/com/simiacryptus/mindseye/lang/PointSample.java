@@ -105,8 +105,7 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Nonnull
   public PointSample add(@Nonnull final PointSample right) {
-    PointSample temp_08_0006 = PointSample.add(this.addRef(), right);
-    return temp_08_0006;
+    return PointSample.add(this.addRef(), right);
   }
 
   @Nonnull

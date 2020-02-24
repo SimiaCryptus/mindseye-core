@@ -30,7 +30,6 @@ import com.simiacryptus.util.data.DoubleStatistics;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -60,33 +59,13 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
                                  @Nonnull final TrainingMonitor monitor) {
     assert inner != null;
-    final LineSearchCursor cursor = inner.orient(subject == null ? null : subject.addRef(),
-        measurement == null ? null : measurement.addRef(), monitor);
-    if (null != measurement)
-      measurement.freeRef();
-    if (null != subject)
-      subject.freeRef();
+    final LineSearchCursor cursor = inner.orient(subject, measurement, monitor);
     if (cursor instanceof SimpleLineSearchCursor) {
-      SimpleLineSearchCursor simpleLineSearchCursor = (SimpleLineSearchCursor) cursor.addRef();
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      assert simpleLineSearchCursor.direction != null;
-      final DeltaSet<UUID> direction = simpleLineSearchCursor.direction.addRef();
-      @Nonnull final StateSet<UUID> weights = simpleLineSearchCursor.origin.weights.addRef();
-      simpleLineSearchCursor.freeRef();
+      assert ((SimpleLineSearchCursor) cursor).direction != null;
+      final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) cursor).direction.addRef();
+      @Nonnull final StateSet<UUID> weights = ((SimpleLineSearchCursor) cursor).origin.weights.addRef();
       RefMap<CharSequence, RefList<State<UUID>>> temp_02_0007 = weights.stream().collect(RefCollectors.groupingBy(x -> {
-        CharSequence temp_02_0002 = getId(x == null ? null : x.addRef());
-        if (null != x)
-          x.freeRef();
-        return temp_02_0002;
+        return getId(x);
       }, RefCollectors.toList()));
       RefSet<Map.Entry<CharSequence, RefList<State<UUID>>>> temp_02_0008 = temp_02_0007.entrySet();
       final RefMap<CharSequence, CharSequence> dataMap = temp_02_0008.stream().collect(RefCollectors.toMap(x -> {
@@ -120,11 +99,10 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
                 .toString();
             doubleList.freeRef();
             return temp_02_0004;
-          }, direction.addRef())));
+          }, direction)));
       temp_02_0008.freeRef();
       temp_02_0007.freeRef();
       weights.freeRef();
-      direction.freeRef();
       monitor.log(RefString.format("Line search stats: %s", dataMap));
     } else {
       monitor.log(RefString.format("Non-simple cursor: %s", cursor.addRef()));

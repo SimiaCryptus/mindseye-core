@@ -136,6 +136,14 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   @Nonnull
+  @Override
+  public void setName(final String name) {
+    if (null != inner) {
+      inner.setName(name);
+    }
+  }
+
+  @Nonnull
   @SuppressWarnings("unused")
   public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
@@ -158,49 +166,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
     final Result[] wrappedInput = RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> {
-      try {
-        Result.Accumulator accumulator = new Result.Accumulator() {
-          {
-            result.addRef();
-          }
-
-          @Override
-          public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
-            TimedResult<Void> timedResult = TimedResult.time(RefUtil.wrapInterface(
-                (UncheckedRunnable<Object>) () -> result.accumulate(
-                    buffer == null ? null : buffer.addRef(),
-                    data == null ? null : data.addRef()),
-                result.addRef(), data, buffer));
-            passbackNanos.addAndGet(timedResult.timeNanos);
-            timedResult.freeRef();
-          }
-
-          public @SuppressWarnings("unused")
-          void _free() {
-            super._free();
-            result.freeRef();
-          }
-        };
-        return new Result(result.getData(), accumulator) {
-          {
-            result.addRef();
-          }
-
-          @Override
-          public boolean isAlive() {
-            return result.isAlive();
-          }
-
-          @Override
-          public void _free() {
-            result.freeRef();
-            super._free();
-          }
-        };
-      } finally {
-        if (null != result)
-          result.freeRef();
-      }
+      boolean alive = result.isAlive();
+      TensorList data = result.getData();
+      Result.Accumulator accumulator = new Accumulator(passbackNanos, result.getAccumulator());
+      result.freeRef();
+      return new Result(data, accumulator, alive);
     }).toArray(Result[]::new);
     @Nonnull
     TimedResult<Result> timedResult = TimedResult.time(RefUtil.wrapInterface((UncheckedSupplier<Result>) () -> {
@@ -227,57 +197,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       });
       temp_31_0010.freeRef();
     }
-    try {
-      Result.Accumulator accumulator = new Result.Accumulator() {
-        {
-          output.addRef();
-        }
-
-        @Override
-        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
-          if (recordSignalMetrics) {
-            backwardSignal.clear();
-            data.stream().parallel().forEach(t -> {
-              backwardSignal.add(t.getData());
-              t.freeRef();
-            });
-          }
-          TimedResult<Void> timedResult1 = TimedResult
-              .time(RefUtil.wrapInterface(
-                  (UncheckedRunnable<Object>) () -> output.accumulate(buffer == null ? null : buffer.addRef(),
-                      data.addRef()),
-                  data, output.addRef(),
-                  buffer));
-          backwardPerformance.add((timedResult1.timeNanos
-              - passbackNanos.getAndSet(0)) / (items * 1e9));
-          timedResult1.freeRef();
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          output.freeRef();
-        }
-      };
-      return new Result(output.getData(), accumulator) {
-        {
-          output.addRef();
-        }
-
-        @Override
-        public boolean isAlive() {
-          return output.isAlive();
-        }
-
-        @Override
-        public void _free() {
-          output.freeRef();
-          super._free();
-        }
-      };
-    } finally {
-      output.freeRef();
-    }
+    boolean alive = output.isAlive();
+    TensorList data = output.getData();
+    Result.Accumulator accumulator = new Accumulator2(passbackNanos, items, output.getAccumulator());
+    output.freeRef();
+    return new Result(data, accumulator, alive);
   }
 
   @Nonnull
@@ -290,14 +214,6 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     json.addProperty("totalItems", totalItems);
     json.addProperty("recordSignalMetrics", recordSignalMetrics);
     return json;
-  }
-
-  @Nonnull
-  @Override
-  public void setName(final String name) {
-    if (null != inner) {
-      inner.setName(name);
-    }
   }
 
   public void shouldRecordSignalMetrics(boolean recordSignalMetrics) {
@@ -314,5 +230,86 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   @SuppressWarnings("unused")
   MonitoringWrapperLayer addRef() {
     return (MonitoringWrapperLayer) super.addRef();
+  }
+
+  private static class Accumulator extends Result.Accumulator {
+
+    private final AtomicLong passbackNanos;
+    private Result.Accumulator accumulator;
+
+    public Accumulator(AtomicLong passbackNanos, Result.Accumulator accumulator) {
+      this.passbackNanos = passbackNanos;
+      this.accumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
+      TimedResult<Void> timedResult = TimedResult.time(RefUtil.wrapInterface(
+          (UncheckedRunnable<Object>) () -> {
+            DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
+            TensorList delta = data == null ? null : data.addRef();
+            Result.Accumulator accumulator = this.accumulator;
+            try {
+              accumulator.accept(buffer1, delta);
+            } finally {
+              accumulator.freeRef();
+            }
+          },
+          accumulator.addRef(), data, buffer));
+      passbackNanos.addAndGet(timedResult.timeNanos);
+      timedResult.freeRef();
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      accumulator.freeRef();
+    }
+  }
+
+  private class Accumulator2 extends Result.Accumulator {
+
+    private final AtomicLong passbackNanos;
+    private final int items;
+    private Result.Accumulator accumulator;
+
+    public Accumulator2(AtomicLong passbackNanos, int items, Result.Accumulator accumulator) {
+      this.passbackNanos = passbackNanos;
+      this.items = items;
+      this.accumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
+      if (recordSignalMetrics) {
+        backwardSignal.clear();
+        data.stream().parallel().forEach(t -> {
+          backwardSignal.add(t.getData());
+          t.freeRef();
+        });
+      }
+      TimedResult<Void> timedResult1 = TimedResult
+          .time(RefUtil.wrapInterface(
+              (UncheckedRunnable<Object>) () -> {
+                DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
+                Result.Accumulator accumulator = this.accumulator;
+                try {
+                  accumulator.accept(buffer1, data.addRef());
+                } finally {
+                  accumulator.freeRef();
+                }
+              },
+              data, accumulator.addRef(),
+              buffer));
+      backwardPerformance.add((timedResult1.timeNanos
+          - passbackNanos.getAndSet(0)) / (items * 1e9));
+      timedResult1.freeRef();
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      accumulator.freeRef();
+    }
   }
 }

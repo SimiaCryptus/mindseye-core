@@ -147,22 +147,21 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     final LineSearchPoint startPoint = cursor.step(0, monitor);
     assert startPoint != null;
     final double startLineDeriv = startPoint.derivative; // theta'(0)
-    assert startPoint.point != null;
-    final double startValue = startPoint.point.getMean(); // theta(0)
+    final double startValue = startPoint.getPointMean(); // theta(0)
     if (0 <= startPoint.derivative) {
       monitor.log(RefString.format("th(0)=%s;dx=%s (ERROR: Starting derivative negative)", startValue, startLineDeriv));
       LineSearchPoint step = cursor.step(0, monitor);
       startPoint.freeRef();
       assert step != null;
-      PointSample temp_39_0001 = step.point;
+      PointSample point = step.getPoint();
       step.freeRef();
       cursor.freeRef();
-      return temp_39_0001;
+      return point;
     }
     monitor.log(RefString.format("th(0)=%s;dx=%s", startValue, startLineDeriv));
     int stepBias = 0;
     double bestAlpha = 0;
-    double bestValue = startPoint.point.getMean();
+    double bestValue = startPoint.getPointMean();
     @Nullable LineSearchPoint lastStep = null;
     try {
       while (true) {
@@ -200,11 +199,11 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           alpha = maxAlpha;
           return point;
         }
-        if(null != lastStep) lastStep.freeRef();
-        lastStep = cursor.step(alpha, monitor);
+        LineSearchPoint nextStep = cursor.step(alpha, monitor);
+        if (null != lastStep) lastStep.freeRef();
+        lastStep = nextStep;
         assert lastStep != null;
-        assert lastStep.point != null;
-        double lastValue = lastStep.point.getMean();
+        double lastValue = lastStep.getPointMean();
         if (bestValue > lastValue) {
           bestAlpha = alpha;
           bestValue = lastValue;
@@ -233,7 +232,7 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
         } else {
           monitor.log(RefString.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
               startValue - lastValue));
-          return lastStep.point;
+          return lastStep.getPoint();
         }
         if (!Double.isFinite(nu)) {
           alpha = (1 + Math.abs(stepBias)) * alpha;
@@ -256,7 +255,7 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     LineSearchPoint step = cursor.step(bestAlpha, monitor);
     cursor.freeRef();
     assert step != null;
-    PointSample temp_39_0002 = step.point;
+    PointSample temp_39_0002 = step.getPoint();
     step.freeRef();
     return temp_39_0002;
   }

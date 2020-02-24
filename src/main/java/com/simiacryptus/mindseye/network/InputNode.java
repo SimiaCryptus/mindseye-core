@@ -22,7 +22,6 @@ package com.simiacryptus.mindseye.network;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.ref.lang.RefUtil;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -43,6 +42,7 @@ final class InputNode extends LazyResult {
   @Nullable
   @Override
   public <T extends Layer> T getLayer() {
+    assertAlive();
     return null;
   }
 

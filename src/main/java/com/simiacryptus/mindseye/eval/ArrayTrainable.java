@@ -64,18 +64,18 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     return RefUtil.addRefs(trainingData);
   }
 
-  public void setTrainingData(@Nonnull final Tensor[][] tensors) {
-    if (null != this.trainingData)
-      RefUtil.freeRef(this.trainingData);
-    this.trainingData = tensors;
-  }
-
   @Override
   public void setData(@Nonnull RefList<Tensor[]> tensors) {
     if (null != trainingData)
       RefUtil.freeRef(trainingData);
     trainingData = tensors.toArray(new Tensor[][]{});
     tensors.freeRef();
+  }
+
+  public void setTrainingData(@Nonnull final Tensor[][] tensors) {
+    if (null != this.trainingData)
+      RefUtil.freeRef(this.trainingData);
+    this.trainingData = tensors;
   }
 
   public void _free() {

@@ -24,7 +24,6 @@ import com.simiacryptus.mindseye.lang.DeltaSet;
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.TensorList;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefLinkedList;
 import com.simiacryptus.ref.wrappers.RefStream;
 import org.slf4j.Logger;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,9 +47,9 @@ public class CountingResult extends Result {
 
   public CountingResult(@Nonnull final Result r, final int samples) {
     this(r);
-    CountingResult.CountingAccumulator temp_09_0007 = getAccumulator();
-    temp_09_0007.fwdLinks.set(samples);
-    temp_09_0007.freeRef();
+    CountingResult.CountingAccumulator accumulator = getAccumulator();
+    accumulator.fwdLinks.set(samples);
+    accumulator.freeRef();
   }
 
   @Nonnull
@@ -109,66 +107,10 @@ public class CountingResult extends Result {
       data.assertAlive();
       if (1 >= fwdLinks.get()) {
         assert inner != null;
-        inner.accumulate(buffer == null ? null : buffer.addRef(), data.addRef());
+        inner.accumulate(buffer, data);
       } else {
-        @Nonnull
-        TensorList reduced = null;
-        synchronized (passbackBuffers) {
-          assert passbackBuffers.stream().allMatch(x -> {
-            boolean temp_09_0004 = x.assertAlive();
-            x.freeRef();
-            return temp_09_0004;
-          });
-          passbackBuffers.add(data.addRef());
-          if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
-            RefStream<TensorList> stream = passbackBuffers.stream();
-            if (!CoreSettings.INSTANCE().isSingleThreaded())
-              stream = stream.parallel();
-            @Nonnull
-            TensorList compacted = RefUtil.get(stream.reduce((a, b) -> {
-              TensorList c = a.addAndFree(b == null ? null : b.addRef());
-              if (null != b)
-                b.freeRef();
-              a.freeRef();
-              return c;
-            }));
-            passbackBuffers.clear();
-            passbackBuffers.add(compacted);
-            assert passbackBuffers.stream().allMatch(x -> {
-              boolean temp_09_0005 = x.assertAlive();
-              x.freeRef();
-              return temp_09_0005;
-            });
-          }
-          if (accumulations.incrementAndGet() == fwdLinks.get()) {
-            RefStream<TensorList> stream = passbackBuffers.stream();
-            if (!CoreSettings.INSTANCE().isSingleThreaded())
-              stream = stream.parallel();
-            if (null != reduced) reduced.freeRef();
-            reduced = RefUtil.get(stream.reduce((a, b) -> {
-              TensorList c = a.addAndFree(b == null ? null : b.addRef());
-              if (null != b)
-                b.freeRef();
-              a.freeRef();
-              return c;
-            }));
-            passbackBuffers.clear();
-          }
-          assert passbackBuffers.stream().allMatch(x -> {
-            boolean temp_09_0006 = x.assertAlive();
-            x.freeRef();
-            return temp_09_0006;
-          });
-        }
-        if (null != reduced) {
-          assert inner != null;
-          inner.accumulate(buffer == null ? null : buffer.addRef(), reduced);
-          accumulations.set(0);
-        }
+        add(buffer, data);
       }
-      data.freeRef();
-      if (null != buffer)
-        buffer.freeRef();
     }
 
     public void _free() {
@@ -186,6 +128,68 @@ public class CountingResult extends Result {
     @SuppressWarnings("unused")
     CountingAccumulator addRef() {
       return (CountingAccumulator) super.addRef();
+    }
+
+    private void add(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
+      @Nonnull TensorList reduced = reduce(data);
+      if (null != reduced) {
+        assert inner != null;
+        inner.accumulate(buffer, reduced);
+        accumulations.set(0);
+      } else {
+        if (null != buffer)
+          buffer.freeRef();
+      }
+    }
+
+    @org.jetbrains.annotations.Nullable
+    private TensorList reduce(@Nonnull TensorList data) {
+      @Nonnull
+      TensorList reduced = null;
+      synchronized (passbackBuffers) {
+        assert passbackBuffers.stream().allMatch(tensorList -> {
+          boolean alive = tensorList.assertAlive();
+          tensorList.freeRef();
+          return alive;
+        });
+        passbackBuffers.add(data);
+        if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
+          RefStream<TensorList> stream = passbackBuffers.stream();
+          if (!CoreSettings.INSTANCE().isSingleThreaded())
+            stream = stream.parallel();
+          @Nonnull
+          TensorList compacted = RefUtil.get(stream.reduce((a, b) -> {
+            TensorList c = a.addAndFree(b);
+            a.freeRef();
+            return c;
+          }));
+          passbackBuffers.clear();
+          passbackBuffers.add(compacted);
+          assert passbackBuffers.stream().allMatch(tensorList -> {
+            boolean alive = tensorList.assertAlive();
+            tensorList.freeRef();
+            return alive;
+          });
+        }
+        if (accumulations.incrementAndGet() == fwdLinks.get()) {
+          RefStream<TensorList> stream = passbackBuffers.stream();
+          if (!CoreSettings.INSTANCE().isSingleThreaded())
+            stream = stream.parallel();
+          if (null != reduced) reduced.freeRef();
+          reduced = RefUtil.get(stream.reduce((a, b) -> {
+            TensorList c = a.addAndFree(b);
+            a.freeRef();
+            return c;
+          }));
+          passbackBuffers.clear();
+        }
+        assert passbackBuffers.stream().allMatch(tensorList -> {
+          boolean alive = tensorList.assertAlive();
+          tensorList.freeRef();
+          return alive;
+        });
+      }
+      return reduced;
     }
   }
 }

@@ -23,11 +23,7 @@ import com.simiacryptus.mindseye.eval.Trainable;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
-
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 public interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
 

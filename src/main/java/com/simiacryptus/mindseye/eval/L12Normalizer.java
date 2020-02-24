@@ -26,7 +26,6 @@ import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.PointSample;
 import com.simiacryptus.mindseye.network.DAGNetwork;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefCollection;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -34,7 +33,6 @@ import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.Arrays;
 import java.util.UUID;
 
 public abstract class L12Normalizer extends TrainableBase {
@@ -55,9 +53,10 @@ public abstract class L12Normalizer extends TrainableBase {
   public Layer toLayer(UUID id) {
     assert inner != null;
     DAGNetwork layer = (DAGNetwork) inner.getLayer();
-    RefMap<UUID, Layer> temp_01_0005 = layer.getLayersById();
-    Layer temp_01_0004 = temp_01_0005.get(id);
-    temp_01_0005.freeRef();
+    if(null == layer) return null;
+    RefMap<UUID, Layer> layersById = layer.getLayersById();
+    Layer temp_01_0004 = layersById.get(id);
+    layersById.freeRef();
     layer.freeRef();
     return temp_01_0004;
   }

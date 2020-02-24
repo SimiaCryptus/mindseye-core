@@ -43,14 +43,9 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
     } else if (Math.abs(magnitude) < 1e-5) {
       monitor.log(RefString.format("Low gradient: %s", magnitude));
     }
-    SimpleLineSearchCursor temp_42_0002 = new SimpleLineSearchCursor(subject == null ? null : subject.addRef(),
-        measurement, direction);
-    temp_42_0002.setDirectionType("GD");
-    SimpleLineSearchCursor temp_42_0001 = temp_42_0002.addRef();
-    temp_42_0002.freeRef();
-    if (null != subject)
-      subject.freeRef();
-    return temp_42_0001;
+    SimpleLineSearchCursor simpleLineSearchCursor = new SimpleLineSearchCursor(subject, measurement, direction);
+    simpleLineSearchCursor.setDirectionType("GD");
+    return simpleLineSearchCursor;
   }
 
   @Override

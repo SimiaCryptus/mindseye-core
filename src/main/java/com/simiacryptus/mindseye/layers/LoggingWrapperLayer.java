@@ -59,53 +59,17 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     final Result[] wrappedInput = RefIntStream.range(0, inObj.length)
         .mapToObj(RefUtil.wrapInterface((IntFunction<Result>) i -> {
           final Result inputToWrap = inObj[i].addRef();
-          try {
-            Result.Accumulator accumulator = new Result.Accumulator() {
-              {
-                loggingWrapperLayer.addRef();
-                inputToWrap.addRef();
-              }
-              @Override
-              public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
-                @Nonnull final String formatted = RefUtil.get(data.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b));
-                log.info(RefString.format("Feedback Output %s for key %s: \n\t%s", i, inner.getName(),
-                    formatted.replaceAll("\n", "\n\t")));
-                inputToWrap.accumulate(buffer, data);
-              }
-
-              public @SuppressWarnings("unused")
-              void _free() {
-                super._free();
-                loggingWrapperLayer.freeRef();
-                inputToWrap.freeRef();
-              }
-            };
-            return new Result(inputToWrap.getData(), accumulator) {
-
-              {
-                inputToWrap.addRef();
-              }
-
-              @Override
-              public boolean isAlive() {
-                return inputToWrap.isAlive();
-              }
-
-              @Override
-              public void _free() {
-                inputToWrap.freeRef();
-                super._free();
-              }
-            };
-          } finally {
-            inputToWrap.freeRef();
-          }
+          boolean alive = inputToWrap.isAlive();
+          TensorList data = inputToWrap.getData();
+          Result.Accumulator accumulator = new Accumulator2(inner.addRef(), i, inputToWrap.getAccumulator());
+          inputToWrap.freeRef();
+          return new Result(data, accumulator, alive);
         }, loggingWrapperLayer.addRef(), RefUtil.addRefs(inObj)))
         .toArray(Result[]::new);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
       @Nonnull final String formatted = RefUtil.get(
-          tensorList.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b)
+          tensorList.stream().map(LoggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b)
       );
       tensorList.freeRef();
       log.info(RefString.format("Input %s for key %s: \n\t%s", i, inner.getName(),
@@ -116,57 +80,20 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     {
       assert output != null;
       final TensorList tensorList = output.getData();
-      @Nonnull final String formatted = RefUtil.get(tensorList.stream().map(loggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b));
+      @Nonnull final String formatted = RefUtil.get(tensorList.stream().map(LoggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b));
       tensorList.freeRef();
       log.info(RefString.format("Output for key %s: \n\t%s", inner.getName(), formatted.replaceAll("\n", "\n\t")));
     }
-    try {
-      Result.Accumulator accumulator = new Result.Accumulator() {
-        {
-          loggingWrapperLayer.addRef();
-          output.addRef();
-        }
-
-        @Override
-        public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
-          @Nonnull final String formatted = RefUtil.get(data.stream().map(tensor -> {
-            return loggingWrapperLayer.getString(tensor);
-          }).reduce((a, b) -> a + "\n" + b));
-          log.info(RefString.format("Feedback Input for key %s: \n\t%s", inner.getName(),
-              formatted.replaceAll("\n", "\n\t")));
-          output.accumulate(buffer, data);
-        }
-
-        public @SuppressWarnings("unused")
-        void _free() {
-          super._free();
-          output.freeRef();
-          loggingWrapperLayer.freeRef();
-        }
-      };
-      loggingWrapperLayer.freeRef();
-      return new Result(output.getData(), accumulator) {
-        {
-          output.addRef();
-        }
-
-        @Override
-        public boolean isAlive() {
-          return output.isAlive();
-        }
-        @Override
-        public void _free() {
-          output.freeRef();
-          super._free();
-        }
-      };
-    } finally {
-      output.freeRef();
-    }
+    boolean alive = output.isAlive();
+    TensorList data = output.getData();
+    Result.Accumulator accumulator = new Accumulator(inner.addRef(), output.getAccumulator());
+    output.freeRef();
+    loggingWrapperLayer.freeRef();
+    return new Result(data, accumulator, alive);
   }
 
   @Nonnull
-  public String getString(@Nonnull Tensor tensor) {
+  public static String getString(@Nonnull Tensor tensor) {
     try {
       return RefArrays.toString(tensor.getDimensions());
     } finally {
@@ -186,4 +113,69 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     return (LoggingWrapperLayer) super.addRef();
   }
 
+  private static class Accumulator extends Result.Accumulator {
+
+    private Layer inner;
+    private Result.Accumulator accumulator;
+
+    public Accumulator(Layer inner, Result.Accumulator accumulator) {
+      this.inner = inner;
+      this.accumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
+      @Nonnull final String formatted = RefUtil.get(data.stream().map(tensor -> {
+        return getString(tensor);
+      }).reduce((a, b) -> a + "\n" + b));
+      log.info(RefString.format("Feedback Input for key %s: \n\t%s", inner.getName(),
+          formatted.replaceAll("\n", "\n\t")));
+      Result.Accumulator accumulator = this.accumulator;
+      try {
+        accumulator.accept(buffer, data);
+      } finally {
+        accumulator.freeRef();
+      }
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      accumulator.freeRef();
+      inner.freeRef();
+    }
+  }
+
+  private static class Accumulator2 extends Result.Accumulator {
+
+    private final int i;
+    private Layer inner;
+    private Result.Accumulator accumulator;
+
+    public Accumulator2(Layer inner, int i, Result.Accumulator accumulator) {
+      this.i = i;
+      this.inner = inner;
+      this.accumulator = accumulator;
+    }
+
+    @Override
+    public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
+      @Nonnull final String formatted = RefUtil.get(data.stream().map(LoggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b));
+      log.info(RefString.format("Feedback Output %s for key %s: \n\t%s", i, inner.getName(),
+          formatted.replaceAll("\n", "\n\t")));
+      Result.Accumulator accumulator = this.accumulator;
+      try {
+        accumulator.accept(buffer, data);
+      } finally {
+        accumulator.freeRef();
+      }
+    }
+
+    public @SuppressWarnings("unused")
+    void _free() {
+      super._free();
+      accumulator.freeRef();
+      inner.freeRef();
+    }
+  }
 }

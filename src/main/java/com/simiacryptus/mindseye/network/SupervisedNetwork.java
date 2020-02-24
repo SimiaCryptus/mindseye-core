@@ -19,11 +19,7 @@
 
 package com.simiacryptus.mindseye.network;
 
-import com.simiacryptus.ref.lang.RefUtil;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.Arrays;
 
 @SuppressWarnings("serial")
 public abstract class SupervisedNetwork extends DAGNetwork {

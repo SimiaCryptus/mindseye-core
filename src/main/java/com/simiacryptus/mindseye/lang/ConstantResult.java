@@ -92,7 +92,7 @@ public final class ConstantResult extends Result {
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
     return RefArrays.stream(input)
-        .map(x -> new ConstantResult(new TensorArray(x)))
+        .map(tensor -> new ConstantResult(new TensorArray(tensor)))
         .toArray(Result[]::new);
   }
 

@@ -29,7 +29,6 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 
 public interface Trainable extends ReferenceCounting {
-  @Nonnull
   Layer getLayer();
 
   @Nonnull

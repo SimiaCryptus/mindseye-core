@@ -21,14 +21,18 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Result;
 import com.simiacryptus.mindseye.lang.Singleton;
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefFunction;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
@@ -58,12 +62,15 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     assertAlive();
     try {
       Long expectedCount = context.expectedCounts.getOrDefault(id, -1L);
-      if (!context.calculated.containsKey(id)) {
-        @Nullable final Singleton singleton = newSingleton(context.addRef());
-        if (null != singleton) {
+      Supplier resultSupplier = context.calculated.computeIfAbsent(id, new Function<UUID, Supplier<CountingResult>>() {
+        @Nonnull
+        @Override
+        @RefIgnore
+        public Supplier<CountingResult> apply(UUID id) {
+          Singleton singleton = new Singleton();
           try {
             @Nullable
-            Result result = eval(context.addRef());
+            Result result = LazyResult.this.eval(context.addRef());
             if (null == result) {
               throw new IllegalStateException();
             }
@@ -71,28 +78,26 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
           } catch (Throwable e) {
             log.warn("Error execuing network component", e);
             singleton.set(e);
-          } finally {
-            singleton.freeRef();
           }
+          return singleton;
         }
-      }
-      Supplier resultSupplier = context.calculated.get(id);
+      });
       if (null == resultSupplier) {
         throw new IllegalStateException();
       }
       Object obj = resultSupplier.get();
       RefUtil.freeRef(resultSupplier);
-      if (obj != null && obj instanceof Throwable) {
+      if (null == obj) {
+        throw new IllegalStateException();
+      }
+      if (obj instanceof Throwable) {
         throw new RuntimeException((Throwable) obj);
       }
       @Nullable
       CountingResult nnResult = (CountingResult) obj;
-      if (null == nnResult) {
-        throw new IllegalStateException();
-      }
-      CountingResult.CountingAccumulator temp_56_0001 = nnResult.getAccumulator();
-      int references = temp_56_0001.increment();
-      temp_56_0001.freeRef();
+      CountingResult.CountingAccumulator countingAccumulator = nnResult.getAccumulator();
+      int references = countingAccumulator.increment();
+      countingAccumulator.freeRef();
       if (references <= 0) {
         nnResult.freeRef();
         throw new IllegalStateException();
@@ -105,23 +110,6 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
         RefUtil.freeRef(context.calculated.remove(id));
       }
       return nnResult;
-    } finally {
-      context.freeRef();
-    }
-  }
-
-  @org.jetbrains.annotations.Nullable
-  private Singleton newSingleton(@Nonnull GraphEvaluationContext context) {
-    try {
-      synchronized (context) {
-        if (!context.calculated.containsKey(id)) {
-          Singleton singleton = new Singleton();
-          RefUtil.freeRef(context.calculated.put(id, singleton.addRef()));
-          return singleton;
-        } else {
-          return null;
-        }
-      }
     } finally {
       context.freeRef();
     }

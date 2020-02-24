@@ -43,10 +43,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
   }
 
   public BatchedTrainable(@Nullable final Layer network, final int batchSize) {
-    this(new BasicTrainable(network == null ? null : network.addRef()), batchSize);
-    if (null != network)
-      network.freeRef();
-    RefUtil.freeRef(getInner());
+    this(new BasicTrainable(network), batchSize);
   }
 
   public int getBatchSize() {
@@ -84,7 +81,7 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
                   PointSample measure = super.measure(monitor);
                   inner.setData(new RefArrayList<>());
                   return measure;
-                }, inner == null ? null : inner.addRef())).reduce((a, b) -> {
+                }, inner)).reduce((a, b) -> {
                   PointSample temp_36_0002 = a.add(b == null ? null : b.addRef());
                   if (null != b)
                     b.freeRef();
@@ -92,8 +89,6 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
                   return temp_36_0002;
                 }));
             collection.freeRef();
-            if (null != inner)
-              inner.freeRef();
             return temp_36_0001;
           } else {
             assert inner != null;

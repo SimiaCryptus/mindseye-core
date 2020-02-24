@@ -57,8 +57,7 @@ public interface TensorList extends ReferenceCounting {
   default TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
     right.assertAlive();
-    TensorList temp_40_0005 = add(right);
-    return temp_40_0005;
+    return add(right);
   }
 
   @Nonnull

@@ -69,16 +69,6 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     final LineSearchCursor orient = inner.orient(subject == null ? null : subject.addRef(),
         measurement.addRef(), monitor);
     assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
-    assert ((SimpleLineSearchCursor) orient).direction != null;
     final DeltaSet<UUID> direction = ((SimpleLineSearchCursor) orient).direction.addRef();
     orient.freeRef();
     @Nonnull final DeltaSet<UUID> newDelta = new DeltaSet<UUID>();
@@ -95,15 +85,9 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     }, newDelta.addRef()));
     temp_05_0004.freeRef();
     direction.freeRef();
-    DeltaSet<UUID> temp_05_0002 = newDelta.addRef();
     prevDelta.freeRef();
-    prevDelta = temp_05_0002.addRef();
-    temp_05_0002.freeRef();
-    SimpleLineSearchCursor temp_05_0003 = new SimpleLineSearchCursor(subject == null ? null : subject.addRef(),
-        measurement, newDelta);
-    if (null != subject)
-      subject.freeRef();
-    return temp_05_0003;
+    prevDelta = newDelta.addRef();
+    return new SimpleLineSearchCursor(subject, measurement, newDelta);
   }
 
   @Override

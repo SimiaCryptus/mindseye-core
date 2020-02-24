@@ -26,8 +26,6 @@ import com.simiacryptus.mindseye.lang.SerialPrecision;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.lang.ReferenceCounting;
-import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefList;
@@ -151,17 +149,17 @@ public class PipelineNetwork extends DAGNetwork {
                     return temp_06_0005;
                   }, inputLayer)).findFirst();
               DAGNode temp_06_0004 = RefUtil.orElseGet(temp_06_0016, RefUtil.wrapInterface(() -> {
-                    RefSet<UUID> temp_06_0017 = sourceNetwork.inputNodes.keySet();
-                    RefList<UUID> temp_06_0018 = temp_06_0017.stream().collect(RefCollectors.toList());
-                    int inputNumber = temp_06_0018.indexOf(inputId);
-                    temp_06_0018.freeRef();
-                    temp_06_0017.freeRef();
-                    if (-1 == inputNumber) {
-                      return transferNode(destinationNetwork.addRef(), input.addRef(), sourceNetwork.addRef());
-                    } else {
-                      return destinationNetwork.getInput(inputNumber);
-                    }
-                  }, input, destinationNetwork.addRef(), sourceNetwork.addRef()));
+                RefSet<UUID> temp_06_0017 = sourceNetwork.inputNodes.keySet();
+                RefList<UUID> temp_06_0018 = temp_06_0017.stream().collect(RefCollectors.toList());
+                int inputNumber = temp_06_0018.indexOf(inputId);
+                temp_06_0018.freeRef();
+                temp_06_0017.freeRef();
+                if (-1 == inputNumber) {
+                  return transferNode(destinationNetwork.addRef(), input.addRef(), sourceNetwork.addRef());
+                } else {
+                  return destinationNetwork.getInput(inputNumber);
+                }
+              }, input, destinationNetwork.addRef(), sourceNetwork.addRef()));
               temp_06_0015.freeRef();
               return temp_06_0004;
             }
@@ -292,10 +290,7 @@ public class PipelineNetwork extends DAGNetwork {
 
   @Nullable
   public DAGNode constValue(@Nullable final Tensor tensor) {
-    InnerNode temp_06_0013 = add(new ValueLayer(tensor == null ? null : tensor.addRef()), new DAGNode[]{});
-    if (null != tensor)
-      tensor.freeRef();
-    return temp_06_0013;
+    return add(new ValueLayer(tensor), new DAGNode[]{});
   }
 
   @Nullable
