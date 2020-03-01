@@ -182,7 +182,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
 
   public boolean isValid() {
     assert dimensions != null;
-    return !isFinalized() && (null == this.data || this.data.length == Tensor.length(dimensions));
+    return !isFreed() && (null == this.data || this.data.length == Tensor.length(dimensions));
   }
 
   public void setAll(double v) {
@@ -512,25 +512,26 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
   }
 
   public void addInPlace(@Nonnull final Tensor tensor) {
-    assertAlive();
-    if (!RefArrays.equals(getDimensions(), tensor.getDimensions())) {
-      String tensorDimensions = RefArrays.toString(tensor.getDimensions());
-      String dimensions = RefArrays.toString(getDimensions());
-      tensor.freeRef();
-      throw new AssertionError(dimensions + " != " + tensorDimensions);
-    }
-    double[] toAdd = tensor.getData();
-    tensor.freeRef();
-    double[] data = getData();
-    int length = length();
-    int shards = Math.max(1, Math.min(8, length / 64));
-    double shardSize = (double) length / shards;
-    RefDoubleStream.iterate(0, x -> x + shardSize).limit(shards).parallel().forEach(start -> {
-      int end = (int) Math.min(length, Math.floor(start + shardSize));
-      for (int i = (int) Math.floor(start); i < end; i++) {
-        data[i] += toAdd[i];
+    try {
+      assertAlive();
+      int[] tensorDimensions = tensor.getDimensions();
+      if (!Arrays.equals(getDimensions(), tensorDimensions)) {
+        throw new AssertionError(String.format("%s != %s", Arrays.toString(getDimensions()), Arrays.toString(tensorDimensions)));
       }
-    });
+      double[] toAdd = tensor.getData();
+      double[] data = getData();
+      int length = length();
+      int shards = Math.max(1, Math.min(8, length / 64));
+      double shardSize = (double) length / shards;
+      RefDoubleStream.iterate(0, x -> x + shardSize).limit(shards).parallel().forEach(start -> {
+        int end = (int) Math.min(length, Math.floor(start + shardSize));
+        for (int i = (int) Math.floor(start); i < end; i++) {
+          data[i] += toAdd[i];
+        }
+      });
+    } finally {
+      if(tensor != null) tensor.freeRef();
+    }
   }
 
   public void add(@Nonnull final Coordinate coords, final double value) {

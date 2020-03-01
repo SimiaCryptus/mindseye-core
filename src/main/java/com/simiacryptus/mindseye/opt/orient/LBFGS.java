@@ -75,6 +75,8 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   public void addToHistory(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
+    assert assertAlive();
+    assert measurement.assertAlive();
     if (null == measurement) return;
     try {
       if (!LBFGS.isFinite(measurement.delta.addRef())) {

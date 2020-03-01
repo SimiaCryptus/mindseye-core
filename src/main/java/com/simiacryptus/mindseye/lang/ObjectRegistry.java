@@ -62,7 +62,7 @@ public final class ObjectRegistry {
   @Nonnull
   public static <T extends ReferenceCountingBase> RefStream<T> getLivingInstances(@Nonnull final Class<T> k) {
     return getInstances(k).filter(x -> {
-      boolean temp_32_0001 = !x.isFinalized();
+      boolean temp_32_0001 = !x.isFreed();
       x.freeRef();
       return temp_32_0001;
     });

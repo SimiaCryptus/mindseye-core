@@ -19,13 +19,13 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.mindseye.lang.Singleton;
 import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefFunction;
-import org.jetbrains.annotations.NotNull;
+import com.simiacryptus.ref.wrappers.RefAtomicReference;
+import com.simiacryptus.ref.wrappers.RefMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,16 +33,15 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 @SuppressWarnings("serial")
 abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
   public final UUID id;
 
-  public LazyResult() {
-    this(UUID.randomUUID());
-  }
+//  public LazyResult() {
+//    this(UUID.randomUUID());
+//  }
 
   protected LazyResult(final UUID id) {
     super();
@@ -54,63 +53,66 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return id;
   }
 
-
   @Nullable
   @Override
-  public CountingResult get(@Nonnull final GraphEvaluationContext context) {
-    context.assertAlive();
-    assertAlive();
+  public CountingResult get(@Nonnull final GraphEvaluationContext context, Layer consumer) {
+    RefMap<UUID, RefAtomicReference<CountingResult>> calculated = context.getCalculated();
+    RefMap<UUID, Long> expectedCounts = context.getExpectedCounts();
     try {
-      Long expectedCount = context.expectedCounts.getOrDefault(id, -1L);
-      Supplier resultSupplier = context.calculated.computeIfAbsent(id, new Function<UUID, Supplier<CountingResult>>() {
-        @Nonnull
-        @Override
-        @RefIgnore
-        public Supplier<CountingResult> apply(UUID id) {
-          Singleton singleton = new Singleton();
-          try {
-            @Nullable
-            Result result = LazyResult.this.eval(context.addRef());
-            if (null == result) {
-              throw new IllegalStateException();
-            }
-            singleton.set(new CountingResult(result));
-          } catch (Throwable e) {
-            log.warn("Error execuing network component", e);
-            singleton.set(e);
+      assertAlive();
+      Long expectedCount = expectedCounts.get(id);
+      CountingResult nnResult;
+      RefAtomicReference<CountingResult> reference;
+      synchronized (calculated) {
+        reference = calculated.computeIfAbsent(id, new Function<UUID, RefAtomicReference<CountingResult>>() {
+          @Nonnull
+          @Override
+          @RefIgnore
+          public RefAtomicReference<CountingResult> apply(UUID id) {
+            return new RefAtomicReference<CountingResult>();
           }
-          return singleton;
+        });
+      }
+      nnResult = reference.updateAndGet(prev -> {
+        if (null != prev) return prev;
+        else RefUtil.freeRef(prev);
+        try {
+          @Nullable
+          Result result = LazyResult.this.eval(context.addRef());
+          if (null == result) {
+            throw new IllegalStateException();
+          }
+          return new CountingResult(result);
+        } catch (Throwable e) {
+          throw new RuntimeException("Error execuing network component", e);
         }
       });
-      if (null == resultSupplier) {
-        throw new IllegalStateException();
-      }
-      Object obj = resultSupplier.get();
-      RefUtil.freeRef(resultSupplier);
-      if (null == obj) {
-        throw new IllegalStateException();
-      }
-      if (obj instanceof Throwable) {
-        throw new RuntimeException((Throwable) obj);
-      }
-      @Nullable
-      CountingResult nnResult = (CountingResult) obj;
-      CountingResult.CountingAccumulator countingAccumulator = nnResult.getAccumulator();
-      int references = countingAccumulator.increment();
-      countingAccumulator.freeRef();
-      if (references <= 0) {
-        nnResult.freeRef();
-        throw new IllegalStateException();
-      }
-      if (null != expectedCount && expectedCount >= 0 && references > expectedCount) {
-        nnResult.freeRef();
-        throw new IllegalStateException();
-      }
-      if (null != expectedCount && expectedCount > 0 && references >= expectedCount) {
-        RefUtil.freeRef(context.calculated.remove(id));
+      reference.freeRef();
+      Result.Accumulator accumulator = nnResult.getAccumulator();
+      if (accumulator instanceof CountingResult.CountingAccumulator) {
+        CountingResult.CountingAccumulator countingAccumulator = (CountingResult.CountingAccumulator) accumulator;
+        int references = countingAccumulator.incrementFwd(consumer);
+        countingAccumulator.freeRef();
+        if (references <= 0) {
+          nnResult.freeRef();
+          throw new IllegalStateException();
+        }
+        if (null != expectedCount) {
+          if (references == expectedCount) {
+            //RefUtil.freeRef(calculated.remove(id));
+          } else if (references > expectedCount) {
+//            nnResult.freeRef();
+//            throw new IllegalStateException();
+          }
+        }
+      } else {
+        if (null != consumer) consumer.freeRef();
+        if (null != accumulator) accumulator.freeRef();
       }
       return nnResult;
     } finally {
+      expectedCounts.freeRef();
+      calculated.freeRef();
       context.freeRef();
     }
   }

@@ -122,17 +122,16 @@ public final class InnerNode extends LazyResult {
       RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRefs(inputNodes));
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         stream = stream.parallel();
-      return innerLayer.eval(stream.map(RefUtil.wrapInterface((Function<? super DAGNode, ? extends Result>) node -> {
-        assert node != null;
+      return innerLayer.eval(stream.map(node -> {
         try {
-          Result result = node.get(ctx == null ? null : ctx.addRef());
-          assert result != null;
-          return result;
+          assert node != null;
+          return node.get(ctx.addRef(), innerLayer.addRef());
         } finally {
           node.freeRef();
         }
-      }, ctx)).toArray(Result[]::new));
+      }).toArray(Result[]::new));
     } finally {
+      ctx.freeRef();
       innerLayer.freeRef();
     }
   }

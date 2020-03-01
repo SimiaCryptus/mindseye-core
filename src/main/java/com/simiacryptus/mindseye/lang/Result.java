@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefArrays;
@@ -43,11 +44,21 @@ public class Result extends ReferenceCountingBase {
   private final boolean alive;
 
   public Result(@Nonnull final TensorList data) {
-    this(data, NULL_ACCUMULATOR.addRef());
+    this(data, getNullAccumulator());
   }
 
-  public Result(@Nonnull final TensorList data, @Nonnull Accumulator accumulator) {
-    this(data, accumulator, null != accumulator && accumulator != NULL_ACCUMULATOR);
+  @NotNull
+  public static Result.Accumulator getNullAccumulator() {
+    return new NullAccumulator();
+    //return NULL_ACCUMULATOR.addRef();
+  }
+
+  public Result(@Nonnull final TensorList data, Accumulator accumulator) {
+    this(data, accumulator, !isNull(accumulator));
+  }
+
+  public static boolean isNull(@RefIgnore Accumulator accumulator) {
+    return null == accumulator || accumulator instanceof NullAccumulator;
   }
 
   public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator, boolean alive) {
@@ -57,7 +68,7 @@ public class Result extends ReferenceCountingBase {
       this.accumulator = accumulator;
     } else {
       accumulator.freeRef();
-      this.accumulator = Result.NULL_ACCUMULATOR.addRef();
+      this.accumulator = getNullAccumulator();
     }
     this.dims = data.getDimensions();
     this.dataLength = data.length();
@@ -65,9 +76,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   @Nullable
-  public Result.Accumulator getAccumulator() {
+  public final Result.Accumulator getAccumulator() {
     assertAlive();
-    if(accumulator == null) return NULL_ACCUMULATOR.addRef();
+    if(accumulator == null) return getNullAccumulator();
     return accumulator.addRef();
   }
 

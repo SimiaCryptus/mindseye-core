@@ -270,7 +270,7 @@ public class ImageUtil {
     return scheduledThreadPool.scheduleAtFixedRate(RefUtil.wrapInterface(() -> {
       try {
         JLabel jLabel = labelWeakReference.get();
-        if (null != jLabel && !input.isFinalized()) {
+        if (null != jLabel && !input.isFreed()) {
           BufferedImage image = tensor.toImage();
           int width = jLabel.getWidth();
           if (width > 0)

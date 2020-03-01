@@ -27,18 +27,13 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
-import com.simiacryptus.ref.wrappers.RefCollectors;
-import com.simiacryptus.ref.wrappers.RefList;
-import com.simiacryptus.ref.wrappers.RefSet;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 @SuppressWarnings("serial")
 public class PipelineNetwork extends DAGNetwork {
@@ -58,10 +53,7 @@ public class PipelineNetwork extends DAGNetwork {
     super(json, rs);
     @Nonnull final UUID headId = UUID.fromString(json.get("head").getAsString());
     if (!inputHandles.contains(headId)) {
-      DAGNode node = getNodeById(headId);
-      setHead(node == null ? null : node.addRef());
-      if (null != node)
-        node.freeRef();
+      setHead(getNodeById(headId));
     }
   }
 
@@ -88,17 +80,15 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   @Nonnull
-  public void setHead(@Nullable final DAGNode obj) {
+  public synchronized void setHead(@Nullable final DAGNode obj) {
     if (obj != head) {
-      DAGNode temp_06_0001 = obj == null ? null : obj.addRef();
       if (null != head)
         head.freeRef();
-      head = temp_06_0001 == null ? null : temp_06_0001.addRef();
-      if (null != temp_06_0001)
-        temp_06_0001.freeRef();
+      head = obj;
+    } else {
+      if (null != obj)
+        obj.freeRef();
     }
-    if (null != obj)
-      obj.freeRef();
   }
 
   @Nonnull
@@ -118,62 +108,6 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
-  @NotNull
-  public static InnerNode transferNode(@Nonnull PipelineNetwork destinationNetwork, @Nonnull DAGNode node, PipelineNetwork sourceNetwork) {
-    try {
-      final DAGNode[] dagNodes = RefArrays.stream(node.getInputs())
-          .map(RefUtil.wrapInterface((Function<DAGNode, ? extends DAGNode>) (DAGNode input) -> {
-            final UUID inputId = input.getId();
-            assert sourceNetwork != null;
-            if (sourceNetwork.inputNodes.containsKey(inputId)) {
-              DAGNode temp_06_0003 = destinationNetwork.getInput(sourceNetwork.inputHandles.indexOf(inputId));
-              input.freeRef();
-              return temp_06_0003;
-            } else {
-              Layer inputLayer = input.getLayer();
-              if (inputLayer == null) {
-                IllegalArgumentException temp_06_0009 = new IllegalArgumentException(input.getClass().toString());
-                input.freeRef();
-                throw temp_06_0009;
-              }
-              RefList<DAGNode> temp_06_0015 = destinationNetwork.getNodes();
-              Optional<DAGNode> temp_06_0016 = temp_06_0015.stream()
-                  .filter(RefUtil.wrapInterface((Predicate<? super DAGNode>) dagNode -> {
-                    Layer layer = dagNode.getLayer();
-                    dagNode.freeRef();
-                    if (null == layer) {
-                      return false;
-                    }
-                    boolean temp_06_0005 = layer.getId().equals(inputLayer.getId());
-                    layer.freeRef();
-                    return temp_06_0005;
-                  }, inputLayer)).findFirst();
-              DAGNode temp_06_0004 = RefUtil.orElseGet(temp_06_0016, RefUtil.wrapInterface(() -> {
-                RefSet<UUID> temp_06_0017 = sourceNetwork.inputNodes.keySet();
-                RefList<UUID> temp_06_0018 = temp_06_0017.stream().collect(RefCollectors.toList());
-                int inputNumber = temp_06_0018.indexOf(inputId);
-                temp_06_0018.freeRef();
-                temp_06_0017.freeRef();
-                if (-1 == inputNumber) {
-                  return transferNode(destinationNetwork.addRef(), input.addRef(), sourceNetwork.addRef());
-                } else {
-                  return destinationNetwork.getInput(inputNumber);
-                }
-              }, input, destinationNetwork.addRef(), sourceNetwork.addRef()));
-              temp_06_0015.freeRef();
-              return temp_06_0004;
-            }
-          }, destinationNetwork.addRef())).toArray(DAGNode[]::new);
-      InnerNode temp_06_0006 = destinationNetwork.add(node.getLayer(), RefUtil.addRefs(dagNodes));
-      RefUtil.freeRef(dagNodes);
-      destinationNetwork.freeRef();
-      node.freeRef();
-      return temp_06_0006;
-    } finally {
-      sourceNetwork.freeRef();
-    }
-  }
-
   public static PipelineNetwork combine(@Nullable Layer combiner, @Nonnull PipelineNetwork... networks) {
     assert RefArrays.stream(RefUtil.addRefs(networks)).allMatch(pipelineNetwork1 -> {
       boolean alive = pipelineNetwork1.assertAlive();
@@ -183,9 +117,9 @@ public class PipelineNetwork extends DAGNetwork {
     if (1 == networks.length) {
       if (null != combiner)
         combiner.freeRef();
-      PipelineNetwork temp_06_0010 = networks[0].addRef();
+      PipelineNetwork net0 = networks[0].addRef();
       RefUtil.freeRef(networks);
-      return temp_06_0010;
+      return net0;
     }
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
     RefUtil.freeRef(pipelineNetwork.add(combiner == null ? null : combiner.addRef(),

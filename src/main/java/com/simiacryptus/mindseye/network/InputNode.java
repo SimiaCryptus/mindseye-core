@@ -21,19 +21,20 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefUtil;
+import com.simiacryptus.ref.wrappers.RefAtomicReference;
+import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("serial")
 final class InputNode extends LazyResult {
-
-  InputNode() {
-    this(null);
-  }
+//
+//  InputNode() {
+//    this(null);
+//  }
 
   public InputNode(final UUID key) {
     super(key);
@@ -72,15 +73,16 @@ final class InputNode extends LazyResult {
 
   @Override
   protected Result eval(@Nonnull final GraphEvaluationContext context) {
-    assertAlive();
-    synchronized (context) {
-      Supplier<CountingResult> supplier = context.calculated.get(id);
-      try {
-        return supplier.get();
-      } finally {
-        RefUtil.freeRef(supplier);
-        context.freeRef();
-      }
+    RefMap<UUID, RefAtomicReference<CountingResult>> calculated = context.getCalculated();
+    try {
+      assertAlive();
+      RefAtomicReference<CountingResult> atomicReference = calculated.get(id);
+      CountingResult countingResult = atomicReference.get();
+      atomicReference.freeRef();
+      return countingResult;
+    } finally {
+      calculated.freeRef();
+      context.freeRef();
     }
   }
 }

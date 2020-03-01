@@ -31,26 +31,11 @@ import java.util.function.IntFunction;
 public final class ConstantResult extends Result {
 
   public ConstantResult(@Nullable final Tensor... data) {
-    this(new TensorArray(RefUtil.addRefs(data)));
-    if (null != data)
-      RefUtil.freeRef(data);
+    this(new TensorArray(data));
   }
 
   public ConstantResult(@Nonnull TensorArray tensorArray) {
-    super(tensorArray, new Accumulator() {
-      @Override
-      public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
-        if (null != data)
-          data.freeRef();
-        if (null != buffer)
-          buffer.freeRef();
-      }
-
-      public @SuppressWarnings("unused")
-      void _free() {
-        super._free();
-      }
-    });
+    super(tensorArray);
   }
 
   public ConstantResult(@Nonnull final TensorList tensorList) {

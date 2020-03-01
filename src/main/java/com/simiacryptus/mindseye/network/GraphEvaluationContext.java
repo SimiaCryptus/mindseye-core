@@ -20,18 +20,30 @@
 package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
+import com.simiacryptus.ref.wrappers.RefAtomicReference;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
-import java.util.function.Supplier;
+import java.util.concurrent.atomic.AtomicReference;
 
 class GraphEvaluationContext extends ReferenceCountingBase {
 
-  final RefMap<UUID, Long> expectedCounts = new RefConcurrentHashMap<>();
+  private final RefMap<UUID, Long> expectedCounts = new RefConcurrentHashMap<>();
 
-  final RefMap<UUID, Supplier<CountingResult>> calculated = new RefConcurrentHashMap<>();
+  //final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
+  private final RefMap<UUID, RefAtomicReference<CountingResult>> calculated = new RefConcurrentHashMap<>();
+
+  public RefMap<UUID, RefAtomicReference<CountingResult>> getCalculated() {
+    assertAlive();
+    return calculated.addRef();
+  }
+
+  public RefMap<UUID, Long> getExpectedCounts() {
+    assertAlive();
+    return expectedCounts.addRef();
+  }
 
   public void _free() {
     super._free();

@@ -21,6 +21,7 @@ package com.simiacryptus.mindseye.lang;
 
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -29,11 +30,16 @@ import java.util.UUID;
 public class MutableResult extends Result {
 
   public MutableResult(final Tensor... tensors) {
-    this(RefArrays.stream(RefUtil.addRefs(tensors)).map(tensor -> {
-      UUID id = tensor.getId();
-      tensor.freeRef();
-      return id;
-    }).toArray(UUID[]::new), tensors);
+    this(ids(tensors), tensors);
+  }
+
+  @NotNull
+  private static UUID[] ids(Tensor[] tensors) {
+    UUID[] uuids = new UUID[tensors.length];
+    for (int i = 0; i < uuids.length; i++) {
+      uuids[i] = tensors[i].getId();
+    }
+    return uuids;
   }
 
   public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
