@@ -24,7 +24,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.simiacryptus.mindseye.lang.*;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.wrappers.*;
+import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefCollectors;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -56,7 +59,7 @@ public class ValueLayer extends LayerBase {
 
   @Nullable
   public Tensor[] getData() {
-    return RefUtil.addRefs(data);
+    return RefUtil.addRef(data);
   }
 
   public void setData(@Nullable final Tensor... data) {
@@ -77,7 +80,7 @@ public class ValueLayer extends LayerBase {
     assert 0 == array.length;
     RefUtil.freeRef(array);
     Result.Accumulator accumulator = new Accumulator(this.addRef());
-    TensorArray data = new TensorArray(RefUtil.addRefs(this.data));
+    TensorArray data = new TensorArray(RefUtil.addRef(this.data));
     return new Result(data, accumulator, !isFrozen());
   }
 
@@ -86,7 +89,7 @@ public class ValueLayer extends LayerBase {
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
     JsonArray values = new JsonArray();
-    RefArrays.stream(RefUtil.addRefs(data)).map(datum -> {
+    RefArrays.stream(RefUtil.addRef(data)).map(datum -> {
       JsonElement element = datum.getJson(resources, dataSerializer);
       datum.freeRef();
       return element;
@@ -98,7 +101,7 @@ public class ValueLayer extends LayerBase {
   @Nonnull
   @Override
   public RefList<double[]> state() {
-    return RefArrays.stream(RefUtil.addRefs(data)).map(tensor -> {
+    return RefArrays.stream(RefUtil.addRef(data)).map(tensor -> {
       double[] data = tensor.getData();
       tensor.freeRef();
       return data;
@@ -136,12 +139,9 @@ public class ValueLayer extends LayerBase {
         for (int i = 0; i < data.length(); i++) {
           Tensor delta = data.get(i);
           Tensor value = valueLayer.data[i % valueLayer.data.length].addRef();
-          Delta<UUID> temp_14_0007 = buffer.get(value.getId(), value.getData());
-          assert temp_14_0007 != null;
-          temp_14_0007.addInPlace(delta.getData());
-          temp_14_0007.freeRef();
-          value.freeRef();
-          delta.freeRef();
+          Delta<UUID> valueDelta = buffer.get(value.getId(), value);
+          valueDelta.addInPlace(delta);
+          valueDelta.freeRef();
         }
       }
       data.freeRef();

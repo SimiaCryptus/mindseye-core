@@ -91,7 +91,7 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
 
     @Nullable
     public static @SuppressWarnings("unused")
-    ValidatingLineSearchCursor[] addRefs(@Nullable ValidatingLineSearchCursor[] array) {
+    ValidatingLineSearchCursor[] addRef(@Nullable ValidatingLineSearchCursor[] array) {
       if (array == null)
         return null;
       return Arrays.stream(array).filter(x -> {

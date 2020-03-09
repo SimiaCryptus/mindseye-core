@@ -2,4 +2,4 @@
 mindseye-core.iml
 target/
 *.hprof
-
+logs/

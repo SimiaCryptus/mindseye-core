@@ -36,7 +36,6 @@ public class Result extends ReferenceCountingBase {
   @Nonnull
   protected final int[] dims;
   protected final int dataLength;
-  //public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   @Nonnull
   protected final TensorList data;
   @Nonnull
@@ -47,24 +46,14 @@ public class Result extends ReferenceCountingBase {
     this(data, getNullAccumulator());
   }
 
-  @NotNull
-  public static Result.Accumulator getNullAccumulator() {
-    return new NullAccumulator();
-    //return NULL_ACCUMULATOR.addRef();
-  }
-
   public Result(@Nonnull final TensorList data, Accumulator accumulator) {
     this(data, accumulator, !isNull(accumulator));
-  }
-
-  public static boolean isNull(@RefIgnore Accumulator accumulator) {
-    return null == accumulator || accumulator instanceof NullAccumulator;
   }
 
   public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator, boolean alive) {
     super();
     this.alive = alive;
-    if(this.alive) {
+    if (this.alive) {
       this.accumulator = accumulator;
     } else {
       accumulator.freeRef();
@@ -78,7 +67,7 @@ public class Result extends ReferenceCountingBase {
   @Nullable
   public final Result.Accumulator getAccumulator() {
     assertAlive();
-    if(accumulator == null) return getNullAccumulator();
+    if (accumulator == null) return getNullAccumulator();
     return accumulator.addRef();
   }
 
@@ -89,9 +78,19 @@ public class Result extends ReferenceCountingBase {
     return data.addRef();
   }
 
+  @NotNull
+  public static Result.Accumulator getNullAccumulator() {
+    return new NullAccumulator();
+    //return NULL_ACCUMULATOR.addRef();
+  }
+
   public boolean isAlive() {
     assertAlive();
     return alive;
+  }
+
+  public static boolean isNull(@RefIgnore Accumulator accumulator) {
+    return null == accumulator || accumulator instanceof NullAccumulator;
   }
 
   @NotNull
@@ -111,6 +110,10 @@ public class Result extends ReferenceCountingBase {
     } finally {
       RefUtil.freeRef(inObj);
     }
+  }
+
+  public static Tensor getData0(Result eval) {
+    return TensorList.getData0(getData(eval));
   }
 
   public double[] copy(double[] delta) {

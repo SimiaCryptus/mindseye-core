@@ -436,7 +436,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     } catch (@Nonnull final Throwable e) {
       throw new RuntimeException(e);
     } finally {
-      if(null != validationSubjectLayer) validationSubjectLayer.freeRef();
+      if (null != validationSubjectLayer) validationSubjectLayer.freeRef();
     }
   }
 
@@ -674,7 +674,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     if (trainingSubjectLayer instanceof DAGNetwork) {
       ((DAGNetwork) trainingSubjectLayer).shuffle(StochasticComponent.random.get().nextLong());
     }
-    if(null != trainingSubjectLayer) trainingSubjectLayer.freeRef();
+    if (null != trainingSubjectLayer) trainingSubjectLayer.freeRef();
     phase.freeRef();
   }
 

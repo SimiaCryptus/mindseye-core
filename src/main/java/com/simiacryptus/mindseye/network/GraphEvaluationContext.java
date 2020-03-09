@@ -19,18 +19,22 @@
 
 package com.simiacryptus.mindseye.network;
 
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefAtomicReference;
 import com.simiacryptus.ref.wrappers.RefConcurrentHashMap;
 import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 class GraphEvaluationContext extends ReferenceCountingBase {
 
-  private final RefMap<UUID, Long> expectedCounts = new RefConcurrentHashMap<>();
+  private final Map<UUID, Long> expectedCounts = new ConcurrentHashMap<>();
 
   //final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final RefMap<UUID, RefAtomicReference<CountingResult>> calculated = new RefConcurrentHashMap<>();
@@ -40,14 +44,37 @@ class GraphEvaluationContext extends ReferenceCountingBase {
     return calculated.addRef();
   }
 
-  public RefMap<UUID, Long> getExpectedCounts() {
+  public Map<UUID, Long> getExpectedCounts() {
     assertAlive();
-    return expectedCounts.addRef();
+    return expectedCounts;
+  }
+
+  public CountingResult get(UUID key, UnaryOperator<CountingResult> unaryOperator) {
+    RefAtomicReference<CountingResult> reference;
+    synchronized (calculated) {
+      reference = calculated.computeIfAbsent(key, new Function<UUID, RefAtomicReference<CountingResult>>() {
+        @Nonnull
+        @Override
+        @RefIgnore
+        public RefAtomicReference<CountingResult> apply(UUID id) {
+          return new RefAtomicReference<CountingResult>();
+        }
+      });
+    }
+    try {
+      return reference.updateAndGet(unaryOperator);
+    } finally {
+      reference.freeRef();
+    }
+  }
+
+  public CountingResult get(UUID id) {
+    assertAlive();
+    return RefAtomicReference.get(calculated.get(id));
   }
 
   public void _free() {
     super._free();
-    expectedCounts.freeRef();
     calculated.freeRef();
   }
 

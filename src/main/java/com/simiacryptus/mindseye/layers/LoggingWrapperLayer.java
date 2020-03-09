@@ -53,6 +53,15 @@ public final class LoggingWrapperLayer extends WrapperLayer {
   }
 
   @Nonnull
+  public static String getString(@Nonnull Tensor tensor) {
+    try {
+      return RefArrays.toString(tensor.getDimensions());
+    } finally {
+      tensor.freeRef();
+    }
+  }
+
+  @Nonnull
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     final LoggingWrapperLayer loggingWrapperLayer = this.addRef();
@@ -64,7 +73,7 @@ public final class LoggingWrapperLayer extends WrapperLayer {
           Result.Accumulator accumulator = new Accumulator2(inner.addRef(), i, inputToWrap.getAccumulator());
           inputToWrap.freeRef();
           return new Result(data, accumulator, alive);
-        }, loggingWrapperLayer.addRef(), RefUtil.addRefs(inObj)))
+        }, loggingWrapperLayer.addRef(), RefUtil.addRef(inObj)))
         .toArray(Result[]::new);
     for (int i = 0; i < inObj.length; i++) {
       final TensorList tensorList = inObj[i].getData();
@@ -90,15 +99,6 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     output.freeRef();
     loggingWrapperLayer.freeRef();
     return new Result(data, accumulator, alive);
-  }
-
-  @Nonnull
-  public static String getString(@Nonnull Tensor tensor) {
-    try {
-      return RefArrays.toString(tensor.getDimensions());
-    } finally {
-      tensor.freeRef();
-    }
   }
 
   public @SuppressWarnings("unused")

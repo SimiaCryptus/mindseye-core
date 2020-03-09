@@ -42,6 +42,7 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   @Nonnull
   @RefAware
   public synchronized T getOrInit(@Nonnull Supplier<T> fn) {
+    assertAlive();
     if (queue.isEmpty()) {
       set(fn.get());
     }
@@ -52,10 +53,12 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   @Override
   @RefAware
   public synchronized T get() {
+    assertAlive();
     return queue.peek();
   }
 
   public synchronized void set(@RefAware @Nonnull T obj) {
+    assertAlive();
     if (!queue.isEmpty()) {
       RefUtil.freeRef(obj);
       throw new IllegalStateException();
@@ -66,6 +69,7 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   @Nullable
   @RefAware
   public synchronized T remove() {
+    assertAlive();
     try {
       return queue.poll(1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {

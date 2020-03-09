@@ -24,6 +24,7 @@ import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefStream;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -35,6 +36,13 @@ public interface TensorList extends ReferenceCounting {
 
   default int getElements() {
     return length() * Tensor.length(getDimensions());
+  }
+
+  @NotNull
+  static Tensor getData0(TensorList data) {
+    Tensor tensor = data.get(0);
+    data.freeRef();
+    return tensor;
   }
 
 

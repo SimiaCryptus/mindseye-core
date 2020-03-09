@@ -165,7 +165,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   @Override
   public Result eval(@Nonnull final Result... inObj) {
     @Nonnull final AtomicLong passbackNanos = new AtomicLong(0);
-    final Result[] wrappedInput = RefArrays.stream(RefUtil.addRefs(inObj)).map(result -> {
+    final Result[] wrappedInput = RefArrays.stream(RefUtil.addRef(inObj)).map(result -> {
       boolean alive = result.isAlive();
       TensorList data = result.getData();
       Result.Accumulator accumulator = new Accumulator(passbackNanos, result.getAccumulator());
@@ -174,7 +174,7 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     }).toArray(Result[]::new);
     @Nonnull
     TimedResult<Result> timedResult = TimedResult.time(RefUtil.wrapInterface((UncheckedSupplier<Result>) () -> {
-      return inner.eval(RefUtil.addRefs(wrappedInput));
+      return inner.eval(RefUtil.addRef(wrappedInput));
     }, wrappedInput));
     final Result output = timedResult.getResult();
     forwardPerformance.add(timedResult.timeNanos / 1000000000.0);
@@ -246,16 +246,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
       TimedResult<Void> timedResult = TimedResult.time(RefUtil.wrapInterface(
           (UncheckedRunnable<Object>) () -> {
-            DeltaSet<UUID> buffer1 = buffer == null ? null : buffer.addRef();
-            TensorList delta = data == null ? null : data.addRef();
-            Result.Accumulator accumulator = this.accumulator;
-            try {
-              accumulator.accept(buffer1, delta);
-            } finally {
-              accumulator.freeRef();
-            }
-          },
-          accumulator.addRef(), data, buffer));
+            this.accumulator.accept(buffer.addRef(), data.addRef());
+          }, data, buffer));
       passbackNanos.addAndGet(timedResult.timeNanos);
       timedResult.freeRef();
     }

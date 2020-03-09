@@ -49,7 +49,7 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
 
   @Nonnull
   public Tensor[] getData() {
-    return RefUtil.addRefs(data);
+    return RefUtil.addRef(data);
   }
 
   @Nonnull

@@ -19,8 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
-import com.simiacryptus.ref.wrappers.RefArrays;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -33,22 +33,22 @@ public class MutableResult extends Result {
     this(ids(tensors), tensors);
   }
 
-  @NotNull
-  private static UUID[] ids(Tensor[] tensors) {
-    UUID[] uuids = new UUID[tensors.length];
-    for (int i = 0; i < uuids.length; i++) {
-      uuids[i] = tensors[i].getId();
-    }
-    return uuids;
-  }
-
   public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
-    super(new TensorArray(tensors), handler(RefUtil.addRefs(tensors), objectId));
+    super(new TensorArray(tensors), handler(RefUtil.addRef(tensors), objectId));
   }
 
   @Override
   public boolean isAlive() {
     return true;
+  }
+
+  @NotNull
+  private static UUID[] ids(@RefIgnore Tensor[] tensors) {
+    UUID[] uuids = new UUID[tensors.length];
+    for (int i = 0; i < uuids.length; i++) {
+      uuids[i] = tensors[i].getId();
+    }
+    return uuids;
   }
 
   @Nonnull
@@ -82,12 +82,10 @@ public class MutableResult extends Result {
     public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
       for (int index = 0; index < delta.length(); index++) {
         assert tensors != null;
-        Delta<UUID> temp_50_0002 = buffer.get(objectId[index], tensors[index].getData());
-        Tensor temp_50_0003 = delta.get(index);
-        assert temp_50_0002 != null;
-        temp_50_0002.addInPlace(temp_50_0003.getData());
-        temp_50_0003.freeRef();
-        temp_50_0002.freeRef();
+        Delta<UUID> tensorDelta = buffer.get(objectId[index], tensors[index].addRef());
+        assert tensorDelta != null;
+        tensorDelta.addInPlace(delta.get(index));
+        tensorDelta.freeRef();
       }
       delta.freeRef();
       buffer.freeRef();

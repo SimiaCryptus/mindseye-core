@@ -29,7 +29,6 @@ import com.simiacryptus.ref.wrappers.RefStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
-import java.util.function.Function;
 
 @SuppressWarnings("serial")
 public final class InnerNode extends LazyResult {
@@ -63,7 +62,7 @@ public final class InnerNode extends LazyResult {
   @Nonnull
   @Override
   public DAGNode[] getInputs() {
-    return RefUtil.addRefs(inputNodes);
+    return RefUtil.addRef(inputNodes);
   }
 
   @Nonnull
@@ -119,7 +118,7 @@ public final class InnerNode extends LazyResult {
     @Nonnull final Layer innerLayer = getLayer();
     try {
       @Nonnull
-      RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRefs(inputNodes));
+      RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRef(inputNodes));
       if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
         stream = stream.parallel();
       return innerLayer.eval(stream.map(node -> {

@@ -24,6 +24,7 @@ import com.simiacryptus.mindseye.lang.DataSerializer;
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.LayerBase;
 import com.simiacryptus.mindseye.lang.Result;
+import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
@@ -55,10 +56,10 @@ public class WrapperLayer extends LayerBase {
 
   @Nullable
   public final Layer getInner() {
-    return inner == null ? null : inner.addRef();
+    return RefUtil.addRef(this.inner);
   }
 
-  public void setInner(@Nullable Layer inner) {
+  public synchronized void setInner(@Nullable Layer inner) {
     if (null != this.inner)
       this.inner.freeRef();
     this.inner = inner;
@@ -82,7 +83,6 @@ public class WrapperLayer extends LayerBase {
   @Nullable
   @Override
   public Result eval(@Nullable final Result... array) {
-    assert inner != null;
     return inner.eval(array);
   }
 
@@ -97,14 +97,14 @@ public class WrapperLayer extends LayerBase {
   @Nullable
   @Override
   public RefList<double[]> state() {
-    assert inner != null;
     return inner.state();
   }
 
   public void _free() {
-    if (null != inner)
+    if (null != inner) {
       inner.freeRef();
-    inner = null;
+      inner = null;
+    }
     super._free();
   }
 

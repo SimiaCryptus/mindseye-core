@@ -35,17 +35,17 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     implements SampledTrainable, TrainableDataMask {
 
   @Nonnull
-  private final RefList<? extends Supplier<Tensor[]>> trainingData;
+  private final RefList<? extends RefSupplier<Tensor[]>> trainingData;
   private int minSamples = 0;
   private long seed = Util.R.get().nextInt();
   private int trainingSize;
 
-  public SampledArrayTrainable(@Nonnull final RefList<? extends Supplier<Tensor[]>> trainingData, final Layer network,
+  public SampledArrayTrainable(@Nonnull final RefList<? extends RefSupplier<Tensor[]>> trainingData, final Layer network,
                                final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
-  public SampledArrayTrainable(@Nonnull final RefList<? extends Supplier<Tensor[]>> trainingData, @Nullable final Layer network,
+  public SampledArrayTrainable(@Nonnull final RefList<? extends RefSupplier<Tensor[]>> trainingData, @Nullable final Layer network,
                                final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(null, network == null ? null : network.addRef(), batchSize));
     if (null != network)
@@ -54,10 +54,7 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
       trainingData.freeRef();
       throw new IllegalArgumentException();
     }
-    RefList<? extends Supplier<Tensor[]>> temp_00_0001 = trainingData.addRef();
-    this.trainingData = temp_00_0001.addRef();
-    temp_00_0001.freeRef();
-    trainingData.freeRef();
+    this.trainingData = trainingData;
     this.trainingSize = trainingSize;
     reseed(RefSystem.nanoTime());
   }
@@ -76,17 +73,10 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
       RefUtil.freeRef(trainingData);
       throw new IllegalArgumentException();
     }
-    RefList<? extends Supplier<Tensor[]>> temp_00_0002 = RefArrays.stream(RefUtil.addRefs(trainingData)).map(obj -> {
-      WeakCachedSupplier<Tensor[]> temp_00_0003 = new WeakCachedSupplier<>(
-          RefUtil.wrapInterface(() -> obj, RefUtil.addRefs(obj)));
-      if (null != obj)
-        RefUtil.freeRef(obj);
-      return temp_00_0003;
+    this.trainingData = RefArrays.stream(trainingData).map(obj -> {
+      return RefUtil.wrapInterface((RefSupplier<Tensor[]>) new WeakCachedSupplier<Tensor[]>(
+          () -> RefUtil.addRef(obj)), obj);
     }).collect(RefCollectors.toList());
-    this.trainingData = temp_00_0002 == null ? null : temp_00_0002.addRef();
-    if (null != temp_00_0002)
-      temp_00_0002.freeRef();
-    RefUtil.freeRef(trainingData);
     this.trainingSize = trainingSize;
     reseed(RefSystem.nanoTime());
   }
@@ -170,9 +160,9 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
           }).limit(getTrainingSize()).map(Supplier::get).toArray(Tensor[][]::new);
     } else {
       if (null != trainingData) RefUtil.freeRef(trainingData);
-      trainingData = this.trainingData.stream().filter(x -> {
-        if (x != null) {
-          Tensor[] tensors = x.get();
+      trainingData = this.trainingData.stream().filter(refSupplier -> {
+        if (refSupplier != null) {
+          Tensor[] tensors = refSupplier.get();
           try {
             if (tensors != null) {
               return true;

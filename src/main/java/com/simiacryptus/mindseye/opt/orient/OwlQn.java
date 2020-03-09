@@ -99,7 +99,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
         .map(RefUtil.wrapInterface((Function<? super UUID, ? extends Layer>) id -> {
           assert subject != null;
           DAGNetwork layer = (DAGNetwork) subject.getLayer();
-          if(null == layer) return null;
+          if (null == layer) return null;
           RefMap<UUID, Layer> layersById = layer.getLayersById();
           Layer id_layer = layersById.get(id);
           layersById.freeRef();

@@ -61,7 +61,7 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   @Nullable
   @Override
   public Tensor[][] getData() {
-    return RefUtil.addRefs(trainingData);
+    return RefUtil.addRef(trainingData);
   }
 
   @Override
@@ -79,9 +79,10 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
   }
 
   public void _free() {
-    if (null != trainingData)
+    if (null != trainingData) {
       RefUtil.freeRef(trainingData);
-    trainingData = null;
+      trainingData = null;
+    }
     super._free();
   }
 

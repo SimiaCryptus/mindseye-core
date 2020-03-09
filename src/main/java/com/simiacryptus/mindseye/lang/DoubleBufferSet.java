@@ -75,10 +75,10 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   @javax.annotation.Nullable
-  public V get(final K layer, @Nonnull final Tensor ptr) {
-    V temp_15_0008 = get(layer, ptr.getData());
-    ptr.freeRef();
-    return temp_15_0008;
+  public V get(final K layer, @Nonnull final Tensor tensor) {
+    V delta = get(layer, tensor.getData());
+    tensor.freeRef();
+    return delta;
   }
 
   @Nonnull

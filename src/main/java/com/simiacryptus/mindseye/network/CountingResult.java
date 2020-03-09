@@ -43,7 +43,7 @@ public class CountingResult extends Result {
   public CountingResult(@Nonnull final Result inner, final int samples, Layer consumer) {
     this(inner);
     Accumulator a = getAccumulator();
-    if(a instanceof CountingResult.CountingAccumulator) {
+    if (a instanceof CountingResult.CountingAccumulator) {
       CountingResult.CountingAccumulator accumulator = (CountingResult.CountingAccumulator) a;
       for (int i = 0; i < samples; i++) {
         accumulator.incrementFwd(consumer.addRef());
@@ -56,6 +56,12 @@ public class CountingResult extends Result {
     consumer.freeRef();
   }
 
+  @NotNull
+  private static StackTraceElement[] getStackTrace() {
+    return new StackTraceElement[]{};
+//    return Thread.currentThread().getStackTrace();
+  }
+
   public void _free() {
     super._free();
   }
@@ -65,12 +71,6 @@ public class CountingResult extends Result {
   @SuppressWarnings("unused")
   CountingResult addRef() {
     return (CountingResult) super.addRef();
-  }
-
-  @NotNull
-  private static StackTraceElement[] getStackTrace() {
-    return new StackTraceElement[]{};
-//    return Thread.currentThread().getStackTrace();
   }
 
   static class CountingAccumulator extends Result.Accumulator {
@@ -121,7 +121,7 @@ public class CountingResult extends Result {
         logger.error("Passback incomplete");
       }
       fwdLinks.freeRef();
-      if(null != innerAccumulator) innerAccumulator.freeRef();
+      if (null != innerAccumulator) innerAccumulator.freeRef();
       passbackBuffers.freeRef();
     }
 

@@ -25,7 +25,10 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.*;
+import com.simiacryptus.ref.wrappers.RefDoubleStream;
+import com.simiacryptus.ref.wrappers.RefIntStream;
+import com.simiacryptus.ref.wrappers.RefList;
+import com.simiacryptus.ref.wrappers.RefString;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -65,7 +68,27 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
       this.data.freeRef();
     inputSize = getInputs(data);
     this.data = data;
+    RefUtil.freeRef(this.inputProxies);
     this.inputProxies = getInputProxies();
+  }
+
+  @Nonnull
+  protected Result[] getInputProxies() {
+    if (null == data) {
+      throw new IllegalArgumentException();
+    }
+    if (0 > data.size()) {
+      throw new IllegalArgumentException();
+    }
+    return RefIntStream.range(0, inputSize)
+        .mapToObj(inputIndex -> {
+          final Tensor[] tensors = select(inputIndex);
+          if (mask(inputIndex)) {
+            return new ConstantResult(new TensorArray(tensors));
+          } else {
+            return new MutableResult(tensors);
+          }
+        }).toArray(Result[]::new);
   }
 
   @Override
@@ -87,40 +110,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
 
   public void setVerbosity(int verbose) {
     verbosity = verbose;
-  }
-
-  @Nonnull
-  protected Result[] getInputProxies() {
-    if (null == data) {
-      throw new IllegalArgumentException();
-    }
-    if (0 >= data.size()) {
-      throw new IllegalArgumentException();
-    }
-    return RefIntStream.range(0, inputSize)
-        .mapToObj(inputIndex -> {
-          final Tensor[] tensors = select(inputIndex);
-          if (mask(inputIndex)) {
-            return new ConstantResult(new TensorArray(tensors));
-          } else {
-            return new MutableResult(tensors);
-          }
-        }).toArray(Result[]::new);
-  }
-
-  private boolean mask(int inputIndex) {
-    return null == mask || inputIndex >= mask.length || !mask[inputIndex];
-  }
-
-  @NotNull
-  private Tensor[] select(int inputIndex) {
-    return data.stream().map(batchData->{
-              try {
-                return batchData[inputIndex].addRef();
-              } finally {
-                RefUtil.freeRef(batchData);
-              }
-            }).toArray(Tensor[]::new);
   }
 
   @RefIgnore
@@ -183,9 +172,9 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     final TensorList resultData = result.getData();
     @Nonnull final DeltaSet<UUID> deltaSet = new DeltaSet<UUID>();
     final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
-      double[] array = RefArrays.stream(x.getData()).toArray();
+      RefDoubleStream doubleStream = x.doubleStream();
       x.freeRef();
-      return RefArrays.stream(array);
+      return doubleStream;
     }).summaryStatistics();
     final double sum = statistics.getSum();
     result.accumulate(deltaSet.addRef());
@@ -194,6 +183,21 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     resultData.freeRef();
     //log.info(String.format("Evaluated to %s evalInputDelta buffers, %s mag", DeltaSet<LayerBase>.getMap().size(), DeltaSet<LayerBase>.getMagnitude()));
     return normalize(new PointSample(deltaSet, stateSet, sum, 0.0, data.size()));
+  }
+
+  private boolean mask(int inputIndex) {
+    return null == mask || inputIndex >= mask.length || !mask[inputIndex];
+  }
+
+  @NotNull
+  private Tensor[] select(int inputIndex) {
+    return data.stream().map(batchData -> {
+      try {
+        return batchData[inputIndex].addRef();
+      } finally {
+        RefUtil.freeRef(batchData);
+      }
+    }).toArray(Tensor[]::new);
   }
 
   @NotNull

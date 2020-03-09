@@ -27,22 +27,19 @@ import com.simiacryptus.ref.wrappers.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class LazyRefHashMap<K,V> extends ReferenceCountingBase implements Map<K, V> {
+public abstract class LazyRefHashMap<K, V> extends ReferenceCountingBase implements Map<K, V> {
   private final RefHashMap<K, RefAtomicReference<V>> inner = new RefHashMap<>();
-
-  @Override
-  public int size() {
-    return inner.size();
-  }
 
   @Override
   public boolean isEmpty() {
     return inner.isEmpty();
+  }
+
+  @Override
+  public int size() {
+    return inner.size();
   }
 
   @Override
@@ -87,14 +84,12 @@ public abstract class LazyRefHashMap<K,V> extends ReferenceCountingBase implemen
     return get;
   }
 
-  protected abstract @RefAware V init(@RefAware K key);
-
   @Override
   public void putAll(@NotNull Map<? extends K, ? extends V> m) {
-    if(m instanceof ReferenceCounting) {
-      m.forEach((k,v)->RefUtil.freeRef(inner.put(k,new RefAtomicReference<>(v))));
+    if (m instanceof ReferenceCounting) {
+      m.forEach((k, v) -> RefUtil.freeRef(inner.put(k, new RefAtomicReference<>(v))));
     } else {
-      m.forEach((k,v)->RefUtil.freeRef(inner.put(RefUtil.addRef(k),new RefAtomicReference<>(RefUtil.addRef(v)))));
+      m.forEach((k, v) -> RefUtil.freeRef(inner.put(RefUtil.addRef(k), new RefAtomicReference<>(RefUtil.addRef(v)))));
     }
   }
 
@@ -113,7 +108,7 @@ public abstract class LazyRefHashMap<K,V> extends ReferenceCountingBase implemen
   @Override
   public RefCollection<V> values() {
     RefArrayList<V> vs = new RefArrayList<>();
-    inner.forEach((k,v)->vs.add(getOrInit(k,v)));
+    inner.forEach((k, v) -> vs.add(getOrInit(k, v)));
     return vs;
   }
 
@@ -121,7 +116,7 @@ public abstract class LazyRefHashMap<K,V> extends ReferenceCountingBase implemen
   @Override
   public RefSet<Entry<K, V>> entrySet() {
     RefHashSet<Entry<K, V>> entries = new RefHashSet<>();
-    inner.forEach((k,v)->entries.add(new RefEntry<K, V>(k, getOrInit(k, v)) {
+    inner.forEach((k, v) -> entries.add(new RefEntry<K, V>(k, getOrInit(k, v)) {
       @javax.annotation.Nullable
       @Override
       public V setValue(@RefAware V value) {
@@ -148,13 +143,16 @@ public abstract class LazyRefHashMap<K,V> extends ReferenceCountingBase implemen
   }
 
   @Override
+  public LazyRefHashMap<K, V> addRef() {
+    return (LazyRefHashMap<K, V>) super.addRef();
+  }
+
+  protected abstract @RefAware
+  V init(@RefAware K key);
+
+  @Override
   protected void _free() {
     super._free();
     inner.freeRef();
-  }
-
-  @Override
-  public LazyRefHashMap<K,V> addRef() {
-    return (LazyRefHashMap<K,V>) super.addRef();
   }
 }

@@ -21,13 +21,10 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.wrappers.RefAtomicReference;
-import com.simiacryptus.ref.wrappers.RefMap;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 @SuppressWarnings("serial")
 final class InputNode extends LazyResult {
@@ -73,16 +70,10 @@ final class InputNode extends LazyResult {
 
   @Override
   protected Result eval(@Nonnull final GraphEvaluationContext context) {
-    RefMap<UUID, RefAtomicReference<CountingResult>> calculated = context.getCalculated();
-    try {
-      assertAlive();
-      RefAtomicReference<CountingResult> atomicReference = calculated.get(id);
-      CountingResult countingResult = atomicReference.get();
-      atomicReference.freeRef();
-      return countingResult;
-    } finally {
-      calculated.freeRef();
-      context.freeRef();
-    }
+    assertAlive();
+    CountingResult countingResult = context.get(id);
+    context.freeRef();
+    return countingResult;
   }
+
 }

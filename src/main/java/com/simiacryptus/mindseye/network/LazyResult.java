@@ -21,18 +21,15 @@ package com.simiacryptus.mindseye.network;
 
 import com.simiacryptus.mindseye.lang.Layer;
 import com.simiacryptus.mindseye.lang.Result;
-import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefAtomicReference;
-import com.simiacryptus.ref.wrappers.RefMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 @SuppressWarnings("serial")
 abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
@@ -56,29 +53,16 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   @Nullable
   @Override
   public CountingResult get(@Nonnull final GraphEvaluationContext context, Layer consumer) {
-    RefMap<UUID, RefAtomicReference<CountingResult>> calculated = context.getCalculated();
-    RefMap<UUID, Long> expectedCounts = context.getExpectedCounts();
+    Map<UUID, Long> expectedCounts = context.getExpectedCounts();
     try {
       assertAlive();
       Long expectedCount = expectedCounts.get(id);
-      CountingResult nnResult;
-      RefAtomicReference<CountingResult> reference;
-      synchronized (calculated) {
-        reference = calculated.computeIfAbsent(id, new Function<UUID, RefAtomicReference<CountingResult>>() {
-          @Nonnull
-          @Override
-          @RefIgnore
-          public RefAtomicReference<CountingResult> apply(UUID id) {
-            return new RefAtomicReference<CountingResult>();
-          }
-        });
-      }
-      nnResult = reference.updateAndGet(prev -> {
+      CountingResult countingResult = context.get(id, prev -> {
         if (null != prev) return prev;
         else RefUtil.freeRef(prev);
         try {
           @Nullable
-          Result result = LazyResult.this.eval(context.addRef());
+          Result result = this.eval(context.addRef());
           if (null == result) {
             throw new IllegalStateException();
           }
@@ -87,14 +71,13 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
           throw new RuntimeException("Error execuing network component", e);
         }
       });
-      reference.freeRef();
-      Result.Accumulator accumulator = nnResult.getAccumulator();
+      Result.Accumulator accumulator = countingResult.getAccumulator();
       if (accumulator instanceof CountingResult.CountingAccumulator) {
         CountingResult.CountingAccumulator countingAccumulator = (CountingResult.CountingAccumulator) accumulator;
         int references = countingAccumulator.incrementFwd(consumer);
         countingAccumulator.freeRef();
         if (references <= 0) {
-          nnResult.freeRef();
+          countingResult.freeRef();
           throw new IllegalStateException();
         }
         if (null != expectedCount) {
@@ -109,10 +92,8 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
         if (null != consumer) consumer.freeRef();
         if (null != accumulator) accumulator.freeRef();
       }
-      return nnResult;
+      return countingResult;
     } finally {
-      expectedCounts.freeRef();
-      calculated.freeRef();
       context.freeRef();
     }
   }

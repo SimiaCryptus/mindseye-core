@@ -91,21 +91,24 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0021 = right.map.entrySet();
     right.freeRef();
     final RefMap<K, State<K>> collect = RefStream.concat(temp_41_0020.stream(), temp_41_0021.stream())
-        .collect(RefCollectors.groupingBy((@Nonnull final Map.Entry<K, State<K>> e1) -> {
-          K temp_41_0015 = e1.getKey();
-          RefUtil.freeRef(e1);
-          return temp_41_0015;
-        }, RefCollectors.mapping((@Nonnull final Map.Entry<K, State<K>> x) -> {
-          State<K> temp_41_0016 = x.getValue();
-          RefUtil.freeRef(x);
-          return temp_41_0016;
-        }, RefCollectors
-            .collectingAndThen(RefCollectors.reducing((@Nonnull final State<K> a, @Nonnull final State<K> b) -> {
-              assert a.target == b.target;
-              assert a.key.equals(b.key);
-              b.freeRef();
-              return a;
-            }), RefUtil::get))));
+        .collect(RefCollectors.groupingBy((@Nonnull final Map.Entry<K, State<K>> entry) -> {
+          K key = entry.getKey();
+          RefUtil.freeRef(entry);
+          return key;
+        }, RefCollectors.mapping(
+            (@Nonnull final Map.Entry<K, State<K>> entry) -> {
+              State<K> value = entry.getValue();
+              RefUtil.freeRef(entry);
+              return value;
+            },
+            RefCollectors.collectingAndThen(
+                RefCollectors.reducing((@Nonnull final State<K> a, @Nonnull final State<K> b) -> {
+                  assert a.target == b.target;
+                  assert a.key.equals(b.key);
+                  b.freeRef();
+                  return a;
+                }),
+                optional -> RefUtil.get(optional)))));
     temp_41_0021.freeRef();
     temp_41_0020.freeRef();
     return new StateSet<K>(collect);

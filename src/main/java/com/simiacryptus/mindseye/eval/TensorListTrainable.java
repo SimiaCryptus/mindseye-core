@@ -22,11 +22,10 @@ package com.simiacryptus.mindseye.eval;
 import com.simiacryptus.lang.TimedResult;
 import com.simiacryptus.lang.UncheckedSupplier;
 import com.simiacryptus.mindseye.lang.*;
-import com.simiacryptus.mindseye.layers.PlaceholderLayer;
 import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefDoubleStream;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefString;
 
@@ -54,8 +53,8 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
       temp_20_0001.freeRef();
     if (null != network)
       network.freeRef();
-    TensorList[] temp_20_0002 = RefUtil.addRefs(data);
-    this.data = RefUtil.addRefs(temp_20_0002);
+    TensorList[] temp_20_0002 = RefUtil.addRef(data);
+    this.data = RefUtil.addRef(temp_20_0002);
     if (null != temp_20_0002)
       RefUtil.freeRef(temp_20_0002);
     if (null != data)
@@ -64,7 +63,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
 
   @Nonnull
   public TensorList[] getData() {
-    return RefUtil.addRefs(data);
+    return RefUtil.addRef(data);
   }
 
   @Nonnull
@@ -73,10 +72,10 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    TensorList[] temp_20_0003 = RefUtil.addRefs(data);
+    TensorList[] temp_20_0003 = RefUtil.addRef(data);
     if (null != this.data)
       RefUtil.freeRef(this.data);
-    this.data = RefUtil.addRefs(temp_20_0003);
+    this.data = RefUtil.addRef(temp_20_0003);
     RefUtil.freeRef(temp_20_0003);
     RefUtil.freeRef(data);
   }
@@ -114,10 +113,10 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     Result[] temp_20_0007 = RefIntStream.range(0, inputs)
         .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Result>) col -> {
           final Tensor[] tensors = RefIntStream.range(0, items).mapToObj(RefUtil
-              .wrapInterface((IntFunction<? extends Tensor>) row -> data[col].get(row), RefUtil.addRefs(data)))
+              .wrapInterface((IntFunction<? extends Tensor>) row -> data[col].get(row), RefUtil.addRef(data)))
               .toArray(Tensor[]::new);
           @Nonnull
-          TensorArray tensorArray = new TensorArray(RefUtil.addRefs(tensors));
+          TensorArray tensorArray = new TensorArray(RefUtil.addRef(tensors));
           if (null == mask || col >= mask.length || !mask[col]) {
             RefUtil.freeRef(tensors);
             return new ConstantResult(tensorArray);
@@ -125,25 +124,18 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
             try {
               Result.Accumulator accumulator = new Result.Accumulator() {
                 {
-                  RefUtil.addRefs(tensors);
+                  RefUtil.addRef(tensors);
                 }
 
                 @Override
                 public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
                   for (int index = 0; index < delta.length(); index++) {
                     final Tensor dt = delta.get(index);
-                    @Nullable final double[] d = dt.getData();
-                    dt.freeRef();
                     final Tensor t = tensors[index].addRef();
-                    @Nullable final double[] p = t.getData();
-                    t.freeRef();
                     @Nonnull
-                    PlaceholderLayer<double[]> layer = new PlaceholderLayer<>(p);
-                    Delta<UUID> temp_20_0008 = buffer.get(layer.getId(), p);
-                    assert temp_20_0008 != null;
-                    temp_20_0008.addInPlace(d);
-                    temp_20_0008.freeRef();
-                    layer.freeRef();
+                    Delta<UUID> tensorBuffer = buffer.get(UUID.randomUUID(), t);
+                    tensorBuffer.addInPlace(dt);
+                    tensorBuffer.freeRef();
                   }
                   delta.freeRef();
                   buffer.freeRef();
@@ -160,7 +152,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
               RefUtil.freeRef(tensors);
             }
           }
-        }, RefUtil.addRefs(data))).toArray(Result[]::new);
+        }, RefUtil.addRef(data))).toArray(Result[]::new);
     RefUtil.freeRef(data);
     return temp_20_0007;
   }
@@ -172,7 +164,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < inputs;
     int items = data[0].length();
     assert 0 < items;
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(RefUtil.addRefs(data), monitor));
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(RefUtil.addRef(data), monitor));
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     PointSample result = timedResult.getResult();
     if (null != monitor && verbosity() > 1) {
@@ -213,15 +205,15 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     assert 0 < items;
     @Nonnull final TimedResult<PointSample> timedResult = TimedResult
         .time(RefUtil.wrapInterface((UncheckedSupplier<PointSample>) () -> {
-          final Result[] nnContext = TensorListTrainable.getNNContext(RefUtil.addRefs(list), mask);
+          final Result[] nnContext = TensorListTrainable.getNNContext(RefUtil.addRef(list), mask);
           assert network != null;
           final Result result = network.eval(nnContext);
           assert result != null;
           final TensorList resultData = result.getData();
           final DoubleSummaryStatistics statistics = resultData.stream().flatMapToDouble(x -> {
-            double[] array = RefArrays.stream(x.getData()).toArray();
+            RefDoubleStream doubleStream = x.doubleStream();
             x.freeRef();
-            return RefArrays.stream(array);
+            return doubleStream;
           }).summaryStatistics();
           resultData.freeRef();
           final double sum = statistics.getSum();
@@ -236,7 +228,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
           deltaSet.freeRef();
           result.freeRef();
           return pointSample;
-        }, RefUtil.addRefs(list)));
+        }, RefUtil.addRef(list)));
     RefUtil.freeRef(list);
     if (null != monitor && verbosity() > 0) {
       monitor.log(RefString.format("Device completed %s items in %.3f sec", items, timedResult.timeNanos / 1e9));

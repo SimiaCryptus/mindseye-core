@@ -53,7 +53,7 @@ public abstract class L12Normalizer extends TrainableBase {
   public Layer toLayer(UUID id) {
     assert inner != null;
     DAGNetwork layer = (DAGNetwork) inner.getLayer();
-    if(null == layer) return null;
+    if (null == layer) return null;
     RefMap<UUID, Layer> layersById = layer.getLayersById();
     Layer temp_01_0004 = layersById.get(id);
     layersById.freeRef();

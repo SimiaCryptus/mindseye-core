@@ -172,7 +172,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
         ((DAGNetwork) layer).shuffle(seed);
       }
     } finally {
-      if(null != layer) layer.freeRef();
+      if (null != layer) layer.freeRef();
     }
   }
 
@@ -271,7 +271,7 @@ mainLoop:
       if (subjectLayer instanceof DAGNetwork) {
         ((DAGNetwork) subjectLayer).clearNoise();
       }
-      if(null != subjectLayer) subjectLayer.freeRef();
+      if (null != subjectLayer) subjectLayer.freeRef();
       return null == currentPoint ? Double.NaN : currentPoint.getMean();
     } catch (Throwable e) {
       monitor.log(RefString.format("Error %s", Util.toString(e)));

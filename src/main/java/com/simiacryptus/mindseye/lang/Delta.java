@@ -103,6 +103,11 @@ public class Delta<K> extends DoubleBuffer<K> {
     buffer.freeRef();
   }
 
+  public void addInPlace(@Nonnull Tensor tensor) {
+    addInPlace(tensor.getData());
+    tensor.freeRef();
+  }
+
   public void addInPlace(@Nonnull double[] data) {
     assert data.length == this.target.length;
     //assert Arrays.stream(data).allMatch(Double::isFinite);

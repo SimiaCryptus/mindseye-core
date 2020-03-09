@@ -27,13 +27,13 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.mindseye.layers.ValueLayer;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.RefArrays;
+import com.simiacryptus.ref.wrappers.RefFunction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 @SuppressWarnings("serial")
 public class PipelineNetwork extends DAGNetwork {
@@ -59,7 +59,7 @@ public class PipelineNetwork extends DAGNetwork {
 
   public PipelineNetwork(@Nullable final Layer... layers) {
     this();
-    addAll(RefUtil.addRefs(layers));
+    addAll(RefUtil.addRef(layers));
     if (null != layers)
       RefUtil.freeRef(layers);
   }
@@ -109,7 +109,7 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   public static PipelineNetwork combine(@Nullable Layer combiner, @Nonnull PipelineNetwork... networks) {
-    assert RefArrays.stream(RefUtil.addRefs(networks)).allMatch(pipelineNetwork1 -> {
+    assert RefArrays.stream(RefUtil.addRef(networks)).allMatch(pipelineNetwork1 -> {
       boolean alive = pipelineNetwork1.assertAlive();
       pipelineNetwork1.freeRef();
       return alive;
@@ -122,22 +122,15 @@ public class PipelineNetwork extends DAGNetwork {
       return net0;
     }
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1);
-    RefUtil.freeRef(pipelineNetwork.add(combiner == null ? null : combiner.addRef(),
-        RefArrays.stream(RefUtil.addRefs(networks))
-            .map(RefUtil.wrapInterface((Function<? super PipelineNetwork, ? extends InnerNode>) network -> {
-              InnerNode temp_06_0007 = transferNode(pipelineNetwork.addRef(),
-                  network.getHead(), network.addRef());
-              network.freeRef();
-              return temp_06_0007;
-            }, pipelineNetwork.addRef())).toArray(DAGNode[]::new)));
-    RefUtil.freeRef(networks);
-    if (null != combiner)
-      combiner.freeRef();
+    RefUtil.freeRef(pipelineNetwork.add(combiner,
+        RefArrays.stream(networks).map(RefUtil.wrapInterface((RefFunction<PipelineNetwork, DAGNode>) network -> {
+          return pipelineNetwork.transferNode(network, network.getHead());
+        })).toArray(DAGNode[]::new)));
     return pipelineNetwork;
   }
 
   public static PipelineNetwork sequence(@Nonnull PipelineNetwork... networks) {
-    assert RefArrays.stream(RefUtil.addRefs(networks)).allMatch(pipelineNetwork1 -> {
+    assert RefArrays.stream(RefUtil.addRef(networks)).allMatch(pipelineNetwork1 -> {
       boolean alive = pipelineNetwork1.assertAlive();
       pipelineNetwork1.freeRef();
       return alive;
@@ -151,7 +144,7 @@ public class PipelineNetwork extends DAGNetwork {
       RefUtil.freeRef(networks);
       throw new IllegalArgumentException();
     }
-    if (1 != RefArrays.stream(RefUtil.addRefs(networks)).mapToInt(x -> {
+    if (1 != RefArrays.stream(RefUtil.addRef(networks)).mapToInt(x -> {
       int temp_06_0008 = x.inputHandles.size();
       x.freeRef();
       return temp_06_0008;
@@ -161,10 +154,21 @@ public class PipelineNetwork extends DAGNetwork {
     }
     PipelineNetwork pipelineNetwork = new PipelineNetwork(networks[0].inputHandles.size());
     for (PipelineNetwork network : networks) {
-      RefUtil.freeRef(transferNode(pipelineNetwork.addRef(), network.getHead(), network.addRef()));
+      RefUtil.freeRef(pipelineNetwork.transferNode(network.addRef(), network.getHead()));
     }
     RefUtil.freeRef(networks);
     return pipelineNetwork;
+  }
+
+  public static PipelineNetwork getCopy(PipelineNetwork network) {
+    if (null == network) {
+      return null;
+    }
+    try {
+      return network.copyPipeline();
+    } finally {
+      network.freeRef();
+    }
   }
 
   @Nonnull
@@ -217,7 +221,7 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   public void addAll(@Nullable final Layer... layers) {
-    addAll((InnerNode) getHead(), RefUtil.addRefs(layers));
+    addAll((InnerNode) getHead(), RefUtil.addRef(layers));
     if (null != layers)
       RefUtil.freeRef(layers);
   }
@@ -255,10 +259,12 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   @Nullable
-  public PipelineNetwork copyPipeline() {
+  public final PipelineNetwork copyPipeline() {
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1, getId(), getName());
-    if (!this.internalNodes.isEmpty())
-      pipelineNetwork.setHead(transferNode(pipelineNetwork.addRef(), getHead(), this.addRef()));
+    if (!this.internalNodes.isEmpty()) {
+      InnerNode node = pipelineNetwork.transferNode(this.addRef(), getHead());
+      pipelineNetwork.setHead(node);
+    }
     return pipelineNetwork;
   }
 
