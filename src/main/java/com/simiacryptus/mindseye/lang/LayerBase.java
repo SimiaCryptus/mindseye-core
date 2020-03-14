@@ -73,7 +73,6 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     return name;
   }
 
-  @Nonnull
   public void setName(final String name) {
     this.name = name;
   }
@@ -82,7 +81,6 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     return frozen;
   }
 
-  @Nonnull
   public void setFrozen(final boolean frozen) {
     this.frozen = frozen;
   }

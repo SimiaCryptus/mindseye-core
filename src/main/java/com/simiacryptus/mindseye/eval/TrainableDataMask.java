@@ -27,7 +27,6 @@ public interface TrainableDataMask extends Trainable {
   boolean[] getMask();
 
 
-  @Nonnull
   void setMask(boolean... mask);
 
   void _free();

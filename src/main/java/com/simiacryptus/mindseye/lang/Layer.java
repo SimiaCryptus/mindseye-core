@@ -66,12 +66,10 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nullable
   String getName();
 
-  @Nonnull
   void setName(final String name);
 
   boolean isFrozen();
 
-  @Nonnull
   void setFrozen(final boolean frozen);
 
   @Nonnull

@@ -79,7 +79,6 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
-  @Nonnull
   public synchronized void setHead(@Nullable final DAGNode obj) {
     if (obj != head) {
       if (null != head)

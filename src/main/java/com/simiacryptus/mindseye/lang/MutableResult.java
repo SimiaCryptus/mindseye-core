@@ -51,8 +51,7 @@ public class MutableResult extends Result {
     return uuids;
   }
 
-  @Nonnull
-  private static Result.Accumulator handler(@Nullable final Tensor[] tensors, @Nonnull UUID[] objectId) {
+  private static Result.Accumulator handler(final Tensor[] tensors, UUID[] objectId) {
     return new MutableAccumulator(tensors, objectId);
   }
 

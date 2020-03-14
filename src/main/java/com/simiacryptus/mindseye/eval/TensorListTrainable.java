@@ -66,7 +66,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return RefUtil.addRef(data);
   }
 
-  @Nonnull
   public synchronized void setData(@Nonnull final TensorList[] data) {
     int inputs = data.length;
     assert 0 < inputs;
@@ -91,7 +90,6 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return mask;
   }
 
-  @Nonnull
   @Override
   public void setMask(final boolean... mask) {
     this.mask = mask;

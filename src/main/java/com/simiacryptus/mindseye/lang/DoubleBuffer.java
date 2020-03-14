@@ -129,7 +129,6 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
         stream.map(mapper::applyAsDouble).toArray());
   }
 
-  @Nonnull
   public void set(@Nonnull final double[] data) {
     assert RefArrays.stream(data).parallel().allMatch(Double::isFinite);
     RefSystem.arraycopy(data, 0, this.getDelta(), 0, data.length);

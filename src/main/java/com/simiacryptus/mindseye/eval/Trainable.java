@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 public interface Trainable extends ReferenceCounting {
   Layer getLayer();
 
-  @Nonnull
   default void setData(RefList<Tensor[]> tensors) {
     tensors.freeRef();
   }

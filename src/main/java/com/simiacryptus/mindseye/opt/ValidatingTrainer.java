@@ -739,7 +739,6 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       return trainingSubject == null ? null : trainingSubject.addRef();
     }
 
-    @Nonnull
     public void setTrainingSubject(@Nullable final SampledTrainable trainingSubject) {
       SampledTrainable temp_07_0005 = trainingSubject == null ? null : trainingSubject.addRef();
       if (null != this.trainingSubject)
@@ -875,13 +874,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       return temp_07_0037;
     }
 
-    @Nonnull
     @Override
     public void setTrainingSize(final int trainingSize) {
-      SampledTrainable temp_07_0039 = getInner();
-      assert temp_07_0039 != null;
-      temp_07_0039.setTrainingSize(trainingSize);
-      temp_07_0039.freeRef();
+      SampledTrainable inner = getInner();
+      assert inner != null;
+      inner.setTrainingSize(trainingSize);
+      inner.freeRef();
     }
 
     @Nonnull

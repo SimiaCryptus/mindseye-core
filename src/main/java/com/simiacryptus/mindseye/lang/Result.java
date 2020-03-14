@@ -38,7 +38,6 @@ public class Result extends ReferenceCountingBase {
   protected final int dataLength;
   @Nonnull
   protected final TensorList data;
-  @Nonnull
   protected final Result.Accumulator accumulator;
   private final boolean alive;
 
@@ -50,7 +49,7 @@ public class Result extends ReferenceCountingBase {
     this(data, accumulator, !isNull(accumulator));
   }
 
-  public Result(@Nonnull final TensorList data, @Nonnull Result.Accumulator accumulator, boolean alive) {
+  public Result(@Nonnull final TensorList data, Result.Accumulator accumulator, boolean alive) {
     super();
     this.alive = alive;
     if (this.alive) {
@@ -64,7 +63,6 @@ public class Result extends ReferenceCountingBase {
     this.data = data;
   }
 
-  @Nullable
   public final Result.Accumulator getAccumulator() {
     assertAlive();
     if (accumulator == null) return getNullAccumulator();
@@ -78,7 +76,6 @@ public class Result extends ReferenceCountingBase {
     return data.addRef();
   }
 
-  @NotNull
   public static Result.Accumulator getNullAccumulator() {
     return new NullAccumulator();
     //return NULL_ACCUMULATOR.addRef();

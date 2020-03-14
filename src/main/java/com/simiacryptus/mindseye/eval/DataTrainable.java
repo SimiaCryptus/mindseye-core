@@ -29,7 +29,6 @@ public interface DataTrainable extends Trainable {
   @Nullable
   Tensor[][] getData();
 
-  @Nonnull
   void setData(RefList<Tensor[]> tensors);
 
   @Nonnull

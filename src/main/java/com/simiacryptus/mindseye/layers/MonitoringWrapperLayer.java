@@ -135,7 +135,6 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return inner.getName();
   }
 
-  @Nonnull
   @Override
   public void setName(final String name) {
     if (null != inner) {

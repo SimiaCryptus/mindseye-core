@@ -35,7 +35,6 @@ import javax.annotation.Nullable;
 public class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
-  @Nullable
   public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
     @Nullable final Tensor tensor = Tensor.fromJson(json, null);

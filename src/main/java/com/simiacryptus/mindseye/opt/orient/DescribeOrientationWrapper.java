@@ -77,7 +77,7 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
       RefUtil.freeRef(x);
       return temp_27_0003;
     }, RefUtil.wrapInterface((Function<Map.Entry<CharSequence, RefList<State<UUID>>>, ? extends CharSequence>) (
-        @Nonnull final Map.Entry<CharSequence, RefList<State<UUID>>> list) -> {
+        final Map.Entry<CharSequence, RefList<State<UUID>>> list) -> {
       final RefList<State<UUID>> deltaList = list.getValue();
       RefUtil.freeRef(list);
       if (1 == deltaList.size()) {

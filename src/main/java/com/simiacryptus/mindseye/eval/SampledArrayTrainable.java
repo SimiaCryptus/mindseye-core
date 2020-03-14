@@ -94,7 +94,6 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     return Math.max(minSamples, Math.min(trainingData.size(), trainingSize));
   }
 
-  @Nonnull
   @Override
   public void setTrainingSize(final int trainingSize) {
     this.trainingSize = trainingSize;
@@ -174,9 +173,9 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
         return false;
       }).limit(getTrainingSize()).map(Supplier::get).toArray(Tensor[][]::new);
     }
-    ArrayTrainable temp_00_0005 = getInner();
-    assert temp_00_0005 != null;
-    temp_00_0005.setTrainingData(trainingData);
-    temp_00_0005.freeRef();
+    ArrayTrainable inner = getInner();
+    assert inner != null;
+    inner.setTrainingData(trainingData);
+    inner.freeRef();
   }
 }

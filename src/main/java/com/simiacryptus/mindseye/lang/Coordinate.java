@@ -43,7 +43,6 @@ public final class Coordinate implements Serializable {
     return coords;
   }
 
-  @Nonnull
   void setCoords(final int[] coords) {
     this.coords = coords;
   }
@@ -52,7 +51,6 @@ public final class Coordinate implements Serializable {
     return index;
   }
 
-  @Nonnull
   void setIndex(final int index) {
     this.index = index;
   }

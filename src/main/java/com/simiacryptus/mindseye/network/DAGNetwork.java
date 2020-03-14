@@ -161,7 +161,6 @@ public abstract class DAGNetwork extends LayerBase {
     return map;
   }
 
-  @Nonnull
   @Override
   public void setFrozen(final boolean frozen) {
     super.setFrozen(frozen);
@@ -296,7 +295,6 @@ public abstract class DAGNetwork extends LayerBase {
     return node;
   }
 
-  @Nonnull
   public void addInput() {
     assertAlive();
     @Nonnull final UUID key = UUID.randomUUID();

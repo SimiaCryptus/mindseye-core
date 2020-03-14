@@ -38,7 +38,6 @@ public class SampledCachedTrainable<T extends SampledTrainable> extends CachedTr
     return temp_54_0001;
   }
 
-  @Nonnull
   @Override
   public void setTrainingSize(final int trainingSize) {
     if (trainingSize != getTrainingSize()) {

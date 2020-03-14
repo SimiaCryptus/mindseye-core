@@ -71,7 +71,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
 
-  @Nonnull
   public void accumulate(final double alpha) {
     stream().forEach((Delta<K> d) -> {
       d.accumulate(alpha);
@@ -79,7 +78,6 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     });
   }
 
-  @Nonnull
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> copy = this.copy();
     copy.addInPlace(right);

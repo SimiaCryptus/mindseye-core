@@ -94,7 +94,6 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
-  @Nonnull
   public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
     addInPlace(buffer.delta);
@@ -142,7 +141,6 @@ public class Delta<K> extends DoubleBuffer<K> {
     return map(x -> x * f);
   }
 
-  @Nonnull
   @Override
   public void set(@Nonnull final double[] data) {
     super.set(data);

@@ -62,7 +62,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return data.toArray(new Tensor[][]{});
   }
 
-  @Nonnull
   public synchronized void setData(@Nonnull final RefList<Tensor[]> data) {
     if (null != this.data)
       this.data.freeRef();
@@ -102,7 +101,6 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return mask;
   }
 
-  @Nonnull
   @Override
   public void setMask(final boolean... mask) {
     this.mask = mask;

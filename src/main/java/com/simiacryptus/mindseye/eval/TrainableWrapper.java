@@ -59,7 +59,6 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
     return ((TrainableDataMask) inner).getMask();
   }
 
-  @Nonnull
   public void setMask(final boolean... mask) {
     assert inner != null;
     ((TrainableDataMask) inner).setMask(mask);

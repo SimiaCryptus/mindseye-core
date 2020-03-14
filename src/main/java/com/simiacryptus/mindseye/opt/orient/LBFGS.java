@@ -371,7 +371,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         anglesPerLayer = temp_47_0033.stream()
             //.filter(e -> !(e.getKey() instanceof PlaceholderLayer)) // This would be too verbose
             .map(RefUtil.wrapInterface((Function<Map.Entry<UUID, Delta<UUID>>, ? extends String>) (
-                @Nonnull final Map.Entry<UUID, Delta<UUID>> e) -> {
+                final Map.Entry<UUID, Delta<UUID>> e) -> {
               RefMap<UUID, Delta<UUID>> temp_47_0034 = gradient.getMap();
               Delta<UUID> temp_47_0035 = temp_47_0034.get(e.getKey());
               assert temp_47_0035 != null;

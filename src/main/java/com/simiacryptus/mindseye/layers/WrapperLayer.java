@@ -72,7 +72,6 @@ public class WrapperLayer extends LayerBase {
     return inner.isFrozen();
   }
 
-  @Nonnull
   @Override
   public void setFrozen(final boolean frozen) {
     if (null == inner)

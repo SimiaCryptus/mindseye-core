@@ -91,12 +91,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0021 = right.map.entrySet();
     right.freeRef();
     final RefMap<K, State<K>> collect = RefStream.concat(temp_41_0020.stream(), temp_41_0021.stream())
-        .collect(RefCollectors.groupingBy((@Nonnull final Map.Entry<K, State<K>> entry) -> {
+        .collect(RefCollectors.groupingBy((final Map.Entry<K, State<K>> entry) -> {
           K key = entry.getKey();
           RefUtil.freeRef(entry);
           return key;
         }, RefCollectors.mapping(
-            (@Nonnull final Map.Entry<K, State<K>> entry) -> {
+            (final Map.Entry<K, State<K>> entry) -> {
               State<K> value = entry.getValue();
               RefUtil.freeRef(entry);
               return value;
@@ -172,7 +172,6 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   //    return StateSet.union(this, right);
   //  }
 
-  @Nonnull
   public void restore() {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0024 = map.entrySet();
     RefStream<Map.Entry<K, State<K>>> stream = temp_41_0024.stream();

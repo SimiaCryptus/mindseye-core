@@ -61,7 +61,6 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     return ((TrainableDataMask) inner).getMask();
   }
 
-  @Nonnull
   @Override
   public void setMask(final boolean... mask) {
     assert inner != null;
@@ -74,7 +73,6 @@ public class ConstL12Normalizer extends L12Normalizer implements SampledTrainabl
     return ((SampledTrainable) inner).getTrainingSize();
   }
 
-  @Nonnull
   @Override
   public void setTrainingSize(final int trainingSize) {
     assert inner != null;

@@ -24,7 +24,6 @@ import javax.annotation.Nonnull;
 public interface SampledTrainable extends Trainable {
   int getTrainingSize();
 
-  @Nonnull
   void setTrainingSize(int trainingSize);
 
   @Nonnull

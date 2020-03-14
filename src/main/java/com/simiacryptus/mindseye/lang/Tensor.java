@@ -563,7 +563,6 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     add(coords.getIndex(), value);
   }
 
-  @Nonnull
   public final void add(final int index, final double value) {
     getData()[index] += value;
   }
