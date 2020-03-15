@@ -24,9 +24,8 @@ import com.simiacryptus.mindseye.lang.SerialPrecision;
 import com.simiacryptus.ref.wrappers.RefArrays;
 import com.simiacryptus.ref.wrappers.RefIntStream;
 import com.simiacryptus.ref.wrappers.RefString;
-import com.simiacryptus.util.test.TestCategories;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,31 +36,31 @@ public class DataSerializerTest {
   private static final Logger log = LoggerFactory.getLogger(DataSerializerTest.class);
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testDouble() {
     test(SerialPrecision.Double);
   }
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testFloat() {
     test(SerialPrecision.Float);
   }
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testUniform32() {
     test(SerialPrecision.Uniform32);
   }
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testUniform16() {
     test(SerialPrecision.Uniform16);
   }
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testUniform8() {
     test(SerialPrecision.Uniform8);
   }

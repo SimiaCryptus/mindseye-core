@@ -23,9 +23,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.wrappers.*;
-import com.simiacryptus.util.test.TestCategories;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public class TensorTest {
   }
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testCoordStream() {
     Tensor temp_52_0001 = new Tensor(2, 2, 2);
     final RefList<CharSequence> coordinates = temp_52_0001.coordStream(true)
@@ -67,7 +66,7 @@ public class TensorTest {
   //   * @throws Exception the exception
   //   */
   //  @Test
-  //  @Category(TestCategories.UnitTest.class)
+  //  @Tag("UnitTest")
   //  public void testShuffleStream() {
   //    @Nonnull HashSet<Object> ids = new HashSet<>();
   //    int max = 10000;
@@ -78,7 +77,7 @@ public class TensorTest {
   //  }
 
   @Test
-  @Category(TestCategories.UnitTest.class)
+  @Tag("UnitTest")
   public void testToJson() {
     Tensor temp_52_0002 = new Tensor(3, 3, 1);
     test(temp_52_0002.map(v -> Math.random()));

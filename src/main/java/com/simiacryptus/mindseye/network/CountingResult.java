@@ -87,7 +87,6 @@ public class CountingResult extends Result {
       fwdLinks = new RefArrayList<>();
       passbackBuffers = new RefHashMap<>();
       accumulations = new ArrayList<>();
-      watch();
     }
 
     public int getFwdCount() {

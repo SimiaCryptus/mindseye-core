@@ -36,8 +36,7 @@ public interface DAGNode extends Serializable, ReferenceCounting {
     return new DAGNode[]{};
   }
 
-  @Nullable
-  <T extends Layer> T getLayer();
+  @Nullable <T extends Layer> T getLayer();
 
   void setLayer(Layer layer);
 
