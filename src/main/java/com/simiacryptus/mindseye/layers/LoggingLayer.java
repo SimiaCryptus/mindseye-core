@@ -41,7 +41,7 @@ public final class LoggingLayer extends LayerBase {
   private boolean logFeedback = true;
   private DetailLevel level;
 
-  protected LoggingLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
+  protected LoggingLayer(@Nonnull final JsonObject json) {
     super(json);
     level = DetailLevel.Dimensions;
     level = DetailLevel.valueOf(json.get("level").getAsString());
@@ -75,7 +75,7 @@ public final class LoggingLayer extends LayerBase {
   @Nonnull
   @SuppressWarnings("unused")
   public static LoggingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
-    return new LoggingLayer(json, rs);
+    return new LoggingLayer(json);
   }
 
   @Nonnull

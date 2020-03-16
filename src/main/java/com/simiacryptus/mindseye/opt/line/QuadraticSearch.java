@@ -110,7 +110,7 @@ public class QuadraticSearch implements LineSearchStrategy {
     if (currentRate > getMaxRate()) {
       currentRate = getMaxRate();
     }
-    Stepper stepper = new Stepper(cursor, monitor, QuadraticSearch.this);
+    Stepper stepper = new Stepper(cursor, monitor);
     try {
       final PointSample pointSample = stepper.step();
       assert pointSample != null;
@@ -238,7 +238,7 @@ public class QuadraticSearch implements LineSearchStrategy {
     private LineSearchPoint rightPoint;
     private int loops;
 
-    private Stepper(@Nonnull LineSearchCursor cursor, @Nonnull TrainingMonitor monitor, QuadraticSearch quadraticSearch) {
+    private Stepper(@Nonnull LineSearchCursor cursor, @Nonnull TrainingMonitor monitor) {
       this.cursor = cursor;
       this.monitor = monitor;
       this.thisX = 0;

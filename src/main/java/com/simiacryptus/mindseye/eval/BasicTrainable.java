@@ -124,7 +124,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert data != null;
     assert !data.isEmpty();
-    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval(monitor));
+    @Nonnull final TimedResult<PointSample> timedResult = TimedResult.time(() -> eval());
     //          log.info(String.format("Evaluated to %s evalInputDelta arrays", DeltaSet<LayerBase>.apply.size()));
     PointSample result = timedResult.getResult();
     if (null != monitor && verbosity() > 1) {
@@ -163,7 +163,7 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   @Nonnull
-  protected PointSample eval(@Nullable final TrainingMonitor monitor) {
+  protected PointSample eval() {
     assert network != null;
     final Result result = network.eval(RefUtil.addRef(this.inputProxies));
     assert result != null;
