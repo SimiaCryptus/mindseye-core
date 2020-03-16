@@ -126,7 +126,7 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     @Nullable final DeltaSet<UUID> result = lbfgs(measurement.addRef(), monitor, new RefArrayList<>(history.addRef()));
     int historySize = null == result ? minHistory : maxHistory;
     try {
-      SimpleLineSearchCursor cursor;
+      final SimpleLineSearchCursor cursor;
       if (null != result) {
         cursor = cursor(subject, measurement, "LBFGS", result);
       } else {

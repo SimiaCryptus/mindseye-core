@@ -275,7 +275,7 @@ mainLoop:
       return null == currentPoint ? Double.NaN : currentPoint.getMean();
     } catch (Throwable e) {
       monitor.log(RefString.format("Error %s", Util.toString(e)));
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     } finally {
       monitor.log(RefString.format("Final threshold in iteration %s: %s (> %s) after %.3fs (< %.3fs)",
           currentIteration.get(), null == currentPoint ? null : currentPoint.getMean(), terminateThreshold,

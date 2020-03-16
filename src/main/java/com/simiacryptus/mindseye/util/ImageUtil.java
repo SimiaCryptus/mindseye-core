@@ -25,6 +25,7 @@ import com.simiacryptus.mindseye.lang.Tensor;
 import com.simiacryptus.ref.lang.RefIgnore;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.wrappers.*;
+import com.simiacryptus.util.Util;
 import com.simiacryptus.util.data.DoubleStatistics;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -205,7 +206,7 @@ public class ImageUtil {
               if (!ImageIO.write(image, "PNG", selectedFile))
                 throw new IllegalArgumentException();
             } catch (IOException e1) {
-              throw new RuntimeException(e1);
+              throw Util.throwException(e1);
             }
           }
         }

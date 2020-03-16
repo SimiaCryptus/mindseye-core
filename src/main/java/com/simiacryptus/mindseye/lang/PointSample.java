@@ -24,6 +24,7 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefMap;
 import com.simiacryptus.ref.wrappers.RefSet;
 import com.simiacryptus.ref.wrappers.RefStringBuilder;
+import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -54,10 +55,8 @@ public final class PointSample extends ReferenceCountingBase {
       this.sum = sum;
       this.count = count;
       setRate(rate);
-    } catch (RuntimeException e) {
-      throw e;
     } catch (Throwable e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     } finally {
       weightsMap.freeRef();
       deltaMap.freeRef();

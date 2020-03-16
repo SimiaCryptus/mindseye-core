@@ -23,6 +23,7 @@ import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import com.simiacryptus.ref.wrappers.RefLinkedBlockingQueue;
+import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -73,7 +74,7 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
     try {
       return queue.poll(1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     }
   }
 

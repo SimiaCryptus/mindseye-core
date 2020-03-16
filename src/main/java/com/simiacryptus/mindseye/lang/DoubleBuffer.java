@@ -118,7 +118,7 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
 
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
-    return map(mapper, !CoreSettings.INSTANCE().isSingleThreaded());
+    return map(mapper, !CoreSettings.INSTANCE().singleThreaded);
   }
 
   @Nonnull

@@ -30,6 +30,7 @@ import com.simiacryptus.ref.wrappers.RefCollectors;
 import com.simiacryptus.ref.wrappers.RefList;
 import com.simiacryptus.ref.wrappers.RefStream;
 import com.simiacryptus.util.JsonUtil;
+import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -107,7 +108,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
       return invoke;
     } catch (@Nonnull IllegalAccessException | InvocationTargetException | NoSuchMethodException
         | ClassNotFoundException e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     }
   }
 

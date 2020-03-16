@@ -54,7 +54,7 @@ public abstract class LazyRefHashMap<K, V> extends ReferenceCountingBase impleme
 
   @Override
   public V get(Object key) {
-    RefAtomicReference<V> atomicReference;
+    final RefAtomicReference<V> atomicReference;
     synchronized (inner) {
       atomicReference = inner.computeIfAbsent((K) key, k -> new RefAtomicReference<>());
     }

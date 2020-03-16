@@ -119,7 +119,7 @@ public final class InnerNode extends LazyResult {
     try {
       @Nonnull
       RefStream<DAGNode> stream = RefArrays.stream(RefUtil.addRef(inputNodes));
-      if (!CoreSettings.INSTANCE().isSingleThreaded() && parallel)
+      if (!CoreSettings.INSTANCE().singleThreaded && parallel)
         stream = stream.parallel();
       return innerLayer.eval(stream.map(node -> {
         try {

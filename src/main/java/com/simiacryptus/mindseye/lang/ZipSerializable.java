@@ -22,6 +22,7 @@ package com.simiacryptus.mindseye.lang;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.stream.JsonWriter;
+import com.simiacryptus.util.Util;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nonnull;
@@ -54,7 +55,7 @@ public interface ZipSerializable {
         InputStream inputStream = zipfile.getInputStream(zipEntry);
         resources.put(name, IOUtils.readFully(inputStream, (int) zipEntry.getSize()));
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw Util.throwException(e);
       }
     }
     return resources;
@@ -72,7 +73,7 @@ public interface ZipSerializable {
          ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
       writeZip(zipOutputStream, precision, new HashMap<>(), "model.json");
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     }
   }
 
@@ -98,11 +99,11 @@ public interface ZipSerializable {
         } catch (ZipException e) {
           // Ignore duplicate entry
         } catch (IOException e) {
-          throw new RuntimeException(e);
+          throw Util.throwException(e);
         }
       });
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     }
   }
 

@@ -434,7 +434,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       epochParams.freeRef();
       return temp_07_0011;
     } catch (@Nonnull final Throwable e) {
-      throw new RuntimeException(e);
+      throw Util.throwException(e);
     } finally {
       if (null != validationSubjectLayer) validationSubjectLayer.freeRef();
     }

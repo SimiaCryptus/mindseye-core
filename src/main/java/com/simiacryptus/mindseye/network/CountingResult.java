@@ -170,7 +170,7 @@ public class CountingResult extends Result {
       synchronized (passbackBuffers) {
         RefCollection<TensorList> values = passbackBuffers.values();
         RefStream<TensorList> stream = values.stream();
-        if (!CoreSettings.INSTANCE().isSingleThreaded())
+        if (!CoreSettings.INSTANCE().singleThreaded)
           stream = stream.parallel();
         TensorList reduced = RefUtil.get(stream.reduce((a, b) -> {
           TensorList c = a.addAndFree(b);

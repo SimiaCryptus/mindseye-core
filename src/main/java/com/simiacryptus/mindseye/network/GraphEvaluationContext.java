@@ -50,7 +50,7 @@ class GraphEvaluationContext extends ReferenceCountingBase {
   }
 
   public CountingResult get(UUID key, UnaryOperator<CountingResult> unaryOperator) {
-    RefAtomicReference<CountingResult> reference;
+    final RefAtomicReference<CountingResult> reference;
     synchronized (calculated) {
       reference = calculated.computeIfAbsent(key, new Function<UUID, RefAtomicReference<CountingResult>>() {
         @Nonnull
