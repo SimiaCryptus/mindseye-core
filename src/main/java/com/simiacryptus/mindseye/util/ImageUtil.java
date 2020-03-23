@@ -156,12 +156,6 @@ public class ImageUtil {
   @RefIgnore
   public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final int period,
                                   final boolean normalize) {
-    if (GraphicsEnvironment.isHeadless() || !Desktop.isDesktopSupported()
-        || !Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-      if (null != input)
-        input.freeRef();
-      return;
-    }
     assert input != null;
     JLabel label = new JLabel(new ImageIcon(input.toImage()));
     final AtomicReference<JDialog> dialog = new AtomicReference<JDialog>();
