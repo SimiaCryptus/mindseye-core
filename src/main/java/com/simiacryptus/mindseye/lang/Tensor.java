@@ -693,7 +693,9 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     final int index = index(c1, c2, c3);
     final double[] data = getData();
     assert index >= 0;
-    assert index < data.length;
+    if (index >= data.length) {
+      throw new IllegalArgumentException(Arrays.toString(new int[]{c1, c2, c3}));
+    }
     return data[index];
   }
 

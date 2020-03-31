@@ -474,9 +474,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     PointSample currentPoint = temp_07_0029.measure(phase.addRef());
     temp_07_0029.freeRef();
     final double pointMean = currentPoint.getMean();
-    RefMap<UUID, Delta<UUID>> temp_07_0030 = currentPoint.delta.getMap();
-    assert 0 < temp_07_0030.size() : "Nothing to optimize";
-    temp_07_0030.freeRef();
+    assert 0 < currentPoint.delta.size() : "Nothing to optimize";
     int step = 1;
     for (; step <= epochParams.iterations || epochParams.iterations <= 0; step++) {
       if (shouldHalt(monitor, epochParams.timeoutMs)) {
@@ -615,9 +613,7 @@ public class ValidatingTrainer extends ReferenceCountingBase {
           RefList<State<UUID>> temp_07_0034 = list.getValue();
           final double[] doubleList = temp_07_0034.stream()
               .mapToDouble(RefUtil.wrapInterface(prevWeight -> {
-                RefMap<UUID, State<UUID>> temp_07_0035 = nextWeights.getMap();
-                final DoubleBuffer<UUID> dirDelta = temp_07_0035.get(prevWeight.key);
-                temp_07_0035.freeRef();
+                final DoubleBuffer<UUID> dirDelta = nextWeights.get(prevWeight.key);
                 final double numerator = prevWeight.deltaStatistics().rms();
                 prevWeight.freeRef();
                 final double denominator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();

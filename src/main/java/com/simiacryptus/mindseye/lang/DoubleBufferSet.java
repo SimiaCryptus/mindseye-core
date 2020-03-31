@@ -75,6 +75,14 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   @javax.annotation.Nullable
+  public V get(final K layer) {
+    final V delta = map.get(layer);
+    if(null == delta) return delta;
+    assert delta.key.equals(layer);
+    return delta;
+  }
+
+  @javax.annotation.Nullable
   public V get(final K layer, @Nonnull final Tensor tensor) {
     V delta = get(layer, tensor.getData());
     tensor.freeRef();
@@ -152,6 +160,10 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
       doubleBuffer.freeRef();
       return v;
     });
+  }
+
+  public RefSet<K> keySet() {
+    return map.keySet();
   }
 
   protected abstract V factory(final K layer, final double[] target);

@@ -114,6 +114,18 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return new StateSet<K>(collect);
   }
 
+  public boolean containsAll(RefMap<K, Delta<K>> deltaMap) {
+    RefSet<K> keySet = deltaMap.keySet();
+    RefMap<K, State<K>> weightsMap = getMap();
+    try {
+      return keySet.stream().allMatch(x -> weightsMap.containsKey(x));
+    } finally {
+      weightsMap.freeRef();
+      keySet.freeRef();
+      deltaMap.freeRef();
+    }
+  }
+
 
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {

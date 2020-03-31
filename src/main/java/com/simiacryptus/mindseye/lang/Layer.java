@@ -108,6 +108,7 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
       return invoke;
     } catch (@Nonnull IllegalAccessException | InvocationTargetException | NoSuchMethodException
         | ClassNotFoundException e) {
+      e.printStackTrace();
       throw Util.throwException(e);
     }
   }
@@ -218,15 +219,15 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   @Nonnull
   default UnaryOperator<Tensor> asTensorFunction() {
     return input -> {
-      Result temp_34_0019 = eval(input == null ? null : input.addRef());
-      assert temp_34_0019 != null;
-      TensorList temp_34_0020 = temp_34_0019.getData();
-      Tensor temp_34_0005 = temp_34_0020.get(0);
-      temp_34_0020.freeRef();
-      temp_34_0019.freeRef();
+      Result result = eval(input == null ? null : input.addRef());
+      assert result != null;
+      TensorList tensorList = result.getData();
+      result.freeRef();
+      Tensor tensor = tensorList.get(0);
+      tensorList.freeRef();
       if (null != input)
         input.freeRef();
-      return temp_34_0005;
+      return tensor;
     };
   }
 

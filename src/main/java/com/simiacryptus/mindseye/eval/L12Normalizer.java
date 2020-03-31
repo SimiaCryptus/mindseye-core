@@ -76,15 +76,12 @@ public abstract class L12Normalizer extends TrainableBase {
     final PointSample innerMeasure = inner.measure(monitor);
     @Nonnull final DeltaSet<UUID> normalizationVector = new DeltaSet<UUID>();
     AtomicDouble valueAdj = new AtomicDouble(0);
-    RefMap<UUID, Delta<UUID>> temp_01_0006 = innerMeasure.delta.getMap();
-    RefCollection<Layer> layers = getLayers(temp_01_0006.keySet());
+    RefCollection<Layer> layers = getLayers(innerMeasure.delta.keySet());
     layers.forEach(layer -> {
-      RefMap<UUID, Delta<UUID>> temp_01_0007 = innerMeasure.delta.getMap();
-      Delta<UUID> temp_01_0008 = temp_01_0007.get(layer.getId());
+      Delta<UUID> temp_01_0008 = innerMeasure.delta.get(layer.getId());
       assert temp_01_0008 != null;
       final double[] weights = temp_01_0008.target;
       temp_01_0008.freeRef();
-      temp_01_0007.freeRef();
       Delta<UUID> temp_01_0009 = normalizationVector.get(layer.getId(), weights);
       assert temp_01_0009 != null;
       @Nullable final double[] gradientAdj = temp_01_0009.getDelta();
@@ -100,7 +97,6 @@ public abstract class L12Normalizer extends TrainableBase {
     });
 
     layers.freeRef();
-    temp_01_0006.freeRef();
     final DeltaSet<UUID> deltaSet = innerMeasure.delta.add(normalizationVector);
     final PointSample pointSample = new PointSample(deltaSet.addRef(),
         innerMeasure.weights.addRef(),

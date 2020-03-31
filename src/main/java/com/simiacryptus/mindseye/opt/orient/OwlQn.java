@@ -92,9 +92,7 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     assert gradient.direction != null;
     @Nonnull final DeltaSet<UUID> searchDirection = gradient.direction.copy();
     @Nonnull final DeltaSet<UUID> orthant = new DeltaSet<UUID>();
-    RefMap<UUID, Delta<UUID>> temp_29_0006 = gradient.direction.getMap();
-    RefSet<UUID> keySet = temp_29_0006.keySet();
-    temp_29_0006.freeRef();
+    RefSet<UUID> keySet = gradient.direction.keySet();
     RefList<Layer> layerSet = keySet.stream()
         .map(RefUtil.wrapInterface((Function<? super UUID, ? extends Layer>) id -> {
           assert subject != null;

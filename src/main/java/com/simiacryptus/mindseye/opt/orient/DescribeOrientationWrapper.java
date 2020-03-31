@@ -83,23 +83,17 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
       if (1 == deltaList.size()) {
         final State<UUID> weightDelta = deltaList.get(0);
         deltaList.freeRef();
-        RefMap<UUID, Delta<UUID>> temp_27_0012 = direction.getMap();
         assert weightDelta != null;
         CharSequence temp_27_0005 = DescribeOrientationWrapper.render(weightDelta.addRef(),
-            temp_27_0012.get(weightDelta.key));
-        temp_27_0012.freeRef();
+            direction.get(weightDelta.key));
         weightDelta.freeRef();
         return temp_27_0005;
       } else {
         CharSequence temp_27_0004 = deltaList.stream()
             .map(RefUtil.wrapInterface((Function<State<UUID>, CharSequence>) weightDelta -> {
-              RefMap<UUID, Delta<UUID>> temp_27_0013 = direction.getMap();
               assert weightDelta != null;
-              CharSequence temp_27_0006 = DescribeOrientationWrapper
-                  .render(weightDelta.addRef(), temp_27_0013.get(weightDelta.key));
-              temp_27_0013.freeRef();
-              weightDelta.freeRef();
-              return temp_27_0006;
+              Delta<UUID> dirDelta = direction.get(weightDelta.key);
+              return DescribeOrientationWrapper.render(weightDelta, dirDelta);
             }, direction.addRef())).limit(10).reduce((a, b) -> a + "\n" + b).orElse("");
         deltaList.freeRef();
         return temp_27_0004;

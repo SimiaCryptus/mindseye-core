@@ -41,25 +41,17 @@ public final class PointSample extends ReferenceCountingBase {
 
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum,
                      final double rate, final int count) {
-    RefMap<UUID, Delta<UUID>> deltaMap = delta.getMap();
-    RefMap<UUID, State<UUID>> weightsMap = weights.getMap();
     try {
-      assert deltaMap.size() == weightsMap.size();
+      assert delta.size() == weights.size();
       this.delta = new DeltaSet<>(delta.addRef());
       this.weights = new StateSet<>(weights.addRef());
-      RefMap<UUID, Delta<UUID>> temp_08_0010 = delta.getMap();
-      RefSet<UUID> temp_08_0011 = temp_08_0010.keySet();
-      temp_08_0010.freeRef();
-      assert temp_08_0011.stream().allMatch(RefUtil.wrapInterface((Predicate<? super UUID>) weightsMap::containsKey, weights.addRef()));
-      temp_08_0011.freeRef();
+      if (!weights.containsAll(delta.getMap())) throw new IllegalStateException();
       this.sum = sum;
       this.count = count;
       setRate(rate);
     } catch (Throwable e) {
       throw Util.throwException(e);
     } finally {
-      weightsMap.freeRef();
-      deltaMap.freeRef();
       weights.freeRef();
       delta.freeRef();
     }
@@ -79,16 +71,8 @@ public final class PointSample extends ReferenceCountingBase {
 
   @Nonnull
   public static PointSample add(@Nonnull final PointSample left, @Nonnull final PointSample right) {
-    RefMap<UUID, Delta<UUID>> temp_08_0012 = left.delta.getMap();
-    RefMap<UUID, State<UUID>> temp_08_0013 = left.weights.getMap();
-    assert temp_08_0012.size() == temp_08_0013.size();
-    temp_08_0013.freeRef();
-    temp_08_0012.freeRef();
-    RefMap<UUID, Delta<UUID>> temp_08_0014 = right.delta.getMap();
-    RefMap<UUID, State<UUID>> temp_08_0015 = right.weights.getMap();
-    assert temp_08_0014.size() == temp_08_0015.size();
-    temp_08_0015.freeRef();
-    temp_08_0014.freeRef();
+    assert left.delta.size() == left.weights.size();
+    assert right.delta.size() == right.weights.size();
     assert left.rate == right.rate;
     DeltaSet<UUID> delta = left.delta.add(right.delta.addRef());
     StateSet<UUID> stateSet = StateSet.union(left.weights.addRef(), right.weights.addRef());

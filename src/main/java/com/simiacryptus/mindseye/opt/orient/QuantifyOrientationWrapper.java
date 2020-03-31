@@ -77,9 +77,7 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
             RefList<State<UUID>> temp_02_0009 = list.getValue();
             final RefList<Double> doubleList = temp_02_0009.stream()
                 .map(RefUtil.wrapInterface((Function<? super State<UUID>, ? extends Double>) weightDelta -> {
-                  RefMap<UUID, Delta<UUID>> temp_02_0010 = direction.getMap();
-                  final DoubleBuffer<UUID> dirDelta = temp_02_0010.get(weightDelta.key);
-                  temp_02_0010.freeRef();
+                  final DoubleBuffer<UUID> dirDelta = direction.get(weightDelta.key);
                   final double denominator = weightDelta.deltaStatistics().rms();
                   weightDelta.freeRef();
                   final double numerator = null == dirDelta ? 0 : dirDelta.deltaStatistics().rms();

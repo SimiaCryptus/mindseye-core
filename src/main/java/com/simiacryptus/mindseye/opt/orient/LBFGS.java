@@ -336,12 +336,10 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     RefSet<Map.Entry<UUID, Delta<UUID>>> entries = uuidDeltaRefMap.entrySet();
     uuidDeltaRefMap.freeRef();
     entries.forEach(e -> {
-      RefMap<UUID, Delta<UUID>> temp_47_0029 = from.getMap();
-      Delta<UUID> temp_47_0030 = temp_47_0029.get(e.getKey());
+      Delta<UUID> temp_47_0030 = from.get(e.getKey());
       assert temp_47_0030 != null;
       @Nullable final double[] delta = temp_47_0030.getDelta();
       temp_47_0030.freeRef();
-      temp_47_0029.freeRef();
       Delta<UUID> temp_47_0031 = e.getValue();
       RefUtil.freeRef(e);
       RefArrays.setAll(temp_47_0031.getDelta(), j -> {
@@ -372,22 +370,18 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
             //.filter(e -> !(e.getKey() instanceof PlaceholderLayer)) // This would be too verbose
             .map(RefUtil.wrapInterface((Function<Map.Entry<UUID, Delta<UUID>>, ? extends String>) (
                 final Map.Entry<UUID, Delta<UUID>> e) -> {
-              RefMap<UUID, Delta<UUID>> temp_47_0034 = gradient.getMap();
-              Delta<UUID> temp_47_0035 = temp_47_0034.get(e.getKey());
+              Delta<UUID> temp_47_0035 = gradient.get(e.getKey());
               assert temp_47_0035 != null;
               @Nullable final double[] lbfgsVector = temp_47_0035.getDelta();
               temp_47_0035.freeRef();
-              temp_47_0034.freeRef();
               assert lbfgsVector != null;
               for (int index = 0; index < lbfgsVector.length; index++) {
                 lbfgsVector[index] = Double.isFinite(lbfgsVector[index]) ? lbfgsVector[index] : 0;
               }
-              RefMap<UUID, Delta<UUID>> temp_47_0036 = gradient.getMap();
-              Delta<UUID> temp_47_0037 = temp_47_0036.get(e.getKey());
+              Delta<UUID> temp_47_0037 = gradient.get(e.getKey());
               assert temp_47_0037 != null;
               @Nullable final double[] gradientVector = temp_47_0037.getDelta();
               temp_47_0037.freeRef();
-              temp_47_0036.freeRef();
               assert gradientVector != null;
               for (int index = 0; index < gradientVector.length; index++) {
                 gradientVector[index] = Double.isFinite(gradientVector[index]) ? gradientVector[index] : 0;
@@ -402,12 +396,10 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
                 RefUtil.freeRef(e);
                 throw new IllegalStateException();
               }
-              RefMap<UUID, Delta<UUID>> temp_47_0038 = gradient.getMap();
-              Delta<UUID> temp_47_0039 = temp_47_0038.get(e.getKey());
+              Delta<UUID> temp_47_0039 = gradient.get(e.getKey());
               assert temp_47_0039 != null;
               final CharSequence layerName = temp_47_0039.key.toString();
               temp_47_0039.freeRef();
-              temp_47_0038.freeRef();
               RefUtil.freeRef(e);
               if (gradientMagnitude == 0.0) {
                 return RefString.format("%s = %.3e", layerName, lbfgsMagnitude);

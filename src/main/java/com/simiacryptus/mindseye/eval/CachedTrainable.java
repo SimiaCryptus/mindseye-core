@@ -74,10 +74,8 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
       try {
         if (!result.weights.isDifferent()) {
           if (isVerbose()) {
-            RefMap<UUID, State<UUID>> temp_53_0001 = result.weights.getMap();
-            log.info(RefString.format("Returning cached value; %s buffers unchanged since %s => %s", temp_53_0001.size(),
+            log.info(RefString.format("Returning cached value; %s buffers unchanged since %s => %s", result.weights.size(),
                 result.rate, result.getMean()));
-            temp_53_0001.freeRef();
           }
           return result.copyFull();
         }
