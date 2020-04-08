@@ -19,16 +19,12 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
-import com.simiacryptus.ref.wrappers.RefMap;
-import com.simiacryptus.ref.wrappers.RefSet;
 import com.simiacryptus.ref.wrappers.RefStringBuilder;
 import com.simiacryptus.util.Util;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 public final class PointSample extends ReferenceCountingBase {
   public final int count;

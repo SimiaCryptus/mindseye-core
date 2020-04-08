@@ -77,7 +77,7 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   @javax.annotation.Nullable
   public V get(final K layer) {
     final V delta = map.get(layer);
-    if(null == delta) return delta;
+    if (null == delta) return delta;
     assert delta.key.equals(layer);
     return delta;
   }
