@@ -35,11 +35,8 @@
         <github.global.oauth2Token></github.global.oauth2Token>
     </properties>
 
-    <url>https://simiacryptus.github.io/${github.project}/</url>
-    <scm>
-        <url>https://github.com/SimiaCryptus/mindseye-core/</url>
-        <connection>scm:git:git@github.com:SimiaCryptus/${github.project}.git</connection>
-    </scm>
+
+
 
 
     <dependencyManagement>
