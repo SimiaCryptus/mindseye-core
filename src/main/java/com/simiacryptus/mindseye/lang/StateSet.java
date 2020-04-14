@@ -27,11 +27,24 @@ import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+/**
+ * The type State set.
+ *
+ * @param <K> the type parameter
+ */
 public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
+  /**
+   * Instantiates a new State set.
+   */
   public StateSet() {
   }
 
+  /**
+   * Instantiates a new State set.
+   *
+   * @param toCopy the to copy
+   */
   public StateSet(@Nonnull final DeltaSet<K> toCopy) {
 //    assert toCopy.stream().allMatch(x -> {
 //      boolean temp_41_0001 = RefArrays.stream(x.getDelta()).allMatch(Double::isFinite);
@@ -61,6 +74,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 //    });
   }
 
+  /**
+   * Instantiates a new State set.
+   *
+   * @param toCopy the to copy
+   */
   public StateSet(@Nonnull final DoubleBufferSet<K, State<K>> toCopy) {
     super(toCopy);
 //    assert stream().allMatch(x -> {
@@ -71,10 +89,20 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 //    });
   }
 
+  /**
+   * Instantiates a new State set.
+   *
+   * @param collect the collect
+   */
   public StateSet(@Nonnull final RefMap<K, State<K>> collect) {
     super(collect);
   }
 
+  /**
+   * Is different boolean.
+   *
+   * @return the boolean
+   */
   public boolean isDifferent() {
     return stream().parallel().anyMatch(x -> {
       boolean temp_41_0005 = !x.areEqual();
@@ -83,6 +111,14 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     });
   }
 
+  /**
+   * Union state set.
+   *
+   * @param <K>   the type parameter
+   * @param left  the left
+   * @param right the right
+   * @return the state set
+   */
   @Nonnull
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
                                       @Nonnull final DoubleBufferSet<K, State<K>> right) {
@@ -114,6 +150,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return new StateSet<K>(collect);
   }
 
+  /**
+   * Contains all boolean.
+   *
+   * @param deltaMap the delta map
+   * @return the boolean
+   */
   public boolean containsAll(RefMap<K, Delta<K>> deltaMap) {
     RefSet<K> keySet = deltaMap.keySet();
     RefMap<K, State<K>> weightsMap = getMap();
@@ -127,6 +169,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
 
+  /**
+   * Add state set.
+   *
+   * @param right the right
+   * @return the state set
+   */
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
     @Nonnull final DeltaSet<K> deltas = new DeltaSet<K>();
@@ -152,6 +200,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return temp_41_0008;
   }
 
+  /**
+   * As vector delta set.
+   *
+   * @return the delta set
+   */
   @Nonnull
   public DeltaSet<K> asVector() {
     @Nonnull final RefHashMap<K, Delta<K>> newMap = new RefHashMap<>();
@@ -184,6 +237,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   //    return StateSet.union(this, right);
   //  }
 
+  /**
+   * Restore.
+   */
   public void restore() {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0024 = map.entrySet();
     RefStream<Map.Entry<K, State<K>>> stream = temp_41_0024.stream();
@@ -220,6 +276,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return new StateSet<>(newMap);
   }
 
+  /**
+   * Subtract state set.
+   *
+   * @param right the right
+   * @return the state set
+   */
   @Nonnull
   public StateSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     StateSet<K> temp_41_0017 = this.add(right.scale(-1));
@@ -227,6 +289,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return temp_41_0017;
   }
 
+  /**
+   * Subtract delta set.
+   *
+   * @param right the right
+   * @return the delta set
+   */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final StateSet<K> right) {
     @Nonnull

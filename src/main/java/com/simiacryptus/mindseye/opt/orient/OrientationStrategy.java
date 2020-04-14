@@ -25,12 +25,31 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.ref.lang.ReferenceCounting;
 
+/**
+ * The interface Orientation strategy.
+ *
+ * @param <T> the type parameter
+ */
 public interface OrientationStrategy<T extends LineSearchCursor> extends ReferenceCounting {
 
+  /**
+   * Orient t.
+   *
+   * @param subject     the subject
+   * @param measurement the measurement
+   * @param monitor     the monitor
+   * @return the t
+   */
   T orient(Trainable subject, PointSample measurement, TrainingMonitor monitor);
 
+  /**
+   * Reset.
+   */
   void reset();
 
+  /**
+   * Free.
+   */
   void _free();
 
   OrientationStrategy<T> addRef();

@@ -35,20 +35,38 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Pipeline network.
+ */
 @SuppressWarnings("serial")
 public class PipelineNetwork extends DAGNetwork {
   @Nullable
   private DAGNode head;
 
+  /**
+   * Instantiates a new Pipeline network.
+   */
   public PipelineNetwork() {
     this(1);
   }
 
+  /**
+   * Instantiates a new Pipeline network.
+   *
+   * @param inputs the inputs
+   * @param layers the layers
+   */
   public PipelineNetwork(final int inputs, @Nonnull final Layer... layers) {
     super(inputs);
     RefArrays.stream(layers).forEach(layer -> RefUtil.freeRef(add(layer)));
   }
 
+  /**
+   * Instantiates a new Pipeline network.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected PipelineNetwork(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     @Nonnull final UUID headId = UUID.fromString(json.get("head").getAsString());
@@ -57,6 +75,11 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
+  /**
+   * Instantiates a new Pipeline network.
+   *
+   * @param layers the layers
+   */
   public PipelineNetwork(@Nullable final Layer... layers) {
     this();
     addAll(RefUtil.addRef(layers));
@@ -64,6 +87,13 @@ public class PipelineNetwork extends DAGNetwork {
       RefUtil.freeRef(layers);
   }
 
+  /**
+   * Instantiates a new Pipeline network.
+   *
+   * @param inputs the inputs
+   * @param id     the id
+   * @param name   the name
+   */
   public PipelineNetwork(int inputs, UUID id, String name) {
     super(inputs, id, name);
   }
@@ -79,6 +109,11 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
+  /**
+   * Sets head.
+   *
+   * @param obj the obj
+   */
   public synchronized void setHead(@Nullable final DAGNode obj) {
     if (obj != head) {
       if (null != head)
@@ -90,12 +125,26 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
+  /**
+   * From json pipeline network.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the pipeline network
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static PipelineNetwork fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new PipelineNetwork(json, rs);
   }
 
+  /**
+   * Build pipeline network.
+   *
+   * @param inputs the inputs
+   * @param layers the layers
+   * @return the pipeline network
+   */
   @Nonnull
   public static PipelineNetwork build(final int inputs, @Nonnull final Layer... layers) {
     PipelineNetwork pipelineNetwork = new PipelineNetwork(inputs);
@@ -107,6 +156,13 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
+  /**
+   * Combine pipeline network.
+   *
+   * @param combiner the combiner
+   * @param networks the networks
+   * @return the pipeline network
+   */
   public static PipelineNetwork combine(@Nullable Layer combiner, @Nonnull PipelineNetwork... networks) {
     assert RefArrays.stream(RefUtil.addRef(networks)).allMatch(pipelineNetwork1 -> {
       boolean alive = pipelineNetwork1.assertAlive();
@@ -128,6 +184,12 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
+  /**
+   * Sequence pipeline network.
+   *
+   * @param networks the networks
+   * @return the pipeline network
+   */
   public static PipelineNetwork sequence(@Nonnull PipelineNetwork... networks) {
     assert RefArrays.stream(RefUtil.addRef(networks)).allMatch(pipelineNetwork1 -> {
       boolean alive = pipelineNetwork1.assertAlive();
@@ -159,6 +221,12 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
+  /**
+   * Gets copy.
+   *
+   * @param network the network
+   * @return the copy
+   */
   public static PipelineNetwork getCopy(PipelineNetwork network) {
     if (null == network) {
       return null;
@@ -182,6 +250,12 @@ public class PipelineNetwork extends DAGNetwork {
     return (PipelineNetwork) super.copy();
   }
 
+  /**
+   * Add inner node.
+   *
+   * @param nextHead the next head
+   * @return the inner node
+   */
   @Nonnull
   public InnerNode add(@Nullable final Layer nextHead) {
     assert nextHead != null;
@@ -210,6 +284,12 @@ public class PipelineNetwork extends DAGNetwork {
     return node;
   }
 
+  /**
+   * Add all.
+   *
+   * @param node   the node
+   * @param layers the layers
+   */
   public void addAll(InnerNode node, @Nonnull final Layer... layers) {
     for (final Layer l : layers) {
       node = add(l == null ? null : l.addRef(), node);
@@ -219,17 +299,34 @@ public class PipelineNetwork extends DAGNetwork {
       node.freeRef();
   }
 
+  /**
+   * Add all.
+   *
+   * @param layers the layers
+   */
   public void addAll(@Nullable final Layer... layers) {
     addAll((InnerNode) getHead(), RefUtil.addRef(layers));
     if (null != layers)
       RefUtil.freeRef(layers);
   }
 
+  /**
+   * Const value dag node.
+   *
+   * @param tensor the tensor
+   * @return the dag node
+   */
   @Nullable
   public DAGNode constValue(@Nullable final Tensor tensor) {
     return add(new ValueLayer(tensor), new DAGNode[]{});
   }
 
+  /**
+   * Const value wrap dag node.
+   *
+   * @param tensor the tensor
+   * @return the dag node
+   */
   @Nullable
   public DAGNode constValueWrap(@Nullable final Tensor tensor) {
     DAGNode temp_06_0014 = constValue(tensor == null ? null : tensor.addRef());
@@ -257,6 +354,11 @@ public class PipelineNetwork extends DAGNetwork {
     return this.addRef();
   }
 
+  /**
+   * Copy pipeline pipeline network.
+   *
+   * @return the pipeline network
+   */
   @Nullable
   public final PipelineNetwork copyPipeline() {
     PipelineNetwork pipelineNetwork = new PipelineNetwork(1, getId(), getName());

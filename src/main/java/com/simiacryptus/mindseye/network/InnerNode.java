@@ -30,6 +30,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Inner node.
+ */
 @SuppressWarnings("serial")
 public final class InnerNode extends LazyResult {
   @SuppressWarnings("unused")
@@ -40,11 +43,24 @@ public final class InnerNode extends LazyResult {
   private volatile Layer layer;
   private boolean parallel = true;
 
+  /**
+   * Instantiates a new Inner node.
+   *
+   * @param layer      the layer
+   * @param inputNodes the input nodes
+   */
   @SafeVarargs
   InnerNode(@Nonnull final Layer layer, final DAGNode... inputNodes) {
     this(layer, UUID.randomUUID(), inputNodes);
   }
 
+  /**
+   * Instantiates a new Inner node.
+   *
+   * @param layer      the layer
+   * @param key        the key
+   * @param inputNodes the input nodes
+   */
   @SafeVarargs
   InnerNode(@Nonnull final Layer layer, final UUID key,
             @Nonnull final DAGNode... inputNodes) {
@@ -86,10 +102,20 @@ public final class InnerNode extends LazyResult {
     }
   }
 
+  /**
+   * Is parallel boolean.
+   *
+   * @return the boolean
+   */
   public boolean isParallel() {
     return parallel;
   }
 
+  /**
+   * Sets parallel.
+   *
+   * @param parallel the parallel
+   */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }

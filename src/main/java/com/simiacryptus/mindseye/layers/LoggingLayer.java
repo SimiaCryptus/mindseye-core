@@ -35,12 +35,23 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Logging layer.
+ */
 @SuppressWarnings("serial")
 public final class LoggingLayer extends LayerBase {
+  /**
+   * The Log.
+   */
   static final Logger log = LoggerFactory.getLogger(LoggingLayer.class);
   private boolean logFeedback = true;
   private DetailLevel level;
 
+  /**
+   * Instantiates a new Logging layer.
+   *
+   * @param json the json
+   */
   protected LoggingLayer(@Nonnull final JsonObject json) {
     super(json);
     level = DetailLevel.Dimensions;
@@ -48,30 +59,65 @@ public final class LoggingLayer extends LayerBase {
     logFeedback = json.get("logFeedback").getAsBoolean();
   }
 
+  /**
+   * Instantiates a new Logging layer.
+   */
   public LoggingLayer() {
     this(DetailLevel.Dimensions);
   }
 
+  /**
+   * Instantiates a new Logging layer.
+   *
+   * @param level the level
+   */
   public LoggingLayer(DetailLevel level) {
     this.level = level;
   }
 
+  /**
+   * Gets level.
+   *
+   * @return the level
+   */
   public DetailLevel getLevel() {
     return level;
   }
 
+  /**
+   * Sets level.
+   *
+   * @param level the level
+   */
   public void setLevel(DetailLevel level) {
     this.level = level;
   }
 
+  /**
+   * Is log feedback boolean.
+   *
+   * @return the boolean
+   */
   public boolean isLogFeedback() {
     return logFeedback;
   }
 
+  /**
+   * Sets log feedback.
+   *
+   * @param logFeedback the log feedback
+   */
   public void setLogFeedback(boolean logFeedback) {
     this.logFeedback = logFeedback;
   }
 
+  /**
+   * From json logging layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the logging layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static LoggingLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -134,7 +180,13 @@ public final class LoggingLayer extends LayerBase {
     return json;
   }
 
+  /**
+   * The enum Detail level.
+   */
   public enum DetailLevel {
+    /**
+     * The Dimensions.
+     */
     Dimensions {
       @Override
       public String getString(@Nonnull Tensor tensor) {
@@ -145,6 +197,9 @@ public final class LoggingLayer extends LayerBase {
         }
       }
     },
+    /**
+     * The Statistics.
+     */
     Statistics {
       @Override
       public String getString(@Nonnull Tensor tensor) {
@@ -155,6 +210,9 @@ public final class LoggingLayer extends LayerBase {
         }
       }
     },
+    /**
+     * The Data.
+     */
     Data {
       @Override
       public String getString(@Nonnull Tensor tensor) {
@@ -166,6 +224,12 @@ public final class LoggingLayer extends LayerBase {
       }
     };
 
+    /**
+     * Gets string.
+     *
+     * @param tensor the tensor
+     * @return the string
+     */
     public abstract String getString(@Nonnull Tensor tensor);
   }
 
@@ -175,6 +239,13 @@ public final class LoggingLayer extends LayerBase {
     private String name;
     private DetailLevel level;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param accumulator the accumulator
+     * @param name        the name
+     * @param level       the level
+     */
     public Accumulator(Result.Accumulator accumulator, String name, DetailLevel level) {
       this.accumulator = accumulator;
       this.name = name;

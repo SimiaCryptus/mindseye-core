@@ -36,13 +36,27 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
+/**
+ * The interface Zip serializable.
+ */
 public interface ZipSerializable {
 
+  /**
+   * Gets json.
+   *
+   * @return the json
+   */
   @Nullable
   default JsonElement getJson() {
     return getJson(null, SerialPrecision.Double);
   }
 
+  /**
+   * Extract hash map.
+   *
+   * @param zipfile the zipfile
+   * @return the hash map
+   */
   @Nonnull
   static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
     Enumeration<? extends ZipEntry> entries = zipfile.entries();
@@ -61,13 +75,31 @@ public interface ZipSerializable {
     return resources;
   }
 
+  /**
+   * Gets json.
+   *
+   * @param resources      the resources
+   * @param dataSerializer the data serializer
+   * @return the json
+   */
   @Nullable
   JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
 
+  /**
+   * Write zip.
+   *
+   * @param out the out
+   */
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);
   }
 
+  /**
+   * Write zip.
+   *
+   * @param out       the out
+   * @param precision the precision
+   */
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull
          ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(out))) {
@@ -77,6 +109,14 @@ public interface ZipSerializable {
     }
   }
 
+  /**
+   * Write zip.
+   *
+   * @param out       the out
+   * @param precision the precision
+   * @param resources the resources
+   * @param fileName  the file name
+   */
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
                         @Nonnull HashMap<CharSequence, byte[]> resources, @Nonnull String fileName) {
     try {

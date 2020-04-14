@@ -25,36 +25,81 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.io.Serializable;
 
+/**
+ * The type Coordinate.
+ */
 public final class Coordinate implements Serializable {
+  /**
+   * The Coords.
+   */
   protected int[] coords;
+  /**
+   * The Index.
+   */
   protected int index;
 
+  /**
+   * Instantiates a new Coordinate.
+   */
   public Coordinate() {
     this(-1, null);
   }
 
+  /**
+   * Instantiates a new Coordinate.
+   *
+   * @param index  the index
+   * @param coords the coords
+   */
   public Coordinate(final int index, final int[] coords) {
     super();
     this.index = index;
     this.coords = coords;
   }
 
+  /**
+   * Get coords int [ ].
+   *
+   * @return the int [ ]
+   */
   public int[] getCoords() {
     return coords;
   }
 
+  /**
+   * Sets coords.
+   *
+   * @param coords the coords
+   */
   void setCoords(final int[] coords) {
     this.coords = coords;
   }
 
+  /**
+   * Gets index.
+   *
+   * @return the index
+   */
   public int getIndex() {
     return index;
   }
 
+  /**
+   * Sets index.
+   *
+   * @param index the index
+   */
   void setIndex(final int index) {
     this.index = index;
   }
 
+  /**
+   * Add int [ ].
+   *
+   * @param a the a
+   * @param b the b
+   * @return the int [ ]
+   */
   @Nonnull
   public static int[] add(@Nonnull final int[] a, @Nonnull final int[] b) {
     @Nonnull final int[] r = new int[Math.max(a.length, b.length)];
@@ -64,6 +109,14 @@ public final class Coordinate implements Serializable {
     return r;
   }
 
+  /**
+   * Transpose xy int.
+   *
+   * @param rows  the rows
+   * @param cols  the cols
+   * @param index the index
+   * @return the int
+   */
   public static int transposeXY(int rows, int cols, int index) {
     final int filterBandX = index % rows;
     final int filterBandY = (index - filterBandX) / rows;
@@ -96,6 +149,11 @@ public final class Coordinate implements Serializable {
     return RefArrays.toString(coords) + "<" + index + ">";
   }
 
+  /**
+   * Copy coordinate.
+   *
+   * @return the coordinate
+   */
   @Nonnull
   public Coordinate copy() {
     return new Coordinate(index, RefArrays.copyOf(coords, coords.length));

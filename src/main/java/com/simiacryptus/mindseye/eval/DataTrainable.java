@@ -25,7 +25,15 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The interface Data trainable.
+ */
 public interface DataTrainable extends Trainable {
+  /**
+   * Get data tensor [ ] [ ].
+   *
+   * @return the tensor [ ] [ ]
+   */
   @Nullable
   Tensor[][] getData();
 

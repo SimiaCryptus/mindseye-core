@@ -26,6 +26,9 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
+/**
+ * The type Line search cursor base.
+ */
 public abstract class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
 
   public abstract CharSequence getDirectionType();

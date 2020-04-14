@@ -26,15 +26,42 @@ import com.simiacryptus.util.Util;
 import javax.annotation.Nonnull;
 import java.util.UUID;
 
+/**
+ * The type Point sample.
+ */
 public final class PointSample extends ReferenceCountingBase {
+  /**
+   * The Count.
+   */
   public final int count;
+  /**
+   * The Delta.
+   */
   @Nonnull
   public final DeltaSet<UUID> delta;
+  /**
+   * The Sum.
+   */
   public final double sum;
+  /**
+   * The Weights.
+   */
   @Nonnull
   public final StateSet<UUID> weights;
+  /**
+   * The Rate.
+   */
   public double rate;
 
+  /**
+   * Instantiates a new Point sample.
+   *
+   * @param delta   the delta
+   * @param weights the weights
+   * @param sum     the sum
+   * @param rate    the rate
+   * @param count   the count
+   */
   public PointSample(@Nonnull final DeltaSet<UUID> delta, @Nonnull final StateSet<UUID> weights, final double sum,
                      final double rate, final int count) {
     try {
@@ -53,18 +80,40 @@ public final class PointSample extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Gets mean.
+   *
+   * @return the mean
+   */
   public double getMean() {
     return sum / count;
   }
 
+  /**
+   * Gets rate.
+   *
+   * @return the rate
+   */
   public double getRate() {
     return rate;
   }
 
+  /**
+   * Sets rate.
+   *
+   * @param rate the rate
+   */
   public void setRate(double rate) {
     this.rate = rate;
   }
 
+  /**
+   * Add point sample.
+   *
+   * @param left  the left
+   * @param right the right
+   * @return the point sample
+   */
   @Nonnull
   public static PointSample add(@Nonnull final PointSample left, @Nonnull final PointSample right) {
     assert left.delta.size() == left.weights.size();
@@ -82,11 +131,23 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
 
+  /**
+   * Add point sample.
+   *
+   * @param right the right
+   * @return the point sample
+   */
   @Nonnull
   public PointSample add(@Nonnull final PointSample right) {
     return PointSample.add(this.addRef(), right);
   }
 
+  /**
+   * Add in place point sample.
+   *
+   * @param right the right
+   * @return the point sample
+   */
   @Nonnull
   public PointSample addInPlace(@Nonnull final PointSample right) {
     try {
@@ -105,6 +166,11 @@ public final class PointSample extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Copy full point sample.
+   *
+   * @return the point sample
+   */
   @Nonnull
   public PointSample copyFull() {
     return new PointSample(
@@ -113,6 +179,11 @@ public final class PointSample extends ReferenceCountingBase {
         sum, rate, count);
   }
 
+  /**
+   * Normalize point sample.
+   *
+   * @return the point sample
+   */
   @Nonnull
   public PointSample normalize() {
     if (count == 1) {
@@ -127,6 +198,9 @@ public final class PointSample extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Restore.
+   */
   public void restore() {
     weights.stream().forEach(d -> {
       d.restore();
@@ -134,6 +208,9 @@ public final class PointSample extends ReferenceCountingBase {
     });
   }
 
+  /**
+   * Backup.
+   */
   public void backup() {
     weights.stream().forEach(d -> {
       d.backup();

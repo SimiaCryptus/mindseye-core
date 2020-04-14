@@ -33,11 +33,19 @@ import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.UUID;
 
+/**
+ * The type Validating orientation wrapper.
+ */
 public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   @Nullable
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
+  /**
+   * Instantiates a new Validating orientation wrapper.
+   *
+   * @param inner the inner
+   */
   public ValidatingOrientationWrapper(@Nullable final OrientationStrategy<? extends LineSearchCursor> inner) {
     OrientationStrategy<? extends LineSearchCursor> temp_26_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_26_0001 == null ? null : temp_26_0001.addRef();
@@ -79,6 +87,11 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     @Nullable
     private final LineSearchCursor cursor;
 
+    /**
+     * Instantiates a new Validating line search cursor.
+     *
+     * @param cursor the cursor
+     */
     public ValidatingLineSearchCursor(@Nullable final LineSearchCursor cursor) {
       this.cursor = cursor;
     }
@@ -89,6 +102,12 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       return cursor.getDirectionType();
     }
 
+    /**
+     * Add ref validating line search cursor [ ].
+     *
+     * @param array the array
+     * @return the validating line search cursor [ ]
+     */
     @Nullable
     public static @SuppressWarnings("unused")
     ValidatingLineSearchCursor[] addRef(@Nullable ValidatingLineSearchCursor[] array) {
@@ -132,6 +151,13 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       return primaryPoint;
     }
 
+    /**
+     * Test.
+     *
+     * @param monitor      the monitor
+     * @param primaryPoint the primary point
+     * @param probeSize    the probe size
+     */
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
                      final double probeSize) {
       final double alpha = primaryPoint.getPointRate();

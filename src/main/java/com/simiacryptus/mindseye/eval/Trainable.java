@@ -28,20 +28,50 @@ import com.simiacryptus.ref.wrappers.RefList;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The interface Trainable.
+ */
 public interface Trainable extends ReferenceCounting {
+  /**
+   * Gets layer.
+   *
+   * @return the layer
+   */
   Layer getLayer();
 
+  /**
+   * Sets data.
+   *
+   * @param tensors the tensors
+   */
   default void setData(RefList<Tensor[]> tensors) {
     tensors.freeRef();
   }
 
+  /**
+   * Cached cached trainable.
+   *
+   * @return the cached trainable
+   */
   @Nonnull
   default CachedTrainable<? extends Trainable> cached() {
     return new CachedTrainable<>(this.addRef());
   }
 
+  /**
+   * Measure point sample.
+   *
+   * @param monitor the monitor
+   * @return the point sample
+   */
   PointSample measure(TrainingMonitor monitor);
 
+  /**
+   * Reseed boolean.
+   *
+   * @param seed the seed
+   * @return the boolean
+   */
   default boolean reseed(final long seed) {
     return false;
   }

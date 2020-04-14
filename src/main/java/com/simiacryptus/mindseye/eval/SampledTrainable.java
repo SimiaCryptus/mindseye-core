@@ -21,15 +21,31 @@ package com.simiacryptus.mindseye.eval;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The interface Sampled trainable.
+ */
 public interface SampledTrainable extends Trainable {
+  /**
+   * Gets training size.
+   *
+   * @return the training size
+   */
   int getTrainingSize();
 
+  /**
+   * Sets training size.
+   *
+   * @param trainingSize the training size
+   */
   void setTrainingSize(int trainingSize);
 
   @Nonnull
   @Override
   SampledCachedTrainable<? extends SampledTrainable> cached();
 
+  /**
+   * Free.
+   */
   void _free();
 
   @Nonnull

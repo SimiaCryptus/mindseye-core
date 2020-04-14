@@ -36,6 +36,9 @@ import javax.annotation.Nullable;
 import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 
+/**
+ * The type Basic trainable.
+ */
 public class BasicTrainable extends ReferenceCountingBase implements DataTrainable, TrainableDataMask {
 
   @Nullable
@@ -49,6 +52,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   private int inputSize;
   private Result[] inputProxies;
 
+  /**
+   * Instantiates a new Basic trainable.
+   *
+   * @param network the network
+   */
   public BasicTrainable(@Nullable final Layer network) {
     this.network = network;
     data = null;
@@ -71,6 +79,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     this.inputProxies = getInputProxies();
   }
 
+  /**
+   * Get input proxies result [ ].
+   *
+   * @return the result [ ]
+   */
   @Nonnull
   protected Result[] getInputProxies() {
     if (null == data) {
@@ -106,6 +119,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     this.mask = mask;
   }
 
+  /**
+   * Sets verbosity.
+   *
+   * @param verbose the verbose
+   */
   public void setVerbosity(int verbose) {
     verbosity = verbose;
   }
@@ -135,6 +153,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return result;
   }
 
+  /**
+   * Verbosity int.
+   *
+   * @return the int
+   */
   public int verbosity() {
     return verbosity;
   }
@@ -162,6 +185,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return (BasicTrainable) super.addRef();
   }
 
+  /**
+   * Eval point sample.
+   *
+   * @return the point sample
+   */
   @Nonnull
   protected PointSample eval() {
     assert network != null;

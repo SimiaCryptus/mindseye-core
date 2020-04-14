@@ -34,12 +34,21 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Value layer.
+ */
 @SuppressWarnings("serial")
 public class ValueLayer extends LayerBase {
 
   @Nullable
   private Tensor[] data;
 
+  /**
+   * Instantiates a new Value layer.
+   *
+   * @param json      the json
+   * @param resources the resources
+   */
   protected ValueLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> resources) {
     super(json);
     RefUtil.freeRef(data);
@@ -49,6 +58,11 @@ public class ValueLayer extends LayerBase {
         .toArray(Tensor[]::new);
   }
 
+  /**
+   * Instantiates a new Value layer.
+   *
+   * @param data the data
+   */
   public ValueLayer(final @Nonnull Tensor... data) {
     super();
     RefUtil.freeRef(this.data);
@@ -57,16 +71,33 @@ public class ValueLayer extends LayerBase {
     this.frozen = true;
   }
 
+  /**
+   * Get data tensor [ ].
+   *
+   * @return the tensor [ ]
+   */
   @Nullable
   public Tensor[] getData() {
     return RefUtil.addRef(data);
   }
 
+  /**
+   * Sets data.
+   *
+   * @param data the data
+   */
   public void setData(@Nullable final Tensor... data) {
     RefUtil.freeRef(this.data);
     this.data = data;
   }
 
+  /**
+   * From json value layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the value layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static ValueLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -126,6 +157,11 @@ public class ValueLayer extends LayerBase {
 
     private final ValueLayer valueLayer;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param valueLayer the value layer
+     */
     public Accumulator(ValueLayer valueLayer) {
       this.valueLayer = valueLayer;
     }

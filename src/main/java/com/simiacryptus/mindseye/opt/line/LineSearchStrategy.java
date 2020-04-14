@@ -24,8 +24,18 @@ import com.simiacryptus.mindseye.opt.TrainingMonitor;
 
 import javax.annotation.Nullable;
 
+/**
+ * The interface Line search strategy.
+ */
 public interface LineSearchStrategy {
 
+  /**
+   * Step point sample.
+   *
+   * @param cursor  the cursor
+   * @param monitor the monitor
+   * @return the point sample
+   */
   @Nullable
   PointSample step(LineSearchCursor cursor, TrainingMonitor monitor);
 }

@@ -31,12 +31,22 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Placeholder layer.
+ *
+ * @param <T> the type parameter
+ */
 @SuppressWarnings("serial")
 public final class PlaceholderLayer<T> extends LayerBase {
 
   @Nullable
   private final T key;
 
+  /**
+   * Instantiates a new Placeholder layer.
+   *
+   * @param key the key
+   */
   public PlaceholderLayer(@Nullable final T key) {
     if (null == key)
       throw new UnsupportedOperationException();
@@ -52,6 +62,11 @@ public final class PlaceholderLayer<T> extends LayerBase {
     return key == null ? UUID.randomUUID() : UUID.nameUUIDFromBytes(key.toString().getBytes());
   }
 
+  /**
+   * Gets key.
+   *
+   * @return the key
+   */
   @Nullable
   public T getKey() {
     return key;

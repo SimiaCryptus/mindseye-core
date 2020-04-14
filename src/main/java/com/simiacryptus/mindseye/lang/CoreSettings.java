@@ -30,13 +30,25 @@ import javax.annotation.Nullable;
 
 import static com.simiacryptus.lang.Settings.get;
 
+/**
+ * The type Core settings.
+ */
 public class CoreSettings implements Settings {
 
   private static final Logger logger = LoggerFactory.getLogger(CoreSettings.class);
   @Nullable
   private static transient CoreSettings INSTANCE = null;
+  /**
+   * The Backprop aggregation size.
+   */
   public final int backpropAggregationSize = get("BACKPROP_AGG_SIZE", 3);
+  /**
+   * The Jvm threads.
+   */
   public final int jvmThreads = get("THREADS", 64);
+  /**
+   * The Single threaded.
+   */
   public final boolean singleThreaded = get("SINGLE_THREADED", false);
 
   private CoreSettings() {
@@ -44,6 +56,11 @@ public class CoreSettings implements Settings {
         Integer.toString(jvmThreads));
   }
 
+  /**
+   * Instance core settings.
+   *
+   * @return the core settings
+   */
   public static CoreSettings INSTANCE() {
     if (null == INSTANCE) {
       synchronized (CoreSettings.class) {

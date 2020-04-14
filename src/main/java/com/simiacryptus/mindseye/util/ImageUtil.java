@@ -51,11 +51,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.*;
 
+/**
+ * The type Image util.
+ */
 public class ImageUtil {
+  /**
+   * The constant scheduledThreadPool.
+   */
   public static final ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1,
       new ThreadFactoryBuilder().setDaemon(true).build());
   private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
+  /**
+   * Render to images ref stream.
+   *
+   * @param tensor    the tensor
+   * @param normalize the normalize
+   * @return the ref stream
+   */
   public static RefStream<BufferedImage> renderToImages(@Nonnull final Tensor tensor, final boolean normalize) {
     final DoubleStatistics[] statistics = RefIntStream.range(0, tensor.getDimensions()[2])
         .mapToObj(RefUtil.wrapInterface((IntFunction<DoubleStatistics>) band -> {
@@ -100,11 +113,26 @@ public class ImageUtil {
     return temp_35_0001;
   }
 
+  /**
+   * Resize buffered image.
+   *
+   * @param source the source
+   * @param size   the size
+   * @return the buffered image
+   */
   @Nonnull
   public static BufferedImage resize(@Nonnull final BufferedImage source, final int size) {
     return resize(source, size, false);
   }
 
+  /**
+   * Resize buffered image.
+   *
+   * @param source         the source
+   * @param size           the size
+   * @param preserveAspect the preserve aspect
+   * @return the buffered image
+   */
   @Nonnull
   public static BufferedImage resize(@Nonnull final BufferedImage source, final int size, boolean preserveAspect) {
     if (size <= 0)
@@ -123,6 +151,13 @@ public class ImageUtil {
     return img;
   }
 
+  /**
+   * Resize px buffered image.
+   *
+   * @param source the source
+   * @param size   the size
+   * @return the buffered image
+   */
   @Nonnull
   public static BufferedImage resizePx(@Nonnull final BufferedImage source, final long size) {
     if (size < 0)
@@ -133,6 +168,14 @@ public class ImageUtil {
     return resize(source, width, height);
   }
 
+  /**
+   * Resize buffered image.
+   *
+   * @param source the source
+   * @param width  the width
+   * @param height the height
+   * @return the buffered image
+   */
   @Nonnull
   public static BufferedImage resize(@Nonnull BufferedImage source, int width, int height) {
     @Nonnull final BufferedImage image = new BufferedImage(width, height, source.getType());
@@ -147,12 +190,27 @@ public class ImageUtil {
     return image;
   }
 
+  /**
+   * Monitor image.
+   *
+   * @param input       the input
+   * @param exitOnClose the exit on close
+   * @param normalize   the normalize
+   */
   public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final boolean normalize) {
     monitorImage(input == null ? null : input.addRef(), exitOnClose, 30, normalize);
     if (null != input)
       input.freeRef();
   }
 
+  /**
+   * Monitor image.
+   *
+   * @param input       the input
+   * @param exitOnClose the exit on close
+   * @param period      the period
+   * @param normalize   the normalize
+   */
   @RefIgnore
   public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final int period,
                                   final boolean normalize) {
@@ -259,6 +317,16 @@ public class ImageUtil {
     input.freeRef();
   }
 
+  /**
+   * Monitor scheduled future.
+   *
+   * @param input              the input
+   * @param period             the period
+   * @param dialog             the dialog
+   * @param labelWeakReference the label weak reference
+   * @param tensor             the tensor
+   * @return the scheduled future
+   */
   @NotNull
   @RefIgnore
   public static ScheduledFuture<?> monitor(@NotNull Tensor input, int period, AtomicReference<JDialog> dialog, WeakReference<JLabel> labelWeakReference, Tensor tensor) {
@@ -282,6 +350,12 @@ public class ImageUtil {
     }, input.addRef(), tensor.addRef()), 0, period, TimeUnit.SECONDS);
   }
 
+  /**
+   * Normalize bands tensor.
+   *
+   * @param image the image
+   * @return the tensor
+   */
   @Nonnull
   public static Tensor normalizeBands(@Nullable final Tensor image) {
     Tensor temp_35_0002 = normalizeBands(image == null ? null : image.addRef(), 255);
@@ -290,6 +364,13 @@ public class ImageUtil {
     return temp_35_0002;
   }
 
+  /**
+   * Normalize bands tensor.
+   *
+   * @param image the image
+   * @param max   the max
+   * @return the tensor
+   */
   @Nonnull
   public static Tensor normalizeBands(@Nonnull final Tensor image, final int max) {
     DoubleStatistics[] statistics = RefIntStream.range(0, image.getDimensions()[2])
@@ -307,16 +388,37 @@ public class ImageUtil {
     return temp_35_0003;
   }
 
+  /**
+   * Load buffered image.
+   *
+   * @param image     the image
+   * @param imageSize the image size
+   * @return the buffered image
+   */
   @Nonnull
   public static BufferedImage load(@Nonnull final Supplier<BufferedImage> image, final int imageSize) {
     return imageSize <= 0 ? image.get() : resize(image.get(), imageSize, true);
   }
 
+  /**
+   * Load buffered image.
+   *
+   * @param image  the image
+   * @param width  the width
+   * @param height the height
+   * @return the buffered image
+   */
   @Nonnull
   public static BufferedImage load(@Nonnull final Supplier<BufferedImage> image, final int width, final int height) {
     return width <= 0 ? image.get() : resize(image.get(), width, height);
   }
 
+  /**
+   * Gets tensor.
+   *
+   * @param file the file
+   * @return the tensor
+   */
   @Nonnull
   public static Tensor getTensor(@Nonnull CharSequence file) {
     String fileStr = file.toString();

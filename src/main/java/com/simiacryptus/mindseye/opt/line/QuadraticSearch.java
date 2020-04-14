@@ -31,6 +31,9 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Quadratic search.
+ */
 public class QuadraticSearch implements LineSearchStrategy {
 
   private final double initialDerivFactor = 0.95;
@@ -41,60 +44,126 @@ public class QuadraticSearch implements LineSearchStrategy {
   private double relativeTolerance = 1e-2;
   private double stepSize = 1.0;
 
+  /**
+   * Gets absolute tolerance.
+   *
+   * @return the absolute tolerance
+   */
   public double getAbsoluteTolerance() {
     return absoluteTolerance;
   }
 
+  /**
+   * Sets absolute tolerance.
+   *
+   * @param absoluteTolerance the absolute tolerance
+   * @return the absolute tolerance
+   */
   @Nonnull
   public QuadraticSearch setAbsoluteTolerance(final double absoluteTolerance) {
     this.absoluteTolerance = absoluteTolerance;
     return this;
   }
 
+  /**
+   * Gets current rate.
+   *
+   * @return the current rate
+   */
   public double getCurrentRate() {
     return currentRate;
   }
 
+  /**
+   * Sets current rate.
+   *
+   * @param currentRate the current rate
+   * @return the current rate
+   */
   @Nonnull
   public QuadraticSearch setCurrentRate(final double currentRate) {
     this.currentRate = currentRate;
     return this;
   }
 
+  /**
+   * Gets max rate.
+   *
+   * @return the max rate
+   */
   public double getMaxRate() {
     return maxRate;
   }
 
+  /**
+   * Sets max rate.
+   *
+   * @param maxRate the max rate
+   * @return the max rate
+   */
   @Nonnull
   public QuadraticSearch setMaxRate(double maxRate) {
     this.maxRate = maxRate;
     return this;
   }
 
+  /**
+   * Gets min rate.
+   *
+   * @return the min rate
+   */
   public double getMinRate() {
     return minRate;
   }
 
+  /**
+   * Sets min rate.
+   *
+   * @param minRate the min rate
+   * @return the min rate
+   */
   @Nonnull
   public QuadraticSearch setMinRate(final double minRate) {
     this.minRate = minRate;
     return this;
   }
 
+  /**
+   * Gets relative tolerance.
+   *
+   * @return the relative tolerance
+   */
   public double getRelativeTolerance() {
     return relativeTolerance;
   }
 
+  /**
+   * Sets relative tolerance.
+   *
+   * @param relativeTolerance the relative tolerance
+   * @return the relative tolerance
+   */
   @Nonnull
   public QuadraticSearch setRelativeTolerance(final double relativeTolerance) {
     this.relativeTolerance = relativeTolerance;
     return this;
   }
 
+  /**
+   * Gets step size.
+   *
+   * @return the step size
+   */
   public double getStepSize() {
     return stepSize;
   }
 
+  /**
+   * Sets step size.
+   *
+   * @param stepSize the step size
+   * @return the step size
+   */
   @Nonnull
   public QuadraticSearch setStepSize(final double stepSize) {
     this.stepSize = stepSize;
@@ -121,12 +190,29 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * Is same boolean.
+   *
+   * @param a     the a
+   * @param b     the b
+   * @param slack the slack
+   * @return the boolean
+   */
   protected boolean isSame(final double a, final double b, final double slack) {
     final double diff = Math.abs(a - b) / slack;
     final double scale = Math.max(Math.abs(a), Math.abs(b));
     return diff < absoluteTolerance || diff < scale * relativeTolerance;
   }
 
+  /**
+   * Is same boolean.
+   *
+   * @param cursor  the cursor
+   * @param monitor the monitor
+   * @param a       the a
+   * @param b       the b
+   * @return the boolean
+   */
   protected boolean isSame(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
                            @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
     PointSample pointB = b.getPoint();
@@ -270,6 +356,11 @@ public class QuadraticSearch implements LineSearchStrategy {
       thisPoint = point;
     }
 
+    /**
+     * Step point sample.
+     *
+     * @return the point sample
+     */
     @Nullable
     public PointSample step() {
       if (0 == leftPoint.derivative) {

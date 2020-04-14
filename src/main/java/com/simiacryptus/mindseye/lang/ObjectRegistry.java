@@ -32,6 +32,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The type Object registry.
+ */
 public final class ObjectRegistry {
   private static final Logger logger = LoggerFactory.getLogger(ObjectRegistry.class);
   private static final RefMap<Class<? extends ReferenceCountingBase>, ObjectRecords<ReferenceCountingBase>> cache = new RefConcurrentHashMap<>();
@@ -59,6 +62,13 @@ public final class ObjectRegistry {
   //    register();
   //  }
 
+  /**
+   * Gets living instances.
+   *
+   * @param <T> the type parameter
+   * @param k   the k
+   * @return the living instances
+   */
   @Nonnull
   public static <T extends ReferenceCountingBase> RefStream<T> getLivingInstances(@Nonnull final Class<T> k) {
     return getInstances(k).filter(x -> {
@@ -68,6 +78,13 @@ public final class ObjectRegistry {
     });
   }
 
+  /**
+   * Gets instances.
+   *
+   * @param <T> the type parameter
+   * @param k   the k
+   * @return the instances
+   */
   @Nonnull
   public static <T extends ReferenceCountingBase> RefStream<T> getInstances(@Nonnull final Class<T> k) {
     return stream(cache.entrySet()).filter(e -> {
@@ -92,6 +109,11 @@ public final class ObjectRegistry {
     });
   }
 
+  /**
+   * Register.
+   *
+   * @param registeredObjectBase the registered object base
+   */
   public static void register(ReferenceCountingBase registeredObjectBase) {
     ObjectRegistry.ObjectRecords<ReferenceCountingBase> objectRecords = cache.computeIfAbsent(registeredObjectBase.getClass(),
         k -> new ObjectRecords<>());

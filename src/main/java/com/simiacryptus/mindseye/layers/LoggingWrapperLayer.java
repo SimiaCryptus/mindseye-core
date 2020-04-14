@@ -34,24 +34,54 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+/**
+ * The type Logging wrapper layer.
+ */
 @SuppressWarnings("serial")
 public final class LoggingWrapperLayer extends WrapperLayer {
+  /**
+   * The Log.
+   */
   static final Logger log = LoggerFactory.getLogger(LoggingWrapperLayer.class);
 
+  /**
+   * Instantiates a new Logging wrapper layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected LoggingWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
   }
 
+  /**
+   * Instantiates a new Logging wrapper layer.
+   *
+   * @param inner the inner
+   */
   public LoggingWrapperLayer(final Layer inner) {
     super(inner);
   }
 
+  /**
+   * From json logging wrapper layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the logging wrapper layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static LoggingWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new LoggingWrapperLayer(json, rs);
   }
 
+  /**
+   * Gets string.
+   *
+   * @param tensor the tensor
+   * @return the string
+   */
   @Nonnull
   public static String getString(@Nonnull Tensor tensor) {
     try {
@@ -118,6 +148,12 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     private Layer inner;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param inner       the inner
+     * @param accumulator the accumulator
+     */
     public Accumulator(Layer inner, Result.Accumulator accumulator) {
       this.inner = inner;
       this.accumulator = accumulator;
@@ -152,6 +188,13 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     private Layer inner;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator 2.
+     *
+     * @param inner       the inner
+     * @param i           the
+     * @param accumulator the accumulator
+     */
     public Accumulator2(Layer inner, int i, Result.Accumulator accumulator) {
       this.i = i;
       this.inner = inner;

@@ -30,16 +30,35 @@ import javax.annotation.Nullable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+/**
+ * The type Singleton.
+ *
+ * @param <T> the type parameter
+ */
 public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   private final RefLinkedBlockingQueue<T> queue = new RefLinkedBlockingQueue<T>();
 
+  /**
+   * Instantiates a new Singleton.
+   */
   public Singleton() {
   }
 
+  /**
+   * Is defined boolean.
+   *
+   * @return the boolean
+   */
   public boolean isDefined() {
     return !queue.isEmpty();
   }
 
+  /**
+   * Gets or init.
+   *
+   * @param fn the fn
+   * @return the or init
+   */
   @Nonnull
   @RefAware
   public synchronized T getOrInit(@Nonnull Supplier<T> fn) {
@@ -58,6 +77,11 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
     return queue.peek();
   }
 
+  /**
+   * Set.
+   *
+   * @param obj the obj
+   */
   public synchronized void set(@RefAware @Nonnull T obj) {
     assertAlive();
     if (!queue.isEmpty()) {
@@ -67,6 +91,11 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
     queue.add(obj);
   }
 
+  /**
+   * Remove t.
+   *
+   * @return the t
+   */
   @Nullable
   @RefAware
   public synchronized T remove() {

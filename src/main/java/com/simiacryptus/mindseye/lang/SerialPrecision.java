@@ -27,7 +27,13 @@ import java.nio.*;
 import java.util.Base64;
 import java.util.DoubleSummaryStatistics;
 
+/**
+ * The enum Serial precision.
+ */
 public enum SerialPrecision implements DataSerializer {
+  /**
+   * The Double.
+   */
   Double(8) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -51,6 +57,9 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
   },
+  /**
+   * The Float.
+   */
   Float(4) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -74,6 +83,9 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
   },
+  /**
+   * The Uniform 32.
+   */
   Uniform32(4) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -120,6 +132,9 @@ public enum SerialPrecision implements DataSerializer {
       return 8;
     }
   },
+  /**
+   * The Uniform 16.
+   */
   Uniform16(2) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -166,6 +181,9 @@ public enum SerialPrecision implements DataSerializer {
       return 8;
     }
   },
+  /**
+   * The Uniform 8.
+   */
   Uniform8(1) {
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
@@ -224,17 +242,36 @@ public enum SerialPrecision implements DataSerializer {
     return size;
   }
 
+  /**
+   * Parse double [ ].
+   *
+   * @param trim the trim
+   * @return the double [ ]
+   */
   @Nonnull
   public double[] parse(@Nonnull String trim) {
     return fromBytes(Base64.getDecoder().decode(trim));
   }
 
+  /**
+   * Base 64 string.
+   *
+   * @param value the value
+   * @return the string
+   */
   public String base64(@Nonnull Tensor value) {
     String string = Base64.getEncoder().encodeToString(toBytes(value.getData()));
     value.freeRef();
     return string;
   }
 
+  /**
+   * To rational rational.
+   *
+   * @param value     the value
+   * @param maxScalar the max scalar
+   * @return the rational
+   */
   @Nonnull
   public Rational toRational(double value, int maxScalar) {
     @Nonnull
@@ -273,10 +310,25 @@ public enum SerialPrecision implements DataSerializer {
     }
   }
 
+  /**
+   * The type Rational.
+   */
   public static class Rational {
+    /**
+     * The Numerator.
+     */
     public final int numerator;
+    /**
+     * The Denominator.
+     */
     public final int denominator;
 
+    /**
+     * Instantiates a new Rational.
+     *
+     * @param numerator   the numerator
+     * @param denominator the denominator
+     */
     public Rational(int numerator, int denominator) {
       this.numerator = numerator;
       this.denominator = denominator;

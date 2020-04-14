@@ -29,6 +29,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Failsafe line search cursor.
+ */
 public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Nullable
   private final LineSearchCursor direction;
@@ -36,6 +39,13 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Nullable
   private PointSample best;
 
+  /**
+   * Instantiates a new Failsafe line search cursor.
+   *
+   * @param direction     the direction
+   * @param previousPoint the previous point
+   * @param monitor       the monitor
+   */
   public FailsafeLineSearchCursor(@Nullable final LineSearchCursor direction, @Nonnull final PointSample previousPoint,
                                   final TrainingMonitor monitor) {
     this.direction = direction;
@@ -44,6 +54,11 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     this.monitor = monitor;
   }
 
+  /**
+   * Gets best.
+   *
+   * @return the best
+   */
   @Nullable
   public PointSample getBest() {
     if (best == null) return null;

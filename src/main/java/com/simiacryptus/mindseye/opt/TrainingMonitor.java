@@ -21,18 +21,40 @@ package com.simiacryptus.mindseye.opt;
 
 import javax.annotation.Nullable;
 
+/**
+ * The type Training monitor.
+ */
 public class TrainingMonitor {
+  /**
+   * Clear.
+   */
   public void clear() {
   }
 
+  /**
+   * Log.
+   *
+   * @param msg the msg
+   */
   public void log(final String msg) {
   }
 
+  /**
+   * On step complete.
+   *
+   * @param currentPoint the current point
+   */
   public void onStepComplete(@Nullable final Step currentPoint) {
     if (null != currentPoint)
       currentPoint.freeRef();
   }
 
+  /**
+   * On step fail boolean.
+   *
+   * @param currentPoint the current point
+   * @return the boolean
+   */
   public boolean onStepFail(@Nullable final Step currentPoint) {
     if (null != currentPoint)
       currentPoint.freeRef();

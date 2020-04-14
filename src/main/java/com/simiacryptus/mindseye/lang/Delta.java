@@ -27,18 +27,47 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * The type Delta.
+ *
+ * @param <K> the type parameter
+ */
 public class Delta<K> extends DoubleBuffer<K> {
+  /**
+   * The Delta compensation.
+   */
   @Nullable
   protected double[] deltaCompensation;
 
+  /**
+   * Instantiates a new Delta.
+   *
+   * @param layer  the layer
+   * @param target the target
+   */
   public Delta(@Nonnull final K layer, @Nullable final double[] target) {
     this(layer, target, null == target ? null : RecycleBin.DOUBLES.obtain(target.length));
   }
 
+  /**
+   * Instantiates a new Delta.
+   *
+   * @param layer  the layer
+   * @param target the target
+   * @param delta  the delta
+   */
   public Delta(@Nonnull final K layer, final double[] target, @Nonnull final double[] delta) {
     this(layer, target, delta, RecycleBin.DOUBLES.obtain(delta.length));
   }
 
+  /**
+   * Instantiates a new Delta.
+   *
+   * @param layer             the layer
+   * @param target            the target
+   * @param delta             the delta
+   * @param deltaCompensation the delta compensation
+   */
   protected Delta(@Nonnull final K layer, @Nullable final double[] target, @Nullable final double[] delta,
                   @Nullable final double[] deltaCompensation) {
     super(layer, target, delta);
@@ -49,6 +78,13 @@ public class Delta<K> extends DoubleBuffer<K> {
     this.deltaCompensation = deltaCompensation;
   }
 
+  /**
+   * Accumulate.
+   *
+   * @param data             the data
+   * @param delta            the delta
+   * @param dataCompensation the data compensation
+   */
   public static void accumulate(@Nonnull final double[] data, final double[] delta,
                                 @Nullable final double[] dataCompensation) {
     synchronized (data) {
@@ -80,6 +116,11 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
 
+  /**
+   * Accumulate.
+   *
+   * @param factor the factor
+   */
   public final void accumulate(final double factor) {
     synchronized (target) {
       assert RefArrays.stream(target).parallel().allMatch(Double::isFinite);
@@ -94,6 +135,11 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
+  /**
+   * Add in place.
+   *
+   * @param buffer the buffer
+   */
   public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
     addInPlace(buffer.delta);
@@ -102,11 +148,21 @@ public class Delta<K> extends DoubleBuffer<K> {
     buffer.freeRef();
   }
 
+  /**
+   * Add in place.
+   *
+   * @param tensor the tensor
+   */
   public void addInPlace(@Nonnull Tensor tensor) {
     addInPlace(tensor.getData());
     tensor.freeRef();
   }
 
+  /**
+   * Add in place.
+   *
+   * @param data the data
+   */
   public void addInPlace(@Nonnull double[] data) {
     assert data.length == this.target.length;
     //assert Arrays.stream(data).allMatch(Double::isFinite);
@@ -136,6 +192,12 @@ public class Delta<K> extends DoubleBuffer<K> {
     return new Delta<K>(key, target, stream.map(mapper).toArray());
   }
 
+  /**
+   * Scale delta.
+   *
+   * @param f the f
+   * @return the delta
+   */
   @Nonnull
   public Delta<K> scale(final double f) {
     return map(x -> x * f);

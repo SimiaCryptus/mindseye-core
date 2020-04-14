@@ -21,8 +21,16 @@ package com.simiacryptus.mindseye.network;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Supervised network.
+ */
 @SuppressWarnings("serial")
 public abstract class SupervisedNetwork extends DAGNetwork {
+  /**
+   * Instantiates a new Supervised network.
+   *
+   * @param inputs the inputs
+   */
   public SupervisedNetwork(final int inputs) {
     super(inputs);
   }

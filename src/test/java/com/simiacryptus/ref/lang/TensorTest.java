@@ -31,9 +31,17 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Tensor test.
+ */
 public class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
+  /**
+   * Parse.
+   *
+   * @param str the str
+   */
   public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
     @Nullable final Tensor tensor = Tensor.fromJson(json, null);
@@ -42,12 +50,20 @@ public class TensorTest {
     tensor.freeRef();
   }
 
+  /**
+   * Test.
+   *
+   * @param t the t
+   */
   public void test(@Nonnull final Tensor t) {
     @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
     RefAssert.assertEquals(Tensor.fromJson(json, null), t);
     parse(json.toString());
   }
 
+  /**
+   * Test coord stream.
+   */
   @Test
   @Tag("UnitTest")
   public void testCoordStream() {
@@ -76,6 +92,9 @@ public class TensorTest {
   //    });
   //  }
 
+  /**
+   * Test to json.
+   */
   @Test
   @Tag("UnitTest")
   public void testToJson() {

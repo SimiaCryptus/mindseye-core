@@ -31,34 +31,64 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
+/**
+ * The type Wrapper layer.
+ */
 @SuppressWarnings("serial")
 public class WrapperLayer extends LayerBase {
+  /**
+   * The Inner.
+   */
   @Nullable
   protected Layer inner;
 
+  /**
+   * Instantiates a new Wrapper layer.
+   */
   protected WrapperLayer() {
     if (null != inner)
       inner.freeRef();
     inner = null;
   }
 
+  /**
+   * Instantiates a new Wrapper layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   public WrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     if (null != this.inner) this.inner.freeRef();
     this.inner = Layer.fromJson(json.getAsJsonObject("inner"), rs);
   }
 
+  /**
+   * Instantiates a new Wrapper layer.
+   *
+   * @param inner the inner
+   */
   public WrapperLayer(@Nullable final Layer inner) {
     if (null != this.inner)
       this.inner.freeRef();
     this.inner = inner;
   }
 
+  /**
+   * Gets inner.
+   *
+   * @return the inner
+   */
   @Nullable
   public final Layer getInner() {
     return RefUtil.addRef(this.inner);
   }
 
+  /**
+   * Sets inner.
+   *
+   * @param inner the inner
+   */
   public synchronized void setInner(@Nullable Layer inner) {
     if (null != this.inner)
       this.inner.freeRef();

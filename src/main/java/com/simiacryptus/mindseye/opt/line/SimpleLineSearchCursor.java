@@ -28,15 +28,34 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Simple line search cursor.
+ */
 public class SimpleLineSearchCursor extends LineSearchCursorBase {
+  /**
+   * The Direction.
+   */
   @Nullable
   public final DeltaSet<UUID> direction;
+  /**
+   * The Origin.
+   */
   @Nonnull
   public final PointSample origin;
+  /**
+   * The Subject.
+   */
   @Nullable
   public final Trainable subject;
   private String type = "";
 
+  /**
+   * Instantiates a new Simple line search cursor.
+   *
+   * @param subject   the subject
+   * @param origin    the origin
+   * @param direction the direction
+   */
   public SimpleLineSearchCursor(@Nullable final Trainable subject, @Nonnull final PointSample origin,
                                 @Nullable final DeltaSet<UUID> direction) {
     this.direction = direction;
@@ -50,6 +69,11 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     return type;
   }
 
+  /**
+   * Sets direction type.
+   *
+   * @param type the type
+   */
   public void setDirectionType(String type) {
     this.type = type;
   }

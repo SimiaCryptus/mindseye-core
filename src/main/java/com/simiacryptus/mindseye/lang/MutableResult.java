@@ -27,12 +27,26 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Mutable result.
+ */
 public class MutableResult extends Result {
 
+  /**
+   * Instantiates a new Mutable result.
+   *
+   * @param tensors the tensors
+   */
   public MutableResult(final Tensor... tensors) {
     this(ids(tensors), tensors);
   }
 
+  /**
+   * Instantiates a new Mutable result.
+   *
+   * @param objectId the object id
+   * @param tensors  the tensors
+   */
   public MutableResult(@Nonnull UUID[] objectId, @Nullable final Tensor... tensors) {
     super(new TensorArray(tensors), handler(RefUtil.addRef(tensors), objectId));
   }
@@ -72,6 +86,12 @@ public class MutableResult extends Result {
     private final Tensor[] tensors;
     private final UUID[] objectId;
 
+    /**
+     * Instantiates a new Mutable accumulator.
+     *
+     * @param tensors  the tensors
+     * @param objectId the object id
+     */
     public MutableAccumulator(Tensor[] tensors, UUID[] objectId) {
       this.tensors = tensors;
       this.objectId = objectId;

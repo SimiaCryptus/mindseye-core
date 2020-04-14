@@ -29,10 +29,18 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import java.io.Serializable;
 
+/**
+ * The type Tensor array.
+ */
 public class TensorArray extends ReferenceCountingBase implements TensorList, Serializable {
   @Nonnull
   private final Tensor[] data;
 
+  /**
+   * Instantiates a new Tensor array.
+   *
+   * @param data the data
+   */
   public TensorArray(@Nonnull final Tensor... data) {
     if (0 >= data.length) {
       RefUtil.freeRef(data);
@@ -47,6 +55,11 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
     }
   }
 
+  /**
+   * Get data tensor [ ].
+   *
+   * @return the tensor [ ]
+   */
   @Nonnull
   public Tensor[] getData() {
     return RefUtil.addRef(data);
@@ -58,6 +71,14 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
     return data[0].getDimensions();
   }
 
+  /**
+   * To string char sequence.
+   *
+   * @param <T>   the type parameter
+   * @param limit the limit
+   * @param data  the data
+   * @return the char sequence
+   */
   @Nonnull
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
     return data.length < limit ? RefArrays.toString(data)

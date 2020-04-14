@@ -28,21 +28,55 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * The interface Dag node.
+ */
 public interface DAGNode extends Serializable, ReferenceCounting {
+  /**
+   * Gets id.
+   *
+   * @return the id
+   */
   UUID getId();
 
+  /**
+   * Get inputs dag node [ ].
+   *
+   * @return the dag node [ ]
+   */
   @Nonnull
   default DAGNode[] getInputs() {
     return new DAGNode[]{};
   }
 
+  /**
+   * Gets layer.
+   *
+   * @param <T> the type parameter
+   * @return the layer
+   */
   @Nullable <T extends Layer> T getLayer();
 
+  /**
+   * Sets layer.
+   *
+   * @param layer the layer
+   */
   void setLayer(Layer layer);
 
+  /**
+   * Get result.
+   *
+   * @param buildExeCtx the build exe ctx
+   * @param consumer    the consumer
+   * @return the result
+   */
   @Nullable
   Result get(GraphEvaluationContext buildExeCtx, Layer consumer);
 
+  /**
+   * Free.
+   */
   void _free();
 
   @Nonnull

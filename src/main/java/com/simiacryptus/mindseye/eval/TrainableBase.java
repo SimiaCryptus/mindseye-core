@@ -23,6 +23,9 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Trainable base.
+ */
 public abstract class TrainableBase extends ReferenceCountingBase implements Trainable {
 
   public @SuppressWarnings("unused")

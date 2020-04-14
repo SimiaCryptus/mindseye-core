@@ -26,6 +26,9 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Armijo wolfe search.
+ */
 public class ArmijoWolfeSearch implements LineSearchStrategy {
 
   private double absoluteTolerance = 1e-15;
@@ -38,80 +41,168 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   private double relativeTolerance = 1e-2;
   private boolean strongWolfe = true;
 
+  /**
+   * Gets absolute tolerance.
+   *
+   * @return the absolute tolerance
+   */
   public double getAbsoluteTolerance() {
     return absoluteTolerance;
   }
 
+  /**
+   * Sets absolute tolerance.
+   *
+   * @param absoluteTolerance the absolute tolerance
+   * @return the absolute tolerance
+   */
   @Nonnull
   public ArmijoWolfeSearch setAbsoluteTolerance(final double absoluteTolerance) {
     this.absoluteTolerance = absoluteTolerance;
     return this;
   }
 
+  /**
+   * Gets alpha.
+   *
+   * @return the alpha
+   */
   public double getAlpha() {
     return alpha;
   }
 
+  /**
+   * Sets alpha.
+   *
+   * @param alpha the alpha
+   * @return the alpha
+   */
   @Nonnull
   public ArmijoWolfeSearch setAlpha(final double alpha) {
     this.alpha = alpha;
     return this;
   }
 
+  /**
+   * Gets alpha growth.
+   *
+   * @return the alpha growth
+   */
   public double getAlphaGrowth() {
     return alphaGrowth;
   }
 
+  /**
+   * Sets alpha growth.
+   *
+   * @param alphaGrowth the alpha growth
+   * @return the alpha growth
+   */
   @Nonnull
   public ArmijoWolfeSearch setAlphaGrowth(final double alphaGrowth) {
     this.alphaGrowth = alphaGrowth;
     return this;
   }
 
+  /**
+   * Gets c 1.
+   *
+   * @return the c 1
+   */
   public double getC1() {
     return c1;
   }
 
+  /**
+   * Sets c 1.
+   *
+   * @param c1 the c 1
+   * @return the c 1
+   */
   @Nonnull
   public ArmijoWolfeSearch setC1(final double c1) {
     this.c1 = c1;
     return this;
   }
 
+  /**
+   * Gets c 2.
+   *
+   * @return the c 2
+   */
   public double getC2() {
     return c2;
   }
 
+  /**
+   * Sets c 2.
+   *
+   * @param c2 the c 2
+   * @return the c 2
+   */
   @Nonnull
   public ArmijoWolfeSearch setC2(final double c2) {
     this.c2 = c2;
     return this;
   }
 
+  /**
+   * Gets max alpha.
+   *
+   * @return the max alpha
+   */
   public double getMaxAlpha() {
     return maxAlpha;
   }
 
+  /**
+   * Sets max alpha.
+   *
+   * @param maxAlpha the max alpha
+   * @return the max alpha
+   */
   @Nonnull
   public ArmijoWolfeSearch setMaxAlpha(final double maxAlpha) {
     this.maxAlpha = maxAlpha;
     return this;
   }
 
+  /**
+   * Gets min alpha.
+   *
+   * @return the min alpha
+   */
   public double getMinAlpha() {
     return minAlpha;
   }
 
+  /**
+   * Sets min alpha.
+   *
+   * @param minAlpha the min alpha
+   * @return the min alpha
+   */
   @Nonnull
   public ArmijoWolfeSearch setMinAlpha(final double minAlpha) {
     this.minAlpha = minAlpha;
     return this;
   }
 
+  /**
+   * Gets relative tolerance.
+   *
+   * @return the relative tolerance
+   */
   public double getRelativeTolerance() {
     return relativeTolerance;
   }
 
+  /**
+   * Sets relative tolerance.
+   *
+   * @param relativeTolerance the relative tolerance
+   * @return the relative tolerance
+   */
   @Nonnull
   public ArmijoWolfeSearch setRelativeTolerance(final double relativeTolerance) {
     this.relativeTolerance = relativeTolerance;
@@ -122,16 +213,30 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     return Double.isFinite(alpha) && 0 <= alpha;
   }
 
+  /**
+   * Is strong wolfe boolean.
+   *
+   * @return the boolean
+   */
   public boolean isStrongWolfe() {
     return strongWolfe;
   }
 
+  /**
+   * Sets strong wolfe.
+   *
+   * @param strongWolfe the strong wolfe
+   * @return the strong wolfe
+   */
   @Nonnull
   public ArmijoWolfeSearch setStrongWolfe(final boolean strongWolfe) {
     this.strongWolfe = strongWolfe;
     return this;
   }
 
+  /**
+   * Loosen metaparameters.
+   */
   public void loosenMetaparameters() {
     c1 *= 0.2;
     c2 = Math.pow(c2, c2 < 1 ? 1.5 : 1 / 1.5);

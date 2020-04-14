@@ -36,14 +36,28 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 
+/**
+ * The type Momentum strategy.
+ */
 public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
+  /**
+   * The Inner.
+   */
   @Nullable
   public final OrientationStrategy<SimpleLineSearchCursor> inner;
+  /**
+   * The Prev delta.
+   */
   @Nonnull
   DeltaSet<UUID> prevDelta = new DeltaSet<UUID>();
   private double carryOver = 0.1;
 
+  /**
+   * Instantiates a new Momentum strategy.
+   *
+   * @param inner the inner
+   */
   public MomentumStrategy(@Nullable final OrientationStrategy<SimpleLineSearchCursor> inner) {
     OrientationStrategy<SimpleLineSearchCursor> temp_05_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_05_0001 == null ? null : temp_05_0001.addRef();
@@ -53,10 +67,20 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
       inner.freeRef();
   }
 
+  /**
+   * Gets carry over.
+   *
+   * @return the carry over
+   */
   public double getCarryOver() {
     return carryOver;
   }
 
+  /**
+   * Sets carry over.
+   *
+   * @param carryOver the carry over
+   */
   public void setCarryOver(double carryOver) {
     this.carryOver = carryOver;
   }

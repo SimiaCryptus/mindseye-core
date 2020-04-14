@@ -31,29 +31,64 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.function.Supplier;
 
+/**
+ * The type Double buffer set.
+ *
+ * @param <K> the type parameter
+ * @param <V> the type parameter
+ */
 public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends ReferenceCountingBase {
+  /**
+   * The Log.
+   */
   static final Logger log = LoggerFactory.getLogger(DoubleBufferSet.class);
 
+  /**
+   * The Map.
+   */
   @Nonnull
   protected final RefHashMap<K, V> map = new RefHashMap<>();
 
+  /**
+   * Instantiates a new Double buffer set.
+   */
   public DoubleBufferSet() {
   }
 
+  /**
+   * Instantiates a new Double buffer set.
+   *
+   * @param toCopy the to copy
+   */
   public DoubleBufferSet(@Nonnull final DoubleBufferSet<K, V> toCopy) {
     this(toCopy.getMap());
     toCopy.freeRef();
   }
 
+  /**
+   * Instantiates a new Double buffer set.
+   *
+   * @param collect the collect
+   */
   public DoubleBufferSet(@Nonnull final RefMap<K, ? extends V> collect) {
     map.putAll(collect);
   }
 
+  /**
+   * Gets map.
+   *
+   * @return the map
+   */
   @Nonnull
   public RefMap<K, V> getMap() {
     return RefCollections.unmodifiableMap(map.addRef());
   }
 
+  /**
+   * Copy double buffer set.
+   *
+   * @return the double buffer set
+   */
   @Nonnull
   @SuppressWarnings("unchecked")
   public DoubleBufferSet<K, V> copy() {
@@ -66,6 +101,13 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     });
   }
 
+  /**
+   * Get v.
+   *
+   * @param layer the layer
+   * @param ptr   the ptr
+   * @return the v
+   */
   @javax.annotation.Nullable
   public V get(final K layer, final double[] ptr) {
     final V delta = get(layer, () -> factory(layer, ptr));
@@ -74,6 +116,12 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     return delta;
   }
 
+  /**
+   * Get v.
+   *
+   * @param layer the layer
+   * @return the v
+   */
   @javax.annotation.Nullable
   public V get(final K layer) {
     final V delta = map.get(layer);
@@ -82,6 +130,13 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     return delta;
   }
 
+  /**
+   * Get v.
+   *
+   * @param layer  the layer
+   * @param tensor the tensor
+   * @return the v
+   */
   @javax.annotation.Nullable
   public V get(final K layer, @Nonnull final Tensor tensor) {
     V delta = get(layer, tensor.getData());
@@ -89,6 +144,12 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     return delta;
   }
 
+  /**
+   * Map double buffer set.
+   *
+   * @param mapper the mapper
+   * @return the double buffer set
+   */
   @Nonnull
   public DoubleBufferSet<K, V> map(@Nonnull final RefFunction<V, V> mapper) {
     RefHashSet<Map.Entry<K, V>> entries = map.entrySet();
@@ -116,6 +177,11 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     }
   }
 
+  /**
+   * Stream ref stream.
+   *
+   * @return the ref stream
+   */
   @Nonnull
   public RefStream<V> stream() {
     RefHashSet<V> values = map.values();
@@ -150,10 +216,21 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     return (DoubleBufferSet<K, V>) super.addRef();
   }
 
+  /**
+   * Size int.
+   *
+   * @return the int
+   */
   public int size() {
     return map.size();
   }
 
+  /**
+   * All finite double buffer set.
+   *
+   * @param defaultValue the default value
+   * @return the double buffer set
+   */
   public DoubleBufferSet<K, V> allFinite(double defaultValue) {
     return map((V doubleBuffer) -> {
       V v = (V) doubleBuffer.map(d -> Double.isFinite(d) ? d : defaultValue);
@@ -162,10 +239,22 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     });
   }
 
+  /**
+   * Key set ref set.
+   *
+   * @return the ref set
+   */
   public RefSet<K> keySet() {
     return map.keySet();
   }
 
+  /**
+   * Factory v.
+   *
+   * @param layer  the layer
+   * @param target the target
+   * @return the v
+   */
   protected abstract V factory(final K layer, final double[] target);
 
   @NotNull
@@ -190,14 +279,31 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     }
   }
 
+  /**
+   * The type Delegate.
+   *
+   * @param <K> the type parameter
+   * @param <T> the type parameter
+   */
   protected static class Delegate<K, T extends DoubleBuffer<K>> extends DoubleBufferSet<K, T> {
     @Nullable
     private final DoubleBufferSet<K, T> parent;
 
+    /**
+     * Instantiates a new Delegate.
+     *
+     * @param parent the parent
+     */
     public Delegate(final DoubleBufferSet<K, T> parent) {
       this(parent, new RefHashMap<>());
     }
 
+    /**
+     * Instantiates a new Delegate.
+     *
+     * @param parent the parent
+     * @param newMap the new map
+     */
     public Delegate(@Nullable final DoubleBufferSet<K, T> parent, @Nonnull final RefMap<K, T> newMap) {
       super(newMap);
       this.parent = parent;

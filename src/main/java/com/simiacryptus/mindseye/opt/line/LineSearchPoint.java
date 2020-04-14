@@ -28,31 +28,63 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Line search point.
+ */
 public class LineSearchPoint extends ReferenceCountingBase {
 
+  /**
+   * The Derivative.
+   */
   public final double derivative;
   @Nullable
   private final PointSample point;
 
+  /**
+   * Instantiates a new Line search point.
+   *
+   * @param point      the point
+   * @param derivative the derivative
+   */
   public LineSearchPoint(@Nullable final PointSample point, final double derivative) {
     this.point = point;
     this.derivative = derivative;
   }
 
+  /**
+   * Gets point.
+   *
+   * @return the point
+   */
   @Nullable
   public PointSample getPoint() {
     if (null == point) return null;
     return point.addRef();
   }
 
+  /**
+   * Gets point mean.
+   *
+   * @return the point mean
+   */
   public double getPointMean() {
     return point.getMean();
   }
 
+  /**
+   * Gets point rate.
+   *
+   * @return the point rate
+   */
   public double getPointRate() {
     return point.rate;
   }
 
+  /**
+   * Gets point sum.
+   *
+   * @return the point sum
+   */
   public double getPointSum() {
     return point.sum;
   }
@@ -81,6 +113,11 @@ public class LineSearchPoint extends ReferenceCountingBase {
     return (LineSearchPoint) super.addRef();
   }
 
+  /**
+   * Copy point delta delta set.
+   *
+   * @return the delta set
+   */
   public DeltaSet<UUID> copyPointDelta() {
     return point.delta.copy();
   }

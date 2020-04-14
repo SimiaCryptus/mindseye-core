@@ -28,16 +28,34 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+/**
+ * The type Constant result.
+ */
 public final class ConstantResult extends Result {
 
+  /**
+   * Instantiates a new Constant result.
+   *
+   * @param data the data
+   */
   public ConstantResult(@Nullable final Tensor... data) {
     this(new TensorArray(data));
   }
 
+  /**
+   * Instantiates a new Constant result.
+   *
+   * @param tensorArray the tensor array
+   */
   public ConstantResult(@Nonnull TensorArray tensorArray) {
     super(tensorArray);
   }
 
+  /**
+   * Instantiates a new Constant result.
+   *
+   * @param tensorList the tensor list
+   */
   public ConstantResult(@Nonnull final TensorList tensorList) {
     super(tensorList, new Accumulator() {
       @Override
@@ -60,6 +78,12 @@ public final class ConstantResult extends Result {
     return false;
   }
 
+  /**
+   * Batch result array result [ ].
+   *
+   * @param input the input
+   * @return the result [ ]
+   */
   @Nonnull
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
     return RefIntStream.range(0, input[0].length)
@@ -74,6 +98,12 @@ public final class ConstantResult extends Result {
         .toArray(Result[]::new);
   }
 
+  /**
+   * Single result array result [ ].
+   *
+   * @param input the input
+   * @return the result [ ]
+   */
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
     return RefArrays.stream(input)
@@ -81,6 +111,12 @@ public final class ConstantResult extends Result {
         .toArray(Result[]::new);
   }
 
+  /**
+   * Single result array result [ ].
+   *
+   * @param input the input
+   * @return the result [ ]
+   */
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
     return RefArrays.stream(input)

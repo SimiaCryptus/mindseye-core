@@ -26,6 +26,9 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Bisection search.
+ */
 public class BisectionSearch implements LineSearchStrategy {
 
   private double maxRate = 1e20;
@@ -33,40 +36,84 @@ public class BisectionSearch implements LineSearchStrategy {
   private double zeroTol = 1e-20;
   private double spanTol = 1e-3;
 
+  /**
+   * Gets current rate.
+   *
+   * @return the current rate
+   */
   public double getCurrentRate() {
     return currentRate;
   }
 
+  /**
+   * Sets current rate.
+   *
+   * @param currentRate the current rate
+   * @return the current rate
+   */
   @Nonnull
   public BisectionSearch setCurrentRate(final double currentRate) {
     this.currentRate = currentRate;
     return this;
   }
 
+  /**
+   * Gets max rate.
+   *
+   * @return the max rate
+   */
   public double getMaxRate() {
     return maxRate;
   }
 
+  /**
+   * Sets max rate.
+   *
+   * @param maxRate the max rate
+   * @return the max rate
+   */
   @Nonnull
   public BisectionSearch setMaxRate(double maxRate) {
     this.maxRate = maxRate;
     return this;
   }
 
+  /**
+   * Gets span tol.
+   *
+   * @return the span tol
+   */
   public double getSpanTol() {
     return spanTol;
   }
 
+  /**
+   * Sets span tol.
+   *
+   * @param spanTol the span tol
+   * @return the span tol
+   */
   @Nonnull
   public BisectionSearch setSpanTol(double spanTol) {
     this.spanTol = spanTol;
     return this;
   }
 
+  /**
+   * Gets zero tol.
+   *
+   * @return the zero tol
+   */
   public double getZeroTol() {
     return zeroTol;
   }
 
+  /**
+   * Sets zero tol.
+   *
+   * @param zeroTol the zero tol
+   * @return the zero tol
+   */
   @Nonnull
   public BisectionSearch setZeroTol(final double zeroTol) {
     this.zeroTol = zeroTol;
@@ -133,6 +180,15 @@ public class BisectionSearch implements LineSearchStrategy {
     return temp_49_0001;
   }
 
+  /**
+   * Iterate line search point.
+   *
+   * @param cursor  the cursor
+   * @param monitor the monitor
+   * @param leftX   the left x
+   * @param rightX  the right x
+   * @return the line search point
+   */
   @Nullable
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
                                  double leftX, double rightX) {

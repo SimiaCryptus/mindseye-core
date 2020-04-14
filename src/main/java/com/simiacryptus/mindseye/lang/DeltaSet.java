@@ -27,11 +27,24 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.ToDoubleFunction;
 
+/**
+ * The type Delta set.
+ *
+ * @param <K> the type parameter
+ */
 public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
+  /**
+   * Instantiates a new Delta set.
+   */
   public DeltaSet() {
   }
 
+  /**
+   * Instantiates a new Delta set.
+   *
+   * @param toCopy the to copy
+   */
   public DeltaSet(@Nonnull final DoubleBufferSet<K, Delta<K>> toCopy) {
     super(toCopy);
 //    assert stream().allMatch(x -> {
@@ -43,6 +56,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 //    });
   }
 
+  /**
+   * Instantiates a new Delta set.
+   *
+   * @param collect the collect
+   */
   public DeltaSet(@Nonnull final RefMap<K, ? extends Delta<K>> collect) {
     super(collect);
 //    assert stream().allMatch(x -> {
@@ -53,6 +71,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 //    });
   }
 
+  /**
+   * Gets magnitude.
+   *
+   * @return the magnitude
+   */
   public double getMagnitude() {
     RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0011 = map.entrySet();
     RefStream<Map.Entry<K, Delta<K>>> stream = temp_37_0011.stream();
@@ -71,6 +94,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
 
+  /**
+   * Accumulate.
+   *
+   * @param alpha the alpha
+   */
   public void accumulate(final double alpha) {
     stream().forEach((Delta<K> d) -> {
       d.accumulate(alpha);
@@ -78,12 +106,23 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     });
   }
 
+  /**
+   * Add delta set.
+   *
+   * @param right the right
+   * @return the delta set
+   */
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> copy = this.copy();
     copy.addInPlace(right);
     return copy;
   }
 
+  /**
+   * Add in place.
+   *
+   * @param right the right
+   */
   public void addInPlace(@Nonnull DeltaSet<K> right) {
     right.map.forEach((layer, buffer) -> {
       Delta<K> temp_37_0013 = get(layer, buffer.target);
@@ -94,6 +133,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     right.freeRef();
   }
 
+  /**
+   * As state state set.
+   *
+   * @return the state set
+   */
   @Nonnull
   public StateSet<K> asState() {
     @Nonnull final StateSet<K> returnValue = new StateSet<>();
@@ -120,6 +164,12 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     }));
   }
 
+  /**
+   * Dot double.
+   *
+   * @param right the right
+   * @return the double
+   */
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
     RefHashSet<Map.Entry<K, Delta<K>>> entries = map.entrySet();
     RefStream<Map.Entry<K, Delta<K>>> stream = entries.stream();
@@ -151,6 +201,12 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return new DeltaSet<>(super.map(mapper));
   }
 
+  /**
+   * Scale delta set.
+   *
+   * @param f the f
+   * @return the delta set
+   */
   @Nonnull
   public DeltaSet<K> scale(final double f) {
     return map(x -> {
@@ -160,6 +216,12 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     });
   }
 
+  /**
+   * Subtract delta set.
+   *
+   * @param right the right
+   * @return the delta set
+   */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> scale = right.scale(-1);
@@ -167,6 +229,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return this.add(scale);
   }
 
+  /**
+   * Unit delta set.
+   *
+   * @return the delta set
+   */
   @Nonnull
   public DeltaSet<K> unit() {
     return scale(1.0 / getMagnitude());

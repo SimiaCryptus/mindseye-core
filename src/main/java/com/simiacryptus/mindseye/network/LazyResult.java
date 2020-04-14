@@ -31,15 +31,26 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Lazy result.
+ */
 @SuppressWarnings("serial")
 abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   private static final Logger log = LoggerFactory.getLogger(LazyResult.class);
+  /**
+   * The Id.
+   */
   public final UUID id;
 
 //  public LazyResult() {
 //    this(UUID.randomUUID());
 //  }
 
+  /**
+   * Instantiates a new Lazy result.
+   *
+   * @param id the id
+   */
   protected LazyResult(final UUID id) {
     super();
     this.id = id;
@@ -110,6 +121,12 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     return (LazyResult) super.addRef();
   }
 
+  /**
+   * Eval result.
+   *
+   * @param t the t
+   * @return the result
+   */
   @Nullable
   protected abstract Result eval(GraphEvaluationContext t);
 

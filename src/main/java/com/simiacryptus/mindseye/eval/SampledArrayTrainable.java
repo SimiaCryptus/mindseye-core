@@ -31,6 +31,9 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.function.Supplier;
 
+/**
+ * The type Sampled array trainable.
+ */
 public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     implements SampledTrainable, TrainableDataMask {
 
@@ -40,11 +43,26 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   private long seed = Util.R.get().nextInt();
   private int trainingSize;
 
+  /**
+   * Instantiates a new Sampled array trainable.
+   *
+   * @param trainingData the training data
+   * @param network      the network
+   * @param trainingSize the training size
+   */
   public SampledArrayTrainable(@Nonnull final RefList<? extends RefSupplier<Tensor[]>> trainingData, final Layer network,
                                final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
+  /**
+   * Instantiates a new Sampled array trainable.
+   *
+   * @param trainingData the training data
+   * @param network      the network
+   * @param trainingSize the training size
+   * @param batchSize    the batch size
+   */
   public SampledArrayTrainable(@Nonnull final RefList<? extends RefSupplier<Tensor[]>> trainingData, @Nullable final Layer network,
                                final int trainingSize, final int batchSize) {
     super(new ArrayTrainable(null, network == null ? null : network.addRef(), batchSize));
@@ -59,10 +77,25 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     reseed(RefSystem.nanoTime());
   }
 
+  /**
+   * Instantiates a new Sampled array trainable.
+   *
+   * @param trainingData the training data
+   * @param network      the network
+   * @param trainingSize the training size
+   */
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network, final int trainingSize) {
     this(trainingData, network, trainingSize, trainingSize);
   }
 
+  /**
+   * Instantiates a new Sampled array trainable.
+   *
+   * @param trainingData the training data
+   * @param network      the network
+   * @param trainingSize the training size
+   * @param batchSize    the batch size
+   */
   public SampledArrayTrainable(@Nonnull final Tensor[][] trainingData, @Nullable final Layer network, final int trainingSize,
                                final int batchSize) {
     super(new ArrayTrainable(network == null ? null : network.addRef(), batchSize));
@@ -81,10 +114,20 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     reseed(RefSystem.nanoTime());
   }
 
+  /**
+   * Gets min samples.
+   *
+   * @return the min samples
+   */
   public int getMinSamples() {
     return minSamples;
   }
 
+  /**
+   * Sets min samples.
+   *
+   * @param minSamples the min samples
+   */
   public void setMinSamples(int minSamples) {
     this.minSamples = minSamples;
   }
@@ -137,6 +180,9 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     return (SampledArrayTrainable) super.addRef();
   }
 
+  /**
+   * Refresh sampled data.
+   */
   protected void refreshSampledData() {
     assert 0 < trainingData.size();
     Tensor[][] trainingData = null;

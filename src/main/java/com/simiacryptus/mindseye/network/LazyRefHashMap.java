@@ -29,6 +29,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
+/**
+ * The type Lazy ref hash map.
+ *
+ * @param <K> the type parameter
+ * @param <V> the type parameter
+ */
 public abstract class LazyRefHashMap<K, V> extends ReferenceCountingBase implements Map<K, V> {
   private final RefHashMap<K, RefAtomicReference<V>> inner = new RefHashMap<>();
 
@@ -73,6 +79,13 @@ public abstract class LazyRefHashMap<K, V> extends ReferenceCountingBase impleme
     return getOrInit((K) key, (RefAtomicReference<V>) reference);
   }
 
+  /**
+   * Gets or init.
+   *
+   * @param key       the key
+   * @param reference the reference
+   * @return the or init
+   */
   public V getOrInit(@RefAware K key, RefAtomicReference<V> reference) {
     V get = reference.updateAndGet(prev -> {
       if (null != prev) return prev;
@@ -147,6 +160,12 @@ public abstract class LazyRefHashMap<K, V> extends ReferenceCountingBase impleme
     return (LazyRefHashMap<K, V>) super.addRef();
   }
 
+  /**
+   * Init v.
+   *
+   * @param key the key
+   * @return the v
+   */
   protected abstract @RefAware
   V init(@RefAware K key);
 

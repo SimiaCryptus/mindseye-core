@@ -24,14 +24,29 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Simple loss network.
+ */
 @SuppressWarnings("serial")
 public class SimpleLossNetwork extends SupervisedNetwork {
 
+  /**
+   * The Loss node.
+   */
   @Nullable
   public final DAGNode lossNode;
+  /**
+   * The Student node.
+   */
   @Nullable
   public final DAGNode studentNode;
 
+  /**
+   * Instantiates a new Simple loss network.
+   *
+   * @param student the student
+   * @param loss    the loss
+   */
   public SimpleLossNetwork(@Nonnull final Layer student, @Nonnull final Layer loss) {
     super(2);
     DAGNode temp_24_0001 = add(student.addRef(), getInput(0));

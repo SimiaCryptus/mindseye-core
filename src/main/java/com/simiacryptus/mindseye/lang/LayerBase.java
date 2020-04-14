@@ -28,19 +28,33 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Layer base.
+ */
 @SuppressWarnings("serial")
 public abstract class LayerBase extends ReferenceCountingBase implements Layer {
   //  public final StackTraceElement[] createdBy = Thread.currentThread().getStackTrace();
   private final UUID id;
+  /**
+   * The Frozen.
+   */
   protected boolean frozen = false;
   @Nullable
   private String name;
 
+  /**
+   * Instantiates a new Layer base.
+   */
   protected LayerBase() {
     id = UUID.randomUUID();
     name = getClass().getSimpleName();// + "/" + getId();
   }
 
+  /**
+   * Instantiates a new Layer base.
+   *
+   * @param json the json
+   */
   protected LayerBase(@Nonnull final JsonObject json) {
     if (!getClass().getCanonicalName().equals(json.get("class").getAsString())) {
       throw new IllegalArgumentException(getClass().getCanonicalName() + " != " + json.get("class").getAsString());
@@ -54,6 +68,12 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     }
   }
 
+  /**
+   * Instantiates a new Layer base.
+   *
+   * @param id   the id
+   * @param name the name
+   */
   protected LayerBase(final UUID id, @Nullable final String name) {
     this.id = id;
     this.name = name;

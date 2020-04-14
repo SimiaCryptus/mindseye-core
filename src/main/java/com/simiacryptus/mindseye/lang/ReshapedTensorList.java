@@ -27,11 +27,20 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Reshaped tensor list.
+ */
 public class ReshapedTensorList extends ReferenceCountingBase implements TensorList {
   @Nonnull
   private final TensorList inner;
   private final int[] dims;
 
+  /**
+   * Instantiates a new Reshaped tensor list.
+   *
+   * @param inner the inner
+   * @param dims  the dims
+   */
   public ReshapedTensorList(@Nonnull TensorList inner, int[] dims) {
     int[] dimensions = inner.getDimensions();
     if (Tensor.length(dimensions) != Tensor.length(dims)) {
@@ -49,6 +58,11 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     return RefArrays.copyOf(dims, dims.length);
   }
 
+  /**
+   * Gets inner.
+   *
+   * @return the inner
+   */
   @Nonnull
   public TensorList getInner() {
     return inner.addRef();

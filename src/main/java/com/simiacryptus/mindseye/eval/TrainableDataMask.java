@@ -22,13 +22,29 @@ package com.simiacryptus.mindseye.eval;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The interface Trainable data mask.
+ */
 public interface TrainableDataMask extends Trainable {
+  /**
+   * Get mask boolean [ ].
+   *
+   * @return the boolean [ ]
+   */
   @Nullable
   boolean[] getMask();
 
 
+  /**
+   * Sets mask.
+   *
+   * @param mask the mask
+   */
   void setMask(boolean... mask);
 
+  /**
+   * Free.
+   */
   void _free();
 
   @Nonnull

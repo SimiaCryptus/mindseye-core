@@ -27,15 +27,31 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Array trainable.
+ */
 public class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
 
   @Nullable
   private Tensor[][] trainingData;
 
+  /**
+   * Instantiates a new Array trainable.
+   *
+   * @param inner        the inner
+   * @param trainingData the training data
+   */
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[]... trainingData) {
     this(inner, trainingData, trainingData.length);
   }
 
+  /**
+   * Instantiates a new Array trainable.
+   *
+   * @param inner        the inner
+   * @param trainingData the training data
+   * @param batchSize    the batch size
+   */
   public ArrayTrainable(DataTrainable inner, @Nonnull Tensor[][] trainingData, int batchSize) {
     super(inner, batchSize);
     if (null != this.trainingData)
@@ -43,14 +59,33 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     this.trainingData = trainingData;
   }
 
+  /**
+   * Instantiates a new Array trainable.
+   *
+   * @param network   the network
+   * @param batchSize the batch size
+   */
   public ArrayTrainable(final Layer network, final int batchSize) {
     this(null, network, batchSize);
   }
 
+  /**
+   * Instantiates a new Array trainable.
+   *
+   * @param trainingData the training data
+   * @param network      the network
+   */
   public ArrayTrainable(@Nonnull final Tensor[][] trainingData, final Layer network) {
     this(trainingData, network, trainingData.length);
   }
 
+  /**
+   * Instantiates a new Array trainable.
+   *
+   * @param trainingData the training data
+   * @param network      the network
+   * @param batchSize    the batch size
+   */
   public ArrayTrainable(@Nullable final Tensor[][] trainingData, final Layer network, final int batchSize) {
     super(network, batchSize);
     if (null != this.trainingData)
@@ -72,6 +107,11 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     tensors.freeRef();
   }
 
+  /**
+   * Sets training data.
+   *
+   * @param tensors the tensors
+   */
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
     if (null != this.trainingData)
       RefUtil.freeRef(this.trainingData);

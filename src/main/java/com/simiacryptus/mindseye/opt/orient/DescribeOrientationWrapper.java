@@ -33,11 +33,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+/**
+ * The type Describe orientation wrapper.
+ */
 public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   @Nullable
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
+  /**
+   * Instantiates a new Describe orientation wrapper.
+   *
+   * @param inner the inner
+   */
   public DescribeOrientationWrapper(@Nullable final OrientationStrategy<? extends LineSearchCursor> inner) {
     OrientationStrategy<? extends LineSearchCursor> temp_27_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_27_0001 == null ? null : temp_27_0001.addRef();
@@ -47,6 +55,12 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
       inner.freeRef();
   }
 
+  /**
+   * Gets id.
+   *
+   * @param x the x
+   * @return the id
+   */
   @Nonnull
   public static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
     String temp_27_0009 = x.key.toString();
@@ -54,6 +68,13 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return temp_27_0009;
   }
 
+  /**
+   * Render char sequence.
+   *
+   * @param weightDelta the weight delta
+   * @param dirDelta    the dir delta
+   * @return the char sequence
+   */
   @Nonnull
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
                                     @Nonnull final DoubleBuffer<UUID> dirDelta) {
@@ -64,6 +85,13 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return RefString.format("pos: %s\nvec: %s", weightString, deltaString);
   }
 
+  /**
+   * Render char sequence.
+   *
+   * @param weights   the weights
+   * @param direction the direction
+   * @return the char sequence
+   */
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
     RefMap<CharSequence, RefList<State<UUID>>> temp_27_0010 = weights.stream().collect(RefCollectors.groupingBy(x -> {
       CharSequence temp_27_0002 = DescribeOrientationWrapper.getId(x == null ? null : x.addRef());

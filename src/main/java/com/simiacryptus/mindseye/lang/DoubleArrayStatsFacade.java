@@ -24,26 +24,54 @@ import com.simiacryptus.ref.wrappers.RefDoubleStream;
 
 import java.util.DoubleSummaryStatistics;
 
+/**
+ * The type Double array stats facade.
+ */
 public class DoubleArrayStatsFacade {
   private final double[] data;
 
+  /**
+   * Instantiates a new Double array stats facade.
+   *
+   * @param data the data
+   */
   public DoubleArrayStatsFacade(final double[] data) {
     this.data = data;
   }
 
+  /**
+   * Length int.
+   *
+   * @return the int
+   */
   public int length() {
     return data.length;
   }
 
+  /**
+   * Rms double.
+   *
+   * @return the double
+   */
   public double rms() {
     return Math.sqrt(sumSq() / length());
   }
 
+  /**
+   * Sum double.
+   *
+   * @return the double
+   */
   public double sum() {
     final DoubleSummaryStatistics statistics = RefArrays.stream(data).summaryStatistics();
     return statistics.getSum();
   }
 
+  /**
+   * Sum sq double.
+   *
+   * @return the double
+   */
   public double sumSq() {
     final RefDoubleStream doubleStream = RefArrays.stream(data).map((final double x) -> x * x);
     final DoubleSummaryStatistics statistics = doubleStream.summaryStatistics();

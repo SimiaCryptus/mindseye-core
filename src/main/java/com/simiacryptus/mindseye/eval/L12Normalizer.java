@@ -35,11 +35,22 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type L 12 normalizer.
+ */
 public abstract class L12Normalizer extends TrainableBase {
+  /**
+   * The Inner.
+   */
   @Nullable
   public final Trainable inner;
   private final boolean hideAdj = false;
 
+  /**
+   * Instantiates a new L 12 normalizer.
+   *
+   * @param inner the inner
+   */
   public L12Normalizer(@Nullable final Trainable inner) {
     Trainable temp_01_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_01_0001 == null ? null : temp_01_0001.addRef();
@@ -49,6 +60,12 @@ public abstract class L12Normalizer extends TrainableBase {
       inner.freeRef();
   }
 
+  /**
+   * To layer layer.
+   *
+   * @param id the id
+   * @return the layer
+   */
   @javax.annotation.Nullable
   public Layer toLayer(UUID id) {
     assert inner != null;
@@ -61,6 +78,12 @@ public abstract class L12Normalizer extends TrainableBase {
     return temp_01_0004;
   }
 
+  /**
+   * Gets layers.
+   *
+   * @param layers the layers
+   * @return the layers
+   */
   public RefCollection<Layer> getLayers(@Nonnull final RefCollection<UUID> layers) {
     RefList<Layer> temp_01_0003 = layers.stream().map(this::toLayer)
         //.filter(layer -> layer instanceof FullyConnectedLayer)
@@ -129,8 +152,20 @@ public abstract class L12Normalizer extends TrainableBase {
     return (L12Normalizer) super.addRef();
   }
 
+  /**
+   * Gets l 1.
+   *
+   * @param layer the layer
+   * @return the l 1
+   */
   protected abstract double getL1(Layer layer);
 
+  /**
+   * Gets l 2.
+   *
+   * @param layer the layer
+   * @return the l 2
+   */
   protected abstract double getL2(Layer layer);
 
 }

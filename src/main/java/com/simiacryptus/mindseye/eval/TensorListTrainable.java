@@ -35,17 +35,35 @@ import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
+/**
+ * The type Tensor list trainable.
+ */
 public class TensorListTrainable extends ReferenceCountingBase implements TrainableDataMask {
 
+  /**
+   * The Network.
+   */
   @Nullable
   protected final Layer network;
+  /**
+   * The Data.
+   */
   @Nullable
   protected TensorList[] data;
 
+  /**
+   * The Mask.
+   */
   @Nullable
   boolean[] mask = null;
   private int verbosity = 0;
 
+  /**
+   * Instantiates a new Tensor list trainable.
+   *
+   * @param network the network
+   * @param data    the data
+   */
   public TensorListTrainable(@Nullable final Layer network, @Nullable final TensorList... data) {
     Layer temp_20_0001 = network == null ? null : network.addRef();
     this.network = temp_20_0001 == null ? null : temp_20_0001.addRef();
@@ -61,11 +79,21 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
       RefUtil.freeRef(data);
   }
 
+  /**
+   * Get data tensor list [ ].
+   *
+   * @return the tensor list [ ]
+   */
   @Nonnull
   public TensorList[] getData() {
     return RefUtil.addRef(data);
   }
 
+  /**
+   * Sets data.
+   *
+   * @param data the data
+   */
   public synchronized void setData(@Nonnull final TensorList[] data) {
     int inputs = data.length;
     assert 0 < inputs;
@@ -95,10 +123,22 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     this.mask = mask;
   }
 
+  /**
+   * Sets verbosity.
+   *
+   * @param verbose the verbose
+   */
   public void setVerbosity(int verbose) {
     verbosity = verbose;
   }
 
+  /**
+   * Get nn context result [ ].
+   *
+   * @param data the data
+   * @param mask the mask
+   * @return the result [ ]
+   */
   @Nonnull
   public static Result[] getNNContext(@Nullable final TensorList[] data, @Nullable final boolean[] mask) {
     if (null == data) {
@@ -174,6 +214,11 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return result;
   }
 
+  /**
+   * Verbosity int.
+   *
+   * @return the int
+   */
   public int verbosity() {
     return verbosity;
   }
@@ -194,6 +239,13 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return (TensorListTrainable) super.addRef();
   }
 
+  /**
+   * Eval point sample.
+   *
+   * @param list    the list
+   * @param monitor the monitor
+   * @return the point sample
+   */
   @Nonnull
   protected PointSample eval(@Nonnull final TensorList[] list, @Nullable final TrainingMonitor monitor) {
     assert data != null;

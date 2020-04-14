@@ -28,11 +28,21 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Trainable wrapper.
+ *
+ * @param <T> the type parameter
+ */
 public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase implements TrainableDataMask {
 
   @Nullable
   private final T inner;
 
+  /**
+   * Instantiates a new Trainable wrapper.
+   *
+   * @param inner the inner
+   */
   public TrainableWrapper(@Nullable final T inner) {
     T temp_21_0001 = RefUtil.addRef(inner);
     this.inner = RefUtil.addRef(temp_21_0001);
@@ -42,6 +52,11 @@ public class TrainableWrapper<T extends Trainable> extends ReferenceCountingBase
       inner.freeRef();
   }
 
+  /**
+   * Gets inner.
+   *
+   * @return the inner
+   */
   @Nullable
   public T getInner() {
     return RefUtil.addRef(inner);

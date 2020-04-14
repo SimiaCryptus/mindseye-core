@@ -24,7 +24,13 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 import java.util.Random;
 
+/**
+ * The interface Stochastic component.
+ */
 public interface StochasticComponent extends Layer {
+  /**
+   * The constant random.
+   */
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
     @Nonnull
     @Override
@@ -33,8 +39,16 @@ public interface StochasticComponent extends Layer {
     }
   };
 
+  /**
+   * Shuffle.
+   *
+   * @param seed the seed
+   */
   void shuffle(final long seed);
 
+  /**
+   * Clear noise.
+   */
   void clearNoise();
 
   void _free();

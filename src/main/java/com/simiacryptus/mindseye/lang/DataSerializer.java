@@ -21,18 +21,49 @@ package com.simiacryptus.mindseye.lang;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The interface Data serializer.
+ */
 public interface DataSerializer {
 
+  /**
+   * Gets element size.
+   *
+   * @return the element size
+   */
   int getElementSize();
 
+  /**
+   * Gets header size.
+   *
+   * @return the header size
+   */
   default int getHeaderSize() {
     return 0;
   }
 
+  /**
+   * Copy.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   void copy(double[] from, byte[] to);
 
+  /**
+   * Copy.
+   *
+   * @param from the from
+   * @param to   the to
+   */
   void copy(byte[] from, double[] to);
 
+  /**
+   * To bytes byte [ ].
+   *
+   * @param from the from
+   * @return the byte [ ]
+   */
   @Nonnull
   default byte[] toBytes(@Nonnull double[] from) {
     @Nonnull
@@ -41,6 +72,12 @@ public interface DataSerializer {
     return to;
   }
 
+  /**
+   * Encoded size int.
+   *
+   * @param from the from
+   * @return the int
+   */
   default int encodedSize(@Nonnull double[] from) {
     long size = (long) from.length * getElementSize() + getHeaderSize();
     if (size > Integer.MAX_VALUE)
@@ -48,6 +85,12 @@ public interface DataSerializer {
     return (int) size;
   }
 
+  /**
+   * From bytes double [ ].
+   *
+   * @param from the from
+   * @return the double [ ]
+   */
   @Nonnull
   default double[] fromBytes(@Nonnull byte[] from) {
     @Nonnull
@@ -56,6 +99,12 @@ public interface DataSerializer {
     return to;
   }
 
+  /**
+   * Decoded size int.
+   *
+   * @param from the from
+   * @return the int
+   */
   default int decodedSize(@Nonnull byte[] from) {
     return (from.length - getHeaderSize()) / getElementSize();
   }

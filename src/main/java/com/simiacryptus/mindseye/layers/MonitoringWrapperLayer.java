@@ -40,6 +40,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * The type Monitoring wrapper layer.
+ */
 @SuppressWarnings({"serial", "FieldCanBeLocal"})
 public final class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
 
@@ -52,6 +55,12 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   private int totalBatches = 0;
   private int totalItems = 0;
 
+  /**
+   * Instantiates a new Monitoring wrapper layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected MonitoringWrapperLayer(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json, rs);
     if (json.has("forwardPerf")) {
@@ -71,25 +80,50 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     totalItems = json.get("totalItems").getAsInt();
   }
 
+  /**
+   * Instantiates a new Monitoring wrapper layer.
+   *
+   * @param inner the inner
+   */
   public MonitoringWrapperLayer(final Layer inner) {
     super(inner);
   }
 
+  /**
+   * Gets backward performance.
+   *
+   * @return the backward performance
+   */
   @Nonnull
   public PercentileStatistics getBackwardPerformance() {
     return backwardPerformance;
   }
 
+  /**
+   * Gets backward signal.
+   *
+   * @return the backward signal
+   */
   @Nonnull
   public ScalarStatistics getBackwardSignal() {
     return backwardSignal;
   }
 
+  /**
+   * Gets forward performance.
+   *
+   * @return the forward performance
+   */
   @Nonnull
   public PercentileStatistics getForwardPerformance() {
     return forwardPerformance;
   }
 
+  /**
+   * Gets forward signal.
+   *
+   * @return the forward signal
+   */
   @Nonnull
   public ScalarStatistics getForwardSignal() {
     return forwardSignal;
@@ -142,18 +176,37 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     }
   }
 
+  /**
+   * From json monitoring wrapper layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the monitoring wrapper layer
+   */
   @Nonnull
   @SuppressWarnings("unused")
   public static MonitoringWrapperLayer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     return new MonitoringWrapperLayer(json, rs);
   }
 
+  /**
+   * Add to 2 monitoring wrapper layer.
+   *
+   * @param obj the obj
+   * @return the monitoring wrapper layer
+   */
   @Nonnull
   public MonitoringWrapperLayer addTo2(@Nonnull final MonitoredObject obj) {
     addTo(obj, inner.getName());
     return this.addRef();
   }
 
+  /**
+   * Add to.
+   *
+   * @param obj  the obj
+   * @param name the name
+   */
   public void addTo(@Nonnull MonitoredObject obj, String name) {
     setName(name);
     obj.addObj(getName(), this.addRef());
@@ -215,6 +268,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return json;
   }
 
+  /**
+   * Should record signal metrics.
+   *
+   * @param recordSignalMetrics the record signal metrics
+   */
   public void shouldRecordSignalMetrics(boolean recordSignalMetrics) {
     this.recordSignalMetrics = recordSignalMetrics;
   }
@@ -236,6 +294,12 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     private final AtomicLong passbackNanos;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator.
+     *
+     * @param passbackNanos the passback nanos
+     * @param accumulator   the accumulator
+     */
     public Accumulator(AtomicLong passbackNanos, Result.Accumulator accumulator) {
       this.passbackNanos = passbackNanos;
       this.accumulator = accumulator;
@@ -264,6 +328,13 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     private final int items;
     private Result.Accumulator accumulator;
 
+    /**
+     * Instantiates a new Accumulator 2.
+     *
+     * @param passbackNanos the passback nanos
+     * @param items         the items
+     * @param accumulator   the accumulator
+     */
     public Accumulator2(AtomicLong passbackNanos, int items, Result.Accumulator accumulator) {
       this.passbackNanos = passbackNanos;
       this.items = items;

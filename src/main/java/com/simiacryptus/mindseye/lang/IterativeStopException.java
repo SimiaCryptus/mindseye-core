@@ -19,25 +19,55 @@
 
 package com.simiacryptus.mindseye.lang;
 
+/**
+ * The type Iterative stop exception.
+ */
 @SuppressWarnings("serial")
 public class IterativeStopException extends RuntimeException {
 
+  /**
+   * Instantiates a new Iterative stop exception.
+   */
   public IterativeStopException() {
   }
 
+  /**
+   * Instantiates a new Iterative stop exception.
+   *
+   * @param message the message
+   */
   public IterativeStopException(final String message) {
     super(message);
   }
 
+  /**
+   * Instantiates a new Iterative stop exception.
+   *
+   * @param message the message
+   * @param cause   the cause
+   */
   public IterativeStopException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Instantiates a new Iterative stop exception.
+   *
+   * @param message            the message
+   * @param cause              the cause
+   * @param enableSuppression  the enable suppression
+   * @param writableStackTrace the writable stack trace
+   */
   public IterativeStopException(final String message, final Throwable cause, final boolean enableSuppression,
                                 final boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
   }
 
+  /**
+   * Instantiates a new Iterative stop exception.
+   *
+   * @param cause the cause
+   */
   public IterativeStopException(final Throwable cause) {
     super(cause);
   }

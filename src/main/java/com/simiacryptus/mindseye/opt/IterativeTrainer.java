@@ -48,6 +48,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+/**
+ * The type Iterative trainer.
+ */
 public class IterativeTrainer extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(IterativeTrainer.class);
 
@@ -64,79 +67,169 @@ public class IterativeTrainer extends ReferenceCountingBase {
   private double terminateThreshold;
   private Duration timeout;
 
+  /**
+   * Instantiates a new Iterative trainer.
+   *
+   * @param subject the subject
+   */
   public IterativeTrainer(@Nullable final Trainable subject) {
     this.subject = subject;
     timeout = Duration.of(5, ChronoUnit.MINUTES);
     terminateThreshold = 0;
   }
 
+  /**
+   * Gets current iteration.
+   *
+   * @return the current iteration
+   */
   public AtomicInteger getCurrentIteration() {
     return currentIteration;
   }
 
+  /**
+   * Sets current iteration.
+   *
+   * @param currentIteration the current iteration
+   */
   public void setCurrentIteration(AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
   }
 
+  /**
+   * Gets iterations per sample.
+   *
+   * @return the iterations per sample
+   */
   public int getIterationsPerSample() {
     return iterationsPerSample;
   }
 
+  /**
+   * Sets iterations per sample.
+   *
+   * @param iterationsPerSample the iterations per sample
+   */
   public void setIterationsPerSample(int iterationsPerSample) {
     this.iterationsPerSample = iterationsPerSample;
   }
 
+  /**
+   * Gets line search factory.
+   *
+   * @return the line search factory
+   */
   public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
     return lineSearchFactory;
   }
 
+  /**
+   * Sets line search factory.
+   *
+   * @param lineSearchFactory the line search factory
+   */
   public void setLineSearchFactory(Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
     this.lineSearchFactory = lineSearchFactory;
   }
 
+  /**
+   * Gets max iterations.
+   *
+   * @return the max iterations
+   */
   public int getMaxIterations() {
     return maxIterations;
   }
 
+  /**
+   * Sets max iterations.
+   *
+   * @param maxIterations the max iterations
+   */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
   }
 
+  /**
+   * Gets monitor.
+   *
+   * @return the monitor
+   */
   public TrainingMonitor getMonitor() {
     return monitor;
   }
 
+  /**
+   * Sets monitor.
+   *
+   * @param monitor the monitor
+   */
   public void setMonitor(TrainingMonitor monitor) {
     this.monitor = monitor;
   }
 
+  /**
+   * Gets orientation.
+   *
+   * @return the orientation
+   */
   @Nullable
   public OrientationStrategy<?> getOrientation() {
     return orientation == null ? null : orientation.addRef();
   }
 
+  /**
+   * Sets orientation.
+   *
+   * @param orientation the orientation
+   */
   public void setOrientation(@Nullable OrientationStrategy<?> orientation) {
     if (null != this.orientation)
       this.orientation.freeRef();
     this.orientation = orientation;
   }
 
+  /**
+   * Gets terminate threshold.
+   *
+   * @return the terminate threshold
+   */
   public double getTerminateThreshold() {
     return terminateThreshold;
   }
 
+  /**
+   * Sets terminate threshold.
+   *
+   * @param terminateThreshold the terminate threshold
+   */
   public void setTerminateThreshold(double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
   }
 
+  /**
+   * Gets timeout.
+   *
+   * @return the timeout
+   */
   public Duration getTimeout() {
     return timeout;
   }
 
+  /**
+   * Sets timeout.
+   *
+   * @param timeout the timeout
+   */
   public void setTimeout(Duration timeout) {
     this.timeout = timeout;
   }
 
+  /**
+   * Measure point sample.
+   *
+   * @return the point sample
+   */
   @Nullable
   public PointSample measure() {
     assert subject != null;
@@ -159,6 +252,9 @@ public class IterativeTrainer extends ReferenceCountingBase {
     return currentPoint;
   }
 
+  /**
+   * Shuffle.
+   */
   public void shuffle() {
     long seed = RefSystem.nanoTime();
     monitor.log(RefString.format("Reset training subject: " + seed));
@@ -176,6 +272,11 @@ public class IterativeTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Run double.
+   *
+   * @return the double
+   */
   public double run() {
     long startTime = RefSystem.currentTimeMillis();
     final long timeoutMs = startTime + timeout.toMillis();
@@ -285,14 +386,34 @@ mainLoop:
     }
   }
 
+  /**
+   * Sets timeout.
+   *
+   * @param number the number
+   * @param units  the units
+   */
   public void setTimeout(int number, @Nonnull TemporalUnit units) {
     timeout = Duration.of(number, units);
   }
 
+  /**
+   * Sets timeout.
+   *
+   * @param number the number
+   * @param units  the units
+   */
   public void setTimeout(int number, @Nonnull TimeUnit units) {
     setTimeout(number, Util.cvt(units));
   }
 
+  /**
+   * Step point sample.
+   *
+   * @param direction     the direction
+   * @param directionType the direction type
+   * @param previous      the previous
+   * @return the point sample
+   */
   @Nullable
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType,
                           @Nonnull final PointSample previous) {

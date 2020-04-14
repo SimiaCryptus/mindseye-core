@@ -30,14 +30,33 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.IntFunction;
 
+/**
+ * The interface Tensor list.
+ */
 public interface TensorList extends ReferenceCounting {
+  /**
+   * Get dimensions int [ ].
+   *
+   * @return the int [ ]
+   */
   @Nonnull
   int[] getDimensions();
 
+  /**
+   * Gets elements.
+   *
+   * @return the elements
+   */
   default int getElements() {
     return length() * Tensor.length(getDimensions());
   }
 
+  /**
+   * Gets data 0.
+   *
+   * @param data the data
+   * @return the data 0
+   */
   @NotNull
   static Tensor getData0(TensorList data) {
     Tensor tensor = data.get(0);
@@ -46,6 +65,12 @@ public interface TensorList extends ReferenceCounting {
   }
 
 
+  /**
+   * Add tensor list.
+   *
+   * @param right the right
+   * @return the tensor list
+   */
   default TensorList add(@Nonnull final TensorList right) {
     if (right.length() == 0) {
       right.freeRef();
@@ -62,12 +87,24 @@ public interface TensorList extends ReferenceCounting {
         }, right)).toArray(Tensor[]::new));
   }
 
+  /**
+   * Add and free tensor list.
+   *
+   * @param right the right
+   * @return the tensor list
+   */
   default TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
     right.assertAlive();
     return add(right);
   }
 
+  /**
+   * Minus tensor list.
+   *
+   * @param right the right
+   * @return the tensor list
+   */
   @Nonnull
   default TensorList minus(@Nonnull final TensorList right) {
     if (right.length() == 0) {
@@ -92,6 +129,11 @@ public interface TensorList extends ReferenceCounting {
         }, right)).toArray(Tensor[]::new));
   }
 
+  /**
+   * Copy tensor list.
+   *
+   * @return the tensor list
+   */
   default TensorList copy() {
     return new TensorArray(RefIntStream.range(0, length()).mapToObj(i -> {
       @Nullable
@@ -102,15 +144,34 @@ public interface TensorList extends ReferenceCounting {
     }).toArray(Tensor[]::new));
   }
 
+  /**
+   * Get tensor.
+   *
+   * @param i the
+   * @return the tensor
+   */
   @Nonnull
   @RefAware
   Tensor get(int i);
 
+  /**
+   * Length int.
+   *
+   * @return the int
+   */
   int length();
 
+  /**
+   * Stream ref stream.
+   *
+   * @return the ref stream
+   */
   @Nonnull
   RefStream<Tensor> stream();
 
+  /**
+   * Free.
+   */
   void _free();
 
   @Nonnull

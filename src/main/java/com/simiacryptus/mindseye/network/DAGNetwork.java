@@ -40,16 +40,38 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.Map.Entry;
 
+/**
+ * The type Dag network.
+ */
 @SuppressWarnings("serial")
 public abstract class DAGNetwork extends LayerBase {
 
   @SuppressWarnings("unused")
   private static final Logger log = LoggerFactory.getLogger(DAGNetwork.class);
+  /**
+   * The Input handles.
+   */
   public final RefList<UUID> inputHandles = new RefArrayList<>();
+  /**
+   * The Input nodes.
+   */
   public final RefLinkedHashMap<UUID, InputNode> inputNodes = new RefLinkedHashMap<>();
+  /**
+   * The Labels.
+   */
   protected final LinkedHashMap<CharSequence, UUID> labels = new LinkedHashMap<>();
+  /**
+   * The Internal nodes.
+   */
   protected final RefLinkedHashMap<UUID, DAGNode> internalNodes = new RefLinkedHashMap<>();
 
+  /**
+   * Instantiates a new Dag network.
+   *
+   * @param inputs the inputs
+   * @param id     the id
+   * @param name   the name
+   */
   public DAGNetwork(final int inputs, UUID id, String name) {
     super(id, name);
     assert 0 < inputs;
@@ -58,6 +80,11 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Instantiates a new Dag network.
+   *
+   * @param inputs the inputs
+   */
   public DAGNetwork(final int inputs) {
     super();
     //assert 0 < inputs;
@@ -66,6 +93,12 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Instantiates a new Dag network.
+   *
+   * @param json the json
+   * @param rs   the rs
+   */
   protected DAGNetwork(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     super(json);
     for (@Nonnull final JsonElement item : json.getAsJsonArray("inputs")) {
@@ -107,9 +140,19 @@ public abstract class DAGNetwork extends LayerBase {
     })).collect(RefCollectors.toList());
   }
 
+  /**
+   * Gets head.
+   *
+   * @return the head
+   */
   @Nullable
   public abstract DAGNode getHead();
 
+  /**
+   * Gets head id.
+   *
+   * @return the head id
+   */
   public UUID getHeadId() {
     DAGNode head = getHead();
     assert head != null;
@@ -118,6 +161,11 @@ public abstract class DAGNetwork extends LayerBase {
     return temp_38_0003;
   }
 
+  /**
+   * Gets layers.
+   *
+   * @return the layers
+   */
   @Nonnull
   public RefList<Layer> getLayers() {
     RefList<Layer> list = new RefArrayList<>();
@@ -127,6 +175,11 @@ public abstract class DAGNetwork extends LayerBase {
     return RefCollections.unmodifiableList(list);
   }
 
+  /**
+   * Gets layers by id.
+   *
+   * @return the layers by id
+   */
   @Nonnull
   public RefMap<UUID, Layer> getLayersById() {
     RefLinkedHashMap<UUID, Layer> map = new RefLinkedHashMap<>();
@@ -136,6 +189,11 @@ public abstract class DAGNetwork extends LayerBase {
     return RefCollections.unmodifiableMap(map);
   }
 
+  /**
+   * Gets nodes.
+   *
+   * @return the nodes
+   */
   public RefList<DAGNode> getNodes() {
     RefList<DAGNode> allNodes = new RefArrayList<>();
     this.internalNodes.forEach((k, v) -> {
@@ -147,6 +205,11 @@ public abstract class DAGNetwork extends LayerBase {
     return allNodes;
   }
 
+  /**
+   * Gets nodes by layer id.
+   *
+   * @return the nodes by layer id
+   */
   protected RefMap<UUID, DAGNode> getNodesByLayerId() {
     RefHashMap<UUID, DAGNode> map = new RefHashMap<>();
     internalNodes.forEach((nodeId, node) -> {
@@ -214,6 +277,13 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Transfer node inner node.
+   *
+   * @param source the source
+   * @param node   the node
+   * @return the inner node
+   */
   @NotNull
   public InnerNode transferNode(DAGNetwork source, @Nonnull DAGNode node) {
     try {
@@ -251,6 +321,11 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Shuffle.
+   *
+   * @param seed the seed
+   */
   public void shuffle(long seed) {
     visitLayers(layer -> {
       try {
@@ -263,6 +338,9 @@ public abstract class DAGNetwork extends LayerBase {
     });
   }
 
+  /**
+   * Clear noise.
+   */
   public void clearNoise() {
     visitLayers(layer -> {
       if (layer instanceof StochasticComponent)
@@ -272,11 +350,26 @@ public abstract class DAGNetwork extends LayerBase {
     });
   }
 
+  /**
+   * Add inner node.
+   *
+   * @param nextHead the next head
+   * @param head     the head
+   * @return the inner node
+   */
   @Nonnull
   public InnerNode add(@Nonnull final Layer nextHead, @Nullable final DAGNode... head) {
     return add(null, nextHead, head);
   }
 
+  /**
+   * Add inner node.
+   *
+   * @param label the label
+   * @param layer the layer
+   * @param head  the head
+   * @return the inner node
+   */
   @Nonnull
   public InnerNode add(@Nullable final CharSequence label, @Nonnull final Layer layer, @Nonnull final DAGNode... head) {
     for (DAGNode dagNode : head) {
@@ -295,6 +388,9 @@ public abstract class DAGNetwork extends LayerBase {
     return node;
   }
 
+  /**
+   * Add input.
+   */
   public void addInput() {
     assertAlive();
     @Nonnull final UUID key = UUID.randomUUID();
@@ -302,6 +398,11 @@ public abstract class DAGNetwork extends LayerBase {
     RefUtil.freeRef(inputNodes.put(key, new InputNode(key)));
   }
 
+  /**
+   * Attach.
+   *
+   * @param obj the obj
+   */
   public void attach(@Nonnull final MonitoredObject obj) {
     visitLayers(RefUtil.wrapInterface(layer -> {
       if (layer instanceof MonitoredItem) {
@@ -312,6 +413,12 @@ public abstract class DAGNetwork extends LayerBase {
     }, obj));
   }
 
+  /**
+   * Build exe ctx graph evaluation context.
+   *
+   * @param inputs the inputs
+   * @return the graph evaluation context
+   */
   @Nonnull
   public GraphEvaluationContext buildExeCtx(@Nonnull final Result... inputs) {
     int length = inputs.length;
@@ -325,6 +432,12 @@ public abstract class DAGNetwork extends LayerBase {
     return context;
   }
 
+  /**
+   * Init node refcounts map.
+   *
+   * @param nodes the nodes
+   * @return the map
+   */
   public Map<UUID, Long> initNodeRefcounts(RefList<DAGNode> nodes) {
     RefMap<UUID, Long> nodeIdReferenceCounts = nodes.stream().flatMap(node -> {
       DAGNode[] nodeInputs = node.getInputs();
@@ -341,6 +454,12 @@ public abstract class DAGNetwork extends LayerBase {
     return defRef(nodeIdReferenceCounts);
   }
 
+  /**
+   * Init calculated.
+   *
+   * @param calculated the calculated
+   * @param inputs     the inputs
+   */
   public void initCalculated(RefMap<UUID, RefAtomicReference<CountingResult>> calculated, @Nonnull Result[] inputs) {
     try {
       for (int i = 0; i < inputs.length; i++)
@@ -376,11 +495,23 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Gets node by id.
+   *
+   * @param k the k
+   * @return the node by id
+   */
   @Nullable
   public DAGNode getNodeById(final UUID k) {
     return internalNodes.get(k);
   }
 
+  /**
+   * Gets input.
+   *
+   * @param index the index
+   * @return the input
+   */
   @Nonnull
   public final DAGNode getInput(final int index) {
     assertAlive();
@@ -431,6 +562,9 @@ public abstract class DAGNetwork extends LayerBase {
     return json;
   }
 
+  /**
+   * Reset.
+   */
   public synchronized void reset() {
     this.internalNodes.clear();
     labels.clear();
@@ -455,6 +589,11 @@ public abstract class DAGNetwork extends LayerBase {
     }).distinct().collect(RefCollectors.toList());
   }
 
+  /**
+   * Visit layers.
+   *
+   * @param visitor the visitor
+   */
   public void visitLayers(@Nonnull @RefAware final RefConsumer<Layer> visitor) {
     assertAlive();
     visitNodes(false, RefUtil.wrapInterface(node -> {
@@ -473,10 +612,21 @@ public abstract class DAGNetwork extends LayerBase {
     }, visitor));
   }
 
+  /**
+   * Visit nodes.
+   *
+   * @param visitor the visitor
+   */
   public void visitNodes(@Nonnull @RefAware final RefConsumer<DAGNode> visitor) {
     visitNodes(true, visitor);
   }
 
+  /**
+   * Visit nodes.
+   *
+   * @param recurse the recurse
+   * @param visitor the visitor
+   */
   public void visitNodes(boolean recurse, @Nonnull @RefAware final RefConsumer<DAGNode> visitor) {
     assertAlive();
     RefHashSet<DAGNode> nodes = this.internalNodes.values();
@@ -520,6 +670,11 @@ public abstract class DAGNetwork extends LayerBase {
     return (DAGNetwork) super.addRef();
   }
 
+  /**
+   * Assert consistent boolean.
+   *
+   * @return the boolean
+   */
   protected boolean assertConsistent() {
     assertAlive();
     assert null != inputHandles;

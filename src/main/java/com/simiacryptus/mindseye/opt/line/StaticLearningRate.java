@@ -26,29 +26,59 @@ import com.simiacryptus.ref.wrappers.RefString;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Static learning rate.
+ */
 public class StaticLearningRate implements LineSearchStrategy {
 
   private double minimumRate = 1e-12;
   private double rate = 1e-4;
 
+  /**
+   * Instantiates a new Static learning rate.
+   *
+   * @param rate the rate
+   */
   public StaticLearningRate(double rate) {
     this.rate = rate;
   }
 
+  /**
+   * Gets minimum rate.
+   *
+   * @return the minimum rate
+   */
   public double getMinimumRate() {
     return minimumRate;
   }
 
+  /**
+   * Sets minimum rate.
+   *
+   * @param minimumRate the minimum rate
+   * @return the minimum rate
+   */
   @Nonnull
   public StaticLearningRate setMinimumRate(final double minimumRate) {
     this.minimumRate = minimumRate;
     return this;
   }
 
+  /**
+   * Gets rate.
+   *
+   * @return the rate
+   */
   public double getRate() {
     return rate;
   }
 
+  /**
+   * Sets rate.
+   *
+   * @param rate the rate
+   * @return the rate
+   */
   @Nonnull
   public StaticLearningRate setRate(final double rate) {
     this.rate = rate;

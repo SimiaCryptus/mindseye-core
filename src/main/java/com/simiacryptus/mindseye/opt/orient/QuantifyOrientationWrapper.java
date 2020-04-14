@@ -34,11 +34,19 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
 
+/**
+ * The type Quantify orientation wrapper.
+ */
 public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
   @Nullable
   private final OrientationStrategy<? extends LineSearchCursor> inner;
 
+  /**
+   * Instantiates a new Quantify orientation wrapper.
+   *
+   * @param inner the inner
+   */
   public QuantifyOrientationWrapper(@Nullable final OrientationStrategy<? extends LineSearchCursor> inner) {
     OrientationStrategy<? extends LineSearchCursor> temp_02_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_02_0001 == null ? null : temp_02_0001.addRef();
@@ -48,6 +56,12 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
       inner.freeRef();
   }
 
+  /**
+   * Gets id.
+   *
+   * @param x the x
+   * @return the id
+   */
   @Nonnull
   public CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
     String temp_02_0006 = x.toString();

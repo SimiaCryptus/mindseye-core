@@ -32,14 +32,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The type Counting result.
+ */
 public class CountingResult extends Result {
+  /**
+   * The constant logger.
+   */
   protected static final Logger logger = LoggerFactory.getLogger(CountingResult.class);
 
+  /**
+   * Instantiates a new Counting result.
+   *
+   * @param inner the inner
+   */
   public CountingResult(@Nonnull final Result inner) {
     super(inner.getData(), new CountingAccumulator(inner.getAccumulator()), inner.isAlive());
     inner.freeRef();
   }
 
+  /**
+   * Instantiates a new Counting result.
+   *
+   * @param inner    the inner
+   * @param samples  the samples
+   * @param consumer the consumer
+   */
   public CountingResult(@Nonnull final Result inner, final int samples, Layer consumer) {
     this(inner);
     Accumulator a = getAccumulator();
@@ -73,6 +91,9 @@ public class CountingResult extends Result {
     return (CountingResult) super.addRef();
   }
 
+  /**
+   * The type Counting accumulator.
+   */
   static class CountingAccumulator extends Result.Accumulator {
     @Nonnull
     private final RefList<Layer> fwdLinks;
@@ -82,6 +103,11 @@ public class CountingResult extends Result {
     private final List<StackTraceElement[]> accumulations;
     private Accumulator innerAccumulator;
 
+    /**
+     * Instantiates a new Counting accumulator.
+     *
+     * @param accumulator the accumulator
+     */
     public CountingAccumulator(Accumulator accumulator) {
       innerAccumulator = accumulator;
       fwdLinks = new RefArrayList<>();
@@ -89,10 +115,21 @@ public class CountingResult extends Result {
       accumulations = new ArrayList<>();
     }
 
+    /**
+     * Gets fwd count.
+     *
+     * @return the fwd count
+     */
     public int getFwdCount() {
       return this.fwdLinks.size();
     }
 
+    /**
+     * Increment fwd int.
+     *
+     * @param consumer the consumer
+     * @return the int
+     */
     public int incrementFwd(Layer consumer) {
       synchronized (this.fwdLinks) {
         this.fwdLinks.add(consumer);
@@ -111,6 +148,12 @@ public class CountingResult extends Result {
       }
     }
 
+    /**
+     * Accum.
+     *
+     * @param buffer the buffer
+     * @param data   the data
+     */
     public void accum(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       innerAccumulator.accept(buffer, data);
     }

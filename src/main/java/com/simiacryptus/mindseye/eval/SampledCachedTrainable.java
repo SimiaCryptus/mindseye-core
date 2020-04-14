@@ -21,10 +21,20 @@ package com.simiacryptus.mindseye.eval;
 
 import javax.annotation.Nonnull;
 
+/**
+ * The type Sampled cached trainable.
+ *
+ * @param <T> the type parameter
+ */
 public class SampledCachedTrainable<T extends SampledTrainable> extends CachedTrainable<T> implements SampledTrainable {
 
   private long seed;
 
+  /**
+   * Instantiates a new Sampled cached trainable.
+   *
+   * @param inner the inner
+   */
   public SampledCachedTrainable(final T inner) {
     super(inner);
   }

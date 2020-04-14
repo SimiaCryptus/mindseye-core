@@ -26,12 +26,30 @@ import com.simiacryptus.ref.wrappers.RefSystem;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The type Step.
+ */
 public class Step extends ReferenceCountingBase {
+  /**
+   * The Iteration.
+   */
   public final long iteration;
+  /**
+   * The Point.
+   */
   @Nullable
   public final PointSample point;
+  /**
+   * The Time.
+   */
   public final long time = RefSystem.currentTimeMillis();
 
+  /**
+   * Instantiates a new Step.
+   *
+   * @param point     the point
+   * @param iteration the iteration
+   */
   Step(@Nullable final PointSample point, final long iteration) {
     PointSample temp_22_0001 = point == null ? null : point.addRef();
     this.point = temp_22_0001 == null ? null : temp_22_0001.addRef();

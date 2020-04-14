@@ -32,28 +32,61 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Function;
 
+/**
+ * The type Batched trainable.
+ */
 public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
 
+  /**
+   * The Batch size.
+   */
   protected final int batchSize;
   private boolean verbose = false;
 
+  /**
+   * Instantiates a new Batched trainable.
+   *
+   * @param inner     the inner
+   * @param batchSize the batch size
+   */
   public BatchedTrainable(final DataTrainable inner, final int batchSize) {
     super(inner);
     this.batchSize = batchSize;
   }
 
+  /**
+   * Instantiates a new Batched trainable.
+   *
+   * @param network   the network
+   * @param batchSize the batch size
+   */
   public BatchedTrainable(@Nullable final Layer network, final int batchSize) {
     this(new BasicTrainable(network), batchSize);
   }
 
+  /**
+   * Gets batch size.
+   *
+   * @return the batch size
+   */
   public int getBatchSize() {
     return batchSize;
   }
 
+  /**
+   * Is verbose boolean.
+   *
+   * @return the boolean
+   */
   public boolean isVerbose() {
     return verbose;
   }
 
+  /**
+   * Sets verbose.
+   *
+   * @param verbose the verbose
+   */
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }

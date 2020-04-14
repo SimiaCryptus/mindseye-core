@@ -43,16 +43,39 @@ import java.util.UUID;
 import java.util.function.UnaryOperator;
 import java.util.zip.ZipFile;
 
+/**
+ * The interface Layer.
+ */
 public interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
+  /**
+   * Gets children.
+   *
+   * @return the children
+   */
   RefList<Layer> getChildren();
 
+  /**
+   * Gets id.
+   *
+   * @return the id
+   */
   @Nullable
   UUID getId();
 
+  /**
+   * Gets json string.
+   *
+   * @return the json string
+   */
   default CharSequence getJsonString() {
     return new GsonBuilder().setPrettyPrinting().create().toJson(getJson());
   }
 
+  /**
+   * Gets json stub.
+   *
+   * @return the json stub
+   */
   @Nonnull
   default JsonObject getJsonStub() {
     assertAlive();
@@ -64,20 +87,52 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return json;
   }
 
+  /**
+   * Gets name.
+   *
+   * @return the name
+   */
   @Nullable
   String getName();
 
+  /**
+   * Sets name.
+   *
+   * @param name the name
+   */
   void setName(final String name);
 
+  /**
+   * Is frozen boolean.
+   *
+   * @return the boolean
+   */
   boolean isFrozen();
 
+  /**
+   * Sets frozen.
+   *
+   * @param frozen the frozen
+   */
   void setFrozen(final boolean frozen);
 
+  /**
+   * From json layer.
+   *
+   * @param json the json
+   * @return the layer
+   */
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json) {
     return fromJson(json, null);
   }
 
+  /**
+   * From zip layer.
+   *
+   * @param zipfile the zipfile
+   * @return the layer
+   */
   @Nonnull
   static Layer fromZip(@Nonnull final ZipFile zipfile) {
     @Nonnull
@@ -85,6 +140,13 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return fromJson(JsonUtil.toJson(resources.get("model.json")), resources);
   }
 
+  /**
+   * From json layer.
+   *
+   * @param json the json
+   * @param rs   the rs
+   * @return the layer
+   */
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
     JsonElement classElement = json.get("class");
@@ -114,6 +176,12 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
 
+  /**
+   * Eval dims int [ ].
+   *
+   * @param inputDims the input dims
+   * @return the int [ ]
+   */
   @Nonnull
   default int[] evalDims(int[] inputDims) {
     Tensor input = new Tensor(inputDims);
@@ -129,6 +197,12 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return temp_34_0001;
   }
 
+  /**
+   * Map ref list.
+   *
+   * @param values the values
+   * @return the ref list
+   */
   @Nonnull
   default RefList<Tensor> map(@Nonnull RefCollection<? extends Tensor> values) {
     RefList<Tensor> temp_34_0006 = values.stream().map(t -> {
@@ -146,6 +220,12 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return temp_34_0006;
   }
 
+  /**
+   * Map ref stream.
+   *
+   * @param values the values
+   * @return the ref stream
+   */
   @Nonnull
   default RefStream<Tensor> map(@Nonnull RefStream<Tensor> values) {
     return values.map(t -> {
@@ -161,12 +241,25 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     });
   }
 
+  /**
+   * And then pipeline network.
+   *
+   * @param append the append
+   * @return the pipeline network
+   */
   default PipelineNetwork andThen(@Nonnull Layer append) {
     assert append.assertAlive();
     assert assertAlive();
     return PipelineNetwork.build(1, this.addRef(), append);
   }
 
+  /**
+   * As t.
+   *
+   * @param <T>         the type parameter
+   * @param targetClass the target class
+   * @return the t
+   */
   @Nonnull
   @SuppressWarnings("unchecked")
   default <T extends Layer> T as(@Nonnull final Class<T> targetClass) {
@@ -178,11 +271,22 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return (T) fromJson(json, resources);
   }
 
+  /**
+   * Copy layer.
+   *
+   * @return the layer
+   */
   @Nonnull
   default Layer copy() {
     return copy(SerialPrecision.Double);
   }
 
+  /**
+   * Copy layer.
+   *
+   * @param precision the precision
+   * @return the layer
+   */
   @Nonnull
   default Layer copy(SerialPrecision precision) {
     assertAlive();
@@ -192,9 +296,21 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return Layer.fromJson(json, resources);
   }
 
+  /**
+   * Eval result.
+   *
+   * @param array the array
+   * @return the result
+   */
   @Nullable
   Result eval(@Nullable Result... array);
 
+  /**
+   * Eval result.
+   *
+   * @param array the array
+   * @return the result
+   */
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
     for (int i = 0; i < array.length; i++) {
@@ -204,18 +320,37 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return eval(ConstantResult.singleResultArray(array));
   }
 
+  /**
+   * Eval result.
+   *
+   * @param array the array
+   * @return the result
+   */
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
     return eval(ConstantResult.singleResultArray(array));
   }
 
+  /**
+   * Freeze.
+   */
   default void freeze() {
     setFrozen(true);
   }
 
+  /**
+   * State ref list.
+   *
+   * @return the ref list
+   */
   @Nullable
   RefList<double[]> state();
 
+  /**
+   * As tensor function unary operator.
+   *
+   * @return the unary operator
+   */
   @Nonnull
   default UnaryOperator<Tensor> asTensorFunction() {
     return input -> {
@@ -231,6 +366,9 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     };
   }
 
+  /**
+   * Free.
+   */
   void _free();
 
   Layer addRef();

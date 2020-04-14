@@ -38,16 +38,30 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * The type Owl qn.
+ */
 public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
+  /**
+   * The Inner.
+   */
   @Nullable
   public final OrientationStrategy<?> inner;
   private double factor_L1 = 0.000;
   private double zeroTol = 1e-20;
 
+  /**
+   * Instantiates a new Owl qn.
+   */
   public OwlQn() {
     this(new LBFGS());
   }
 
+  /**
+   * Instantiates a new Owl qn.
+   *
+   * @param inner the inner
+   */
   protected OwlQn(@Nullable final OrientationStrategy<?> inner) {
     OrientationStrategy<?> temp_29_0001 = inner == null ? null : inner.addRef();
     this.inner = temp_29_0001 == null ? null : temp_29_0001.addRef();
@@ -57,23 +71,49 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
       inner.freeRef();
   }
 
+  /**
+   * Gets factor l 1.
+   *
+   * @return the factor l 1
+   */
   public double getFactor_L1() {
     return factor_L1;
   }
 
+  /**
+   * Sets factor l 1.
+   *
+   * @param factor_L1 the factor l 1
+   */
   public void setFactor_L1(double factor_L1) {
     this.factor_L1 = factor_L1;
   }
 
+  /**
+   * Gets zero tol.
+   *
+   * @return the zero tol
+   */
   public double getZeroTol() {
     return zeroTol;
   }
 
+  /**
+   * Sets zero tol.
+   *
+   * @param zeroTol the zero tol
+   */
   public void setZeroTol(double zeroTol) {
     this.zeroTol = zeroTol;
   }
 
 
+  /**
+   * Gets layers.
+   *
+   * @param layers the layers
+   * @return the layers
+   */
   public RefCollection<Layer> getLayers(@Nonnull final RefCollection<Layer> layers) {
     RefList<Layer> temp_29_0004 = layers.stream()
         //        .filter(layer -> layer instanceof FullyConnectedLayer)
@@ -213,6 +253,12 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     return (OwlQn) super.addRef();
   }
 
+  /**
+   * Sign int.
+   *
+   * @param weight the weight
+   * @return the int
+   */
   protected int sign(final double weight) {
     if (weight > zeroTol) {
       return 1;

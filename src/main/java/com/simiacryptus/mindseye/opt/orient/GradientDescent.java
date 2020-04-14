@@ -30,6 +30,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Gradient descent.
+ */
 public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   @Nonnull

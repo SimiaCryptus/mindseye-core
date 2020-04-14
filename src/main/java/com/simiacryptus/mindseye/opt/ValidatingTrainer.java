@@ -53,6 +53,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
+/**
+ * The type Validating trainer.
+ */
 public class ValidatingTrainer extends ReferenceCountingBase {
 
   private final AtomicInteger disappointments = new AtomicInteger(0);
@@ -81,6 +84,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   private int trainingSize = 10000;
   private double trainingTarget = 0.7;
 
+  /**
+   * Instantiates a new Validating trainer.
+   *
+   * @param trainingSubject   the training subject
+   * @param validationSubject the validation subject
+   */
   public ValidatingTrainer(@Nonnull final SampledTrainable trainingSubject,
                            @Nonnull final Trainable validationSubject) {
     RefList<TrainingPhase> temp_07_0001 = new RefArrayList<TrainingPhase>(RefArrays
@@ -127,160 +136,355 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     terminateThreshold = Double.NEGATIVE_INFINITY;
   }
 
+  /**
+   * Gets adjustment factor.
+   *
+   * @return the adjustment factor
+   */
   public double getAdjustmentFactor() {
     return adjustmentFactor;
   }
 
+  /**
+   * Sets adjustment factor.
+   *
+   * @param adjustmentFactor the adjustment factor
+   */
   public void setAdjustmentFactor(double adjustmentFactor) {
     this.adjustmentFactor = adjustmentFactor;
   }
 
+  /**
+   * Gets adjustment tolerance.
+   *
+   * @return the adjustment tolerance
+   */
   public double getAdjustmentTolerance() {
     return adjustmentTolerance;
   }
 
+  /**
+   * Sets adjustment tolerance.
+   *
+   * @param adjustmentTolerance the adjustment tolerance
+   */
   public void setAdjustmentTolerance(double adjustmentTolerance) {
     this.adjustmentTolerance = adjustmentTolerance;
   }
 
+  /**
+   * Gets current iteration.
+   *
+   * @return the current iteration
+   */
   public AtomicInteger getCurrentIteration() {
     return currentIteration;
   }
 
+  /**
+   * Sets current iteration.
+   *
+   * @param currentIteration the current iteration
+   */
   public void setCurrentIteration(AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
   }
 
+  /**
+   * Gets disappointment threshold.
+   *
+   * @return the disappointment threshold
+   */
   public int getDisappointmentThreshold() {
     return disappointmentThreshold;
   }
 
+  /**
+   * Sets disappointment threshold.
+   *
+   * @param disappointmentThreshold the disappointment threshold
+   */
   public void setDisappointmentThreshold(final int disappointmentThreshold) {
     this.disappointmentThreshold = disappointmentThreshold;
   }
 
+  /**
+   * Gets epoch iterations.
+   *
+   * @return the epoch iterations
+   */
   public int getEpochIterations() {
     return epochIterations;
   }
 
+  /**
+   * Sets epoch iterations.
+   *
+   * @param epochIterations the epoch iterations
+   */
   public void setEpochIterations(int epochIterations) {
     this.epochIterations = epochIterations;
   }
 
+  /**
+   * Gets improvment stale threshold.
+   *
+   * @return the improvment stale threshold
+   */
   public int getImprovmentStaleThreshold() {
     return improvmentStaleThreshold;
   }
 
+  /**
+   * Sets improvment stale threshold.
+   *
+   * @param improvmentStaleThreshold the improvment stale threshold
+   */
   public void setImprovmentStaleThreshold(final int improvmentStaleThreshold) {
     this.improvmentStaleThreshold = improvmentStaleThreshold;
   }
 
+  /**
+   * Gets max epoch iterations.
+   *
+   * @return the max epoch iterations
+   */
   public int getMaxEpochIterations() {
     return maxEpochIterations;
   }
 
+  /**
+   * Sets max epoch iterations.
+   *
+   * @param maxEpochIterations the max epoch iterations
+   */
   public void setMaxEpochIterations(int maxEpochIterations) {
     this.maxEpochIterations = maxEpochIterations;
   }
 
+  /**
+   * Gets max iterations.
+   *
+   * @return the max iterations
+   */
   public int getMaxIterations() {
     return maxIterations;
   }
 
+  /**
+   * Sets max iterations.
+   *
+   * @param maxIterations the max iterations
+   */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
   }
 
+  /**
+   * Gets max training size.
+   *
+   * @return the max training size
+   */
   public int getMaxTrainingSize() {
     return maxTrainingSize;
   }
 
+  /**
+   * Sets max training size.
+   *
+   * @param maxTrainingSize the max training size
+   */
   public void setMaxTrainingSize(int maxTrainingSize) {
     this.maxTrainingSize = maxTrainingSize;
   }
 
+  /**
+   * Gets min epoch iterations.
+   *
+   * @return the min epoch iterations
+   */
   public int getMinEpochIterations() {
     return minEpochIterations;
   }
 
+  /**
+   * Sets min epoch iterations.
+   *
+   * @param minEpochIterations the min epoch iterations
+   */
   public void setMinEpochIterations(int minEpochIterations) {
     this.minEpochIterations = minEpochIterations;
   }
 
+  /**
+   * Gets min training size.
+   *
+   * @return the min training size
+   */
   public int getMinTrainingSize() {
     return minTrainingSize;
   }
 
+  /**
+   * Sets min training size.
+   *
+   * @param minTrainingSize the min training size
+   */
   public void setMinTrainingSize(int minTrainingSize) {
     this.minTrainingSize = minTrainingSize;
   }
 
+  /**
+   * Gets monitor.
+   *
+   * @return the monitor
+   */
   public TrainingMonitor getMonitor() {
     return monitor;
   }
 
+  /**
+   * Sets monitor.
+   *
+   * @param monitor the monitor
+   */
   public void setMonitor(TrainingMonitor monitor) {
     this.monitor = monitor;
   }
 
+  /**
+   * Gets overtraining target.
+   *
+   * @return the overtraining target
+   */
   public double getOvertrainingTarget() {
     return overtrainingTarget;
   }
 
+  /**
+   * Sets overtraining target.
+   *
+   * @param overtrainingTarget the overtraining target
+   */
   public void setOvertrainingTarget(double overtrainingTarget) {
     this.overtrainingTarget = overtrainingTarget;
   }
 
+  /**
+   * Gets pessimism.
+   *
+   * @return the pessimism
+   */
   public double getPessimism() {
     return pessimism;
   }
 
+  /**
+   * Sets pessimism.
+   *
+   * @param pessimism the pessimism
+   */
   public void setPessimism(double pessimism) {
     this.pessimism = pessimism;
   }
 
+  /**
+   * Gets regimen.
+   *
+   * @return the regimen
+   */
   @Nonnull
   public RefList<TrainingPhase> getRegimen() {
     return regimen.addRef();
   }
 
+  /**
+   * Gets terminate threshold.
+   *
+   * @return the terminate threshold
+   */
   public double getTerminateThreshold() {
     return terminateThreshold;
   }
 
+  /**
+   * Sets terminate threshold.
+   *
+   * @param terminateThreshold the terminate threshold
+   */
   public void setTerminateThreshold(double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
   }
 
+  /**
+   * Gets timeout.
+   *
+   * @return the timeout
+   */
   public Duration getTimeout() {
     return timeout;
   }
 
+  /**
+   * Sets timeout.
+   *
+   * @param timeout the timeout
+   */
   public void setTimeout(Duration timeout) {
     this.timeout = timeout;
   }
 
+  /**
+   * Gets training size.
+   *
+   * @return the training size
+   */
   public int getTrainingSize() {
     return trainingSize;
   }
 
+  /**
+   * Sets training size.
+   *
+   * @param trainingSize the training size
+   */
   public void setTrainingSize(int trainingSize) {
     this.trainingSize = trainingSize;
   }
 
+  /**
+   * Gets training target.
+   *
+   * @return the training target
+   */
   public double getTrainingTarget() {
     return trainingTarget;
   }
 
+  /**
+   * Sets training target.
+   *
+   * @param trainingTarget the training target
+   */
   public void setTrainingTarget(double trainingTarget) {
     this.trainingTarget = trainingTarget;
   }
 
+  /**
+   * Gets validation subject.
+   *
+   * @return the validation subject
+   */
   @Nonnull
   public Trainable getValidationSubject() {
     return validationSubject.addRef();
   }
 
+  /**
+   * Sets line search factory.
+   *
+   * @param lineSearchFactory the line search factory
+   */
   public void setLineSearchFactory(Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
     RefList<TrainingPhase> temp_07_0024 = getRegimen();
     TrainingPhase temp_07_0025 = temp_07_0024.get(0);
@@ -289,6 +493,11 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     temp_07_0024.freeRef();
   }
 
+  /**
+   * Sets orientation.
+   *
+   * @param orientation the orientation
+   */
   public void setOrientation(@Nullable OrientationStrategy<?> orientation) {
     RefList<TrainingPhase> temp_07_0026 = getRegimen();
     TrainingPhase temp_07_0027 = temp_07_0026.get(0);
@@ -307,6 +516,11 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     return temp_07_0023;
   }
 
+  /**
+   * Run double.
+   *
+   * @return the double
+   */
   public double run() {
     Layer validationSubjectLayer = validationSubject.getLayer();
     try {
@@ -440,10 +654,22 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Sets timeout.
+   *
+   * @param number the number
+   * @param units  the units
+   */
   public void setTimeout(int number, @Nonnull TemporalUnit units) {
     timeout = Duration.of(number, units);
   }
 
+  /**
+   * Sets timeout.
+   *
+   * @param number the number
+   * @param units  the units
+   */
   public void setTimeout(int number, @Nonnull TimeUnit units) {
     setTimeout(number, Util.cvt(units));
   }
@@ -462,6 +688,15 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     return (ValidatingTrainer) super.addRef();
   }
 
+  /**
+   * Run phase epoch result.
+   *
+   * @param epochParams the epoch params
+   * @param phase       the phase
+   * @param i           the
+   * @param seed        the seed
+   * @return the epoch result
+   */
   @Nonnull
   protected EpochResult runPhase(@Nonnull final EpochParams epochParams, @Nonnull final TrainingPhase phase,
                                  final int i, final long seed) {
@@ -519,6 +754,13 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     return new EpochResult(true, pointMean, currentPoint, step);
   }
 
+  /**
+   * Run step step result.
+   *
+   * @param previousPoint the previous point
+   * @param phase         the phase
+   * @return the step result
+   */
   @Nonnull
   protected StepResult runStep(@Nonnull final PointSample previousPoint, @Nonnull final TrainingPhase phase) {
     currentIteration.incrementAndGet();
@@ -580,6 +822,13 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     return temp_07_0017;
   }
 
+  /**
+   * Should halt boolean.
+   *
+   * @param monitor   the monitor
+   * @param timeoutMs the timeout ms
+   * @return the boolean
+   */
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
     RefSystem.currentTimeMillis();
     if (timeoutMs < RefSystem.currentTimeMillis()) {
@@ -674,6 +923,9 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     phase.freeRef();
   }
 
+  /**
+   * The type Training phase.
+   */
   public static class TrainingPhase extends ReferenceCountingBase {
     private Function<CharSequence, LineSearchStrategy> lineSearchFactory = s -> new ArmijoWolfeSearch();
     @Nullable
@@ -683,25 +935,50 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     @Nullable
     private SampledTrainable trainingSubject;
 
+    /**
+     * Instantiates a new Training phase.
+     *
+     * @param trainingSubject the training subject
+     */
     public TrainingPhase(@Nullable final SampledTrainable trainingSubject) {
       setTrainingSubject(trainingSubject == null ? null : trainingSubject.addRef());
       if (null != trainingSubject)
         trainingSubject.freeRef();
     }
 
+    /**
+     * Gets line search factory.
+     *
+     * @return the line search factory
+     */
     public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
       return lineSearchFactory;
     }
 
+    /**
+     * Sets line search factory.
+     *
+     * @param lineSearchFactory the line search factory
+     */
     public void setLineSearchFactory(Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
       this.lineSearchFactory = lineSearchFactory;
     }
 
+    /**
+     * Gets line search strategy map.
+     *
+     * @return the line search strategy map
+     */
     @Nullable
     public RefMap<CharSequence, LineSearchStrategy> getLineSearchStrategyMap() {
       return lineSearchStrategyMap == null ? null : lineSearchStrategyMap.addRef();
     }
 
+    /**
+     * Sets line search strategy map.
+     *
+     * @param lineSearchStrategyMap the line search strategy map
+     */
     public void setLineSearchStrategyMap(@Nullable RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap) {
       RefMap<CharSequence, LineSearchStrategy> temp_07_0003 = lineSearchStrategyMap == null ? null
           : lineSearchStrategyMap.addRef();
@@ -714,11 +991,21 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         lineSearchStrategyMap.freeRef();
     }
 
+    /**
+     * Gets orientation.
+     *
+     * @return the orientation
+     */
     @Nullable
     public OrientationStrategy<?> getOrientation() {
       return orientation == null ? null : orientation.addRef();
     }
 
+    /**
+     * Sets orientation.
+     *
+     * @param orientation the orientation
+     */
     public void setOrientation(@Nullable OrientationStrategy<?> orientation) {
       OrientationStrategy<?> temp_07_0004 = orientation == null ? null : orientation.addRef();
       if (null != this.orientation)
@@ -730,11 +1017,21 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         orientation.freeRef();
     }
 
+    /**
+     * Gets training subject.
+     *
+     * @return the training subject
+     */
     @Nullable
     public SampledTrainable getTrainingSubject() {
       return trainingSubject == null ? null : trainingSubject.addRef();
     }
 
+    /**
+     * Sets training subject.
+     *
+     * @param trainingSubject the training subject
+     */
     public void setTrainingSubject(@Nullable final SampledTrainable trainingSubject) {
       SampledTrainable temp_07_0005 = trainingSubject == null ? null : trainingSubject.addRef();
       if (null != this.trainingSubject)
@@ -775,9 +1072,21 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   private static class EpochParams extends ReferenceCountingBase {
+    /**
+     * The Timeout ms.
+     */
     final long timeoutMs;
+    /**
+     * The Iterations.
+     */
     int iterations;
+    /**
+     * The Training size.
+     */
     int trainingSize;
+    /**
+     * The Validation.
+     */
     @Nullable
     PointSample validation;
 
@@ -812,12 +1121,32 @@ public class ValidatingTrainer extends ReferenceCountingBase {
 
   private static class EpochResult extends ReferenceCountingBase {
 
+    /**
+     * The Continue training.
+     */
     final boolean continueTraining;
+    /**
+     * The Current point.
+     */
     @Nullable
     final PointSample currentPoint;
+    /**
+     * The Iterations.
+     */
     final int iterations;
+    /**
+     * The Prior mean.
+     */
     final double priorMean;
 
+    /**
+     * Instantiates a new Epoch result.
+     *
+     * @param continueTraining the continue training
+     * @param priorMean        the prior mean
+     * @param currentPoint     the current point
+     * @param iterations       the iterations
+     */
     public EpochResult(final boolean continueTraining, final double priorMean, @Nullable final PointSample currentPoint,
                        final int iterations) {
       this.priorMean = priorMean;
@@ -851,6 +1180,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     @Nonnull
     private final ValidatingTrainer parent;
 
+    /**
+     * Instantiates a new Performance wrapper.
+     *
+     * @param trainingSubject the training subject
+     * @param parent          the parent
+     */
     public PerformanceWrapper(final SampledTrainable trainingSubject, @Nullable ValidatingTrainer parent) {
       super(trainingSubject);
       ValidatingTrainer temp_07_0008 = parent == null ? null : parent.addRef();
@@ -914,10 +1249,26 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   private static class StepResult extends ReferenceCountingBase {
+    /**
+     * The Current point.
+     */
     final PointSample currentPoint;
+    /**
+     * The Performance.
+     */
     final double[] performance;
+    /**
+     * The Previous.
+     */
     final PointSample previous;
 
+    /**
+     * Instantiates a new Step result.
+     *
+     * @param previous     the previous
+     * @param currentPoint the current point
+     * @param performance  the performance
+     */
     public StepResult(final PointSample previous, final PointSample currentPoint, final double[] performance) {
       this.currentPoint = currentPoint;
       this.previous = previous;

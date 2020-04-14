@@ -26,6 +26,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
+/**
+ * The type Input node.
+ */
 @SuppressWarnings("serial")
 final class InputNode extends LazyResult {
 //
@@ -33,6 +36,11 @@ final class InputNode extends LazyResult {
 //    this(null);
 //  }
 
+  /**
+   * Instantiates a new Input node.
+   *
+   * @param key the key
+   */
   public InputNode(final UUID key) {
     super(key);
   }

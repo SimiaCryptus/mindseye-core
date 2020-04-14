@@ -32,44 +32,74 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.util.function.DoubleSupplier;
 
+/**
+ * The type Data serializer test.
+ */
 public class DataSerializerTest {
   private static final Logger log = LoggerFactory.getLogger(DataSerializerTest.class);
 
+  /**
+   * Test double.
+   */
   @Test
   @Tag("UnitTest")
   public void testDouble() {
     test(SerialPrecision.Double);
   }
 
+  /**
+   * Test float.
+   */
   @Test
   @Tag("UnitTest")
   public void testFloat() {
     test(SerialPrecision.Float);
   }
 
+  /**
+   * Test uniform 32.
+   */
   @Test
   @Tag("UnitTest")
   public void testUniform32() {
     test(SerialPrecision.Uniform32);
   }
 
+  /**
+   * Test uniform 16.
+   */
   @Test
   @Tag("UnitTest")
   public void testUniform16() {
     test(SerialPrecision.Uniform16);
   }
 
+  /**
+   * Test uniform 8.
+   */
   @Test
   @Tag("UnitTest")
   public void testUniform8() {
     test(SerialPrecision.Uniform8);
   }
 
+  /**
+   * Test.
+   *
+   * @param target the target
+   */
   public void test(@Nonnull DataSerializer target) {
     test(target, this::random1, "Uniform");
     test(target, this::random2, "Exponential");
   }
 
+  /**
+   * Test.
+   *
+   * @param target the target
+   * @param f      the f
+   * @param name   the name
+   */
   public void test(@Nonnull DataSerializer target, @Nonnull DoubleSupplier f, CharSequence name) {
     @Nonnull
     double[] source = random(1024, f);

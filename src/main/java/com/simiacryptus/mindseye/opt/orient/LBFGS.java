@@ -40,25 +40,51 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * The type Lbfgs.
+ */
 public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
+  /**
+   * The Verbose.
+   */
   protected final boolean verbose = true;
   private final RefTreeSet<PointSample> history = new RefTreeSet<>(RefComparator.reversed(RefComparator.comparingDouble(PointSample::getMean)));
   private int maxHistory = 30;
   private int minHistory = 3;
 
+  /**
+   * Gets max history.
+   *
+   * @return the max history
+   */
   public int getMaxHistory() {
     return maxHistory;
   }
 
+  /**
+   * Sets max history.
+   *
+   * @param maxHistory the max history
+   */
   public void setMaxHistory(int maxHistory) {
     this.maxHistory = maxHistory;
   }
 
+  /**
+   * Gets min history.
+   *
+   * @return the min history
+   */
   public int getMinHistory() {
     return minHistory;
   }
 
+  /**
+   * Sets min history.
+   *
+   * @param minHistory the min history
+   */
   public void setMinHistory(int minHistory) {
     this.minHistory = minHistory;
   }
@@ -74,6 +100,12 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     return temp_47_0011;
   }
 
+  /**
+   * Add to history.
+   *
+   * @param measurement the measurement
+   * @param monitor     the monitor
+   */
   public void addToHistory(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
     assert assertAlive();
     assert measurement.assertAlive();
@@ -164,6 +196,14 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     return (LBFGS) super.addRef();
   }
 
+  /**
+   * Lbfgs delta set.
+   *
+   * @param measurement the measurement
+   * @param monitor     the monitor
+   * @param historyList the history list
+   * @return the delta set
+   */
   @Nullable
   protected DeltaSet<UUID> lbfgs(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor,
                                  @Nonnull final RefList<PointSample> historyList) {
@@ -359,6 +399,12 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     private final double dot;
     private final List<CharSequence> anglesPerLayer;
 
+    /**
+     * Instantiates a new Stats.
+     *
+     * @param gradient    the gradient
+     * @param quasinewton the quasinewton
+     */
     public Stats(@Nonnull DeltaSet<UUID> gradient, @Nonnull DeltaSet<UUID> quasinewton) {
       mag = Math.sqrt(quasinewton.dot(quasinewton.addRef()));
       magGrad = Math.sqrt(gradient.dot(gradient.addRef()));
@@ -414,18 +460,38 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
       }
     }
 
+    /**
+     * Gets angles per layer.
+     *
+     * @return the angles per layer
+     */
     public List<CharSequence> getAnglesPerLayer() {
       return anglesPerLayer;
     }
 
+    /**
+     * Gets dot.
+     *
+     * @return the dot
+     */
     public double getDot() {
       return dot;
     }
 
+    /**
+     * Gets mag.
+     *
+     * @return the mag
+     */
     public double getMag() {
       return mag;
     }
 
+    /**
+     * Gets mag grad.
+     *
+     * @return the mag grad
+     */
     public double getMagGrad() {
       return magGrad;
     }

@@ -26,22 +26,48 @@ import com.simiacryptus.ref.wrappers.RefSystem;
 import javax.annotation.Nonnull;
 import java.util.function.DoubleUnaryOperator;
 
+/**
+ * The type State.
+ *
+ * @param <K> the type parameter
+ */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class State<K> extends DoubleBuffer<K> {
 
+  /**
+   * Instantiates a new State.
+   *
+   * @param layer  the layer
+   * @param target the target
+   */
   public State(@Nonnull final K layer, final double[] target) {
     super(layer, target);
   }
 
+  /**
+   * Instantiates a new State.
+   *
+   * @param layer  the layer
+   * @param target the target
+   * @param delta  the delta
+   */
   public State(@Nonnull final K layer, final double[] target, final double[] delta) {
     super(layer, target, delta);
   }
 
 
+  /**
+   * Are equal boolean.
+   *
+   * @return the boolean
+   */
   public boolean areEqual() {
     return areEqual(getDelta(), target);
   }
 
+  /**
+   * Backup.
+   */
   public synchronized void backup() {
     RefSystem.arraycopy(target, 0, getDelta(), 0, target.length);
   }
@@ -59,6 +85,9 @@ public class State<K> extends DoubleBuffer<K> {
     return new State(key, target, RefArrays.stream(getDelta()).map(mapper::applyAsDouble).toArray());
   }
 
+  /**
+   * Restore.
+   */
   public synchronized void restore() {
     RefSystem.arraycopy(getDelta(), 0, target, 0, target.length);
   }
