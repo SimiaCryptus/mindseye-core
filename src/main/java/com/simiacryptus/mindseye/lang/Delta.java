@@ -123,7 +123,7 @@ public class Delta<K> extends DoubleBuffer<K> {
    */
   public final void accumulate(final double factor) {
     synchronized (target) {
-      assert RefArrays.stream(target).parallel().allMatch(Double::isFinite);
+      //assert RefArrays.stream(target).parallel().allMatch(Double::isFinite);
       @Nullable final double[] delta = getDelta();
       for (int i = 0; i < length(); i++) {
         assert delta != null;
