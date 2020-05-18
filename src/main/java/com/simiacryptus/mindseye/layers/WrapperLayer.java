@@ -119,7 +119,7 @@ public class WrapperLayer extends LayerBase {
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     @Nonnull final JsonObject json = super.getJsonStub();
-    json.add("inner", inner.getJson(resources, dataSerializer));
+    if (null != inner) json.add("inner", inner.getJson(resources, dataSerializer));
     return json;
   }
 

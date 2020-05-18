@@ -51,7 +51,7 @@ public abstract class DAGNetwork extends LayerBase {
   /**
    * The Input handles.
    */
-  public final RefList<UUID> inputHandles = new RefArrayList<>();
+  public final RefArrayList<UUID> inputHandles = new RefArrayList<>();
   /**
    * The Input nodes.
    */

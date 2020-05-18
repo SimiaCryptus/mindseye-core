@@ -76,7 +76,7 @@ public abstract class LazyRefHashMap<K, V> extends ReferenceCountingBase impleme
   @Override
   public V remove(Object key) {
     RefAtomicReference<V> reference = inner.remove(key);
-    return getOrInit((K) key, (RefAtomicReference<V>) reference);
+    return getOrInit((K) key, reference);
   }
 
   /**
