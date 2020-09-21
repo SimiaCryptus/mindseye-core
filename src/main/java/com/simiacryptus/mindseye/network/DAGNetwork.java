@@ -267,13 +267,13 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   @NotNull
-  private static HashMap<UUID, Long> defRef(RefMap<UUID, Long> refMap) {
+  private static HashMap<UUID, Long> deref(Map<UUID, Long> refMap) {
     try {
       HashMap<UUID, Long> hashMap = new HashMap<>();
       refMap.forEach((k, v) -> hashMap.put(k, v));
       return hashMap;
     } finally {
-      refMap.freeRef();
+      RefUtil.freeRef(refMap);
     }
   }
 
@@ -451,7 +451,7 @@ public abstract class DAGNetwork extends LayerBase {
     }).filter(id -> !inputHandles.contains(id))
         .collect(RefCollectors.groupingBy(x -> x, RefCollectors.counting()));
     nodes.freeRef();
-    return defRef(nodeIdReferenceCounts);
+    return deref(nodeIdReferenceCounts);
   }
 
   /**

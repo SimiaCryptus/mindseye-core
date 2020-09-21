@@ -1,5 +1,5 @@
+*.hprof
 .idea/
+logs/
 mindseye-core.iml
 target/
-*.hprof
-logs/

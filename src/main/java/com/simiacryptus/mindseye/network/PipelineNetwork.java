@@ -260,9 +260,7 @@ public class PipelineNetwork extends DAGNetwork {
   public InnerNode add(@Nullable final Layer nextHead) {
     assert nextHead != null;
     assert nextHead.assertAlive();
-    InnerNode temp_06_0012 = add(nextHead.addRef(), getHead());
-    nextHead.freeRef();
-    return temp_06_0012;
+    return add(nextHead, getHead());
   }
 
   @Nonnull
