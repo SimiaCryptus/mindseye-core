@@ -160,12 +160,14 @@ public class CountingResult extends Result {
 
     public void _free() {
       super._free();
-      if (passbackBuffers.size() > 0 && accumulations.size() > 0) {
-        logger.error("Passback incomplete");
+      synchronized (passbackBuffers) {
+        if (passbackBuffers.size() > 0 && accumulations.size() > 0) {
+          logger.error("Passback incomplete");
+        }
+        passbackBuffers.freeRef();
       }
       fwdLinks.freeRef();
       if (null != innerAccumulator) innerAccumulator.freeRef();
-      passbackBuffers.freeRef();
     }
 
     @Nonnull
@@ -178,8 +180,8 @@ public class CountingResult extends Result {
     private void add(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       //assert allAlive();
       @NotNull StackTraceElement[] stackTrace = getStackTrace();
-      RefUtil.freeRef(passbackBuffers.put(stackTrace, data));
       synchronized (passbackBuffers) {
+        RefUtil.freeRef(passbackBuffers.put(stackTrace, data));
         if (passbackBuffers.size() > CoreSettings.INSTANCE().backpropAggregationSize) {
           RefUtil.freeRef(passbackBuffers.put(stackTrace, reduce()));
           //assert allAlive();

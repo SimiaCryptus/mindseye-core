@@ -419,29 +419,33 @@ public class ImageUtil {
    * @param file the file
    * @return the tensor
    */
-  @Nonnull
   public static Tensor getTensor(@Nonnull CharSequence file) {
+    BufferedImage read = getImage(file);
+    if (read == null) return null;
+    if (null == read) throw new IllegalArgumentException("Error reading " + file);
+    return Tensor.fromRGB(read);
+  }
+
+  @org.jetbrains.annotations.Nullable
+  public static BufferedImage getImage(@NotNull CharSequence file) {
+    if(file.length()==0) return null;
     String fileStr = file.toString();
+    BufferedImage read = null;
     if (fileStr.startsWith("http")) {
       try {
-        BufferedImage read = ImageIO.read(new URL(fileStr));
+        read = ImageIO.read(new URL(fileStr));
         if (null == read)
           throw new IllegalArgumentException("Error reading " + file);
-        return Tensor.fromRGB(read);
       } catch (Throwable e) {
         throw new RuntimeException("Error reading " + file, e);
       }
-    }
-    if (fileStr.startsWith("file:///")) {
+    } else  if (fileStr.startsWith("file:///")) {
       try {
-        BufferedImage read = ImageIO.read(new File(fileStr.substring(8)));
-        if (null == read)
-          throw new IllegalArgumentException("Error reading " + file);
-        return Tensor.fromRGB(read);
+        read = ImageIO.read(new File(fileStr.substring(8)));
       } catch (Throwable e) {
         throw new RuntimeException("Error reading " + file, e);
       }
     }
-    throw new IllegalArgumentException(file.toString());
+    return read;
   }
 }
