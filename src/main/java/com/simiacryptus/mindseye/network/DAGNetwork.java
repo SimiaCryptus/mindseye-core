@@ -267,7 +267,7 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   @NotNull
-  private static HashMap<UUID, Long> deref(Map<UUID, Long> refMap) {
+  private static HashMap<UUID, Long> deref(@RefAware Map<UUID, Long> refMap) {
     try {
       HashMap<UUID, Long> hashMap = new HashMap<>();
       refMap.forEach((k, v) -> hashMap.put(k, v));
