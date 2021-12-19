@@ -76,6 +76,8 @@ public interface Trainable extends ReferenceCounting {
     return false;
   }
 
-  Trainable addRef();
+  default Trainable addRef() {
+    return this;
+  }
 
 }
