@@ -137,16 +137,18 @@ public class ImageUtil {
   public static BufferedImage resize(@Nonnull final BufferedImage source, final int size, boolean preserveAspect) {
     if (size <= 0)
       return source;
-    double zoom = (double) size / source.getWidth();
-    int steps = (int) Math.ceil(Math.abs(Math.log(zoom)) / Math.log(1.5));
     BufferedImage img = source;
-    for (int i = 1; i <= steps; i++) {
-      double pos = (double) i / steps;
-      double z = Math.pow(zoom, pos);
-      int targetWidth = (int) (source.getWidth() * z);
-      int targetHeight = (int) (source.getWidth() == source.getHeight() ? targetWidth
-          : (preserveAspect ? source.getHeight() : source.getWidth()) * z);
-      img = resize(img, targetWidth, targetHeight);
+    if(size>0) {
+      double zoom = (double) size / source.getWidth();
+      int steps = (int) Math.ceil(Math.abs(Math.log(zoom)) / Math.log(1.5));
+      for (int i = 1; i <= steps; i++) {
+        double pos = (double) i / steps;
+        double z = Math.pow(zoom, pos);
+        int targetWidth = (int) (source.getWidth() * z);
+        int targetHeight = (int) (source.getWidth() == source.getHeight() ? targetWidth
+            : (preserveAspect ? source.getHeight() : source.getWidth()) * z);
+        img = resize(img, targetWidth, targetHeight);
+      }
     }
     return img;
   }

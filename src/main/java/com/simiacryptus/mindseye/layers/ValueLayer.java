@@ -141,8 +141,7 @@ public class ValueLayer extends LayerBase {
 
   public void _free() {
     super._free();
-    if (null != data)
-      RefUtil.freeRef(data);
+    RefUtil.freeRef(data);
     data = null;
   }
 

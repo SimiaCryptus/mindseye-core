@@ -288,7 +288,7 @@ public class PipelineNetwork extends DAGNetwork {
    * @param node   the node
    * @param layers the layers
    */
-  public void addAll(InnerNode node, @Nonnull final Layer... layers) {
+  public void addAll(DAGNode node, @Nonnull final Layer... layers) {
     for (final Layer l : layers) {
       node = add(l == null ? null : l.addRef(), node);
     }
@@ -303,7 +303,7 @@ public class PipelineNetwork extends DAGNetwork {
    * @param layers the layers
    */
   public void addAll(@Nullable final Layer... layers) {
-    addAll((InnerNode) getHead(), RefUtil.addRef(layers));
+    addAll(getHead(), RefUtil.addRef(layers));
     if (null != layers)
       RefUtil.freeRef(layers);
   }
@@ -327,10 +327,12 @@ public class PipelineNetwork extends DAGNetwork {
    */
   @Nullable
   public DAGNode constValueWrap(@Nullable final Tensor tensor) {
-    DAGNode temp_06_0014 = constValue(tensor == null ? null : tensor.addRef());
-    if (null != tensor)
-      tensor.freeRef();
-    return temp_06_0014;
+    if (tensor == null) {
+      return constValue(null);
+    }
+    else {
+      return constValue(tensor);
+    }
   }
 
   @Override

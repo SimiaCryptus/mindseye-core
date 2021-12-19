@@ -316,27 +316,32 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
         if (!Double.isFinite(lastValue)) {
           lastValue = Double.POSITIVE_INFINITY;
         }
-        if (lastValue > startValue + alpha * c1 * startLineDeriv) {
+        double evalInputDelta = startValue - lastValue;
+        if(evalInputDelta == 0.0) {
+          monitor.log(RefString.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
+                  evalInputDelta));
+          return lastStep.getPoint();
+        } else if (lastValue > startValue + alpha * c1 * startLineDeriv) {
           // Value did not decrease (enough) - It is gauranteed to decrease given an infitefimal rate; the rate must be less than this; this is a new ceiling
           monitor.log(RefString.format("Armijo: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue,
-              lastStep.derivative, startValue - lastValue));
+              lastStep.derivative, evalInputDelta));
           nu = alpha;
           stepBias = Math.min(-1, stepBias - 1);
         } else if (isStrongWolfe() && lastStep.derivative > 0) {
           // If the slope is increasing, then we can go lower by choosing a lower rate; this is a new ceiling
           monitor.log(RefString.format("WOLF (strong): th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue,
-              lastStep.derivative, startValue - lastValue));
+              lastStep.derivative, evalInputDelta));
           nu = alpha;
           stepBias = Math.min(-1, stepBias - 1);
         } else if (lastStep.derivative < c2 * startLineDeriv) {
           // Current slope decreases at no more than X - If it is still decreasing that fast, we know we want a rate of least this value; this is a new floor
           monitor.log(RefString.format("WOLFE (weak): th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue,
-              lastStep.derivative, startValue - lastValue));
+              lastStep.derivative, evalInputDelta));
           mu = alpha;
           stepBias = Math.max(1, stepBias + 1);
         } else {
           monitor.log(RefString.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
-              startValue - lastValue));
+                  evalInputDelta));
           return lastStep.getPoint();
         }
         if (!Double.isFinite(nu)) {

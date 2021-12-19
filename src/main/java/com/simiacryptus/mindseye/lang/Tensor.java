@@ -434,6 +434,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     final int width = img.getWidth();
     final int height = img.getHeight();
     @Nonnull final Tensor a = new Tensor(width, height, 3);
+    //a.watch();
     RefIntStream.range(0, width).parallel().forEach(x -> {
       @Nonnull final int[] coords = {0, 0, 0};
       RefIntStream.range(0, height).forEach(y -> {
