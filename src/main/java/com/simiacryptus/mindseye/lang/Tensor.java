@@ -162,7 +162,21 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     assert dims.length > 0;
   }
 
-  /**
+    @Nonnull
+    public static BufferedImage toImage(Tensor tensor) {
+      BufferedImage image = tensor.toImage();
+      tensor.freeRef();
+      return image;
+    }
+
+    @Nonnull
+    public static BufferedImage toRgbImage(Tensor tensor) {
+      BufferedImage image = tensor.toRgbImage();
+      tensor.freeRef();
+      return image;
+    }
+
+    /**
    * Get data double [ ].
    *
    * @return the double [ ]
