@@ -327,12 +327,19 @@ public class PipelineNetwork extends DAGNetwork {
    */
   @Nullable
   public DAGNode constValueWrap(@Nullable final Tensor tensor) {
-    if (tensor == null) {
-      return constValue(null);
+    // ??? Why does this method exist?
+
+//    if (tensor == null) {
+//      return constValue(null);
+//    }
+//    else {
+//    }
+
+    if (null == tensor) {
+      RefUtil.freeRef(tensor);
+      throw new IllegalArgumentException();
     }
-    else {
-      return constValue(tensor);
-    }
+    return constValue(tensor);
   }
 
   @Override

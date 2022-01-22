@@ -96,6 +96,14 @@ public class Result extends ReferenceCountingBase {
     this.data = data;
   }
 
+  public static int[] getDimensions(Result result) {
+    TensorList data = result.getData();
+    result.freeRef();
+    @Nonnull int[] dimensions = data.getDimensions();
+    data.freeRef();
+    return dimensions;
+  }
+
   /**
    * Gets accumulator.
    *

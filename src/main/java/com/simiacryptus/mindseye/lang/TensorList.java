@@ -154,6 +154,8 @@ public interface TensorList extends ReferenceCounting {
   @RefAware
   Tensor get(int i);
 
+  double get(int tensorIndex, int elementIndex);
+
   /**
    * Length int.
    *

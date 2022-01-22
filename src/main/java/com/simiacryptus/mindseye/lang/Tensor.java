@@ -19,6 +19,7 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -263,6 +264,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
    * @return the pixel stream
    */
   @Nonnull
+  //@JsonIgnore
   public RefStream<double[]> getPixelStream() {
     int[] dimensions = getDimensions();
     int width = dimensions[0];

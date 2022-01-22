@@ -93,6 +93,10 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
     return data[i].addRef();
   }
 
+  public double get(int tensorIndex, int elementIndex) {
+    return data[tensorIndex].get(elementIndex);
+  }
+
   @Override
   public int length() {
     return data.length;

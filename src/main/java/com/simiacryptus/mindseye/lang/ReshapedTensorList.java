@@ -76,6 +76,10 @@ public class ReshapedTensorList extends ReferenceCountingBase implements TensorL
     return reshape(inner.get(i));
   }
 
+  public double get(int tensorIndex, int elementIndex) {
+    return inner.get(tensorIndex, elementIndex);
+  }
+
   @Override
   public int length() {
     return inner.length();
