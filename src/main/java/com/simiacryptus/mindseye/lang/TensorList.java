@@ -19,6 +19,8 @@
 
 package com.simiacryptus.mindseye.lang;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.simiacryptus.ref.lang.RefAware;
 import com.simiacryptus.ref.lang.RefUtil;
 import com.simiacryptus.ref.lang.ReferenceCounting;
@@ -178,5 +180,25 @@ public interface TensorList extends ReferenceCounting {
 
   @Nonnull
   TensorList addRef();
+
+  default JsonElement getJson() {
+    JsonArray array = new JsonArray();
+    for (int i = 0; i < length(); i++) {
+      Tensor tensor = get(i);
+      array.add(tensor.getJson());
+      tensor.freeRef();
+    }
+    return array;
+  }
+
+  default JsonElement getJsonRaw() {
+    JsonArray array = new JsonArray();
+    for (int i = 0; i < length(); i++) {
+      Tensor tensor = get(i);
+      array.add(tensor.getJsonRaw());
+      tensor.freeRef();
+    }
+    return array;
+  }
 
 }

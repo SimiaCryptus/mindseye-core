@@ -77,7 +77,7 @@ final class InputNode extends LazyResult {
   }
 
   @Override
-  protected Result eval(@Nonnull final GraphEvaluationContext context) {
+  public Result eval(@Nonnull final GraphEvaluationContext context) {
     assertAlive();
     CountingResult countingResult = context.get(id);
     context.freeRef();

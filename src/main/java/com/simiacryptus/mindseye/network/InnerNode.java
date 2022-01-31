@@ -139,7 +139,7 @@ public final class InnerNode extends LazyResult {
 
   @Nullable
   @Override
-  protected Result eval(@Nullable final GraphEvaluationContext ctx) {
+  public Result eval(@Nullable final GraphEvaluationContext ctx) {
     assertAlive();
     @Nonnull final Layer innerLayer = getLayer();
     try {

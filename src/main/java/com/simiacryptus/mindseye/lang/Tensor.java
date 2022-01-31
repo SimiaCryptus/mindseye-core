@@ -391,7 +391,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     } else if (json.isJsonObject()) {
       JsonObject jsonObject = json.getAsJsonObject();
       @Nonnull
-      int[] dims = fromJsonArray(jsonObject.getAsJsonArray("length"));
+      int[] dims = fromJsonArray(jsonObject.getAsJsonArray("dims"));
       @Nonnull
       Tensor tensor = new Tensor(dims);
       SerialPrecision precision = SerialPrecision.valueOf(jsonObject.getAsJsonPrimitive("precision").getAsString());
@@ -1727,7 +1727,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
       JsonObject obj = new JsonObject();
       @Nonnull
       int[] dimensions = getDimensions();
-      obj.add("length", toJsonArray(dimensions));
+      obj.add("dims", toJsonArray(dimensions));
       if (null != id)
         obj.addProperty("id", id.toString());
       @Nonnull
@@ -1745,6 +1745,32 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     } else {
       return getJson(new int[]{});
     }
+  }
+
+  @Nonnull
+  public JsonElement getJsonRaw() {
+    if (length() > 1024) {
+      @Nonnull
+      JsonObject obj = new JsonObject();
+      @Nonnull
+      int[] dimensions = getDimensions();
+      obj.add("dims", toJsonArray(dimensions));
+      if (null != id)
+        obj.addProperty("id", id.toString());
+      obj.add("values", toJson(getData()));
+      return obj;
+    } else {
+      return getJson(new int[]{});
+    }
+  }
+
+  @NotNull
+  public static JsonArray toJson(@Nonnull double[] data) {
+    JsonArray jsonArray = new JsonArray();
+    for (double v : data) {
+      jsonArray.add(v);
+    }
+    return jsonArray;
   }
 
   /**

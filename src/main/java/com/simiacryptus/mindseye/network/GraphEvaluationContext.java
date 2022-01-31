@@ -35,7 +35,7 @@ import java.util.function.UnaryOperator;
 /**
  * The type Graph evaluation context.
  */
-class GraphEvaluationContext extends ReferenceCountingBase {
+public class GraphEvaluationContext extends ReferenceCountingBase {
 
   private final Map<UUID, Long> expectedCounts = new ConcurrentHashMap<>();
 

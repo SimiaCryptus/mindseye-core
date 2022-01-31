@@ -82,4 +82,6 @@ public interface DAGNode extends Serializable, ReferenceCounting {
   @Nonnull
   DAGNode addRef();
 
+  Result eval(GraphEvaluationContext t);
+
 }

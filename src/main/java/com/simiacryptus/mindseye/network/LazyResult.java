@@ -128,6 +128,6 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
    * @return the result
    */
   @Nullable
-  protected abstract Result eval(GraphEvaluationContext t);
+  public abstract Result eval(GraphEvaluationContext t);
 
 }

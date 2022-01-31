@@ -98,6 +98,15 @@ public class PipelineNetwork extends DAGNetwork {
     super(inputs, id, name);
   }
 
+  @Nullable
+  public Layer headLayer() {
+    DAGNode head = getHead();
+    freeRef();
+    Layer layer = head.getLayer();
+    head.freeRef();
+    return layer;
+  }
+
   @NotNull
   @Override
   public final DAGNode getHead() {
@@ -317,6 +326,13 @@ public class PipelineNetwork extends DAGNetwork {
   @Nullable
   public DAGNode constValue(@Nullable final Tensor tensor) {
     return add(new ValueLayer(tensor), new DAGNode[]{});
+  }
+
+  @Nullable
+  public DAGNode mutableValue(@Nullable final Tensor tensor) {
+    ValueLayer valueLayer = new ValueLayer(tensor);
+    valueLayer.setFrozen(false);
+    return add(valueLayer, new DAGNode[]{});
   }
 
   /**

@@ -277,10 +277,11 @@ public class IterativeTrainer extends ReferenceCountingBase {
    *
    * @return the double
    */
-  public double run() {
+  public TrainingResult run() {
     long startTime = RefSystem.currentTimeMillis();
     final long timeoutMs = startTime + timeout.toMillis();
     long lastIterationTime = RefSystem.nanoTime();
+    TrainingResult.TerminationCause terminationCause = TrainingResult.TerminationCause.Completed;
     shuffle();
     @Nullable
     PointSample currentPoint = measure();
@@ -294,9 +295,11 @@ mainLoop:
         currentPoint = measure();
         for (int subiteration = 0; subiteration < iterationsPerSample || iterationsPerSample <= 0; subiteration++) {
           if (timeoutMs < RefSystem.currentTimeMillis()) {
+            terminationCause = TrainingResult.TerminationCause.Timeout;
             break mainLoop;
           }
           if (currentIteration.incrementAndGet() > maxIterations) {
+            terminationCause = TrainingResult.TerminationCause.Completed;
             break mainLoop;
           }
           if (null != currentPoint) currentPoint.freeRef();
@@ -346,13 +349,12 @@ mainLoop:
               monitor.log(
                   RefString.format("Iteration %s failed. Error: %s", currentIteration.get(), currentPoint.getMean()));
               monitor.log(RefString.format("Previous Error: %s -> %s", previous.getRate(), previous.getMean()));
-              if (monitor
-                  .onStepFail(new Step(currentPoint.addRef(), currentIteration.get()))) {
+              if (monitor.onStepFail(new Step(currentPoint.addRef(), currentIteration.get()))) {
                 monitor.log(RefString.format("Retrying iteration %s", currentIteration.get()));
-
                 break;
               } else {
                 monitor.log(RefString.format("Optimization terminated %s", currentIteration.get()));
+                terminationCause = TrainingResult.TerminationCause.Failed;
                 break mainLoop;
               }
             } else {
@@ -373,7 +375,7 @@ mainLoop:
         ((DAGNetwork) subjectLayer).clearNoise();
       }
       if (null != subjectLayer) subjectLayer.freeRef();
-      return null == currentPoint ? Double.NaN : currentPoint.getMean();
+      return new TrainingResult(null == currentPoint ? Double.NaN : currentPoint.getMean(), terminationCause);
     } catch (Throwable e) {
       monitor.log(RefString.format("Error %s", Util.toString(e)));
       throw Util.throwException(e);

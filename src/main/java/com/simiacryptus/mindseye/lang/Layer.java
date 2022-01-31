@@ -188,13 +188,17 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     Result temp_34_0013 = eval(input.addRef());
     assert temp_34_0013 != null;
     TensorList temp_34_0014 = temp_34_0013.getData();
+    temp_34_0013.freeRef();
     Tensor tensor = temp_34_0014.get(0);
     temp_34_0014.freeRef();
-    temp_34_0013.freeRef();
     input.freeRef();
     int[] temp_34_0001 = tensor.getDimensions();
     tensor.freeRef();
     return temp_34_0001;
+  }
+
+  default Tensor simpleEval(Tensor... input) {
+    return Result.getData0(eval(input));
   }
 
   /**
