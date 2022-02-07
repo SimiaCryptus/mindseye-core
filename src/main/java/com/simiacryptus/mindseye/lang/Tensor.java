@@ -19,7 +19,6 @@
 
 package com.simiacryptus.mindseye.lang;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -775,6 +774,30 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
     return RefIntStream.range(0, bands).mapToDouble(c -> get(x, y, c)).toArray();
   }
 
+  public void getPixel(int x, int y, double[] refPixel) {
+    final double[] data = getData();
+    RefIntStream.range(0, dimensions[2]).forEach(c -> {
+      final int index = index(x, y, c);
+      assert index >= 0;
+      if (index >= data.length) {
+        throw new IllegalArgumentException(Arrays.toString(new int[]{x, y, c}));
+      }
+      refPixel[c] = data[index];
+    });
+  }
+
+  public void setPixel(int x, int y, double[] refPixel) {
+    final double[] data = getData();
+    RefIntStream.range(0, dimensions[2]).forEach(c -> {
+      final int index = index(x, y, c);
+      assert index >= 0;
+      if (index >= data.length) {
+        throw new IllegalArgumentException(Arrays.toString(new int[]{x, y, c}));
+      }
+      data[index] = refPixel[c];
+    });
+  }
+
   /**
    * Rearrange tensor.
    *
@@ -1374,17 +1397,7 @@ public final class Tensor extends ReferenceCountingBase implements Serializable,
    * @return the double
    */
   public double rms() {
-    double[] data = getData();
-    DoubleSummaryStatistics finiteStats = Arrays.stream(data).filter(Double::isFinite).summaryStatistics();
-    double average = Math.max(1.0, Math.abs(finiteStats.getAverage()));
-    DoubleStream doubleStream = Arrays.stream(data).filter(Double::isFinite);
-    if (average > 1) doubleStream = doubleStream.map(x -> x / average);
-    double sumSq = doubleStream.map(x -> x * x).sum();
-    double sqrt = Math.sqrt(sumSq / finiteStats.getCount()) * average;
-    if (!Double.isFinite(sqrt)) {
-      throw new IllegalStateException();
-    }
-    return sqrt;
+    return Math.sqrt(sumSq() / length());
   }
 
   /**
