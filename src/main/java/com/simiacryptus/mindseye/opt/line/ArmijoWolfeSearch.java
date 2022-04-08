@@ -27,7 +27,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Armijo wolfe search.
+ * ArmijoWolfeSearch class
+ *
+ * @param absoluteTolerance the absolute tolerance
+ * @param alpha             the alpha
+ * @param alphaGrowth       the alpha growth
+ * @param c1                the c1
+ * @param c2                the c2
+ * @param maxAlpha          the max alpha
+ * @param minAlpha          the min alpha
+ * @param relativeTolerance the relative tolerance
+ * @param strongWolfe       the strong wolfe
+ * @docgenVersion 9
  */
 public class ArmijoWolfeSearch implements LineSearchStrategy {
 
@@ -42,19 +53,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   private boolean strongWolfe = true;
 
   /**
-   * Gets absolute tolerance.
+   * Returns the absolute tolerance.
    *
-   * @return the absolute tolerance
+   * @docgenVersion 9
    */
   public double getAbsoluteTolerance() {
     return absoluteTolerance;
   }
 
   /**
-   * Sets absolute tolerance.
+   * Sets the absolute tolerance for the line search.
    *
-   * @param absoluteTolerance the absolute tolerance
-   * @return the absolute tolerance
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setAbsoluteTolerance(final double absoluteTolerance) {
@@ -63,19 +73,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets alpha.
+   * Returns the value of the 'alpha' property.
    *
-   * @return the alpha
+   * @docgenVersion 9
    */
   public double getAlpha() {
     return alpha;
   }
 
   /**
-   * Sets alpha.
+   * ArmijoWolfeSearch sets the value of alpha.
    *
-   * @param alpha the alpha
-   * @return the alpha
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setAlpha(final double alpha) {
@@ -84,19 +93,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets alpha growth.
+   * Returns the alpha growth.
    *
-   * @return the alpha growth
+   * @docgenVersion 9
    */
   public double getAlphaGrowth() {
     return alphaGrowth;
   }
 
   /**
-   * Sets alpha growth.
+   * ArmijoWolfeSearch sets the alpha growth.
    *
-   * @param alphaGrowth the alpha growth
-   * @return the alpha growth
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setAlphaGrowth(final double alphaGrowth) {
@@ -105,19 +113,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets c 1.
+   * Returns the value of c1.
    *
-   * @return the c 1
+   * @docgenVersion 9
    */
   public double getC1() {
     return c1;
   }
 
   /**
-   * Sets c 1.
+   * Sets the c1 parameter for the ArmijoWolfeSearch algorithm.
    *
-   * @param c1 the c 1
-   * @return the c 1
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setC1(final double c1) {
@@ -126,19 +133,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets c 2.
+   * Returns the value of c2.
    *
-   * @return the c 2
+   * @docgenVersion 9
    */
   public double getC2() {
     return c2;
   }
 
   /**
-   * Sets c 2.
+   * Sets the c2 parameter for the ArmijoWolfeSearch algorithm.
    *
-   * @param c2 the c 2
-   * @return the c 2
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setC2(final double c2) {
@@ -147,19 +153,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets max alpha.
+   * Returns the maximum value of the alpha channel.
    *
-   * @return the max alpha
+   * @docgenVersion 9
    */
   public double getMaxAlpha() {
     return maxAlpha;
   }
 
   /**
-   * Sets max alpha.
+   * ArmijoWolfeSearch sets the maximum value for alpha.
    *
-   * @param maxAlpha the max alpha
-   * @return the max alpha
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setMaxAlpha(final double maxAlpha) {
@@ -168,19 +173,18 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets min alpha.
+   * Returns the minimum value of the alpha field.
    *
-   * @return the min alpha
+   * @docgenVersion 9
    */
   public double getMinAlpha() {
     return minAlpha;
   }
 
   /**
-   * Sets min alpha.
+   * Sets the minimum value for the alpha parameter in the Armijo-Wolfe line search algorithm.
    *
-   * @param minAlpha the min alpha
-   * @return the min alpha
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setMinAlpha(final double minAlpha) {
@@ -189,19 +193,19 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets relative tolerance.
+   * Returns the relative tolerance.
    *
-   * @return the relative tolerance
+   * @docgenVersion 9
    */
   public double getRelativeTolerance() {
     return relativeTolerance;
   }
 
   /**
-   * Sets relative tolerance.
+   * Sets the relative tolerance for the line search algorithm.
    *
-   * @param relativeTolerance the relative tolerance
-   * @return the relative tolerance
+   * @param tol the new relative tolerance
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setRelativeTolerance(final double relativeTolerance) {
@@ -209,24 +213,30 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     return this;
   }
 
+  /**
+   * Checks if the input is a valid alphabetical character.
+   *
+   * @return true if the input is a valid alphabetical character, false otherwise
+   * @docgenVersion 9
+   */
   private boolean isAlphaValid() {
     return Double.isFinite(alpha) && 0 <= alpha;
   }
 
   /**
-   * Is strong wolfe boolean.
+   * Checks if the wolf is strong.
    *
-   * @return the boolean
+   * @return true if the wolf is strong, false otherwise
+   * @docgenVersion 9
    */
   public boolean isStrongWolfe() {
     return strongWolfe;
   }
 
   /**
-   * Sets strong wolfe.
+   * Sets the strong Wolfe condition.
    *
-   * @param strongWolfe the strong wolfe
-   * @return the strong wolfe
+   * @docgenVersion 9
    */
   @Nonnull
   public ArmijoWolfeSearch setStrongWolfe(final boolean strongWolfe) {
@@ -235,7 +245,9 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
   }
 
   /**
-   * Loosen metaparameters.
+   * This function loosens the metaparameters.
+   *
+   * @docgenVersion 9
    */
   public void loosenMetaparameters() {
     c1 *= 0.2;
@@ -243,6 +255,11 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     strongWolfe = false;
   }
 
+  /**
+   * Returns the next step in the PointSample.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
@@ -317,9 +334,9 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           lastValue = Double.POSITIVE_INFINITY;
         }
         double evalInputDelta = startValue - lastValue;
-        if(evalInputDelta == 0.0) {
+        if (evalInputDelta == 0.0) {
           monitor.log(RefString.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
-                  evalInputDelta));
+              evalInputDelta));
           return lastStep.getPoint();
         } else if (lastValue > startValue + alpha * c1 * startLineDeriv) {
           // Value did not decrease (enough) - It is gauranteed to decrease given an infitefimal rate; the rate must be less than this; this is a new ceiling
@@ -341,7 +358,7 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
           stepBias = Math.max(1, stepBias + 1);
         } else {
           monitor.log(RefString.format("END: th(%s)=%s; dx=%s evalInputDelta=%s", alpha, lastValue, lastStep.derivative,
-                  evalInputDelta));
+              evalInputDelta));
           return lastStep.getPoint();
         }
         if (!Double.isFinite(nu)) {
@@ -360,6 +377,11 @@ public class ArmijoWolfeSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * Returns the next point in the sample.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   private PointSample stepPoint(@Nonnull LineSearchCursor cursor, TrainingMonitor monitor, double bestAlpha) {
     LineSearchPoint step = cursor.step(bestAlpha, monitor);

@@ -49,7 +49,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
- * The type Iterative trainer.
+ * This class represents an Iterative Trainer.
+ *
+ * @param subject            the trainable subject
+ * @param lineSearchFactory  the line search factory
+ * @param maxIterations      the maximum number of iterations
+ * @param monitor            the training monitor
+ * @param orientation        the orientation strategy
+ * @param terminateThreshold the termination threshold
+ * @param timeout            the timeout
+ * @docgenVersion 9
  */
 public class IterativeTrainer extends ReferenceCountingBase {
   private static final Logger log = LoggerFactory.getLogger(IterativeTrainer.class);
@@ -79,99 +88,103 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Gets current iteration.
+   * Returns the current iteration as an AtomicInteger.
    *
-   * @return the current iteration
+   * @docgenVersion 9
    */
   public AtomicInteger getCurrentIteration() {
     return currentIteration;
   }
 
   /**
-   * Sets current iteration.
+   * Sets the current iteration.
    *
    * @param currentIteration the current iteration
+   * @docgenVersion 9
    */
   public void setCurrentIteration(AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
   }
 
   /**
-   * Gets iterations per sample.
+   * Returns the number of iterations per sample.
    *
-   * @return the iterations per sample
+   * @docgenVersion 9
    */
   public int getIterationsPerSample() {
     return iterationsPerSample;
   }
 
   /**
-   * Sets iterations per sample.
+   * Sets the number of iterations per sample.
    *
-   * @param iterationsPerSample the iterations per sample
+   * @param iterationsPerSample the number of iterations per sample
+   * @docgenVersion 9
    */
   public void setIterationsPerSample(int iterationsPerSample) {
     this.iterationsPerSample = iterationsPerSample;
   }
 
   /**
-   * Gets line search factory.
+   * Returns the line search factory.
    *
-   * @return the line search factory
+   * @docgenVersion 9
    */
   public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
     return lineSearchFactory;
   }
 
   /**
-   * Sets line search factory.
+   * Sets the line search factory to the given function.
    *
-   * @param lineSearchFactory the line search factory
+   * @param lineSearchFactory the function to use for creating line search strategies
+   * @docgenVersion 9
    */
   public void setLineSearchFactory(Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
     this.lineSearchFactory = lineSearchFactory;
   }
 
   /**
-   * Gets max iterations.
+   * Returns the maximum number of iterations.
    *
-   * @return the max iterations
+   * @docgenVersion 9
    */
   public int getMaxIterations() {
     return maxIterations;
   }
 
   /**
-   * Sets max iterations.
+   * Sets the maximum number of iterations.
    *
-   * @param maxIterations the max iterations
+   * @param maxIterations the maximum number of iterations
+   * @docgenVersion 9
    */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
   }
 
   /**
-   * Gets monitor.
+   * Returns the training monitor.
    *
-   * @return the monitor
+   * @docgenVersion 9
    */
   public TrainingMonitor getMonitor() {
     return monitor;
   }
 
   /**
-   * Sets monitor.
+   * Sets the training monitor.
    *
-   * @param monitor the monitor
+   * @param monitor the training monitor
+   * @docgenVersion 9
    */
   public void setMonitor(TrainingMonitor monitor) {
     this.monitor = monitor;
   }
 
   /**
-   * Gets orientation.
-   *
-   * @return the orientation
+   * @return the orientation, or null if none has been set
+   * @docgenVersion 9
    */
   @Nullable
   public OrientationStrategy<?> getOrientation() {
@@ -179,9 +192,10 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Sets orientation.
+   * Sets the orientation.
    *
-   * @param orientation the orientation
+   * @param orientation the new orientation
+   * @docgenVersion 9
    */
   public void setOrientation(@Nullable OrientationStrategy<?> orientation) {
     if (null != this.orientation)
@@ -190,45 +204,46 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Gets terminate threshold.
+   * Returns the terminate threshold.
    *
-   * @return the terminate threshold
+   * @docgenVersion 9
    */
   public double getTerminateThreshold() {
     return terminateThreshold;
   }
 
   /**
-   * Sets terminate threshold.
+   * Sets the terminate threshold.
    *
-   * @param terminateThreshold the terminate threshold
+   * @param terminateThreshold the new terminate threshold
+   * @docgenVersion 9
    */
   public void setTerminateThreshold(double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
   }
 
   /**
-   * Gets timeout.
+   * Returns the timeout.
    *
-   * @return the timeout
+   * @docgenVersion 9
    */
   public Duration getTimeout() {
     return timeout;
   }
 
   /**
-   * Sets timeout.
+   * Sets the timeout to the specified duration.
    *
-   * @param timeout the timeout
+   * @param timeout the timeout duration
+   * @docgenVersion 9
    */
   public void setTimeout(Duration timeout) {
     this.timeout = timeout;
   }
 
   /**
-   * Measure point sample.
-   *
-   * @return the point sample
+   * @return a PointSample, or null if no measurement could be taken
+   * @docgenVersion 9
    */
   @Nullable
   public PointSample measure() {
@@ -253,7 +268,9 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Shuffle.
+   * This method shuffles the deck of cards.
+   *
+   * @docgenVersion 9
    */
   public void shuffle() {
     long seed = RefSystem.nanoTime();
@@ -273,9 +290,9 @@ public class IterativeTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Run double.
+   * Runs the training process and returns the result.
    *
-   * @return the double
+   * @docgenVersion 9
    */
   public TrainingResult run() {
     long startTime = RefSystem.currentTimeMillis();
@@ -287,7 +304,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
     PointSample currentPoint = measure();
     try {
       assert currentPoint != null;
-mainLoop:
+      mainLoop:
       while (timeoutMs > RefSystem.currentTimeMillis()
           && terminateThreshold < currentPoint.getMean() && maxIterations > currentIteration.get()) {
         shuffle();
@@ -389,32 +406,33 @@ mainLoop:
   }
 
   /**
-   * Sets timeout.
+   * Sets the timeout to the given number of units.
    *
-   * @param number the number
-   * @param units  the units
+   * @param number the number of units
+   * @param units  the units of time
+   * @docgenVersion 9
    */
   public void setTimeout(int number, @Nonnull TemporalUnit units) {
     timeout = Duration.of(number, units);
   }
 
   /**
-   * Sets timeout.
+   * Sets the timeout for this request.
    *
-   * @param number the number
-   * @param units  the units
+   * @param number the timeout value
+   * @param units  the timeout units
+   * @docgenVersion 9
    */
   public void setTimeout(int number, @Nonnull TimeUnit units) {
     setTimeout(number, Util.cvt(units));
   }
 
   /**
-   * Step point sample.
-   *
-   * @param direction     the direction
-   * @param directionType the direction type
-   * @param previous      the previous
-   * @return the point sample
+   * @param direction     the direction to step in
+   * @param directionType the type of direction (e.g. "gradient")
+   * @param previous      the previous point sample
+   * @return the new point sample, or null if no step could be taken
+   * @docgenVersion 9
    */
   @Nullable
   public PointSample step(@Nonnull final LineSearchCursor direction, final CharSequence directionType,
@@ -438,6 +456,12 @@ mainLoop:
     }
   }
 
+  /**
+   * Frees resources used by this object.
+   * This method calls the super method, then frees resources used by this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != orientation)
@@ -448,6 +472,12 @@ mainLoop:
     lineSearchStrategyMap.freeRef();
   }
 
+  /**
+   * Adds a reference to this trainer.
+   *
+   * @return the trainer with the added reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

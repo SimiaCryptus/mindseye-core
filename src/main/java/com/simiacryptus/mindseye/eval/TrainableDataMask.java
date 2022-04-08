@@ -23,30 +23,38 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The interface Trainable data mask.
+ * This is the TrainableDataMask interface.
+ *
+ * @docgenVersion 9
  */
 public interface TrainableDataMask extends Trainable {
   /**
-   * Get mask boolean [ ].
-   *
-   * @return the boolean [ ]
+   * @return an array of booleans that may be null
+   * @docgenVersion 9
    */
   @Nullable
   boolean[] getMask();
 
 
   /**
-   * Sets mask.
+   * Sets the mask.
    *
    * @param mask the mask
+   * @docgenVersion 9
    */
   void setMask(boolean... mask);
 
   /**
-   * Free.
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
    */
   void _free();
 
+  /**
+   * @return a new reference to this TrainableDataMask
+   * @docgenVersion 9
+   */
   @Nonnull
   TrainableDataMask addRef();
 }

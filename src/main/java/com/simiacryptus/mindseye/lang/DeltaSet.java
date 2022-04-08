@@ -28,9 +28,9 @@ import java.util.function.BiConsumer;
 import java.util.function.ToDoubleFunction;
 
 /**
- * The type Delta set.
+ * This class represents a set of deltas.
  *
- * @param <K> the type parameter
+ * @docgenVersion 9
  */
 public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
@@ -72,9 +72,9 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Gets magnitude.
+   * Returns the magnitude of the vector.
    *
-   * @return the magnitude
+   * @docgenVersion 9
    */
   public double getMagnitude() {
     RefHashSet<Map.Entry<K, Delta<K>>> temp_37_0011 = map.entrySet();
@@ -95,9 +95,9 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
 
 
   /**
-   * Accumulate.
+   * Accumulates the given alpha value into each delta in the stream.
    *
-   * @param alpha the alpha
+   * @docgenVersion 9
    */
   public void accumulate(final double alpha) {
     stream().forEach((Delta<K> d) -> {
@@ -107,10 +107,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Add delta set.
+   * Adds the given delta set to this one, returning a new delta set.
    *
-   * @param right the right
-   * @return the delta set
+   * @param right the delta set to add
+   * @return a new delta set containing the union of this set and the given set
+   * @docgenVersion 9
    */
   public DeltaSet<K> add(@Nonnull final DeltaSet<K> right) {
     DeltaSet<K> copy = this.copy();
@@ -119,9 +120,10 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Add in place.
+   * Adds the given {@code right} {@link DeltaSet} in place.
    *
-   * @param right the right
+   * @param right the {@link DeltaSet} to add
+   * @docgenVersion 9
    */
   public void addInPlace(@Nonnull DeltaSet<K> right) {
     right.map.forEach((layer, buffer) -> {
@@ -134,9 +136,9 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * As state state set.
+   * Returns a StateSet<K> that contains the same data as this StateSet<K>.
    *
-   * @return the state set
+   * @docgenVersion 9
    */
   @Nonnull
   public StateSet<K> asState() {
@@ -152,6 +154,19 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return returnValue;
   }
 
+  /**
+   * @Nonnull
+   * @Override public DeltaSet<K> copy() {
+   * return new DeltaSet(this.map(x -> {
+   * try {
+   * return x.copy();
+   * } finally {
+   * x.freeRef();
+   * }
+   * }));
+   * }
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public DeltaSet<K> copy() {
@@ -165,10 +180,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Dot double.
+   * Calculates the dot product of this vector with the given vector.
    *
-   * @param right the right
-   * @return the double
+   * @param right the other vector
+   * @return the dot product
+   * @docgenVersion 9
    */
   public double dot(@Nonnull final DoubleBufferSet<K, Delta<K>> right) {
     RefHashSet<Map.Entry<K, Delta<K>>> entries = map.entrySet();
@@ -195,6 +211,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return temp_37_0010;
   }
 
+  /**
+   * @param mapper A function that maps a Delta[K] to a Delta[K]
+   * @return a new DeltaSet[K] containing the results of applying the given function to the deltas in this set
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public DeltaSet<K> map(@Nonnull final RefFunction<Delta<K>, Delta<K>> mapper) {
@@ -202,10 +223,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Scale delta set.
+   * Scales this {@link DeltaSet} by the given factor.
    *
-   * @param f the f
-   * @return the delta set
+   * @param f the factor by which to scale
+   * @return the scaled {@link DeltaSet}
+   * @docgenVersion 9
    */
   @Nonnull
   public DeltaSet<K> scale(final double f) {
@@ -217,10 +239,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Subtract delta set.
+   * Subtracts the given {@link DeltaSet} from this one, returning the result.
    *
-   * @param right the right
-   * @return the delta set
+   * @param right the {@link DeltaSet} to subtract
+   * @return the result of the subtraction
+   * @docgenVersion 9
    */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final DeltaSet<K> right) {
@@ -230,20 +253,29 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
   }
 
   /**
-   * Unit delta set.
+   * Returns the unit vector of this DeltaSet.
    *
-   * @return the delta set
+   * @docgenVersion 9
    */
   @Nonnull
   public DeltaSet<K> unit() {
     return scale(1.0 / getMagnitude());
   }
 
+  /**
+   * This method is unused.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * @return a DeltaSet<K> after adding a reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -251,6 +283,11 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     return (DeltaSet<K>) super.addRef();
   }
 
+  /**
+   * Returns a new DeltaSet with all non-finite values replaced by the defaultValue.
+   *
+   * @docgenVersion 9
+   */
   public DeltaSet<K> allFinite(double defaultValue) {
     return map((Delta<K> delta) -> {
       Delta<K> map = delta.map(d -> Double.isFinite(d) ? d : defaultValue);
@@ -259,6 +296,12 @@ public class DeltaSet<K> extends DoubleBufferSet<K, Delta<K>> {
     });
   }
 
+  /**
+   * @param layer  the layer to create a delta for
+   * @param target the target values for the delta
+   * @return a new delta for the given layer and target values
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   protected Delta<K> factory(@Nonnull final K layer, final double[] target) {

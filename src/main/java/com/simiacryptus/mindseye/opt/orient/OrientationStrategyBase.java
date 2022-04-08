@@ -23,18 +23,29 @@ import com.simiacryptus.mindseye.opt.line.LineSearchCursor;
 import com.simiacryptus.ref.lang.ReferenceCountingBase;
 
 /**
- * The type Orientation strategy base.
+ * Base class for orientation strategies.
  *
- * @param <T> the type parameter
+ * @docgenVersion 9
  */
 public abstract class OrientationStrategyBase<T extends LineSearchCursor> extends ReferenceCountingBase
     implements OrientationStrategy<T> {
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the OrientationStrategyBase<T>
+   *
+   * @return the OrientationStrategyBase<T>
+   * @docgenVersion 9
+   */
   public @Override
   @SuppressWarnings("unused")
   OrientationStrategyBase<T> addRef() {

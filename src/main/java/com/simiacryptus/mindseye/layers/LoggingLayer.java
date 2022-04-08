@@ -36,7 +36,11 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The type Logging layer.
+ * This class is responsible for logging.
+ * It has a static Logger field which is used for logging.
+ * It also has fields for controlling the detail level and whether feedback should be logged.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public final class LoggingLayer extends LayerBase {
@@ -76,47 +80,45 @@ public final class LoggingLayer extends LayerBase {
   }
 
   /**
-   * Gets level.
+   * Returns the detail level.
    *
-   * @return the level
+   * @docgenVersion 9
    */
   public DetailLevel getLevel() {
     return level;
   }
 
   /**
-   * Sets level.
+   * Sets the level.
    *
-   * @param level the level
+   * @docgenVersion 9
    */
   public void setLevel(DetailLevel level) {
     this.level = level;
   }
 
   /**
-   * Is log feedback boolean.
+   * Returns true if the log feedback setting is enabled, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isLogFeedback() {
     return logFeedback;
   }
 
   /**
-   * Sets log feedback.
+   * Sets the log feedback.
    *
-   * @param logFeedback the log feedback
+   * @docgenVersion 9
    */
   public void setLogFeedback(boolean logFeedback) {
     this.logFeedback = logFeedback;
   }
 
   /**
-   * From json logging layer.
+   * LoggingLayer fromJson();
    *
-   * @param json the json
-   * @param rs   the rs
-   * @return the logging layer
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unused")
@@ -124,6 +126,11 @@ public final class LoggingLayer extends LayerBase {
     return new LoggingLayer(json);
   }
 
+  /**
+   * Evaluates the result of the code.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... inObj) {
@@ -153,17 +160,32 @@ public final class LoggingLayer extends LayerBase {
     }
   }
 
+  /**
+   * Returns a list of references to double arrays representing the state.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public RefList<double[]> state() {
     return new RefArrayList<>();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the LoggingLayer.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -171,6 +193,11 @@ public final class LoggingLayer extends LayerBase {
     return (LoggingLayer) super.addRef();
   }
 
+  /**
+   * Returns the JSON element.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
@@ -188,6 +215,11 @@ public final class LoggingLayer extends LayerBase {
      * The Dimensions.
      */
     Dimensions {
+      /**
+       * Returns a string.
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public String getString(@Nonnull Tensor tensor) {
         try {
@@ -201,6 +233,11 @@ public final class LoggingLayer extends LayerBase {
      * The Statistics.
      */
     Statistics {
+      /**
+       * Returns a string.
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public String getString(@Nonnull Tensor tensor) {
         try {
@@ -214,6 +251,11 @@ public final class LoggingLayer extends LayerBase {
      * The Data.
      */
     Data {
+      /**
+       * Returns a string.
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public String getString(@Nonnull Tensor tensor) {
         try {
@@ -225,14 +267,19 @@ public final class LoggingLayer extends LayerBase {
     };
 
     /**
-     * Gets string.
+     * Returns a string.
      *
-     * @param tensor the tensor
-     * @return the string
+     * @docgenVersion 9
      */
     public abstract String getString(@Nonnull Tensor tensor);
   }
 
+  /**
+   * This class represents an accumulator, which is used to compute results.
+   * It contains a private accumulator field, as well as a name and detail level.
+   *
+   * @docgenVersion 9
+   */
   private static class Accumulator extends Result.Accumulator {
 
     private Result.Accumulator accumulator;
@@ -252,6 +299,11 @@ public final class LoggingLayer extends LayerBase {
       this.level = level;
     }
 
+    /**
+     * Accepts an input.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       @Nonnull final String formatted = RefUtil.get(data.stream().map(tensor -> {
@@ -261,6 +313,11 @@ public final class LoggingLayer extends LayerBase {
       this.accumulator.accept(buffer, data);
     }
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();

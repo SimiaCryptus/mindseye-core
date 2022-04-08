@@ -20,7 +20,9 @@
 package com.simiacryptus.mindseye.lang;
 
 /**
- * The type Iterative stop exception.
+ * Exception thrown when an iterative process should stop.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public class IterativeStopException extends RuntimeException {

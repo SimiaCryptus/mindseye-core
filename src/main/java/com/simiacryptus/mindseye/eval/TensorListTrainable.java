@@ -36,7 +36,13 @@ import java.util.UUID;
 import java.util.function.IntFunction;
 
 /**
- * The type Tensor list trainable.
+ * This class is a trainable tensor list.
+ *
+ * @param network   the network layer
+ * @param data      the data
+ * @param mask      the mask
+ * @param verbosity the verbosity
+ * @docgenVersion 9
  */
 public class TensorListTrainable extends ReferenceCountingBase implements TrainableDataMask {
 
@@ -80,9 +86,9 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   }
 
   /**
-   * Get data tensor list [ ].
+   * Returns an array of TensorList objects.
    *
-   * @return the tensor list [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public TensorList[] getData() {
@@ -90,9 +96,9 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   }
 
   /**
-   * Sets data.
+   * Sets the data.
    *
-   * @param data the data
+   * @docgenVersion 9
    */
   public synchronized void setData(@Nonnull final TensorList[] data) {
     int inputs = data.length;
@@ -107,37 +113,50 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     RefUtil.freeRef(data);
   }
 
+  /**
+   * Returns the layer of the object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public Layer getLayer() {
     return network == null ? null : network.addRef();
   }
 
+  /**
+   * Returns an array of booleans.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public boolean[] getMask() {
     return mask;
   }
 
+  /**
+   * Sets the mask.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void setMask(final boolean... mask) {
     this.mask = mask;
   }
 
   /**
-   * Sets verbosity.
+   * Sets the verbosity of the system.
    *
-   * @param verbose the verbose
+   * @docgenVersion 9
    */
   public void setVerbosity(int verbose) {
     verbosity = verbose;
   }
 
   /**
-   * Get nn context result [ ].
+   * Returns an array of results for the nearest neighbor context.
    *
-   * @param data the data
-   * @param mask the mask
-   * @return the result [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public static Result[] getNNContext(@Nullable final TensorList[] data, @Nullable final boolean[] mask) {
@@ -151,7 +170,7 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     Result[] temp_20_0007 = RefIntStream.range(0, inputs)
         .mapToObj(RefUtil.wrapInterface((IntFunction<? extends Result>) col -> {
           final Tensor[] tensors = RefIntStream.range(0, items).mapToObj(RefUtil
-              .wrapInterface((IntFunction<? extends Tensor>) row -> data[col].get(row), RefUtil.addRef(data)))
+                  .wrapInterface((IntFunction<? extends Tensor>) row -> data[col].get(row), RefUtil.addRef(data)))
               .toArray(Tensor[]::new);
           @Nonnull
           TensorArray tensorArray = new TensorArray(RefUtil.addRef(tensors));
@@ -165,6 +184,11 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
                   RefUtil.addRef(tensors);
                 }
 
+                /**
+                 * Accepts an input.
+                 *
+                 *   @docgenVersion 9
+                 */
                 @Override
                 public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
                   for (int index = 0; index < delta.length(); index++) {
@@ -179,6 +203,11 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
                   buffer.freeRef();
                 }
 
+                /**
+                 * Frees the memory associated with this object.
+                 *
+                 *   @docgenVersion 9
+                 */
                 public @SuppressWarnings("unused")
                 void _free() {
                   super._free();
@@ -195,6 +224,11 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
     return temp_20_0007;
   }
 
+  /**
+   * Returns a PointSample object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert data != null;
@@ -215,14 +249,19 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   }
 
   /**
-   * Verbosity int.
+   * Returns the verbosity level.
    *
-   * @return the int
+   * @docgenVersion 9
    */
   public int verbosity() {
     return verbosity;
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != data)
@@ -232,6 +271,11 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
       network.freeRef();
   }
 
+  /**
+   * Adds a reference to the TensorListTrainable.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -240,11 +284,10 @@ public class TensorListTrainable extends ReferenceCountingBase implements Traina
   }
 
   /**
-   * Eval point sample.
+   * Evaluates the PointSample.
    *
-   * @param list    the list
-   * @param monitor the monitor
-   * @return the point sample
+   * @return the PointSample
+   * @docgenVersion 9
    */
   @Nonnull
   protected PointSample eval(@Nonnull final TensorList[] list, @Nullable final TrainingMonitor monitor) {

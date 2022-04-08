@@ -41,7 +41,13 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * The type Dag network.
+ * This class defines a DAGNetwork.
+ *
+ * @param inputHandles  the Input handles
+ * @param inputNodes    the Input nodes
+ * @param labels        the Labels
+ * @param internalNodes the Internal nodes
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public abstract class DAGNetwork extends LayerBase {
@@ -121,6 +127,10 @@ public abstract class DAGNetwork extends LayerBase {
     assertConsistent();
   }
 
+  /**
+   * @return a list of child layers
+   * @docgenVersion 9
+   */
   @Override
   public RefList<Layer> getChildren() {
     assertAlive();
@@ -141,17 +151,16 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets head.
-   *
-   * @return the head
+   * @return the head of the DAG, or null if the DAG is empty
+   * @docgenVersion 9
    */
   @Nullable
   public abstract DAGNode getHead();
 
   /**
-   * Gets head id.
+   * Returns the UUID of the head node.
    *
-   * @return the head id
+   * @docgenVersion 9
    */
   public UUID getHeadId() {
     DAGNode head = getHead();
@@ -162,9 +171,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets layers.
+   * Returns an unmodifiable list of layers.
    *
-   * @return the layers
+   * @docgenVersion 9
    */
   @Nonnull
   public RefList<Layer> getLayers() {
@@ -176,9 +185,10 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets layers by id.
+   * Returns a map of layers, keyed by their UUIDs.
    *
-   * @return the layers by id
+   * @return a map of layers, keyed by their UUIDs
+   * @docgenVersion 9
    */
   @Nonnull
   public RefMap<UUID, Layer> getLayersById() {
@@ -190,9 +200,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets nodes.
+   * Returns a list of all DAGNodes in this DAG, including both internal and input nodes.
    *
-   * @return the nodes
+   * @docgenVersion 9
    */
   public RefList<DAGNode> getNodes() {
     RefList<DAGNode> allNodes = new RefArrayList<>();
@@ -206,9 +216,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets nodes by layer id.
+   * Returns a map of DAGNode objects, keyed by UUID, for all nodes in the current layer.
    *
-   * @return the nodes by layer id
+   * @docgenVersion 9
    */
   protected RefMap<UUID, DAGNode> getNodesByLayerId() {
     RefHashMap<UUID, DAGNode> map = new RefHashMap<>();
@@ -224,6 +234,12 @@ public abstract class DAGNetwork extends LayerBase {
     return map;
   }
 
+  /**
+   * Sets the frozen state of this layer and all its child layers.
+   *
+   * @param frozen the new frozen state
+   * @docgenVersion 9
+   */
   @Override
   public void setFrozen(final boolean frozen) {
     super.setFrozen(frozen);
@@ -233,6 +249,10 @@ public abstract class DAGNetwork extends LayerBase {
     });
   }
 
+  /**
+   * @NotNull private static RefMap<UUID, Layer> getLayersById(JsonObject jsonLayers, Map<CharSequence, byte[]> rs);
+   * @docgenVersion 9
+   */
   @NotNull
   private static RefMap<UUID, Layer> getLayersById(JsonObject jsonLayers, Map<CharSequence, byte[]> rs) {
     @Nonnull final RefMap<UUID, Layer> source_layersByLayerId = new RefHashMap<>();
@@ -244,6 +264,10 @@ public abstract class DAGNetwork extends LayerBase {
     return source_layersByLayerId;
   }
 
+  /**
+   * @return a LinkedHashMap mapping label names to UUIDs, or null if jsonLabels is null
+   * @docgenVersion 9
+   */
   @NotNull
   private static LinkedHashMap<CharSequence, UUID> getLabels(JsonObject jsonLabels) {
     @Nonnull final LinkedHashMap<CharSequence, UUID> labels = new LinkedHashMap<>();
@@ -253,6 +277,10 @@ public abstract class DAGNetwork extends LayerBase {
     return labels;
   }
 
+  /**
+   * @return a map of UUIDs to lists of UUIDs, or null if the input is null
+   * @docgenVersion 9
+   */
   @NotNull
   private static Map<UUID, List<UUID>> getLinks(JsonObject jsonLinks) {
     @Nonnull final Map<UUID, List<UUID>> links = new HashMap<>();
@@ -266,6 +294,13 @@ public abstract class DAGNetwork extends LayerBase {
     return links;
   }
 
+  /**
+   * Dereferences a map of UUIDs to long values.
+   *
+   * @param refMap the map to dereference
+   * @return a new map with the same data as the original
+   * @docgenVersion 9
+   */
   @NotNull
   private static HashMap<UUID, Long> deref(@RefAware Map<UUID, Long> refMap) {
     try {
@@ -278,11 +313,13 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Transfer node inner node.
+   * Transfers the given node from the given source DAGNetwork to this DAGNetwork.
    *
-   * @param source the source
-   * @param node   the node
-   * @return the inner node
+   * @param source the DAGNetwork to transfer the node from
+   * @param node   the node to transfer
+   * @return the transferred node
+   * @throws NullPointerException if the given node is null
+   * @docgenVersion 9
    */
   @NotNull
   public InnerNode transferNode(DAGNetwork source, @Nonnull DAGNode node) {
@@ -322,9 +359,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Shuffle.
+   * This method shuffles the elements in the list using the given seed.
    *
-   * @param seed the seed
+   * @docgenVersion 9
    */
   public void shuffle(long seed) {
     visitLayers(layer -> {
@@ -339,7 +376,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Clear noise.
+   * Clears noise from all stochastic components in the network.
+   *
+   * @docgenVersion 9
    */
   public void clearNoise() {
     visitLayers(layer -> {
@@ -351,11 +390,10 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Add inner node.
-   *
-   * @param nextHead the next head
-   * @param head     the head
-   * @return the inner node
+   * @param nextHead the next head layer to add
+   * @param head     the DAGNode(s) to add as head(s)
+   * @return the resulting InnerNode
+   * @docgenVersion 9
    */
   @Nonnull
   public InnerNode add(@Nonnull final Layer nextHead, @Nullable final DAGNode... head) {
@@ -363,12 +401,13 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Add inner node.
+   * Add a node with the given label and layer to the DAG, pointing to the given head nodes.
    *
-   * @param label the label
-   * @param layer the layer
-   * @param head  the head
-   * @return the inner node
+   * @param label the label for the new node
+   * @param layer the layer for the new node
+   * @param head  the head nodes for the new node
+   * @return the new node
+   * @docgenVersion 9
    */
   @Nonnull
   public InnerNode add(@Nullable final CharSequence label, @Nonnull final Layer layer, @Nonnull final DAGNode... head) {
@@ -389,7 +428,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Add input.
+   * Add an input to the current node.
+   *
+   * @docgenVersion 9
    */
   public void addInput() {
     assertAlive();
@@ -399,9 +440,11 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Attach.
+   * Attaches the given MonitoredObject to this monitor.
    *
-   * @param obj the obj
+   * @param obj the MonitoredObject to attach
+   * @throws NullPointerException if obj is null
+   * @docgenVersion 9
    */
   public void attach(@Nonnull final MonitoredObject obj) {
     visitLayers(RefUtil.wrapInterface(layer -> {
@@ -414,10 +457,11 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Build exe ctx graph evaluation context.
+   * Builds an execution context for the given inputs.
    *
-   * @param inputs the inputs
-   * @return the graph evaluation context
+   * @param inputs the inputs to use
+   * @return the execution context
+   * @docgenVersion 9
    */
   @Nonnull
   public GraphEvaluationContext buildExeCtx(@Nonnull final Result... inputs) {
@@ -433,32 +477,34 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Init node refcounts map.
+   * Initializes a map of node reference counts, mapping each node's UUID to its initial reference count.
    *
-   * @param nodes the nodes
-   * @return the map
+   * @param nodes the list of nodes
+   * @return the map of node reference counts
+   * @docgenVersion 9
    */
   public Map<UUID, Long> initNodeRefcounts(RefList<DAGNode> nodes) {
     RefMap<UUID, Long> nodeIdReferenceCounts = nodes.stream().flatMap(node -> {
-      DAGNode[] nodeInputs = node.getInputs();
-      if (null != node)
-        node.freeRef();
-      return Arrays.stream(nodeInputs).map(inputNode -> {
-        UUID id = inputNode.getId();
-        inputNode.freeRef();
-        return id;
-      });
-    }).filter(id -> !inputHandles.contains(id))
+          DAGNode[] nodeInputs = node.getInputs();
+          if (null != node)
+            node.freeRef();
+          return Arrays.stream(nodeInputs).map(inputNode -> {
+            UUID id = inputNode.getId();
+            inputNode.freeRef();
+            return id;
+          });
+        }).filter(id -> !inputHandles.contains(id))
         .collect(RefCollectors.groupingBy(x -> x, RefCollectors.counting()));
     nodes.freeRef();
     return deref(nodeIdReferenceCounts);
   }
 
   /**
-   * Init calculated.
+   * Initializes the calculated map with the inputs.
    *
-   * @param calculated the calculated
-   * @param inputs     the inputs
+   * @param calculated the map to initialize
+   * @param inputs     the inputs to use
+   * @docgenVersion 9
    */
   public void initCalculated(RefMap<UUID, RefAtomicReference<CountingResult>> calculated, @Nonnull Result[] inputs) {
     try {
@@ -475,12 +521,31 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Returns a copy of this DAGNetwork with the specified precision.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public DAGNetwork copy(SerialPrecision precision) {
     return (DAGNetwork) super.copy(precision);
   }
 
+  /**
+   * @Nullable
+   * @Override public Result eval(@Nullable final Result... input) {
+   * assertAlive();
+   * @Nonnull DAGNode head = getHead();
+   * assert head != null;
+   * try {
+   * return head.get(buildExeCtx(input), null);
+   * } finally {
+   * head.freeRef();
+   * }
+   * }
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public Result eval(@Nullable final Result... input) {
@@ -496,10 +561,8 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets node by id.
-   *
-   * @param k the k
-   * @return the node by id
+   * @return the node with the given id, or null if no such node exists
+   * @docgenVersion 9
    */
   @Nullable
   public DAGNode getNodeById(final UUID k) {
@@ -507,10 +570,9 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Gets input.
-   *
-   * @param index the index
-   * @return the input
+   * @return the input DAGNode at the given index; never null
+   * @throws IndexOutOfBoundsException if the index is out of range
+   * @docgenVersion 9
    */
   @Nonnull
   public final DAGNode getInput(final int index) {
@@ -523,6 +585,10 @@ public abstract class DAGNetwork extends LayerBase {
     return input;
   }
 
+  /**
+   * @Override public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
+   * @docgenVersion 9
+   */
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     assertAlive();
@@ -563,13 +629,19 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Reset.
+   * Resets the tree by clearing all internal nodes and labels.
+   *
+   * @docgenVersion 9
    */
   public synchronized void reset() {
     this.internalNodes.clear();
     labels.clear();
   }
 
+  /**
+   * @return the state of the RefList as an array of doubles
+   * @docgenVersion 9
+   */
   @Override
   public RefList<double[]> state() {
     RefList<Layer> temp_38_0023 = getChildren();
@@ -590,9 +662,10 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Visit layers.
+   * Visits each layer in the current map.
    *
-   * @param visitor the visitor
+   * @param visitor the consumer of each layer
+   * @docgenVersion 9
    */
   public void visitLayers(@Nonnull @RefAware final RefConsumer<Layer> visitor) {
     assertAlive();
@@ -613,19 +686,22 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Visit nodes.
+   * Visits all nodes in the DAG, optionally including disabled nodes.
    *
-   * @param visitor the visitor
+   * @param includeDisabled if true, disabled nodes will be visited as well
+   * @param visitor         the consumer of nodes
+   * @docgenVersion 9
    */
   public void visitNodes(@Nonnull @RefAware final RefConsumer<DAGNode> visitor) {
     visitNodes(true, visitor);
   }
 
   /**
-   * Visit nodes.
+   * Visit each node in the DAG, optionally recursing into child nodes.
    *
-   * @param recurse the recurse
-   * @param visitor the visitor
+   * @param recurse whether to recurse into child nodes
+   * @param visitor the visitor to invoke for each node
+   * @docgenVersion 9
    */
   public void visitNodes(boolean recurse, @Nonnull @RefAware final RefConsumer<DAGNode> visitor) {
     assertAlive();
@@ -657,6 +733,11 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Frees the resources used by this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     internalNodes.freeRef();
     inputNodes.freeRef();
@@ -664,6 +745,11 @@ public abstract class DAGNetwork extends LayerBase {
     super._free();
   }
 
+  /**
+   * Adds a reference to this DAGNetwork and returns it.
+   *
+   * @docgenVersion 9
+   */
   public @Override
   @SuppressWarnings("unused")
   DAGNetwork addRef() {
@@ -671,9 +757,10 @@ public abstract class DAGNetwork extends LayerBase {
   }
 
   /**
-   * Assert consistent boolean.
+   * Checks whether the current state of the object is consistent with its internal representation.
    *
-   * @return the boolean
+   * @return true if the state is consistent, false otherwise
+   * @docgenVersion 9
    */
   protected boolean assertConsistent() {
     assertAlive();
@@ -687,6 +774,10 @@ public abstract class DAGNetwork extends LayerBase {
     return true;
   }
 
+  /**
+   * @return a map of node IDs to layers, based on the given JSON object and map of source layers
+   * @docgenVersion 9
+   */
   @NotNull
   private RefMap<UUID, Layer> getLayersByNodeId(JsonObject jsonNodes, RefMap<UUID, Layer> source_layersByLayerId) {
     @Nonnull final RefMap<UUID, Layer> source_layersByNodeId = new RefHashMap<>();
@@ -702,6 +793,14 @@ public abstract class DAGNetwork extends LayerBase {
     return source_layersByNodeId;
   }
 
+  /**
+   * Get the dependencies for the given node.
+   *
+   * @param linkMap the map of links
+   * @param id      the node ID
+   * @return the node's dependencies
+   * @docgenVersion 9
+   */
   @Nonnull
   private DAGNode[] getDependencies(@Nonnull final Map<UUID, List<UUID>> linkMap, final UUID id) {
     final List<UUID> links = linkMap.get(id);
@@ -711,6 +810,13 @@ public abstract class DAGNetwork extends LayerBase {
     return links.stream().map(this::getNode).toArray(DAGNode[]::new);
   }
 
+  /**
+   * Gets the node.
+   *
+   * @param id the id
+   * @return the node
+   * @docgenVersion 9
+   */
   @Nullable
   private DAGNode getNode(final UUID id) {
     DAGNode returnValue = getNodeById(id);
@@ -722,6 +828,14 @@ public abstract class DAGNetwork extends LayerBase {
     }
   }
 
+  /**
+   * Initializes links for the given node.
+   *
+   * @param nodeLinks      a map of node IDs to lists of node IDs that they are linked to
+   * @param layersByNodeId a map of node IDs to the layers that they are in
+   * @param newNodeId      the ID of the node to initialize links for
+   * @docgenVersion 9
+   */
   private synchronized void initLinks(@Nonnull final Map<UUID, List<UUID>> nodeLinks,
                                       @Nonnull final RefMap<UUID, Layer> layersByNodeId, final UUID newNodeId) {
     if (inputNodes.containsKey(newNodeId)) {

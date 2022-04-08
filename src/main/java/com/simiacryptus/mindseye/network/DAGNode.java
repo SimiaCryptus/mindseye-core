@@ -29,20 +29,23 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * The interface Dag node.
+ * This is the DAGNode interface.
+ *
+ * @docgenVersion 9
  */
 public interface DAGNode extends Serializable, ReferenceCounting {
   /**
-   * Gets id.
+   * Returns the UUID of this object.
    *
-   * @return the id
+   * @docgenVersion 9
    */
   UUID getId();
 
   /**
-   * Get inputs dag node [ ].
+   * Returns an array of DAGNode objects that represent the inputs
+   * to this node.
    *
-   * @return the dag node [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   default DAGNode[] getInputs() {
@@ -50,38 +53,47 @@ public interface DAGNode extends Serializable, ReferenceCounting {
   }
 
   /**
-   * Gets layer.
+   * Returns the layer.
    *
-   * @param <T> the type parameter
-   * @return the layer
+   * @docgenVersion 9
    */
   @Nullable <T extends Layer> T getLayer();
 
   /**
-   * Sets layer.
+   * Sets the layer.
    *
-   * @param layer the layer
+   * @docgenVersion 9
    */
   void setLayer(Layer layer);
 
   /**
-   * Get result.
+   * Returns the result of the computation.
    *
-   * @param buildExeCtx the build exe ctx
-   * @param consumer    the consumer
-   * @return the result
+   * @docgenVersion 9
    */
   @Nullable
   Result get(GraphEvaluationContext buildExeCtx, Layer consumer);
 
   /**
-   * Free.
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
    */
   void _free();
 
+  /**
+   * Adds a reference to the DAGNode and returns the DAGNode.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   DAGNode addRef();
 
+  /**
+   * Evaluates the result of the code.
+   *
+   * @docgenVersion 9
+   */
   Result eval(GraphEvaluationContext t);
 
 }

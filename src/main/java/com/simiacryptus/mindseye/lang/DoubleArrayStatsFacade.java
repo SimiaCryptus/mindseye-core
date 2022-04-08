@@ -25,7 +25,10 @@ import com.simiacryptus.ref.wrappers.RefDoubleStream;
 import java.util.DoubleSummaryStatistics;
 
 /**
- * The type Double array stats facade.
+ * This class provides a facade for statistical operations on an array of doubles.
+ * The data is stored in a private array field.
+ *
+ * @docgenVersion 9
  */
 public class DoubleArrayStatsFacade {
   private final double[] data;
@@ -40,27 +43,27 @@ public class DoubleArrayStatsFacade {
   }
 
   /**
-   * Length int.
+   * Returns the length of the string.
    *
-   * @return the int
+   * @docgenVersion 9
    */
   public int length() {
     return data.length;
   }
 
   /**
-   * Rms double.
+   * Calculates the root mean square of a given value.
    *
-   * @return the double
+   * @docgenVersion 9
    */
   public double rms() {
     return Math.sqrt(sumSq() / length());
   }
 
   /**
-   * Sum double.
+   * Returns the sum of the elements in the array.
    *
-   * @return the double
+   * @docgenVersion 9
    */
   public double sum() {
     final DoubleSummaryStatistics statistics = RefArrays.stream(data).summaryStatistics();
@@ -68,9 +71,9 @@ public class DoubleArrayStatsFacade {
   }
 
   /**
-   * Sum sq double.
+   * Calculates the sum of the squares of all the numbers in the list.
    *
-   * @return the double
+   * @docgenVersion 9
    */
   public double sumSq() {
     final RefDoubleStream doubleStream = RefArrays.stream(data).map((final double x) -> x * x);

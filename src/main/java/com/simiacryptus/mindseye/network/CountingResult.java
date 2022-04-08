@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * The type Counting result.
+ * This class is responsible for counting results.
+ *
+ * @docgenVersion 9
  */
 public class CountingResult extends Result {
   /**
@@ -74,16 +76,35 @@ public class CountingResult extends Result {
     consumer.freeRef();
   }
 
+  /**
+   * Returns an array of stack trace elements representing the stack trace
+   * of this throwable.  The first element of the array (assuming the array
+   * is non-null) represents the top of the stack, which is the last method
+   * invocation in the sequence.  The bottom of the stack is represented by
+   * the last element of the array.
+   *
+   * @docgenVersion 9
+   */
   @NotNull
   private static StackTraceElement[] getStackTrace() {
     return new StackTraceElement[]{};
 //    return Thread.currentThread().getStackTrace();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the CountingResult.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -92,7 +113,13 @@ public class CountingResult extends Result {
   }
 
   /**
-   * The type Counting accumulator.
+   * This class represents an accumulator that keeps track of counts.
+   *
+   * @param fwdLinks         A list of layers that the accumulator uses to keep track of counts.
+   * @param passbackBuffers  A map of stack trace elements to tensor lists. This is used to keep track of counts for each stack trace element.
+   * @param accumulations    A list of stack trace elements. This is used to keep track of which stack trace elements have been accumulated.
+   * @param innerAccumulator The accumulator that this class wraps.
+   * @docgenVersion 9
    */
   static class CountingAccumulator extends Result.Accumulator {
     @Nonnull
@@ -116,19 +143,18 @@ public class CountingResult extends Result {
     }
 
     /**
-     * Gets fwd count.
+     * Returns the number of times the forward button has been pressed.
      *
-     * @return the fwd count
+     * @docgenVersion 9
      */
     public int getFwdCount() {
       return this.fwdLinks.size();
     }
 
     /**
-     * Increment fwd int.
+     * Increments the value of the variable and returns the new value.
      *
-     * @param consumer the consumer
-     * @return the int
+     * @docgenVersion 9
      */
     public int incrementFwd(Layer consumer) {
       synchronized (this.fwdLinks) {
@@ -137,6 +163,11 @@ public class CountingResult extends Result {
       }
     }
 
+    /**
+     * Accepts an input.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       assertAlive();
@@ -149,15 +180,19 @@ public class CountingResult extends Result {
     }
 
     /**
-     * Accum.
+     * This is the accumulator method.
      *
-     * @param buffer the buffer
-     * @param data   the data
+     * @docgenVersion 9
      */
     public void accum(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       innerAccumulator.accept(buffer, data);
     }
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public void _free() {
       super._free();
       synchronized (passbackBuffers) {
@@ -170,6 +205,11 @@ public class CountingResult extends Result {
       if (null != innerAccumulator) innerAccumulator.freeRef();
     }
 
+    /**
+     * Adds a reference to the CountingAccumulator.
+     *
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -177,6 +217,11 @@ public class CountingResult extends Result {
       return (CountingAccumulator) super.addRef();
     }
 
+    /**
+     * Adds an element to the end of the list.
+     *
+     * @docgenVersion 9
+     */
     private void add(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       //assert allAlive();
       @NotNull StackTraceElement[] stackTrace = getStackTrace();
@@ -200,6 +245,11 @@ public class CountingResult extends Result {
       }
     }
 
+    /**
+     * Returns true if all players are alive, false otherwise.
+     *
+     * @docgenVersion 9
+     */
     private boolean allAlive() {
       synchronized (passbackBuffers) {
         passbackBuffers.forEach((k, v) -> {
@@ -210,6 +260,11 @@ public class CountingResult extends Result {
       }
     }
 
+    /**
+     * Reduces the TensorList to a single Tensor.
+     *
+     * @docgenVersion 9
+     */
     @NotNull
     private TensorList reduce() {
       synchronized (passbackBuffers) {

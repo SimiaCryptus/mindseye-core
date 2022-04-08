@@ -33,31 +33,32 @@ import javax.annotation.Nullable;
 import java.util.function.IntFunction;
 
 /**
- * The interface Tensor list.
+ * This is the TensorList interface.
+ *
+ * @docgenVersion 9
  */
 public interface TensorList extends ReferenceCounting {
   /**
-   * Get dimensions int [ ].
+   * Returns an array of integers representing the dimensions of the object.
    *
-   * @return the int [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   int[] getDimensions();
 
   /**
-   * Gets elements.
+   * Returns the number of elements in the collection.
    *
-   * @return the elements
+   * @docgenVersion 9
    */
   default int getElements() {
     return length() * Tensor.length(getDimensions());
   }
 
   /**
-   * Gets data 0.
+   * Returns the data of the tensor as an array.
    *
-   * @param data the data
-   * @return the data 0
+   * @docgenVersion 9
    */
   @NotNull
   static Tensor getData0(TensorList data) {
@@ -68,10 +69,9 @@ public interface TensorList extends ReferenceCounting {
 
 
   /**
-   * Add tensor list.
+   * Adds a new TensorList.
    *
-   * @param right the right
-   * @return the tensor list
+   * @docgenVersion 9
    */
   default TensorList add(@Nonnull final TensorList right) {
     if (right.length() == 0) {
@@ -90,10 +90,9 @@ public interface TensorList extends ReferenceCounting {
   }
 
   /**
-   * Add and free tensor list.
+   * Add the tensor to the list and free it.
    *
-   * @param right the right
-   * @return the tensor list
+   * @docgenVersion 9
    */
   default TensorList addAndFree(@Nonnull final TensorList right) {
     assertAlive();
@@ -102,10 +101,9 @@ public interface TensorList extends ReferenceCounting {
   }
 
   /**
-   * Minus tensor list.
+   * Returns a new TensorList that is the element-wise difference of this TensorList and the argument.
    *
-   * @param right the right
-   * @return the tensor list
+   * @docgenVersion 9
    */
   @Nonnull
   default TensorList minus(@Nonnull final TensorList right) {
@@ -132,9 +130,9 @@ public interface TensorList extends ReferenceCounting {
   }
 
   /**
-   * Copy tensor list.
+   * Returns a copy of this TensorList.
    *
-   * @return the tensor list
+   * @docgenVersion 9
    */
   default TensorList copy() {
     return new TensorArray(RefIntStream.range(0, length()).mapToObj(i -> {
@@ -147,40 +145,56 @@ public interface TensorList extends ReferenceCounting {
   }
 
   /**
-   * Get tensor.
+   * Returns the Tensor object.
    *
-   * @param i the
-   * @return the tensor
+   * @docgenVersion 9
    */
   @Nonnull
   @RefAware
   Tensor get(int i);
 
+  /**
+   * Returns the double value of this object.
+   *
+   * @docgenVersion 9
+   */
   double get(int tensorIndex, int elementIndex);
 
   /**
-   * Length int.
+   * Returns the length of the string.
    *
-   * @return the int
+   * @docgenVersion 9
    */
   int length();
 
   /**
-   * Stream ref stream.
+   * Returns a stream of tensors.
    *
-   * @return the ref stream
+   * @docgenVersion 9
    */
   @Nonnull
   RefStream<Tensor> stream();
 
   /**
-   * Free.
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
    */
   void _free();
 
+  /**
+   * Adds a reference to the TensorList.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   TensorList addRef();
 
+  /**
+   * Returns the JSON element.
+   *
+   * @docgenVersion 9
+   */
   default JsonElement getJson() {
     JsonArray array = new JsonArray();
     for (int i = 0; i < length(); i++) {
@@ -191,6 +205,11 @@ public interface TensorList extends ReferenceCounting {
     return array;
   }
 
+  /**
+   * Returns the underlying JSON element.
+   *
+   * @docgenVersion 9
+   */
   default JsonElement getJsonRaw() {
     JsonArray array = new JsonArray();
     for (int i = 0; i < length(); i++) {

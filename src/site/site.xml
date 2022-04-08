@@ -42,7 +42,8 @@
             <item name="Blog" href="http://simiacryptus.com"/>
             <item name="GitHub" href="https://github.com/SimiaCryptus/"/>
             <item name="Modules" href="http://code.simiacrypt.us/release/2.0.0/all-projects/index.html"/>
-            <item name="Tests" href="http://code.simiacrypt.us/tests/com/simiacryptus/mindseye/index/BasicTestReport.html"/>
+            <item name="Tests"
+                  href="http://code.simiacrypt.us/tests/com/simiacryptus/mindseye/index/BasicTestReport.html"/>
             <item name="Maven" href="https://mvnrepository.com/artifact/com.simiacryptus"/>
         </menu>
 

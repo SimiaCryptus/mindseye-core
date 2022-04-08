@@ -32,10 +32,11 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * The type Double buffer set.
+ * This class defines a DoubleBufferSet.
+ * <p>
+ * A DoubleBufferSet is a map that uses a reference-based hash table.
  *
- * @param <K> the type parameter
- * @param <V> the type parameter
+ * @docgenVersion 9
  */
 public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends ReferenceCountingBase {
   /**
@@ -75,9 +76,9 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Gets map.
+   * Returns an unmodifiable view of the underlying map.
    *
-   * @return the map
+   * @docgenVersion 9
    */
   @Nonnull
   public RefMap<K, V> getMap() {
@@ -85,9 +86,9 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Copy double buffer set.
-   *
-   * @return the double buffer set
+   * @param x The input parameter.
+   * @return The output DoubleBufferSet.
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unchecked")
@@ -102,11 +103,12 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Get v.
+   * Gets the value for the given layer and pointer.
    *
-   * @param layer the layer
-   * @param ptr   the ptr
-   * @return the v
+   * @param layer the layer to get the value for
+   * @param ptr   the pointer to get the value for
+   * @return the value for the given layer and pointer
+   * @docgenVersion 9
    */
   @javax.annotation.Nullable
   public V get(final K layer, final double[] ptr) {
@@ -117,10 +119,9 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Get v.
-   *
-   * @param layer the layer
-   * @return the v
+   * @return the value associated with the given layer, or null if there is no such value
+   * @throws AssertionError if the value is non-null but its key does not equal the given layer
+   * @docgenVersion 9
    */
   @javax.annotation.Nullable
   public V get(final K layer) {
@@ -131,11 +132,10 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Get v.
-   *
-   * @param layer  the layer
-   * @param tensor the tensor
-   * @return the v
+   * @param layer  The layer to get from
+   * @param tensor The tensor to get from
+   * @return The value from the layer and tensor
+   * @docgenVersion 9
    */
   @javax.annotation.Nullable
   public V get(final K layer, @Nonnull final Tensor tensor) {
@@ -145,10 +145,12 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Map double buffer set.
+   * Maps the values in this set using the provided mapping function.
    *
-   * @param mapper the mapper
-   * @return the double buffer set
+   * @param mapper the mapping function to apply to each value
+   * @return a new set containing the mapped values
+   * @throws NullPointerException if the mapper is null
+   * @docgenVersion 9
    */
   @Nonnull
   public DoubleBufferSet<K, V> map(@Nonnull final RefFunction<V, V> mapper) {
@@ -178,21 +180,22 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Stream ref stream.
+   * Returns a stream of references to the values in this RefSet.
    *
-   * @return the ref stream
+   * @return a stream of references to the values in this RefSet
+   * @docgenVersion 9
    */
   @Nonnull
   public RefStream<V> stream() {
     RefHashSet<V> values = map.values();
     RefStream<V> stream = values.stream().filter(v -> {
-      if (null != v) {
-        v.freeRef();
-        return true;
-      } else {
-        return false;
-      }
-    })
+          if (null != v) {
+            v.freeRef();
+            return true;
+          } else {
+            return false;
+          }
+        })
         .distinct()
 //        .sorted(RefComparator.comparingInt(v -> {
 //          int hashCode = RefSystem.identityHashCode(v.target);
@@ -204,11 +207,20 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
     return stream;
   }
 
+  /**
+   * Frees this object and its underlying resources.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     map.freeRef();
   }
 
+  /**
+   * @return a new reference to this DoubleBufferSet
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -217,19 +229,20 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Size int.
+   * Returns the number of elements in this map.
    *
-   * @return the int
+   * @docgenVersion 9
    */
   public int size() {
     return map.size();
   }
 
   /**
-   * All finite double buffer set.
+   * Returns a new {@link DoubleBufferSet} where all non-finite values have been replaced with the provided default value.
    *
-   * @param defaultValue the default value
-   * @return the double buffer set
+   * @param defaultValue the value to use for replacement
+   * @return a new {@link DoubleBufferSet} with the provided default value replacing all non-finite values
+   * @docgenVersion 9
    */
   public DoubleBufferSet<K, V> allFinite(double defaultValue) {
     return map((V doubleBuffer) -> {
@@ -240,23 +253,27 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * Key set ref set.
+   * Returns a RefSet view of the keys contained in this map.
    *
-   * @return the ref set
+   * @docgenVersion 9
    */
   public RefSet<K> keySet() {
     return map.keySet();
   }
 
   /**
-   * Factory v.
+   * This is an abstract factory method that creates a new value V for a given key K and target double array.
    *
-   * @param layer  the layer
-   * @param target the target
-   * @return the v
+   * @docgenVersion 9
    */
   protected abstract V factory(final K layer, final double[] target);
 
+  /**
+   * @param layer   the layer to get
+   * @param factory the factory to use to create the value if it does not exist
+   * @return the value for the layer
+   * @docgenVersion 9
+   */
   @NotNull
   private V get(@Nullable final K layer, @Nullable final Supplier<V> factory) {
     if (null == factory)
@@ -280,10 +297,10 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
   }
 
   /**
-   * The type Delegate.
+   * This class represents a delegate.
    *
-   * @param <K> the type parameter
-   * @param <T> the type parameter
+   * @param parent the parent DoubleBufferSet
+   * @docgenVersion 9
    */
   protected static class Delegate<K, T extends DoubleBuffer<K>> extends DoubleBufferSet<K, T> {
     @Nullable
@@ -309,6 +326,14 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
       this.parent = parent;
     }
 
+    /**
+     * This method suppresses warnings for unused variables.
+     * If the parent variable is not null, the parent's freeRef
+     * method is called. Otherwise, the superclass' _free
+     * method is called.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       if (null != parent)
@@ -316,6 +341,10 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
       super._free();
     }
 
+    /**
+     * @return a new Delegate object with a reference added
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -323,6 +352,13 @@ public abstract class DoubleBufferSet<K, V extends DoubleBuffer<K>> extends Refe
       return (Delegate<K, T>) super.addRef();
     }
 
+    /**
+     * @Override protected T factory(final K layer, final double[] target) {
+     * assert parent != null;
+     * return parent.factory(layer, target);
+     * }
+     * @docgenVersion 9
+     */
     @Override
     protected T factory(final K layer, final double[] target) {
       assert parent != null;

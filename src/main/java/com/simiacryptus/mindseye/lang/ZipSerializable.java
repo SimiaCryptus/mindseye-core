@@ -37,14 +37,16 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 /**
- * The interface Zip serializable.
+ * This is the ZipSerializable interface.
+ *
+ * @docgenVersion 9
  */
 public interface ZipSerializable {
 
   /**
-   * Gets json.
+   * Returns the JSON element.
    *
-   * @return the json
+   * @docgenVersion 9
    */
   @Nullable
   default JsonElement getJson() {
@@ -52,10 +54,10 @@ public interface ZipSerializable {
   }
 
   /**
-   * Extract hash map.
+   * Extracts a HashMap of CharSequences to byte arrays.
    *
-   * @param zipfile the zipfile
-   * @return the hash map
+   * @return the HashMap
+   * @docgenVersion 9
    */
   @Nonnull
   static HashMap<CharSequence, byte[]> extract(@Nonnull ZipFile zipfile) {
@@ -76,29 +78,26 @@ public interface ZipSerializable {
   }
 
   /**
-   * Gets json.
+   * Returns the JSON element.
    *
-   * @param resources      the resources
-   * @param dataSerializer the data serializer
-   * @return the json
+   * @docgenVersion 9
    */
   @Nullable
   JsonElement getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
 
   /**
-   * Write zip.
+   * Writes the zip file.
    *
-   * @param out the out
+   * @docgenVersion 9
    */
   default void writeZip(@Nonnull File out) {
     writeZip(out, SerialPrecision.Double);
   }
 
   /**
-   * Write zip.
+   * Writes the zip file.
    *
-   * @param out       the out
-   * @param precision the precision
+   * @docgenVersion 9
    */
   default void writeZip(@Nonnull File out, SerialPrecision precision) {
     try (@Nonnull
@@ -110,12 +109,9 @@ public interface ZipSerializable {
   }
 
   /**
-   * Write zip.
+   * Writes the zip file.
    *
-   * @param out       the out
-   * @param precision the precision
-   * @param resources the resources
-   * @param fileName  the file name
+   * @docgenVersion 9
    */
   default void writeZip(@Nonnull ZipOutputStream out, SerialPrecision precision,
                         @Nonnull HashMap<CharSequence, byte[]> resources, @Nonnull String fileName) {

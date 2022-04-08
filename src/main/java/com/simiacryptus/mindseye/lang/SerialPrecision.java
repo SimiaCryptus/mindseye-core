@@ -35,6 +35,11 @@ public enum SerialPrecision implements DataSerializer {
    * The Double.
    */
   Double(8) {
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       @Nonnull
@@ -46,6 +51,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull byte[] from, @Nonnull double[] to) {
       @Nonnull
@@ -61,6 +71,11 @@ public enum SerialPrecision implements DataSerializer {
    * The Float.
    */
   Float(4) {
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       @Nonnull
@@ -72,6 +87,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull byte[] from, @Nonnull double[] to) {
       @Nonnull
@@ -87,6 +107,11 @@ public enum SerialPrecision implements DataSerializer {
    * The Uniform 32.
    */
   Uniform32(4) {
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       DoubleSummaryStatistics statistics = RefArrays.stream(from).summaryStatistics();
@@ -108,6 +133,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull byte[] from, @Nonnull double[] to) {
       @Nonnull
@@ -127,6 +157,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Returns the size of the header.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public int getHeaderSize() {
       return 8;
@@ -136,6 +171,11 @@ public enum SerialPrecision implements DataSerializer {
    * The Uniform 16.
    */
   Uniform16(2) {
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       DoubleSummaryStatistics statistics = RefArrays.stream(from).summaryStatistics();
@@ -157,6 +197,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull byte[] from, @Nonnull double[] to) {
       @Nonnull
@@ -176,6 +221,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Returns the size of the header.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public int getHeaderSize() {
       return 8;
@@ -185,6 +235,11 @@ public enum SerialPrecision implements DataSerializer {
    * The Uniform 8.
    */
   Uniform8(1) {
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull double[] from, @Nonnull byte[] to) {
       DoubleSummaryStatistics statistics = RefArrays.stream(from).summaryStatistics();
@@ -206,6 +261,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Copies the value of this object to another object.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public void copy(@Nonnull byte[] from, @Nonnull double[] to) {
       @Nonnull
@@ -225,6 +285,11 @@ public enum SerialPrecision implements DataSerializer {
       }
     }
 
+    /**
+     * Returns the size of the header.
+     *
+     *   @docgenVersion 9
+     */
     @Override
     public int getHeaderSize() {
       return 8;
@@ -237,16 +302,20 @@ public enum SerialPrecision implements DataSerializer {
     this.size = size;
   }
 
+  /**
+   * Returns the size of the element.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public int getElementSize() {
     return size;
   }
 
   /**
-   * Parse double [ ].
+   * Parse the input and return an array of doubles.
    *
-   * @param trim the trim
-   * @return the double [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public double[] parse(@Nonnull String trim) {
@@ -254,10 +323,9 @@ public enum SerialPrecision implements DataSerializer {
   }
 
   /**
-   * Base 64 string.
+   * Returns the Base64-encoded version of this String.
    *
-   * @param value the value
-   * @return the string
+   * @docgenVersion 9
    */
   public String base64(@Nonnull Tensor value) {
     String string = Base64.getEncoder().encodeToString(toBytes(value.getData()));
@@ -266,11 +334,9 @@ public enum SerialPrecision implements DataSerializer {
   }
 
   /**
-   * To rational rational.
+   * Converts this value to a {@link Rational}.
    *
-   * @param value     the value
-   * @param maxScalar the max scalar
-   * @return the rational
+   * @docgenVersion 9
    */
   @Nonnull
   public Rational toRational(double value, int maxScalar) {
@@ -288,6 +354,12 @@ public enum SerialPrecision implements DataSerializer {
     return current;
   }
 
+  /**
+   * This method returns a Rational number
+   * using recursion.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   private Rational rationalRecursion(double value, int recursions) {
     if (value < 0) {
@@ -311,7 +383,11 @@ public enum SerialPrecision implements DataSerializer {
   }
 
   /**
-   * The type Rational.
+   * This class represents a rational number.
+   * It is immutable, meaning that once created,
+   * the numerator and denominator cannot be changed.
+   *
+   * @docgenVersion 9
    */
   public static class Rational {
     /**

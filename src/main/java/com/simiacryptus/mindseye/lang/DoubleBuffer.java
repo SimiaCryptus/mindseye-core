@@ -30,9 +30,12 @@ import javax.annotation.Nullable;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * The type Double buffer.
+ * This class represents a double buffer.
  *
- * @param <K> the type parameter
+ * @param key    the key
+ * @param target the target
+ * @param delta  the delta
+ * @docgenVersion 9
  */
 public class DoubleBuffer<K> extends ReferenceCountingBase {
   @SuppressWarnings("unused")
@@ -79,9 +82,10 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Get delta double [ ].
+   * Returns the delta array, or null if it does not exist.
+   * If the delta array does not exist, this method will create it.
    *
-   * @return the double [ ]
+   * @docgenVersion 9
    */
   @Nullable
   public double[] getDelta() {
@@ -97,20 +101,19 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Gets id.
+   * Returns the id of this object as a CharSequence.
    *
-   * @return the id
+   * @docgenVersion 9
    */
   public CharSequence getId() {
     return this.key.toString();
   }
 
   /**
-   * Are equal boolean.
+   * Returns true if the two arrays are equal, false otherwise.
+   * Throws an IllegalArgumentException if the arrays are not the same length.
    *
-   * @param l the l
-   * @param r the r
-   * @return the boolean
+   * @docgenVersion 9
    */
   public static boolean areEqual(@Nonnull final double[] l, @Nonnull final double[] r) {
     if (r.length != l.length)
@@ -123,9 +126,12 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Copy double buffer.
+   * Returns a new DoubleBuffer with the same contents as this one.
+   * The new buffer's capacity will be the number of elements in this buffer.
    *
-   * @return the double buffer
+   * @return a new DoubleBuffer with the same contents as this one
+   * @throws NullPointerException if this buffer is null
+   * @docgenVersion 9
    */
   @Nullable
   public DoubleBuffer<K> copy() {
@@ -134,9 +140,9 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Delta statistics double array stats facade.
+   * Returns a new DoubleArrayStatsFacade object containing statistics for the delta array.
    *
-   * @return the double array stats facade
+   * @docgenVersion 9
    */
   @Nonnull
   public DoubleArrayStatsFacade deltaStatistics() {
@@ -144,10 +150,11 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Dot double.
+   * Calculates the dot product of this vector with the given vector.
    *
-   * @param right the right
-   * @return the double
+   * @param right the other vector
+   * @return the dot product
+   * @docgenVersion 9
    */
   public double dot(@Nonnull final DoubleBuffer<K> right) {
     if (this.target != right.target) {
@@ -173,19 +180,20 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Length int.
+   * Returns the length of the target String.
    *
-   * @return the int
+   * @docgenVersion 9
    */
   public int length() {
     return this.target.length;
   }
 
   /**
-   * Map double buffer.
+   * Maps the given DoubleUnaryOperator onto the elements of this buffer.
    *
-   * @param mapper the mapper
-   * @return the double buffer
+   * @param mapper the operator to map with
+   * @return a new DoubleBuffer with the mapped elements
+   * @docgenVersion 9
    */
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper) {
@@ -193,11 +201,12 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Map double buffer.
+   * Maps the given mapper function to this DoubleBuffer, optionally in parallel.
    *
-   * @param mapper   the mapper
-   * @param parallel the parallel
-   * @return the double buffer
+   * @param mapper   the mapper function to apply
+   * @param parallel whether or not to run in parallel
+   * @return a new DoubleBuffer with the mapped values
+   * @docgenVersion 9
    */
   @Nonnull
   public DoubleBuffer<K> map(@Nonnull final DoubleUnaryOperator mapper, boolean parallel) {
@@ -208,9 +217,10 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Set.
+   * Sets the data for this object.
    *
-   * @param data the data
+   * @param data the data to set
+   * @docgenVersion 9
    */
   public void set(@Nonnull final double[] data) {
     assert RefArrays.stream(data).parallel().allMatch(Double::isFinite);
@@ -220,15 +230,21 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
   }
 
   /**
-   * Target statistics double array stats facade.
+   * Returns a new DoubleArrayStatsFacade object containing statistics about the target array.
    *
-   * @return the double array stats facade
+   * @docgenVersion 9
    */
   @Nonnull
   public DoubleArrayStatsFacade targetStatistics() {
     return new DoubleArrayStatsFacade(target);
   }
 
+  /**
+   * Returns a string representation of this object.
+   *
+   * @return a string representation of this object.
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public String toString() {
@@ -239,6 +255,11 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     return builder.toString();
   }
 
+  /**
+   * Frees this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     @Nullable
@@ -251,6 +272,10 @@ public class DoubleBuffer<K> extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * @return a new DoubleBuffer with a reference added
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

@@ -27,7 +27,14 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
- * The type Point sample.
+ * This class represents a PointSample.
+ *
+ * @param count   the number of points
+ * @param delta   the set of deltas
+ * @param sum     the sum of the points
+ * @param weights the set of weights
+ * @param rate    the rate
+ * @docgenVersion 9
  */
 public final class PointSample extends ReferenceCountingBase {
   /**
@@ -81,38 +88,40 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   /**
-   * Gets mean.
+   * Returns the mean of the values in the stream.
    *
-   * @return the mean
+   * @docgenVersion 9
    */
   public double getMean() {
     return sum / count;
   }
 
   /**
-   * Gets rate.
+   * Returns the rate.
    *
-   * @return the rate
+   * @docgenVersion 9
    */
   public double getRate() {
     return rate;
   }
 
   /**
-   * Sets rate.
+   * Sets the rate.
    *
-   * @param rate the rate
+   * @param rate the new rate
+   * @docgenVersion 9
    */
   public void setRate(double rate) {
     this.rate = rate;
   }
 
   /**
-   * Add point sample.
+   * Adds two PointSamples together.
    *
-   * @param left  the left
-   * @param right the right
-   * @return the point sample
+   * @param left  the first PointSample to add
+   * @param right the second PointSample to add
+   * @return the sum of the two PointSamples
+   * @docgenVersion 9
    */
   @Nonnull
   public static PointSample add(@Nonnull final PointSample left, @Nonnull final PointSample right) {
@@ -132,10 +141,9 @@ public final class PointSample extends ReferenceCountingBase {
 
 
   /**
-   * Add point sample.
+   * Adds the given [right] PointSample to this one, returning the result as a new PointSample.
    *
-   * @param right the right
-   * @return the point sample
+   * @docgenVersion 9
    */
   @Nonnull
   public PointSample add(@Nonnull final PointSample right) {
@@ -143,10 +151,11 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   /**
-   * Add in place point sample.
+   * Adds the given PointSample to this one, modifying this instance in-place and returning it.
    *
-   * @param right the right
-   * @return the point sample
+   * @param right the PointSample to add to this one
+   * @return this instance, for chaining
+   * @docgenVersion 9
    */
   @Nonnull
   public PointSample addInPlace(@Nonnull final PointSample right) {
@@ -167,9 +176,9 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   /**
-   * Copy full point sample.
+   * Returns a new PointSample with a deep copy of the delta, weights, sum, rate, and count fields.
    *
-   * @return the point sample
+   * @docgenVersion 9
    */
   @Nonnull
   public PointSample copyFull() {
@@ -180,9 +189,10 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   /**
-   * Normalize point sample.
+   * Normalizes this PointSample.
    *
-   * @return the point sample
+   * @return a normalized PointSample
+   * @docgenVersion 9
    */
   @Nonnull
   public PointSample normalize() {
@@ -199,7 +209,9 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   /**
-   * Restore.
+   * Restores the weights.
+   *
+   * @docgenVersion 9
    */
   public void restore() {
     weights.stream().forEach(d -> {
@@ -209,7 +221,9 @@ public final class PointSample extends ReferenceCountingBase {
   }
 
   /**
-   * Backup.
+   * This method backs up the weights of the neural network.
+   *
+   * @docgenVersion 9
    */
   public void backup() {
     weights.stream().forEach(d -> {
@@ -218,6 +232,12 @@ public final class PointSample extends ReferenceCountingBase {
     });
   }
 
+  /**
+   * Returns a string representation of this PointSample.
+   *
+   * @return a string representation of this PointSample.
+   * @docgenVersion 9
+   */
   @Override
   public String toString() {
     @Nonnull final RefStringBuilder sb = new RefStringBuilder(
@@ -227,12 +247,23 @@ public final class PointSample extends ReferenceCountingBase {
     return sb.toString();
   }
 
+  /**
+   * Frees this object's resources.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     weights.freeRef();
     delta.freeRef();
   }
 
+  /**
+   * Adds a reference to this PointSample.
+   *
+   * @return a reference to this PointSample
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

@@ -41,7 +41,17 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * The type Monitoring wrapper layer.
+ * MonitoringWrapperLayer is a class that monitors the performance of a system.
+ *
+ * @param backwardPerformance the performance of the system when going backwards
+ * @param backwardSignal      the signal strength of the system when going backwards
+ * @param forwardPerformance  the performance of the system when going forwards
+ * @param forwardSignal       the signal strength of the system when going forwards
+ * @param verbose             whether or not to print debug information
+ * @param recordSignalMetrics whether or not to record signal metrics
+ * @param totalBatches        the total number of batches processed
+ * @param totalItems          the total number of items processed
+ * @docgenVersion 9
  */
 @SuppressWarnings({"serial", "FieldCanBeLocal"})
 public final class MonitoringWrapperLayer extends WrapperLayer implements MonitoredItem {
@@ -90,9 +100,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Gets backward performance.
-   *
-   * @return the backward performance
+   * @return the backwardPerformance
+   * @docgenVersion 9
    */
   @Nonnull
   public PercentileStatistics getBackwardPerformance() {
@@ -100,9 +109,9 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Gets backward signal.
+   * Returns the backward signal.
    *
-   * @return the backward signal
+   * @docgenVersion 9
    */
   @Nonnull
   public ScalarStatistics getBackwardSignal() {
@@ -110,9 +119,8 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Gets forward performance.
-   *
-   * @return the forward performance
+   * @return the forwardPerformance
+   * @docgenVersion 9
    */
   @Nonnull
   public PercentileStatistics getForwardPerformance() {
@@ -120,15 +128,19 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Gets forward signal.
-   *
-   * @return the forward signal
+   * @return the forwardSignal
+   * @docgenVersion 9
    */
   @Nonnull
   public ScalarStatistics getForwardSignal() {
     return forwardSignal;
   }
 
+  /**
+   * Returns a map of metrics. This method cannot return null.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Map<CharSequence, Object> getMetrics() {
@@ -163,12 +175,24 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return map;
   }
 
+  /**
+   * @return the name
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public String getName() {
     return inner.getName();
   }
 
+  /**
+   * @Override public void setName(final String name) {
+   * if (null != inner) {
+   * inner.setName(name);
+   * }
+   * }
+   * @docgenVersion 9
+   */
   @Override
   public void setName(final String name) {
     if (null != inner) {
@@ -177,11 +201,12 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * From json monitoring wrapper layer.
+   * Creates a new MonitoringWrapperLayer from the given JSON object and resource map.
    *
-   * @param json the json
-   * @param rs   the rs
-   * @return the monitoring wrapper layer
+   * @param json the JSON object to create the layer from
+   * @param rs   the resource map to use
+   * @return the new MonitoringWrapperLayer
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unused")
@@ -190,10 +215,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Add to 2 monitoring wrapper layer.
+   * Adds the given monitored object to this layer with the name of this layer's inner object.
    *
-   * @param obj the obj
-   * @return the monitoring wrapper layer
+   * @param obj the monitored object to add
+   * @return this layer
+   * @docgenVersion 9
    */
   @Nonnull
   public MonitoringWrapperLayer addTo2(@Nonnull final MonitoredObject obj) {
@@ -202,10 +228,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Add to.
+   * Adds this object to the specified monitored object with the given name.
    *
-   * @param obj  the obj
-   * @param name the name
+   * @param obj  the monitored object to add this object to
+   * @param name the name to use for this object in the monitored object
+   * @docgenVersion 9
    */
   public void addTo(@Nonnull MonitoredObject obj, String name) {
     setName(name);
@@ -213,6 +240,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     obj.freeRef();
   }
 
+  /**
+   * @param inObj the input objects
+   * @return the result of the evaluation
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... inObj) {
@@ -256,6 +288,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return new Result(data, accumulator, alive);
   }
 
+  /**
+   * @Nonnull
+   * @Override public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer);
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
@@ -269,19 +306,29 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
   }
 
   /**
-   * Should record signal metrics.
+   * Sets whether signal metrics should be recorded.
    *
-   * @param recordSignalMetrics the record signal metrics
+   * @param recordSignalMetrics true if signal metrics should be recorded, false otherwise
+   * @docgenVersion 9
    */
   public void shouldRecordSignalMetrics(boolean recordSignalMetrics) {
     this.recordSignalMetrics = recordSignalMetrics;
   }
 
+  /**
+   * This method is unused.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * @return the MonitoringWrapperLayer object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -289,6 +336,14 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     return (MonitoringWrapperLayer) super.addRef();
   }
 
+  /**
+   * This class represents an Accumulator, which is used to
+   * track the amount of time spent in a given task.
+   *
+   * @param passbackNanos The amount of time, in nanoseconds, spent in the task.
+   * @param accumulator   The Result.Accumulator object used to track the task's progress.
+   * @docgenVersion 9
+   */
   private static class Accumulator extends Result.Accumulator {
 
     private final AtomicLong passbackNanos;
@@ -305,6 +360,10 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       this.accumulator = accumulator;
     }
 
+    /**
+     * @Override public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data);
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
       TimedResult<Void> timedResult = TimedResult.time(RefUtil.wrapInterface(
@@ -315,6 +374,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       timedResult.freeRef();
     }
 
+    /**
+     * This method frees resources used by this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
@@ -322,6 +386,12 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
     }
   }
 
+  /**
+   * This class is an accumulator that uses an AtomicLong to keep track of passback nanoseconds.
+   * It also has a field for the number of items, as well as an accumulator field.
+   *
+   * @docgenVersion 9
+   */
   private class Accumulator2 extends Result.Accumulator {
 
     private final AtomicLong passbackNanos;
@@ -341,6 +411,10 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       this.accumulator = accumulator;
     }
 
+    /**
+     * @Override public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data);
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       if (recordSignalMetrics) {
@@ -368,6 +442,11 @@ public final class MonitoringWrapperLayer extends WrapperLayer implements Monito
       timedResult1.freeRef();
     }
 
+    /**
+     * This method frees resources used by this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();

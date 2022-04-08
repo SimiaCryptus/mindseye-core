@@ -20,7 +20,10 @@
 package com.simiacryptus.mindseye.lang;
 
 /**
- * The type Component exception.
+ * ComponentException is the base class for all exceptions
+ * thrown by components.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public class ComponentException extends RuntimeException {

@@ -30,7 +30,12 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Failsafe line search cursor.
+ * This class represents a failsafe line search cursor.
+ *
+ * @param direction the direction of the line search
+ * @param monitor   the training monitor
+ * @param best      the best point sample
+ * @docgenVersion 9
  */
 public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   @Nullable
@@ -55,9 +60,8 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
   }
 
   /**
-   * Gets best.
-   *
-   * @return the best
+   * @return the best point sample, or null if there is none
+   * @docgenVersion 9
    */
   @Nullable
   public PointSample getBest() {
@@ -66,12 +70,20 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     return best.addRef();
   }
 
+  /**
+   * @return the direction type of this object, or null if no direction has been set
+   * @docgenVersion 9
+   */
   @Override
   public CharSequence getDirectionType() {
     assert direction != null;
     return direction.getDirectionType();
   }
 
+  /**
+   * @return the PointSample after the given step
+   * @docgenVersion 9
+   */
   @Override
   public synchronized PointSample afterStep(final PointSample step) {
     if (null == step) return null;
@@ -93,18 +105,35 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     }
   }
 
+  /**
+   * @Override public DeltaSet<UUID> position(final double alpha) {
+   * assert direction != null;
+   * return direction.position(alpha);
+   * }
+   * @docgenVersion 9
+   */
   @Override
   public DeltaSet<UUID> position(final double alpha) {
     assert direction != null;
     return direction.position(alpha);
   }
 
+  /**
+   * Resets the direction.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     assert direction != null;
     direction.reset();
   }
 
+  /**
+   * @javax.annotation.Nullable
+   * @Override public LineSearchPoint step(final double alpha, final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @javax.annotation.Nullable
   @Override
   public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
@@ -119,6 +148,13 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     }
   }
 
+  /**
+   * This method is the override of the _free method.
+   * It calls the super method, and if direction and best are not null,
+   * it will free them.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void _free() {
     super._free();
@@ -130,6 +166,10 @@ public class FailsafeLineSearchCursor extends LineSearchCursorBase {
     }
   }
 
+  /**
+   * @return a new reference to this object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

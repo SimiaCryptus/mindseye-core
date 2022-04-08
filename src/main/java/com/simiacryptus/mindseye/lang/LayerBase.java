@@ -29,7 +29,12 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Layer base.
+ * This class represents a base layer.
+ * It contains a stack trace of the thread that created it,
+ * as well as a UUID and a name.
+ * The layer is initially not frozen.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public abstract class LayerBase extends ReferenceCountingBase implements Layer {
@@ -79,32 +84,67 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     this.name = name;
   }
 
+  /**
+   * Returns a list of child layers.
+   *
+   * @docgenVersion 9
+   */
   public RefList<Layer> getChildren() {
     return RefArrays.asList(this.addRef());
   }
 
+  /**
+   * Returns the UUID of this object.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   public UUID getId() {
     return id;
   }
 
+  /**
+   * Returns the name of the object.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   public String getName() {
     return name;
   }
 
+  /**
+   * Sets the name.
+   *
+   * @docgenVersion 9
+   */
   public void setName(final String name) {
     this.name = name;
   }
 
+  /**
+   * Returns true if the object is frozen, false otherwise.
+   *
+   * @docgenVersion 9
+   */
   public boolean isFrozen() {
     return frozen;
   }
 
+  /**
+   * Sets the frozen state.
+   *
+   * @docgenVersion 9
+   */
   public void setFrozen(final boolean frozen) {
     this.frozen = frozen;
   }
 
+  /**
+   * Returns true if the object is the same as the one given, false otherwise.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public final boolean equals(@Nullable final Object obj) {
     if (this == obj) {
@@ -128,22 +168,44 @@ public abstract class LayerBase extends ReferenceCountingBase implements Layer {
     }
   }
 
+  /**
+   * Returns a hash code value for the object. This method is
+   * supported for the benefit of hash tables such as those provided by
+   * HashMap.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public final int hashCode() {
     assert getId() != null;
     return getId().hashCode();
   }
 
+  /**
+   * Returns a string representation of this object.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public String toString() {
     return getName();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
   }
 
+  /**
+   * Add a reference to the LayerBase.
+   *
+   * @docgenVersion 9
+   */
   public @Override
   @SuppressWarnings("unused")
   LayerBase addRef() {

@@ -27,8 +27,14 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * The type Array trainable.
+/*
+ * class ArrayTrainable {
+ *
+ *     @Nullable
+ *     private Tensor[][] trainingData;
+ * }
+ *
+ *   @docgenVersion 9
  */
 public class ArrayTrainable extends BatchedTrainable implements TrainableDataMask {
 
@@ -93,6 +99,11 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     this.trainingData = trainingData;
   }
 
+  /*
+   * Tensor[][] getData();
+   *
+   *   @docgenVersion 9
+   */
   @Nullable
   @Override
   public Tensor[][] getData() {
@@ -100,6 +111,11 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     return RefUtil.addRef(trainingData);
   }
 
+  /*
+   * void setData();
+   *
+   *   @docgenVersion 9
+   */
   @Override
   public void setData(@Nonnull RefList<Tensor[]> tensors) {
     if (null != trainingData)
@@ -108,10 +124,10 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     tensors.freeRef();
   }
 
-  /**
-   * Sets training data.
+  /*
+   * void setTrainingData();
    *
-   * @param tensors the tensors
+   *   @docgenVersion 9
    */
   public void setTrainingData(@Nonnull final Tensor[][] tensors) {
     if (null != this.trainingData)
@@ -119,6 +135,11 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     this.trainingData = tensors;
   }
 
+  /*
+   * void _free();
+   *
+   *   @docgenVersion 9
+   */
   public void _free() {
     if (null != trainingData) {
       RefUtil.freeRef(trainingData);
@@ -127,6 +148,11 @@ public class ArrayTrainable extends BatchedTrainable implements TrainableDataMas
     super._free();
   }
 
+  /*
+   * ArrayTrainable addRef();
+   *
+   *   @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

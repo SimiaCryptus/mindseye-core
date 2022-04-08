@@ -54,7 +54,9 @@ import java.util.function.Function;
 import java.util.function.IntFunction;
 
 /**
- * The type Validating trainer.
+ * This class validates a trainer to see if they are up to par.
+ *
+ * @docgenVersion 9
  */
 public class ValidatingTrainer extends ReferenceCountingBase {
 
@@ -102,11 +104,22 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         validationSubject.addRef();
       }
 
+      /**
+       * @return the layer of the validation subject
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public Layer getLayer() {
         return validationSubject.getLayer();
       }
 
+      /**
+       * @Override
+       * public PointSample measure(final TrainingMonitor monitor);
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public PointSample measure(final TrainingMonitor monitor) {
         @Nonnull final TimedResult<PointSample> time = TimedResult.time(RefUtil.wrapInterface(
@@ -117,11 +130,24 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         return result;
       }
 
+      /**
+       * Reseeds the validation subject with the given seed.
+       *
+       * @param seed the seed to reseed with
+       * @return true if the reseed was successful, false otherwise
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public boolean reseed(final long seed) {
         return validationSubject.reseed(seed);
       }
 
+      /**
+       * Frees resources used by this object.
+       *
+       *   @docgenVersion 9
+       */
       public void _free() {
         super._free();
         validationSubject.freeRef();
@@ -137,261 +163,276 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Gets adjustment factor.
+   * Returns the adjustment factor.
    *
-   * @return the adjustment factor
+   * @docgenVersion 9
    */
   public double getAdjustmentFactor() {
     return adjustmentFactor;
   }
 
   /**
-   * Sets adjustment factor.
+   * Sets the adjustment factor.
    *
-   * @param adjustmentFactor the adjustment factor
+   * @param adjustmentFactor the new adjustment factor
+   * @docgenVersion 9
    */
   public void setAdjustmentFactor(double adjustmentFactor) {
     this.adjustmentFactor = adjustmentFactor;
   }
 
   /**
-   * Gets adjustment tolerance.
+   * Returns the adjustment tolerance.
    *
-   * @return the adjustment tolerance
+   * @docgenVersion 9
    */
   public double getAdjustmentTolerance() {
     return adjustmentTolerance;
   }
 
   /**
-   * Sets adjustment tolerance.
+   * Sets the adjustment tolerance.
    *
-   * @param adjustmentTolerance the adjustment tolerance
+   * @param adjustmentTolerance the new adjustment tolerance
+   * @docgenVersion 9
    */
   public void setAdjustmentTolerance(double adjustmentTolerance) {
     this.adjustmentTolerance = adjustmentTolerance;
   }
 
   /**
-   * Gets current iteration.
+   * Returns the current iteration as an AtomicInteger.
    *
-   * @return the current iteration
+   * @docgenVersion 9
    */
   public AtomicInteger getCurrentIteration() {
     return currentIteration;
   }
 
   /**
-   * Sets current iteration.
+   * Sets the current iteration.
    *
    * @param currentIteration the current iteration
+   * @docgenVersion 9
    */
   public void setCurrentIteration(AtomicInteger currentIteration) {
     this.currentIteration = currentIteration;
   }
 
   /**
-   * Gets disappointment threshold.
+   * Returns the disappointment threshold.
    *
-   * @return the disappointment threshold
+   * @docgenVersion 9
    */
   public int getDisappointmentThreshold() {
     return disappointmentThreshold;
   }
 
   /**
-   * Sets disappointment threshold.
+   * Sets the disappointment threshold to the given value.
    *
-   * @param disappointmentThreshold the disappointment threshold
+   * @param disappointmentThreshold the new disappointment threshold
+   * @docgenVersion 9
    */
   public void setDisappointmentThreshold(final int disappointmentThreshold) {
     this.disappointmentThreshold = disappointmentThreshold;
   }
 
   /**
-   * Gets epoch iterations.
+   * Returns the number of epoch iterations.
    *
-   * @return the epoch iterations
+   * @docgenVersion 9
    */
   public int getEpochIterations() {
     return epochIterations;
   }
 
   /**
-   * Sets epoch iterations.
+   * Sets the number of iterations for each epoch.
    *
-   * @param epochIterations the epoch iterations
+   * @param epochIterations the number of iterations for each epoch
+   * @docgenVersion 9
    */
   public void setEpochIterations(int epochIterations) {
     this.epochIterations = epochIterations;
   }
 
   /**
-   * Gets improvment stale threshold.
+   * Returns the threshold for how long an improvement can go without being
+   * updated before it is considered stale.
    *
-   * @return the improvment stale threshold
+   * @docgenVersion 9
    */
   public int getImprovmentStaleThreshold() {
     return improvmentStaleThreshold;
   }
 
   /**
-   * Sets improvment stale threshold.
+   * Sets the improvement stale threshold.
    *
-   * @param improvmentStaleThreshold the improvment stale threshold
+   * @param improvmentStaleThreshold the new threshold
+   * @docgenVersion 9
    */
   public void setImprovmentStaleThreshold(final int improvmentStaleThreshold) {
     this.improvmentStaleThreshold = improvmentStaleThreshold;
   }
 
   /**
-   * Gets max epoch iterations.
+   * Returns the maximum number of iterations for an epoch.
    *
-   * @return the max epoch iterations
+   * @docgenVersion 9
    */
   public int getMaxEpochIterations() {
     return maxEpochIterations;
   }
 
   /**
-   * Sets max epoch iterations.
+   * Sets the maximum number of iterations for an epoch.
    *
-   * @param maxEpochIterations the max epoch iterations
+   * @param maxEpochIterations the maximum number of iterations for an epoch
+   * @docgenVersion 9
    */
   public void setMaxEpochIterations(int maxEpochIterations) {
     this.maxEpochIterations = maxEpochIterations;
   }
 
   /**
-   * Gets max iterations.
+   * Returns the maximum number of iterations.
    *
-   * @return the max iterations
+   * @docgenVersion 9
    */
   public int getMaxIterations() {
     return maxIterations;
   }
 
   /**
-   * Sets max iterations.
+   * Sets the maximum number of iterations.
    *
-   * @param maxIterations the max iterations
+   * @param maxIterations the maximum number of iterations
+   * @docgenVersion 9
    */
   public void setMaxIterations(int maxIterations) {
     this.maxIterations = maxIterations;
   }
 
   /**
-   * Gets max training size.
+   * Returns the maximum training size.
    *
-   * @return the max training size
+   * @docgenVersion 9
    */
   public int getMaxTrainingSize() {
     return maxTrainingSize;
   }
 
   /**
-   * Sets max training size.
+   * Sets the maximum training size.
    *
-   * @param maxTrainingSize the max training size
+   * @param maxTrainingSize the maximum training size
+   * @docgenVersion 9
    */
   public void setMaxTrainingSize(int maxTrainingSize) {
     this.maxTrainingSize = maxTrainingSize;
   }
 
   /**
-   * Gets min epoch iterations.
+   * Returns the minimum number of epoch iterations.
    *
-   * @return the min epoch iterations
+   * @docgenVersion 9
    */
   public int getMinEpochIterations() {
     return minEpochIterations;
   }
 
   /**
-   * Sets min epoch iterations.
+   * Sets the minimum number of iterations for an epoch.
    *
-   * @param minEpochIterations the min epoch iterations
+   * @param minEpochIterations the minimum number of iterations for an epoch
+   * @docgenVersion 9
    */
   public void setMinEpochIterations(int minEpochIterations) {
     this.minEpochIterations = minEpochIterations;
   }
 
   /**
-   * Gets min training size.
+   * Returns the minimum training size.
    *
-   * @return the min training size
+   * @docgenVersion 9
    */
   public int getMinTrainingSize() {
     return minTrainingSize;
   }
 
   /**
-   * Sets min training size.
+   * Sets the minimum training size.
    *
-   * @param minTrainingSize the min training size
+   * @param minTrainingSize the minimum training size
+   * @docgenVersion 9
    */
   public void setMinTrainingSize(int minTrainingSize) {
     this.minTrainingSize = minTrainingSize;
   }
 
   /**
-   * Gets monitor.
+   * Returns the training monitor.
    *
-   * @return the monitor
+   * @docgenVersion 9
    */
   public TrainingMonitor getMonitor() {
     return monitor;
   }
 
   /**
-   * Sets monitor.
+   * Sets the training monitor.
    *
-   * @param monitor the monitor
+   * @param monitor the training monitor
+   * @docgenVersion 9
    */
   public void setMonitor(TrainingMonitor monitor) {
     this.monitor = monitor;
   }
 
   /**
-   * Gets overtraining target.
+   * Returns the overtraining target.
    *
-   * @return the overtraining target
+   * @docgenVersion 9
    */
   public double getOvertrainingTarget() {
     return overtrainingTarget;
   }
 
   /**
-   * Sets overtraining target.
+   * Sets the overtraining target.
    *
-   * @param overtrainingTarget the overtraining target
+   * @param overtrainingTarget the new overtraining target
+   * @docgenVersion 9
    */
   public void setOvertrainingTarget(double overtrainingTarget) {
     this.overtrainingTarget = overtrainingTarget;
   }
 
   /**
-   * Gets pessimism.
+   * Returns the pessimism value.
    *
-   * @return the pessimism
+   * @docgenVersion 9
    */
   public double getPessimism() {
     return pessimism;
   }
 
   /**
-   * Sets pessimism.
+   * Sets the pessimism value.
    *
-   * @param pessimism the pessimism
+   * @param pessimism the new pessimism value
+   * @docgenVersion 9
    */
   public void setPessimism(double pessimism) {
     this.pessimism = pessimism;
   }
 
   /**
-   * Gets regimen.
+   * Returns the regimen as a RefList.
    *
-   * @return the regimen
+   * @docgenVersion 9
    */
   @Nonnull
   public RefList<TrainingPhase> getRegimen() {
@@ -399,81 +440,84 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Gets terminate threshold.
+   * Returns the terminate threshold.
    *
-   * @return the terminate threshold
+   * @docgenVersion 9
    */
   public double getTerminateThreshold() {
     return terminateThreshold;
   }
 
   /**
-   * Sets terminate threshold.
+   * Sets the terminate threshold.
    *
-   * @param terminateThreshold the terminate threshold
+   * @param terminateThreshold the new terminate threshold
+   * @docgenVersion 9
    */
   public void setTerminateThreshold(double terminateThreshold) {
     this.terminateThreshold = terminateThreshold;
   }
 
   /**
-   * Gets timeout.
+   * Returns the timeout.
    *
-   * @return the timeout
+   * @docgenVersion 9
    */
   public Duration getTimeout() {
     return timeout;
   }
 
   /**
-   * Sets timeout.
+   * Sets the timeout to the specified duration.
    *
-   * @param timeout the timeout
+   * @param timeout the timeout duration
+   * @docgenVersion 9
    */
   public void setTimeout(Duration timeout) {
     this.timeout = timeout;
   }
 
   /**
-   * Gets training size.
+   * Returns the training size.
    *
-   * @return the training size
+   * @docgenVersion 9
    */
   public int getTrainingSize() {
     return trainingSize;
   }
 
   /**
-   * Sets training size.
+   * Sets the training size.
    *
-   * @param trainingSize the training size
+   * @param trainingSize the new training size
+   * @docgenVersion 9
    */
   public void setTrainingSize(int trainingSize) {
     this.trainingSize = trainingSize;
   }
 
   /**
-   * Gets training target.
+   * Returns the training target.
    *
-   * @return the training target
+   * @docgenVersion 9
    */
   public double getTrainingTarget() {
     return trainingTarget;
   }
 
   /**
-   * Sets training target.
+   * Sets the training target.
    *
-   * @param trainingTarget the training target
+   * @param trainingTarget the new training target
+   * @docgenVersion 9
    */
   public void setTrainingTarget(double trainingTarget) {
     this.trainingTarget = trainingTarget;
   }
 
   /**
-   * Gets validation subject.
-   *
    * @return the validation subject
+   * @docgenVersion 9
    */
   @Nonnull
   public Trainable getValidationSubject() {
@@ -481,9 +525,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Sets line search factory.
+   * Sets the line search factory.
    *
-   * @param lineSearchFactory the line search factory
+   * @param lineSearchFactory the new line search factory
+   * @docgenVersion 9
    */
   public void setLineSearchFactory(Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
     RefList<TrainingPhase> temp_07_0024 = getRegimen();
@@ -494,9 +539,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Sets orientation.
+   * Sets the orientation of this view.
    *
-   * @param orientation the orientation
+   * @param orientation the orientation to set, or null to clear the orientation
+   * @docgenVersion 9
    */
   public void setOrientation(@Nullable OrientationStrategy<?> orientation) {
     RefList<TrainingPhase> temp_07_0026 = getRegimen();
@@ -509,6 +555,13 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       orientation.freeRef();
   }
 
+  /**
+   * Get the id of the given DoubleBuffer.
+   *
+   * @param x The DoubleBuffer to get the id of.
+   * @return The id of the given DoubleBuffer.
+   * @docgenVersion 9
+   */
   @Nonnull
   private static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
     String temp_07_0023 = x.key.toString();
@@ -517,9 +570,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Run double.
+   * Runs the program.
    *
-   * @return the double
+   * @return the result of running the program
+   * @docgenVersion 9
    */
   public double run() {
     Layer validationSubjectLayer = validationSubject.getLayer();
@@ -655,25 +709,32 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Sets timeout.
+   * Sets the timeout to the given number of units.
    *
-   * @param number the number
-   * @param units  the units
+   * @param number the number of units
+   * @param units  the units of time
+   * @docgenVersion 9
    */
   public void setTimeout(int number, @Nonnull TemporalUnit units) {
     timeout = Duration.of(number, units);
   }
 
   /**
-   * Sets timeout.
+   * Sets the timeout for this request.
    *
-   * @param number the number
-   * @param units  the units
+   * @param number the timeout value
+   * @param units  the timeout units
+   * @docgenVersion 9
    */
   public void setTimeout(int number, @Nonnull TimeUnit units) {
     setTimeout(number, Util.cvt(units));
   }
 
+  /**
+   * Frees resources used by this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
@@ -681,6 +742,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     regimen.freeRef();
   }
 
+  /**
+   * @return a ValidatingTrainer with a reference added
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -689,13 +754,14 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Run phase epoch result.
+   * Runs the specified training phase for the given epoch.
    *
-   * @param epochParams the epoch params
-   * @param phase       the phase
-   * @param i           the
-   * @param seed        the seed
-   * @return the epoch result
+   * @param epochParams the parameters for the epoch
+   * @param phase       the training phase to run
+   * @param i           the epoch number
+   * @param seed        the random seed
+   * @return the result of running the training phase
+   * @docgenVersion 9
    */
   @Nonnull
   protected EpochResult runPhase(@Nonnull final EpochParams epochParams, @Nonnull final TrainingPhase phase,
@@ -755,11 +821,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Run step step result.
+   * Runs the step with the given previous point and training phase.
    *
    * @param previousPoint the previous point
-   * @param phase         the phase
-   * @return the step result
+   * @param phase         the training phase
+   * @return the result of the step
+   * @docgenVersion 9
    */
   @Nonnull
   protected StepResult runStep(@Nonnull final PointSample previousPoint, @Nonnull final TrainingPhase phase) {
@@ -823,11 +890,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * Should halt boolean.
-   *
-   * @param monitor   the monitor
-   * @param timeoutMs the timeout ms
-   * @return the boolean
+   * @param monitor   the training monitor
+   * @param timeoutMs the timeout in milliseconds
+   * @return true if the training should halt, false otherwise
+   * @docgenVersion 9
    */
   protected boolean shouldHalt(@Nonnull final TrainingMonitor monitor, final long timeoutMs) {
     RefSystem.currentTimeMillis();
@@ -842,6 +908,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * @param previousPoint the previous point
+   * @param nextPoint     the next point
+   * @return the result of the comparison
+   * @docgenVersion 9
+   */
   @Nonnull
   private String compare(@Nonnull final PointSample previousPoint, @Nonnull final PointSample nextPoint) {
     @Nonnull final StateSet<UUID> nextWeights = nextPoint.weights.addRef();
@@ -885,6 +957,14 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     return temp_07_0019;
   }
 
+  /**
+   * Measures the given training phase.
+   *
+   * @param phase the phase to measure
+   * @return the resulting point sample
+   * @throws NullPointerException if the phase is null
+   * @docgenVersion 9
+   */
   private PointSample measure(@Nonnull final TrainingPhase phase) {
     int retries = 0;
     try {
@@ -906,6 +986,13 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * Resets the training phase and seed.
+   *
+   * @param phase the training phase to reset
+   * @param seed  the seed to reset
+   * @docgenVersion 9
+   */
   private void reset(@Nonnull TrainingPhase phase, long seed) {
     assert phase.trainingSubject != null;
     if (!phase.trainingSubject.reseed(seed)) {
@@ -924,7 +1011,13 @@ public class ValidatingTrainer extends ReferenceCountingBase {
   }
 
   /**
-   * The type Training phase.
+   * This class represents a training phase.
+   *
+   * @param lineSearchFactory     A function that creates a line search strategy.
+   * @param lineSearchStrategyMap A map of line search strategies.
+   * @param orientation           An orientation strategy.
+   * @param trainingSubject       A trainable subject.
+   * @docgenVersion 9
    */
   public static class TrainingPhase extends ReferenceCountingBase {
     private Function<CharSequence, LineSearchStrategy> lineSearchFactory = s -> new ArmijoWolfeSearch();
@@ -947,27 +1040,27 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
 
     /**
-     * Gets line search factory.
+     * Returns the line search factory.
      *
-     * @return the line search factory
+     * @docgenVersion 9
      */
     public Function<CharSequence, LineSearchStrategy> getLineSearchFactory() {
       return lineSearchFactory;
     }
 
     /**
-     * Sets line search factory.
+     * Sets the line search factory to the given function.
      *
-     * @param lineSearchFactory the line search factory
+     * @param lineSearchFactory the function to use for creating line search strategies
+     * @docgenVersion 9
      */
     public void setLineSearchFactory(Function<CharSequence, LineSearchStrategy> lineSearchFactory) {
       this.lineSearchFactory = lineSearchFactory;
     }
 
     /**
-     * Gets line search strategy map.
-     *
-     * @return the line search strategy map
+     * @return a map of line search strategies, or null if none have been set
+     * @docgenVersion 9
      */
     @Nullable
     public RefMap<CharSequence, LineSearchStrategy> getLineSearchStrategyMap() {
@@ -975,9 +1068,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
 
     /**
-     * Sets line search strategy map.
+     * Sets the line search strategy map.
      *
      * @param lineSearchStrategyMap the line search strategy map
+     * @docgenVersion 9
      */
     public void setLineSearchStrategyMap(@Nullable RefMap<CharSequence, LineSearchStrategy> lineSearchStrategyMap) {
       RefMap<CharSequence, LineSearchStrategy> temp_07_0003 = lineSearchStrategyMap == null ? null
@@ -992,9 +1086,8 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
 
     /**
-     * Gets orientation.
-     *
-     * @return the orientation
+     * @return the orientation, or null if none has been set
+     * @docgenVersion 9
      */
     @Nullable
     public OrientationStrategy<?> getOrientation() {
@@ -1002,9 +1095,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
 
     /**
-     * Sets orientation.
+     * Sets the orientation of this view.
      *
-     * @param orientation the orientation
+     * @param orientation the orientation to set, or null to clear the orientation
+     * @docgenVersion 9
      */
     public void setOrientation(@Nullable OrientationStrategy<?> orientation) {
       OrientationStrategy<?> temp_07_0004 = orientation == null ? null : orientation.addRef();
@@ -1018,9 +1112,8 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
 
     /**
-     * Gets training subject.
-     *
-     * @return the training subject
+     * @return the training subject, or null if there is no training subject
+     * @docgenVersion 9
      */
     @Nullable
     public SampledTrainable getTrainingSubject() {
@@ -1028,9 +1121,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
 
     /**
-     * Sets training subject.
+     * Sets the training subject.
      *
      * @param trainingSubject the training subject
+     * @docgenVersion 9
      */
     public void setTrainingSubject(@Nullable final SampledTrainable trainingSubject) {
       SampledTrainable temp_07_0005 = trainingSubject == null ? null : trainingSubject.addRef();
@@ -1043,12 +1137,21 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         trainingSubject.freeRef();
     }
 
+    /**
+     * @return a string representation of this TrainingPhase, including the training subject and orientation
+     * @docgenVersion 9
+     */
     @Nonnull
     @Override
     public String toString() {
       return "TrainingPhase{" + "trainingSubject=" + trainingSubject + ", orientation=" + orientation + '}';
     }
 
+    /**
+     * This method is unused.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
@@ -1063,6 +1166,11 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       lineSearchStrategyMap = null;
     }
 
+    /**
+     * Adds a reference to this TrainingPhase and returns it.
+     *
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -1071,6 +1179,15 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * This class represents the parameters for an epoch.
+   *
+   * @param timeoutMs    the timeout in milliseconds
+   * @param iterations   the number of iterations
+   * @param trainingSize the size of the training set
+   * @param validation   the validation set (nullable)
+   * @docgenVersion 9
+   */
   private static class EpochParams extends ReferenceCountingBase {
     /**
      * The Timeout ms.
@@ -1103,6 +1220,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         validation.freeRef();
     }
 
+    /**
+     * This method suppresses warnings for unused variables.
+     * It frees up memory by setting validation to null.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
@@ -1111,6 +1234,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       validation = null;
     }
 
+    /**
+     * @return the EpochParams object
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -1119,6 +1246,15 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * This class represents the result of an epoch of training.
+   *
+   * @param continueTraining Whether or not to continue training.
+   * @param currentPoint     The current point in the training process.
+   * @param iterations       The number of iterations completed.
+   * @param priorMean        The mean value prior to training.
+   * @docgenVersion 9
+   */
   private static class EpochResult extends ReferenceCountingBase {
 
     /**
@@ -1160,6 +1296,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       this.iterations = iterations;
     }
 
+    /**
+     * This method suppresses warnings for unused variables.
+     * It frees the current point if it is not null.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
@@ -1167,6 +1309,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         currentPoint.freeRef();
     }
 
+    /**
+     * @return the result of adding a reference
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -1175,6 +1321,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * PerformanceWrapper is a class that validates trainers.
+   *
+   * @param parent the trainer to be validated
+   * @docgenVersion 9
+   */
   private static class PerformanceWrapper extends TrainableWrapper<SampledTrainable> implements SampledTrainable {
 
     @Nonnull
@@ -1196,6 +1348,11 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         parent.freeRef();
     }
 
+    /**
+     * Returns the training size.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public int getTrainingSize() {
       SampledTrainable temp_07_0038 = getInner();
@@ -1205,6 +1362,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       return temp_07_0037;
     }
 
+    /**
+     * Sets the training size.
+     *
+     * @param trainingSize the training size
+     * @docgenVersion 9
+     */
     @Override
     public void setTrainingSize(final int trainingSize) {
       SampledTrainable inner = getInner();
@@ -1213,12 +1376,21 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       inner.freeRef();
     }
 
+    /**
+     * Returns a new SampledCachedTrainable that is a cached version of this SampledTrainable.
+     *
+     * @docgenVersion 9
+     */
     @Nonnull
     @Override
     public SampledCachedTrainable<? extends SampledTrainable> cached() {
       return new SampledCachedTrainable<>(this.addRef());
     }
 
+    /**
+     * @Override public PointSample measure(final TrainingMonitor monitor);
+     * @docgenVersion 9
+     */
     @Override
     public PointSample measure(final TrainingMonitor monitor) {
       @Nonnull final TimedResult<PointSample> time = TimedResult.time(() -> {
@@ -1234,12 +1406,22 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       return result;
     }
 
+    /**
+     * This method suppresses warnings for unused variables.
+     * It also frees up memory by calling the freeRef method on the parent object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
       parent.freeRef();
     }
 
+    /**
+     * @return the PerformanceWrapper object
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -1248,6 +1430,12 @@ public class ValidatingTrainer extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * This class represents the result of a single step in an optimization process.
+   * It contains the current point, the performance at that point, and the previous point.
+   *
+   * @docgenVersion 9
+   */
   private static class StepResult extends ReferenceCountingBase {
     /**
      * The Current point.
@@ -1275,6 +1463,11 @@ public class ValidatingTrainer extends ReferenceCountingBase {
       this.performance = performance;
     }
 
+    /**
+     * Frees this object and its resources.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
@@ -1284,6 +1477,10 @@ public class ValidatingTrainer extends ReferenceCountingBase {
         currentPoint.freeRef();
     }
 
+    /**
+     * @return the result of adding a reference
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")

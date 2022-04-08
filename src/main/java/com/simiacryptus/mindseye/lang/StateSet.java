@@ -28,9 +28,11 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * The type State set.
+ * Union two StateSets.
  *
- * @param <K> the type parameter
+ * @param right the right StateSet
+ * @return the resulting StateSet
+ * @docgenVersion 9
  */
 public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
@@ -99,9 +101,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   /**
-   * Is different boolean.
+   * Returns true if the two objects are different, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isDifferent() {
     return stream().parallel().anyMatch(x -> {
@@ -112,12 +114,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   /**
-   * Union state set.
+   * Returns a new StateSet that is the union of this StateSet and the other StateSet.
    *
-   * @param <K>   the type parameter
-   * @param left  the left
-   * @param right the right
-   * @return the state set
+   * @docgenVersion 9
    */
   @Nonnull
   public static <K> StateSet<K> union(@Nonnull final DoubleBufferSet<K, State<K>> left,
@@ -151,10 +150,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   /**
-   * Contains all boolean.
+   * Checks if this set contains all of the elements in the specified collection.
    *
-   * @param deltaMap the delta map
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean containsAll(RefMap<K, Delta<K>> deltaMap) {
     RefSet<K> keySet = deltaMap.keySet();
@@ -170,10 +168,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
 
 
   /**
-   * Add state set.
+   * Adds a new state to the set.
    *
-   * @param right the right
-   * @return the state set
+   * @docgenVersion 9
    */
   @Nonnull
   public StateSet<K> add(@Nonnull final DeltaSet<K> right) {
@@ -201,9 +198,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   /**
-   * As vector delta set.
+   * Returns a DeltaSet as a Vector.
    *
-   * @return the delta set
+   * @docgenVersion 9
    */
   @Nonnull
   public DeltaSet<K> asVector() {
@@ -216,6 +213,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return new DeltaSet<>(newMap);
   }
 
+  /**
+   * Returns a copy of this StateSet.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public StateSet<K> copy() {
@@ -238,7 +240,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   //  }
 
   /**
-   * Restore.
+   * Restores the state of the object.
+   *
+   * @docgenVersion 9
    */
   public void restore() {
     RefHashSet<Map.Entry<K, State<K>>> temp_41_0024 = map.entrySet();
@@ -255,6 +259,12 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     temp_41_0024.freeRef();
   }
 
+  /**
+   * Returns a new StateSet[K] with the results of mapping the given function
+   * over the elements of this StateSet[K].
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public StateSet<K> map(@Nonnull final RefFunction<State<K>, State<K>> mapper) {
@@ -277,10 +287,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   /**
-   * Subtract state set.
+   * Removes all elements from this set.
    *
-   * @param right the right
-   * @return the state set
+   * @docgenVersion 9
    */
   @Nonnull
   public StateSet<K> subtract(@Nonnull final DeltaSet<K> right) {
@@ -290,10 +299,9 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
   }
 
   /**
-   * Subtract delta set.
+   * Subtracts the delta set from the original set.
    *
-   * @param right the right
-   * @return the delta set
+   * @docgenVersion 9
    */
   @Nonnull
   public DeltaSet<K> subtract(@Nonnull final StateSet<K> right) {
@@ -310,11 +318,22 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return temp_41_0014;
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the StateSet.
+   *
+   * @return the StateSet
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -322,6 +341,11 @@ public class StateSet<K> extends DoubleBufferSet<K, State<K>> {
     return (StateSet<K>) super.addRef();
   }
 
+  /**
+   * Returns a new State object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   protected State<K> factory(@Nonnull final K layer, final double[] target) {

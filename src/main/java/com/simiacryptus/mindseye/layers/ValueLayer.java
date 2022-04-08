@@ -35,7 +35,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The type Value layer.
+ * This class represents a value layer, which is composed of an
+ * array of Tensors. This array can be null.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public class ValueLayer extends LayerBase {
@@ -72,9 +75,8 @@ public class ValueLayer extends LayerBase {
   }
 
   /**
-   * Get data tensor [ ].
-   *
-   * @return the tensor [ ]
+   * @return an array of Tensors, or null if no data exists
+   * @docgenVersion 9
    */
   @Nullable
   public Tensor[] getData() {
@@ -82,9 +84,10 @@ public class ValueLayer extends LayerBase {
   }
 
   /**
-   * Sets data.
+   * Sets the data for this layer.
    *
-   * @param data the data
+   * @param data The data to set.
+   * @docgenVersion 9
    */
   public void setData(@Nullable final Tensor... data) {
     RefUtil.freeRef(this.data);
@@ -92,11 +95,12 @@ public class ValueLayer extends LayerBase {
   }
 
   /**
-   * From json value layer.
+   * Creates a new ValueLayer from the given JSON object and map of raw data.
    *
-   * @param json the json
-   * @param rs   the rs
-   * @return the value layer
+   * @param json the JSON object to create the layer from
+   * @param rs   the map of raw data
+   * @return the new ValueLayer
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unused")
@@ -105,6 +109,12 @@ public class ValueLayer extends LayerBase {
   }
 
 
+  /**
+   * @param array the result array
+   * @return the result
+   * @throws NullPointerException if array is null
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... array) {
@@ -115,6 +125,12 @@ public class ValueLayer extends LayerBase {
     return new Result(data, accumulator, !isFrozen());
   }
 
+  /**
+   * @param resources      the resources to get the JSON from
+   * @param dataSerializer the data serializer to use
+   * @return the JSON object
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, @Nonnull DataSerializer dataSerializer) {
@@ -129,6 +145,11 @@ public class ValueLayer extends LayerBase {
     return json;
   }
 
+  /**
+   * Returns a list of double arrays, each representing the data of a tensor in this data set.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public RefList<double[]> state() {
@@ -139,12 +160,23 @@ public class ValueLayer extends LayerBase {
     }).collect(RefCollectors.toList());
   }
 
+  /**
+   * Frees this object's resources.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     RefUtil.freeRef(data);
     data = null;
   }
 
+  /**
+   * Adds a reference to this layer.
+   *
+   * @return a reference to this layer
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -152,6 +184,15 @@ public class ValueLayer extends LayerBase {
     return (ValueLayer) super.addRef();
   }
 
+  /**
+   * This class represents an accumulator, which is a data structure that stores
+   * a running total of numeric values.
+   * <p>
+   * The accumulator is implemented as a value layer, which is a data structure
+   * that stores values in a way that allows them to be efficiently updated.
+   *
+   * @docgenVersion 9
+   */
   private static class Accumulator extends Result.Accumulator {
 
     private final ValueLayer valueLayer;
@@ -165,6 +206,10 @@ public class ValueLayer extends LayerBase {
       this.valueLayer = valueLayer;
     }
 
+    /**
+     * @Override public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList data);
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       if (!valueLayer.isFrozen()) {
@@ -183,6 +228,11 @@ public class ValueLayer extends LayerBase {
       buffer.freeRef();
     }
 
+    /**
+     * Frees this object and its resources.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();

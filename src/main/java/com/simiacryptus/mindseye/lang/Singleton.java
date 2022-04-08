@@ -31,9 +31,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 /**
- * The type Singleton.
+ * This is a Singleton class that creates a new RefLinkedBlockingQueue.
  *
- * @param <T> the type parameter
+ * @docgenVersion 9
  */
 public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   private final RefLinkedBlockingQueue<T> queue = new RefLinkedBlockingQueue<T>();
@@ -45,19 +45,19 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   }
 
   /**
-   * Is defined boolean.
+   * Returns true if the value of this Option is non-empty.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isDefined() {
     return !queue.isEmpty();
   }
 
   /**
-   * Gets or init.
+   * Returns the value in this `Option`, or computes it if it is not present,
+   * and stores it in this `Option` for future calls.
    *
-   * @param fn the fn
-   * @return the or init
+   * @docgenVersion 9
    */
   @Nonnull
   @RefAware
@@ -69,6 +69,11 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
     return get();
   }
 
+  /**
+   * Returns the value of type T.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   @RefAware
@@ -78,9 +83,9 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   }
 
   /**
-   * Set.
+   * Sets the value.
    *
-   * @param obj the obj
+   * @docgenVersion 9
    */
   public synchronized void set(@RefAware @Nonnull T obj) {
     assertAlive();
@@ -92,9 +97,9 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
   }
 
   /**
-   * Remove t.
+   * Removes an element from the beginning of the list and returns it.
    *
-   * @return the t
+   * @docgenVersion 9
    */
   @Nullable
   @RefAware
@@ -107,11 +112,21 @@ public class Singleton<T> extends ReferenceCountingBase implements Supplier<T> {
     }
   }
 
+  /**
+   * Add a reference to the Singleton of type T.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public Singleton<T> addRef() {
     return (Singleton<T>) super.addRef();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   protected void _free() {
     queue.freeRef();

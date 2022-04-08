@@ -29,7 +29,12 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Simple line search cursor.
+ * This class represents a simple line search cursor.
+ *
+ * @param direction the direction
+ * @param origin    the origin
+ * @param subject   the subject
+ * @docgenVersion 9
  */
 public class SimpleLineSearchCursor extends LineSearchCursorBase {
   /**
@@ -64,20 +69,30 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     origin.freeRef();
   }
 
+  /**
+   * Returns the direction type of this object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public CharSequence getDirectionType() {
     return type;
   }
 
   /**
-   * Sets direction type.
+   * Sets the direction type.
    *
-   * @param type the type
+   * @docgenVersion 9
    */
   public void setDirectionType(String type) {
     this.type = type;
   }
 
+  /**
+   * Returns the delta set of UUIDs for the positions.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public DeltaSet<UUID> position(final double alpha) {
@@ -85,11 +100,21 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     return direction.scale(alpha);
   }
 
+  /**
+   * Resets the value.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     origin.restore();
   }
 
+  /**
+   * This method steps through the line search process.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
@@ -109,6 +134,11 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
     return new LineSearchPoint(sample, dot);
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != subject)
@@ -118,6 +148,11 @@ public class SimpleLineSearchCursor extends LineSearchCursorBase {
       direction.freeRef();
   }
 
+  /**
+   * Adds a reference to the SimpleLineSearchCursor.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

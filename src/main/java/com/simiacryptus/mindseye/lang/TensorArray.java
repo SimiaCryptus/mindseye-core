@@ -30,7 +30,10 @@ import javax.annotation.Nonnull;
 import java.io.Serializable;
 
 /**
- * The type Tensor array.
+ * This class represents an array of tensors.
+ * The data field is annotated with @Nonnull, meaning that it must not be null.
+ *
+ * @docgenVersion 9
  */
 public class TensorArray extends ReferenceCountingBase implements TensorList, Serializable {
   @Nonnull
@@ -56,15 +59,20 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
   }
 
   /**
-   * Get data tensor [ ].
+   * Returns an array of tensors.
    *
-   * @return the tensor [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public Tensor[] getData() {
     return RefUtil.addRef(data);
   }
 
+  /**
+   * Returns an array of integers representing the dimensions of the object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public int[] getDimensions() {
@@ -72,12 +80,9 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
   }
 
   /**
-   * To string char sequence.
+   * Converts this object to a String.
    *
-   * @param <T>   the type parameter
-   * @param limit the limit
-   * @param data  the data
-   * @return the char sequence
+   * @docgenVersion 9
    */
   @Nonnull
   public static <T> CharSequence toString(int limit, @Nonnull T... data) {
@@ -86,6 +91,11 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
         + ", ...]";
   }
 
+  /**
+   * Returns the Tensor object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   @Nonnull
   @RefAware
@@ -93,32 +103,62 @@ public class TensorArray extends ReferenceCountingBase implements TensorList, Se
     return data[i].addRef();
   }
 
+  /**
+   * Returns the double value of this object.
+   *
+   * @docgenVersion 9
+   */
   public double get(int tensorIndex, int elementIndex) {
     return data[tensorIndex].get(elementIndex);
   }
 
+  /**
+   * Returns the length of the string.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public int length() {
     return data.length;
   }
 
+  /**
+   * Returns a stream of tensors.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public RefStream<Tensor> stream() {
     return RefArrays.stream(getData());
   }
 
+  /**
+   * Returns a string representation of this object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public String toString() {
     return RefString.format("TensorArray{data=%s}", toString(9, getData()));
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     RefUtil.freeRef(data);
   }
 
+  /**
+   * Adds a reference to the TensorArray.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

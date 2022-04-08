@@ -39,7 +39,9 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 /**
- * The type Owl qn.
+ * The OwlQn class.
+ *
+ * @docgenVersion 9
  */
 public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   /**
@@ -72,36 +74,38 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   }
 
   /**
-   * Gets factor l 1.
+   * Returns the value of factor_L1.
    *
-   * @return the factor l 1
+   * @docgenVersion 9
    */
   public double getFactor_L1() {
     return factor_L1;
   }
 
   /**
-   * Sets factor l 1.
+   * Sets the L1 regularization factor.
    *
-   * @param factor_L1 the factor l 1
+   * @param factor_L1 the new L1 regularization factor
+   * @docgenVersion 9
    */
   public void setFactor_L1(double factor_L1) {
     this.factor_L1 = factor_L1;
   }
 
   /**
-   * Gets zero tol.
+   * Returns the value of the zero tolerance.
    *
-   * @return the zero tol
+   * @docgenVersion 9
    */
   public double getZeroTol() {
     return zeroTol;
   }
 
   /**
-   * Sets zero tol.
+   * Sets the zero tolerance to the given value.
    *
-   * @param zeroTol the zero tol
+   * @param zeroTol the new zero tolerance
+   * @docgenVersion 9
    */
   public void setZeroTol(double zeroTol) {
     this.zeroTol = zeroTol;
@@ -109,10 +113,11 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
 
 
   /**
-   * Gets layers.
+   * Returns a list of layers that are fully connected.
    *
-   * @param layers the layers
-   * @return the layers
+   * @param layers the list of layers to check
+   * @return a list of fully connected layers
+   * @docgenVersion 9
    */
   public RefCollection<Layer> getLayers(@Nonnull final RefCollection<Layer> layers) {
     RefList<Layer> temp_29_0004 = layers.stream()
@@ -122,6 +127,13 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     return temp_29_0004;
   }
 
+  /**
+   * @param subject     The subject to orient.
+   * @param measurement The measurement to use.
+   * @param monitor     The training monitor.
+   * @return A new line search cursor.
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
@@ -183,6 +195,13 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     gradient.freeRef();
     SimpleLineSearchCursor temp_29_0005 = new SimpleLineSearchCursor(subject, measurement, searchDirection) {
 
+      /**
+       * @Nonnull
+       * @Override
+       * public LineSearchPoint step(final double alpha, final TrainingMonitor monitor);
+       *
+       *   @docgenVersion 9
+       */
       @Nonnull
       @Override
       public LineSearchPoint step(final double alpha, final TrainingMonitor monitor) {
@@ -225,6 +244,11 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
         return new LineSearchPoint(measure, dot);
       }
 
+      /**
+       * This method is unused.
+       *
+       *   @docgenVersion 9
+       */
       public @SuppressWarnings("unused")
       void _free() {
         super._free();
@@ -234,18 +258,32 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
     return temp_29_0005;
   }
 
+  /**
+   * Resets the inner object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     assert inner != null;
     inner.reset();
   }
 
+  /**
+   * Frees this object and its inner object, if any.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != inner)
       inner.freeRef();
   }
 
+  /**
+   * @return the added reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -254,10 +292,9 @@ public class OwlQn extends OrientationStrategyBase<LineSearchCursor> {
   }
 
   /**
-   * Sign int.
+   * Returns 1 if weight is greater than zeroTol, -1 if weight is less than -zeroTol, and 0 otherwise.
    *
-   * @param weight the weight
-   * @return the int
+   * @docgenVersion 9
    */
   protected int sign(final double weight) {
     if (weight > zeroTol) {

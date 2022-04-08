@@ -34,7 +34,9 @@ import java.util.Arrays;
 import java.util.UUID;
 
 /**
- * The type Validating orientation wrapper.
+ * This class wraps an OrientationStrategy object, validating it for null values.
+ *
+ * @docgenVersion 9
  */
 public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
@@ -55,6 +57,10 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       inner.freeRef();
   }
 
+  /**
+   * @return the LineSearchCursor in its current orientation
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
@@ -64,18 +70,33 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     return new ValidatingLineSearchCursor(cursor);
   }
 
+  /**
+   * Resets the value.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     assert inner != null;
     inner.reset();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != inner)
       inner.freeRef();
   }
 
+  /**
+   * Adds a reference to the ValidatingOrientationWrapper.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -83,6 +104,12 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     return (ValidatingOrientationWrapper) super.addRef();
   }
 
+  /**
+   * A cursor that validates the lines it searches.
+   *
+   * @param cursor the cursor to validate
+   * @docgenVersion 9
+   */
   private static class ValidatingLineSearchCursor extends LineSearchCursorBase {
     @Nullable
     private final LineSearchCursor cursor;
@@ -96,6 +123,11 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       this.cursor = cursor;
     }
 
+    /**
+     * Returns the direction type of this object.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public CharSequence getDirectionType() {
       assert cursor != null;
@@ -103,10 +135,9 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     /**
-     * Add ref validating line search cursor [ ].
+     * Adds a reference to the ValidatingLineSearchCursor.
      *
-     * @param array the array
-     * @return the validating line search cursor [ ]
+     * @docgenVersion 9
      */
     @Nullable
     public static @SuppressWarnings("unused")
@@ -120,6 +151,11 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       }).toArray(ValidatingLineSearchCursor[]::new);
     }
 
+    /**
+     * Returns the PointSample after taking a step.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public PointSample afterStep(@Nonnull PointSample step) {
       super.afterStep(step.addRef()).freeRef();
@@ -127,18 +163,33 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       return cursor.afterStep(step);
     }
 
+    /**
+     * Returns the delta set of UUIDs for the positions.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public DeltaSet<UUID> position(final double alpha) {
       assert cursor != null;
       return cursor.position(alpha);
     }
 
+    /**
+     * Resets the value.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public void reset() {
       assert cursor != null;
       cursor.reset();
     }
 
+    /**
+     * This method steps through the line search process.
+     *
+     * @docgenVersion 9
+     */
     @javax.annotation.Nullable
     @Override
     public LineSearchPoint step(final double alpha, @Nonnull final TrainingMonitor monitor) {
@@ -152,11 +203,9 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
     }
 
     /**
-     * Test.
+     * This is a test function that does nothing.
      *
-     * @param monitor      the monitor
-     * @param primaryPoint the primary point
-     * @param probeSize    the probe size
+     * @docgenVersion 9
      */
     public void test(@Nonnull final TrainingMonitor monitor, @Nonnull final LineSearchPoint primaryPoint,
                      final double probeSize) {
@@ -177,12 +226,22 @@ public class ValidatingOrientationWrapper extends OrientationStrategyBase<LineSe
       probePoint.freeRef();
     }
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public void _free() {
       super._free();
       if (null != cursor)
         cursor.freeRef();
     }
 
+    /**
+     * Adds a reference to the ValidatingLineSearchCursor.
+     *
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")

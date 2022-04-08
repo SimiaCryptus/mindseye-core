@@ -35,7 +35,9 @@ import java.util.UUID;
 import java.util.function.IntFunction;
 
 /**
- * The type Logging wrapper layer.
+ * This class is a wrapper layer that contains a logger.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public final class LoggingWrapperLayer extends WrapperLayer {
@@ -64,11 +66,9 @@ public final class LoggingWrapperLayer extends WrapperLayer {
   }
 
   /**
-   * From json logging wrapper layer.
+   * LoggingWrapperLayer fromJson();
    *
-   * @param json the json
-   * @param rs   the rs
-   * @return the logging wrapper layer
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unused")
@@ -77,10 +77,9 @@ public final class LoggingWrapperLayer extends WrapperLayer {
   }
 
   /**
-   * Gets string.
+   * Returns a string.
    *
-   * @param tensor the tensor
-   * @return the string
+   * @docgenVersion 9
    */
   @Nonnull
   public static String getString(@Nonnull Tensor tensor) {
@@ -91,6 +90,11 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     }
   }
 
+  /**
+   * Evaluates the result of the code.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Result eval(@Nonnull final Result... inObj) {
@@ -131,11 +135,21 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     return new Result(data, accumulator, alive);
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the LoggingWrapperLayer.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -143,6 +157,12 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     return (LoggingWrapperLayer) super.addRef();
   }
 
+  /**
+   * This class represents an accumulator, which is used to
+   * accumulate the results of a computation.
+   *
+   * @docgenVersion 9
+   */
   private static class Accumulator extends Result.Accumulator {
 
     private Layer inner;
@@ -159,6 +179,11 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       this.accumulator = accumulator;
     }
 
+    /**
+     * Accepts an input.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       @Nonnull final String formatted = RefUtil.get(data.stream().map(tensor -> {
@@ -174,6 +199,11 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       }
     }
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
@@ -182,6 +212,12 @@ public final class LoggingWrapperLayer extends WrapperLayer {
     }
   }
 
+  /**
+   * This class represents an accumulator with an inner layer.
+   * The inner layer is used to accumulate results.
+   *
+   * @docgenVersion 9
+   */
   private static class Accumulator2 extends Result.Accumulator {
 
     private final int i;
@@ -201,6 +237,11 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       this.accumulator = accumulator;
     }
 
+    /**
+     * Accepts an input.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> buffer, @Nonnull TensorList data) {
       @Nonnull final String formatted = RefUtil.get(data.stream().map(LoggingWrapperLayer::getString).reduce((a, b) -> a + "\n" + b));
@@ -214,6 +255,11 @@ public final class LoggingWrapperLayer extends WrapperLayer {
       }
     }
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();

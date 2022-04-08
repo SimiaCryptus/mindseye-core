@@ -52,7 +52,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.*;
 
 /**
- * The type Image util.
+ * This class contains a ScheduledExecutorService that is used to manage threads.
+ * This service is set up to use a daemon thread, which will be automatically shut down when the program exits.
+ * There is also a LoggerFactory to generate loggers for this class.
+ *
+ * @docgenVersion 9
  */
 public class ImageUtil {
   /**
@@ -63,11 +67,9 @@ public class ImageUtil {
   private static final Logger logger = LoggerFactory.getLogger(ImageUtil.class);
 
   /**
-   * Render to images ref stream.
+   * Renders the scene to a stream of images.
    *
-   * @param tensor    the tensor
-   * @param normalize the normalize
-   * @return the ref stream
+   * @docgenVersion 9
    */
   public static RefStream<BufferedImage> renderToImages(@Nonnull final Tensor tensor, final boolean normalize) {
     final DoubleStatistics[] statistics = RefIntStream.range(0, tensor.getDimensions()[2])
@@ -114,11 +116,10 @@ public class ImageUtil {
   }
 
   /**
-   * Resize buffered image.
+   * Resizes the buffered image.
    *
-   * @param source the source
-   * @param size   the size
-   * @return the buffered image
+   * @return the resized buffered image
+   * @docgenVersion 9
    */
   @Nonnull
   public static BufferedImage resize(@Nonnull final BufferedImage source, final int size) {
@@ -126,19 +127,17 @@ public class ImageUtil {
   }
 
   /**
-   * Resize buffered image.
+   * Resizes the buffered image.
    *
-   * @param source         the source
-   * @param size           the size
-   * @param preserveAspect the preserve aspect
-   * @return the buffered image
+   * @return the resized buffered image
+   * @docgenVersion 9
    */
   @Nonnull
   public static BufferedImage resize(@Nonnull final BufferedImage source, final int size, boolean preserveAspect) {
     if (size <= 0)
       return source;
     BufferedImage img = source;
-    if(size>0) {
+    if (size > 0) {
       double zoom = (double) size / source.getWidth();
       int steps = (int) Math.ceil(Math.abs(Math.log(zoom)) / Math.log(1.5));
       for (int i = 1; i <= steps; i++) {
@@ -154,11 +153,9 @@ public class ImageUtil {
   }
 
   /**
-   * Resize px buffered image.
+   * Resizes an image to a specified width and height in pixels.
    *
-   * @param source the source
-   * @param size   the size
-   * @return the buffered image
+   * @docgenVersion 9
    */
   @Nonnull
   public static BufferedImage resizePx(@Nonnull final BufferedImage source, final long size) {
@@ -171,12 +168,10 @@ public class ImageUtil {
   }
 
   /**
-   * Resize buffered image.
+   * Resizes the buffered image.
    *
-   * @param source the source
-   * @param width  the width
-   * @param height the height
-   * @return the buffered image
+   * @return the resized buffered image
+   * @docgenVersion 9
    */
   @Nonnull
   public static BufferedImage resize(@Nonnull BufferedImage source, int width, int height) {
@@ -193,11 +188,9 @@ public class ImageUtil {
   }
 
   /**
-   * Monitor image.
+   * Monitor the image.
    *
-   * @param input       the input
-   * @param exitOnClose the exit on close
-   * @param normalize   the normalize
+   * @docgenVersion 9
    */
   public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final boolean normalize) {
     monitorImage(input == null ? null : input.addRef(), exitOnClose, 30, normalize);
@@ -206,12 +199,9 @@ public class ImageUtil {
   }
 
   /**
-   * Monitor image.
+   * Monitor the image.
    *
-   * @param input       the input
-   * @param exitOnClose the exit on close
-   * @param period      the period
-   * @param normalize   the normalize
+   * @docgenVersion 9
    */
   @RefIgnore
   public static void monitorImage(@Nullable final Tensor input, final boolean exitOnClose, final int period,
@@ -233,17 +223,33 @@ public class ImageUtil {
       JMenuItem saveAction = new JMenuItem("Save");
       fileMenu.add(saveAction);
       saveAction.addActionListener(RefUtil.wrapInterface(new ActionListener() {
+        /**
+         * This is the actionPerformed method.
+         * It is called when an action is performed.
+         *
+         *   @docgenVersion 9
+         */
         @Override
         public void actionPerformed(final ActionEvent e) {
           JFileChooser fileChooser = new JFileChooser();
           fileChooser.setAcceptAllFileFilterUsed(false);
           fileChooser.addChoosableFileFilter(new FileFilter() {
+            /**
+             * Returns a description of the object as a String.
+             *
+             *   @docgenVersion 9
+             */
             @Nonnull
             @Override
             public String getDescription() {
               return "*.png";
             }
 
+            /**
+             * @return true if the element is accepted, false otherwise
+             *
+             *   @docgenVersion 9
+             */
             @Override
             public boolean accept(@Nonnull final File f) {
               return f.getName().toUpperCase().endsWith(".PNG");
@@ -282,6 +288,11 @@ public class ImageUtil {
       dialog.get().pack();
       dialog.get().setLocationRelativeTo(null);
       dialog.get().addComponentListener(new ComponentAdapter() {
+        /**
+         * Called when the component has been resized.
+         *
+         *   @docgenVersion 9
+         */
         @Override
         public void componentResized(@Nonnull final ComponentEvent e) {
           //dialog.pack();
@@ -297,6 +308,11 @@ public class ImageUtil {
       dialog.get().addWindowListener(new WindowAdapter() {
         private boolean gotFocus = false;
 
+        /**
+         * Called when the window is closed.
+         *
+         *   @docgenVersion 9
+         */
         public void windowClosed(WindowEvent e) {
           dialog.get().getContentPane().removeAll();
           updater.cancel(false);
@@ -306,6 +322,11 @@ public class ImageUtil {
           }
         }
 
+        /**
+         * Called when the window gains focus.
+         *
+         *   @docgenVersion 9
+         */
         public void windowGainedFocus(WindowEvent we) {
           // Once window gets focus, set initial focus
           if (!gotFocus) {
@@ -320,14 +341,9 @@ public class ImageUtil {
   }
 
   /**
-   * Monitor scheduled future.
+   * Schedules a task for monitoring purposes.
    *
-   * @param input              the input
-   * @param period             the period
-   * @param dialog             the dialog
-   * @param labelWeakReference the label weak reference
-   * @param tensor             the tensor
-   * @return the scheduled future
+   * @docgenVersion 9
    */
   @NotNull
   @RefIgnore
@@ -353,10 +369,9 @@ public class ImageUtil {
   }
 
   /**
-   * Normalize bands tensor.
+   * Normalizes the bands of a tensor.
    *
-   * @param image the image
-   * @return the tensor
+   * @docgenVersion 9
    */
   @Nonnull
   public static Tensor normalizeBands(@Nullable final Tensor image) {
@@ -367,11 +382,9 @@ public class ImageUtil {
   }
 
   /**
-   * Normalize bands tensor.
+   * Normalizes the bands of a tensor.
    *
-   * @param image the image
-   * @param max   the max
-   * @return the tensor
+   * @docgenVersion 9
    */
   @Nonnull
   public static Tensor normalizeBands(@Nonnull final Tensor image, final int max) {
@@ -391,11 +404,9 @@ public class ImageUtil {
   }
 
   /**
-   * Load buffered image.
+   * Loads a buffered image.
    *
-   * @param image     the image
-   * @param imageSize the image size
-   * @return the buffered image
+   * @docgenVersion 9
    */
   @Nonnull
   public static BufferedImage load(@Nonnull final Supplier<BufferedImage> image, final int imageSize) {
@@ -403,12 +414,9 @@ public class ImageUtil {
   }
 
   /**
-   * Load buffered image.
+   * Loads a buffered image.
    *
-   * @param image  the image
-   * @param width  the width
-   * @param height the height
-   * @return the buffered image
+   * @docgenVersion 9
    */
   @Nonnull
   public static BufferedImage load(@Nonnull final Supplier<BufferedImage> image, final int width, final int height) {
@@ -416,10 +424,9 @@ public class ImageUtil {
   }
 
   /**
-   * Gets tensor.
+   * Returns the Tensor object.
    *
-   * @param file the file
-   * @return the tensor
+   * @docgenVersion 9
    */
   public static Tensor getTensor(@Nonnull CharSequence file) {
     BufferedImage read = getImage(file);
@@ -428,9 +435,15 @@ public class ImageUtil {
     return Tensor.fromRGB(read);
   }
 
+  /**
+   * Returns a BufferedImage object that can be used to draw on
+   * the screen.
+   *
+   * @docgenVersion 9
+   */
   @org.jetbrains.annotations.Nullable
   public static BufferedImage getImage(@NotNull CharSequence file) {
-    if(file.length()==0) return null;
+    if (file.length() == 0) return null;
     String fileStr = file.toString();
     BufferedImage read = null;
     if (fileStr.startsWith("http")) {
@@ -441,7 +454,7 @@ public class ImageUtil {
       } catch (Throwable e) {
         throw new RuntimeException("Error reading " + file, e);
       }
-    } else  if (fileStr.startsWith("file:///")) {
+    } else if (fileStr.startsWith("file:///")) {
       try {
         read = ImageIO.read(new File(fileStr.substring(8)));
       } catch (Throwable e) {

@@ -32,7 +32,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Quadratic search.
+ * This class implements a quadratic search algorithm.
+ *
+ * @param initialDerivFactor the initial derivative factor
+ * @param absoluteTolerance  the absolute tolerance
+ * @param currentRate        the current rate
+ * @param minRate            the minimum rate
+ * @param maxRate            the maximum rate
+ * @param relativeTolerance  the relative tolerance
+ * @param stepSize           the step size
+ * @docgenVersion 9
  */
 public class QuadraticSearch implements LineSearchStrategy {
 
@@ -45,19 +54,20 @@ public class QuadraticSearch implements LineSearchStrategy {
   private double stepSize = 1.0;
 
   /**
-   * Gets absolute tolerance.
+   * Returns the absolute tolerance.
    *
-   * @return the absolute tolerance
+   * @docgenVersion 9
    */
   public double getAbsoluteTolerance() {
     return absoluteTolerance;
   }
 
   /**
-   * Sets absolute tolerance.
+   * Sets the absolute tolerance for this QuadraticSearch and returns this.
    *
    * @param absoluteTolerance the absolute tolerance
-   * @return the absolute tolerance
+   * @return this
+   * @docgenVersion 9
    */
   @Nonnull
   public QuadraticSearch setAbsoluteTolerance(final double absoluteTolerance) {
@@ -66,19 +76,20 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets current rate.
+   * Returns the current rate.
    *
-   * @return the current rate
+   * @docgenVersion 9
    */
   public double getCurrentRate() {
     return currentRate;
   }
 
   /**
-   * Sets current rate.
+   * Sets the current rate.
    *
-   * @param currentRate the current rate
-   * @return the current rate
+   * @param currentRate the new current rate
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public QuadraticSearch setCurrentRate(final double currentRate) {
@@ -87,19 +98,20 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets max rate.
+   * Returns the max rate.
    *
-   * @return the max rate
+   * @docgenVersion 9
    */
   public double getMaxRate() {
     return maxRate;
   }
 
   /**
-   * Sets max rate.
+   * Sets the maximum rate and returns this QuadraticSearch.
    *
-   * @param maxRate the max rate
-   * @return the max rate
+   * @param maxRate the maximum rate
+   * @return this QuadraticSearch
+   * @docgenVersion 9
    */
   @Nonnull
   public QuadraticSearch setMaxRate(double maxRate) {
@@ -108,19 +120,20 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets min rate.
+   * Returns the minimum rate.
    *
-   * @return the min rate
+   * @docgenVersion 9
    */
   public double getMinRate() {
     return minRate;
   }
 
   /**
-   * Sets min rate.
+   * Sets the minimum rate and returns the QuadraticSearch.
    *
-   * @param minRate the min rate
-   * @return the min rate
+   * @param minRate the minimum rate
+   * @return the QuadraticSearch
+   * @docgenVersion 9
    */
   @Nonnull
   public QuadraticSearch setMinRate(final double minRate) {
@@ -129,19 +142,20 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets relative tolerance.
+   * Returns the relative tolerance.
    *
-   * @return the relative tolerance
+   * @docgenVersion 9
    */
   public double getRelativeTolerance() {
     return relativeTolerance;
   }
 
   /**
-   * Sets relative tolerance.
+   * Sets the relative tolerance for this QuadraticSearch.
    *
-   * @param relativeTolerance the relative tolerance
-   * @return the relative tolerance
+   * @param relativeTolerance the new relative tolerance
+   * @return this QuadraticSearch
+   * @docgenVersion 9
    */
   @Nonnull
   public QuadraticSearch setRelativeTolerance(final double relativeTolerance) {
@@ -150,19 +164,20 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets step size.
+   * Returns the step size.
    *
-   * @return the step size
+   * @docgenVersion 9
    */
   public double getStepSize() {
     return stepSize;
   }
 
   /**
-   * Sets step size.
+   * Sets the step size for this quadratic search and returns this instance.
    *
-   * @param stepSize the step size
-   * @return the step size
+   * @param stepSize the step size to use
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public QuadraticSearch setStepSize(final double stepSize) {
@@ -170,6 +185,11 @@ public class QuadraticSearch implements LineSearchStrategy {
     return this;
   }
 
+  /**
+   * @Nullable
+   * @Override public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
@@ -191,12 +211,10 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Is same boolean.
+   * Returns true if the two given doubles are equal to each other within the given slack.
+   * Uses an absolute tolerance and a relative tolerance to account for floating point errors.
    *
-   * @param a     the a
-   * @param b     the b
-   * @param slack the slack
-   * @return the boolean
+   * @docgenVersion 9
    */
   protected boolean isSame(final double a, final double b, final double slack) {
     final double diff = Math.abs(a - b) / slack;
@@ -205,13 +223,12 @@ public class QuadraticSearch implements LineSearchStrategy {
   }
 
   /**
-   * Is same boolean.
-   *
-   * @param cursor  the cursor
-   * @param monitor the monitor
-   * @param a       the a
-   * @param b       the b
-   * @return the boolean
+   * @param cursor  the cursor to use
+   * @param monitor the monitor to use
+   * @param a       the first point
+   * @param b       the second point
+   * @return true if the points are the same, false otherwise
+   * @docgenVersion 9
    */
   protected boolean isSame(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
                            @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
@@ -242,6 +259,14 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * @param cursor  the line search cursor
+   * @param monitor the training monitor
+   * @param a       the first line search point
+   * @param b       the second line search point
+   * @return the string result of the diagnosis
+   * @docgenVersion 9
+   */
   @Nonnull
   private String diagnose(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,
                           @Nonnull final LineSearchPoint a, @Nonnull final LineSearchPoint b) {
@@ -273,6 +298,15 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * Verifies the mean of the cursor's current step.
+   *
+   * @param cursor  the cursor to verify
+   * @param monitor the training monitor
+   * @param rate    the current step's rate
+   * @return the mean of the current step
+   * @docgenVersion 9
+   */
   private double verifyMean(@Nonnull LineSearchCursor cursor, @Nonnull TrainingMonitor monitor, double rate) {
     final LineSearchPoint point = cursor.step(rate, monitor);
     try {
@@ -284,6 +318,13 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * @param cursor  the line search cursor
+   * @param point   the point sample
+   * @param monitor the training monitor
+   * @return the filtered point sample, or null if the filter fails
+   * @docgenVersion 9
+   */
   @Nullable
   private PointSample filter(@Nonnull final LineSearchCursor cursor, @Nonnull final PointSample point,
                              final TrainingMonitor monitor) {
@@ -302,6 +343,13 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * Get the point sample from the given line search point.
+   *
+   * @param step the line search point
+   * @return the point sample
+   * @docgenVersion 9
+   */
   private PointSample getPointSample(LineSearchPoint step) {
     try {
       return step.getPoint();
@@ -310,6 +358,13 @@ public class QuadraticSearch implements LineSearchStrategy {
     }
   }
 
+  /**
+   * This class represents a Stepper, which is used for training monitors.
+   *
+   * @param cursor  the LineSearchCursor for this Stepper
+   * @param monitor the TrainingMonitor for this Stepper
+   * @docgenVersion 9
+   */
   private class Stepper extends ReferenceCountingBase {
     @Nonnull
     private final LineSearchCursor cursor;
@@ -336,30 +391,47 @@ public class QuadraticSearch implements LineSearchStrategy {
       assert leftPoint != null;
     }
 
+    /**
+     * @return the left point, or null if there is no left point
+     * @docgenVersion 9
+     */
     @NotNull
     private LineSearchPoint getLeftPoint() {
       return leftPoint == null ? null : leftPoint.addRef();
     }
 
+    /**
+     * @return the right point, or null if there is no right point
+     * @docgenVersion 9
+     */
     @org.jetbrains.annotations.Nullable
     private LineSearchPoint getRightPoint() {
       return rightPoint == null ? null : rightPoint.addRef();
     }
 
+    /**
+     * @return a reference to this point, or null if this point is null
+     * @docgenVersion 9
+     */
     @org.jetbrains.annotations.Nullable
     private LineSearchPoint getThisPoint() {
       return thisPoint == null ? null : thisPoint.addRef();
     }
 
+    /**
+     * Sets the given point as this point, freeing the old point if necessary.
+     *
+     * @param point the new point to set
+     * @docgenVersion 9
+     */
     private void setThisPoint(LineSearchPoint point) {
       if (null != thisPoint) thisPoint.freeRef();
       thisPoint = point;
     }
 
     /**
-     * Step point sample.
-     *
-     * @return the point sample
+     * @return the next PointSample, or null if there are no more
+     * @docgenVersion 9
      */
     @Nullable
     public PointSample step() {
@@ -387,6 +459,12 @@ public class QuadraticSearch implements LineSearchStrategy {
       return returnValue;
     }
 
+    /**
+     * This method frees resources used by this object.
+     * It should be called when the object is no longer needed.
+     *
+     * @docgenVersion 9
+     */
     @Override
     protected void _free() {
       RefUtil.freeRef(thisPoint);
@@ -397,6 +475,12 @@ public class QuadraticSearch implements LineSearchStrategy {
       super._free();
     }
 
+    /**
+     * Locate the initial right point.
+     *
+     * @return true if the initial right point was located, false otherwise
+     * @docgenVersion 9
+     */
     private boolean locateInitialRightPoint() {
       LineSearchPoint prevRightPoint = getRightPoint();
       try {
@@ -438,6 +522,10 @@ public class QuadraticSearch implements LineSearchStrategy {
       }
     }
 
+    /**
+     * @return the next PointSample, or null if there are no more
+     * @docgenVersion 9
+     */
     @org.jetbrains.annotations.Nullable
     private PointSample iterate() {
       assert rightPoint != null;
@@ -534,14 +622,29 @@ public class QuadraticSearch implements LineSearchStrategy {
       }
     }
 
+    /**
+     * Returns the mean of the leftmost point.
+     *
+     * @docgenVersion 9
+     */
     private double leftMean() {
       return leftPoint.getPointMean();
     }
 
+    /**
+     * Returns the mean of this point.
+     *
+     * @docgenVersion 9
+     */
     private double thisMean() {
       return thisPoint.getPointMean();
     }
 
+    /**
+     * Returns the mean of the points on the right side of this node.
+     *
+     * @docgenVersion 9
+     */
     private double rightMean() {
       return rightPoint.getPointMean();
     }

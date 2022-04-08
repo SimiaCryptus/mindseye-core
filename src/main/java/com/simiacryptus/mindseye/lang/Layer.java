@@ -44,37 +44,38 @@ import java.util.function.UnaryOperator;
 import java.util.zip.ZipFile;
 
 /**
- * The interface Layer.
+ * This is the Layer interface.
+ *
+ * @docgenVersion 9
  */
 public interface Layer extends ReferenceCounting, Serializable, ZipSerializable {
   /**
-   * Gets children.
+   * Returns a list of child layers.
    *
-   * @return the children
+   * @docgenVersion 9
    */
   RefList<Layer> getChildren();
 
   /**
-   * Gets id.
-   *
-   * @return the id
+   * @return the id, or null if it does not exist
+   * @docgenVersion 9
    */
   @Nullable
   UUID getId();
 
   /**
-   * Gets json string.
+   * Returns a JSON string representation of this object,
+   * using the Gson library to pretty-print the output.
    *
-   * @return the json string
+   * @docgenVersion 9
    */
   default CharSequence getJsonString() {
     return new GsonBuilder().setPrettyPrinting().create().toJson(getJson());
   }
 
   /**
-   * Gets json stub.
-   *
-   * @return the json stub
+   * @return a JsonObject that is not null
+   * @docgenVersion 9
    */
   @Nonnull
   default JsonObject getJsonStub() {
@@ -88,39 +89,39 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Gets name.
-   *
-   * @return the name
+   * @return the name, or null if not available
+   * @docgenVersion 9
    */
   @Nullable
   String getName();
 
   /**
-   * Sets name.
+   * Sets the name of the object.
    *
-   * @param name the name
+   * @param name the new name for the object
+   * @docgenVersion 9
    */
   void setName(final String name);
 
   /**
-   * Is frozen boolean.
+   * Returns true if the object is frozen, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   boolean isFrozen();
 
   /**
-   * Sets frozen.
+   * Sets the frozen state of the object.
    *
-   * @param frozen the frozen
+   * @param frozen the new frozen state
+   * @docgenVersion 9
    */
   void setFrozen(final boolean frozen);
 
   /**
-   * From json layer.
-   *
-   * @param json the json
-   * @return the layer
+   * @param json the JSON object to convert to a layer
+   * @return the layer represented by the JSON object
+   * @docgenVersion 9
    */
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json) {
@@ -128,10 +129,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * From zip layer.
+   * Extracts the resources from the given zipfile and creates a layer from the JSON model.
    *
-   * @param zipfile the zipfile
-   * @return the layer
+   * @param zipfile the zipfile containing the resources
+   * @return the layer created from the resources
+   * @docgenVersion 9
    */
   @Nonnull
   static Layer fromZip(@Nonnull final ZipFile zipfile) {
@@ -141,11 +143,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * From json layer.
-   *
-   * @param json the json
-   * @param rs   the rs
-   * @return the layer
+   * @param json the JSON object to convert
+   * @param rs   the map of resources
+   * @return the new layer
+   * @throws NullPointerException if json or rs is null
+   * @docgenVersion 9
    */
   @Nonnull
   static Layer fromJson(@Nonnull final JsonObject json, Map<CharSequence, byte[]> rs) {
@@ -177,10 +179,9 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
 
 
   /**
-   * Eval dims int [ ].
-   *
-   * @param inputDims the input dims
-   * @return the int [ ]
+   * @param inputDims the dimensions of the input array
+   * @return the dimensions of the output array
+   * @docgenVersion 9
    */
   @Nonnull
   default int[] evalDims(int[] inputDims) {
@@ -197,15 +198,21 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
     return temp_34_0001;
   }
 
+  /**
+   * Returns the first data element of the result of evaluating the given input tensors.
+   *
+   * @docgenVersion 9
+   */
   default Tensor simpleEval(Tensor... input) {
     return Result.getData0(eval(input));
   }
 
   /**
-   * Map ref list.
+   * Maps the given values to a new RefList.
    *
-   * @param values the values
-   * @return the ref list
+   * @param values the values to map
+   * @return the new RefList
+   * @docgenVersion 9
    */
   @Nonnull
   default RefList<Tensor> map(@Nonnull RefCollection<? extends Tensor> values) {
@@ -225,10 +232,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Map ref stream.
+   * Maps the given stream of values to another stream.
    *
-   * @param values the values
-   * @return the ref stream
+   * @param values the stream of values to map
+   * @return the mapped stream
+   * @docgenVersion 9
    */
   @Nonnull
   default RefStream<Tensor> map(@Nonnull RefStream<Tensor> values) {
@@ -246,10 +254,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * And then pipeline network.
+   * Builds a new pipeline network by appending the given layer to this network.
    *
-   * @param append the append
-   * @return the pipeline network
+   * @param append the layer to append
+   * @return the new pipeline network
+   * @docgenVersion 9
    */
   default PipelineNetwork andThen(@Nonnull Layer append) {
     assert append.assertAlive();
@@ -258,11 +267,9 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * As t.
-   *
-   * @param <T>         the type parameter
-   * @param targetClass the target class
-   * @return the t
+   * @param targetClass the target class to cast to
+   * @return the layer cast to the target class
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unchecked")
@@ -276,9 +283,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Copy layer.
+   * Returns a copy of this layer, using the specified serial precision.
    *
-   * @return the layer
+   * @param precision the precision to use for serialization
+   * @return a copy of this layer
+   * @docgenVersion 9
    */
   @Nonnull
   default Layer copy() {
@@ -286,10 +295,11 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Copy layer.
+   * Returns a copy of this layer with the specified serialization precision.
    *
-   * @param precision the precision
-   * @return the layer
+   * @param precision the new serialization precision
+   * @return a copy of this layer with the specified serialization precision
+   * @docgenVersion 9
    */
   @Nonnull
   default Layer copy(SerialPrecision precision) {
@@ -301,19 +311,16 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Eval result.
-   *
-   * @param array the array
-   * @return the result
+   * @Nullable Result eval(@Nullable Result... array);
+   * @docgenVersion 9
    */
   @Nullable
   Result eval(@Nullable Result... array);
 
   /**
-   * Eval result.
-   *
-   * @param array the array
-   * @return the result
+   * @param array the array of Tensors to evaluate
+   * @return the Result of the evaluation
+   * @docgenVersion 9
    */
   @Nullable
   default Result eval(@Nonnull final Tensor... array) {
@@ -325,10 +332,9 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Eval result.
-   *
-   * @param array the array
-   * @return the result
+   * @param array the array to evaluate
+   * @return the evaluation result
+   * @docgenVersion 9
    */
   @Nullable
   default Result eval(@Nonnull final Tensor[][] array) {
@@ -336,24 +342,25 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Freeze.
+   * Sets the frozen flag to true.
+   *
+   * @docgenVersion 9
    */
   default void freeze() {
     setFrozen(true);
   }
 
   /**
-   * State ref list.
-   *
-   * @return the ref list
+   * @return a list of states, or null if there are no states
+   * @docgenVersion 9
    */
   @Nullable
   RefList<double[]> state();
 
   /**
-   * As tensor function unary operator.
-   *
-   * @return the unary operator
+   * @return a unary operator that converts an object to a Tensor
+   * @throws NullPointerException if the object is null
+   * @docgenVersion 9
    */
   @Nonnull
   default UnaryOperator<Tensor> asTensorFunction() {
@@ -371,10 +378,17 @@ public interface Layer extends ReferenceCounting, Serializable, ZipSerializable 
   }
 
   /**
-   * Free.
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
    */
   void _free();
 
+  /**
+   * Add a reference to this layer.
+   *
+   * @docgenVersion 9
+   */
   Layer addRef();
 
 }

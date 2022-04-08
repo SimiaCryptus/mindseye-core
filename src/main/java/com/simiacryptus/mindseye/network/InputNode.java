@@ -27,7 +27,11 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Input node.
+ * Class InputNode
+ *
+ * @param nextHead the next head layer to add
+ * @return a DAGNode
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 final class InputNode extends LazyResult {
@@ -45,6 +49,11 @@ final class InputNode extends LazyResult {
     super(key);
   }
 
+  /**
+   * Returns the layer.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public <T extends Layer> T getLayer() {
@@ -52,6 +61,11 @@ final class InputNode extends LazyResult {
     return null;
   }
 
+  /**
+   * Sets the layer.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void setLayer(@Nullable final Layer layer) {
     if (null != layer)
@@ -65,10 +79,20 @@ final class InputNode extends LazyResult {
 //    return temp_10_0002;
 //  }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the InputNode.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -76,6 +100,11 @@ final class InputNode extends LazyResult {
     return (InputNode) super.addRef();
   }
 
+  /**
+   * Evaluates the result of the code.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public Result eval(@Nonnull final GraphEvaluationContext context) {
     assertAlive();

@@ -26,7 +26,11 @@ import javax.annotation.Nullable;
 import java.io.Serializable;
 
 /**
- * The type Coordinate.
+ * This class represents a coordinate.
+ * The coords array stores the coordinate values.
+ * The index indicates the next empty slot in the coords array.
+ *
+ * @docgenVersion 9
  */
 public final class Coordinate implements Serializable {
   /**
@@ -58,47 +62,47 @@ public final class Coordinate implements Serializable {
   }
 
   /**
-   * Get coords int [ ].
+   * Returns an array of integers containing the x- and y-coordinates
+   * of the object.
    *
-   * @return the int [ ]
+   * @docgenVersion 9
    */
   public int[] getCoords() {
     return coords;
   }
 
   /**
-   * Sets coords.
+   * Sets the coordinates of the object.
    *
-   * @param coords the coords
+   * @docgenVersion 9
    */
   void setCoords(final int[] coords) {
     this.coords = coords;
   }
 
   /**
-   * Gets index.
+   * Returns the index of the element.
    *
-   * @return the index
+   * @docgenVersion 9
    */
   public int getIndex() {
     return index;
   }
 
   /**
-   * Sets index.
+   * Sets the index.
    *
-   * @param index the index
+   * @docgenVersion 9
    */
   void setIndex(final int index) {
     this.index = index;
   }
 
   /**
-   * Add int [ ].
+   * Add two integers.
    *
-   * @param a the a
-   * @param b the b
-   * @return the int [ ]
+   * @return an array containing the two integers.
+   * @docgenVersion 9
    */
   @Nonnull
   public static int[] add(@Nonnull final int[] a, @Nonnull final int[] b) {
@@ -110,12 +114,9 @@ public final class Coordinate implements Serializable {
   }
 
   /**
-   * Transpose xy int.
+   * Transposes the x and y coordinates of a point.
    *
-   * @param rows  the rows
-   * @param cols  the cols
-   * @param index the index
-   * @return the int
+   * @docgenVersion 9
    */
   public static int transposeXY(int rows, int cols, int index) {
     final int filterBandX = index % rows;
@@ -124,6 +125,11 @@ public final class Coordinate implements Serializable {
     return filterBandX * cols + filterBandY;
   }
 
+  /**
+   * Returns true if the object is the same as the one given, false otherwise.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public boolean equals(@Nullable final Object obj) {
     if (this == obj) {
@@ -138,11 +144,23 @@ public final class Coordinate implements Serializable {
     return index == ((Coordinate) obj).index;
   }
 
+  /**
+   * Returns a hash code value for the object. This method is
+   * supported for the benefit of hash tables such as those provided by
+   * HashMap.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public int hashCode() {
     return Integer.hashCode(index) ^ RefArrays.hashCode(coords);
   }
 
+  /**
+   * Returns a string representation of this object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public String toString() {
@@ -150,9 +168,9 @@ public final class Coordinate implements Serializable {
   }
 
   /**
-   * Copy coordinate.
+   * Returns a copy of this Coordinate.
    *
-   * @return the coordinate
+   * @docgenVersion 9
    */
   @Nonnull
   public Coordinate copy() {

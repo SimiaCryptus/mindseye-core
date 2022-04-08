@@ -33,13 +33,18 @@ import javax.annotation.Nonnull;
 import java.util.function.DoubleSupplier;
 
 /**
- * The type Data serializer test.
+ * This is the DataSerializerTest class.
+ * It contains a logger for the DataSerializerTest class.
+ *
+ * @docgenVersion 9
  */
 public class DataSerializerTest {
   private static final Logger log = LoggerFactory.getLogger(DataSerializerTest.class);
 
   /**
-   * Test double.
+   * Test the double precision serialization
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")
@@ -48,7 +53,9 @@ public class DataSerializerTest {
   }
 
   /**
-   * Test float.
+   * Test the Float precision.
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")
@@ -57,7 +64,9 @@ public class DataSerializerTest {
   }
 
   /**
-   * Test uniform 32.
+   * Test the uniform32 precision.
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")
@@ -66,7 +75,9 @@ public class DataSerializerTest {
   }
 
   /**
-   * Test uniform 16.
+   * Test the uniform16 precision.
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")
@@ -75,7 +86,9 @@ public class DataSerializerTest {
   }
 
   /**
-   * Test uniform 8.
+   * Test the uniform8 serialization precision.
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")
@@ -84,9 +97,9 @@ public class DataSerializerTest {
   }
 
   /**
-   * Test.
+   * Test the given DataSerializer with random1 and random2, using "Uniform" and "Exponential" as labels.
    *
-   * @param target the target
+   * @docgenVersion 9
    */
   public void test(@Nonnull DataSerializer target) {
     test(target, this::random1, "Uniform");
@@ -94,11 +107,10 @@ public class DataSerializerTest {
   }
 
   /**
-   * Test.
-   *
-   * @param target the target
-   * @param f      the f
-   * @param name   the name
+   * @param target the DataSerializer to test
+   * @param f      the function to use for testing
+   * @param name   the name of the test
+   * @docgenVersion 9
    */
   public void test(@Nonnull DataSerializer target, @Nonnull DoubleSupplier f, CharSequence name) {
     @Nonnull
@@ -111,6 +123,12 @@ public class DataSerializerTest {
     //assert rms < 1e-4;
   }
 
+  /**
+   * @param i the number of elements of the array
+   * @param f the function used to generate the random numbers
+   * @return an array of random numbers
+   * @docgenVersion 9
+   */
   @Nonnull
   private double[] random(int i, @Nonnull DoubleSupplier f) {
     @Nonnull
@@ -119,10 +137,20 @@ public class DataSerializerTest {
     return doubles;
   }
 
+  /**
+   * Returns a random double between 0 and 1.
+   *
+   * @docgenVersion 9
+   */
   private double random1() {
     return Math.random();
   }
 
+  /**
+   * Returns a random number between 0 and 1.
+   *
+   * @docgenVersion 9
+   */
   private double random2() {
     return Math.exp(Math.random());
   }

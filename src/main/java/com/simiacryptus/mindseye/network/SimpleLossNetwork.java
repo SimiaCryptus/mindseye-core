@@ -25,7 +25,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Simple loss network.
+ * This class represents a simple loss network.
+ *
+ * @param lossNode    the Loss node
+ * @param studentNode the Student node
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public class SimpleLossNetwork extends SupervisedNetwork {
@@ -60,11 +64,21 @@ public class SimpleLossNetwork extends SupervisedNetwork {
     loss.freeRef();
   }
 
+  /**
+   * @return the head node of the DAG, or null if there is no head node
+   * @docgenVersion 9
+   */
   @Override
   public DAGNode getHead() {
     return lossNode == null ? null : lossNode.addRef();
   }
 
+  /**
+   * This method frees resources associated with this object.
+   * In particular, it frees the studentNode and lossNode fields.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
@@ -74,6 +88,12 @@ public class SimpleLossNetwork extends SupervisedNetwork {
       lossNode.freeRef();
   }
 
+  /**
+   * Adds a reference to this SimpleLossNetwork.
+   *
+   * @return the SimpleLossNetwork with the added reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

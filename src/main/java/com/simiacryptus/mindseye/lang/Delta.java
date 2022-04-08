@@ -28,9 +28,9 @@ import javax.annotation.Nullable;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * The type Delta.
+ * The Delta compensation.
  *
- * @param <K> the type parameter
+ * @docgenVersion 9
  */
 public class Delta<K> extends DoubleBuffer<K> {
   /**
@@ -79,11 +79,10 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   /**
-   * Accumulate.
-   *
-   * @param data             the data
-   * @param delta            the delta
-   * @param dataCompensation the data compensation
+   * @param data             the data to accumulate
+   * @param delta            the delta to accumulate
+   * @param dataCompensation the data compensation to accumulate
+   * @docgenVersion 9
    */
   public static void accumulate(@Nonnull final double[] data, final double[] delta,
                                 @Nullable final double[] dataCompensation) {
@@ -117,9 +116,10 @@ public class Delta<K> extends DoubleBuffer<K> {
 
 
   /**
-   * Accumulate.
+   * Accumulates the given factor into this instance.
    *
-   * @param factor the factor
+   * @param factor the factor to accumulate
+   * @docgenVersion 9
    */
   public final void accumulate(final double factor) {
     synchronized (target) {
@@ -136,9 +136,10 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   /**
-   * Add in place.
+   * Adds the given {@link Delta} to this {@link Delta} in place.
    *
-   * @param buffer the buffer
+   * @param buffer the {@link Delta} to add
+   * @docgenVersion 9
    */
   public void addInPlace(@Nonnull final Delta<K> buffer) {
     assertAlive();
@@ -149,9 +150,10 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   /**
-   * Add in place.
+   * Adds the given tensor in place.
    *
-   * @param tensor the tensor
+   * @param tensor the tensor to add
+   * @docgenVersion 9
    */
   public void addInPlace(@Nonnull Tensor tensor) {
     addInPlace(tensor.getData());
@@ -159,9 +161,11 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   /**
-   * Add in place.
+   * Adds the given array in place.
    *
-   * @param data the data
+   * @param data the array to add
+   * @throws IllegalArgumentException if the array is not the same length as the target array
+   * @docgenVersion 9
    */
   public void addInPlace(@Nonnull double[] data) {
     assert data.length == this.target.length;
@@ -170,6 +174,10 @@ public class Delta<K> extends DoubleBuffer<K> {
     //assert Arrays.stream(read()).allMatch(Double::isFinite);
   }
 
+  /**
+   * @return a copy of this Delta object
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Delta<K> copy() {
@@ -178,12 +186,25 @@ public class Delta<K> extends DoubleBuffer<K> {
         RecycleBin.DOUBLES.copyOf(deltaCompensation, length()));
   }
 
+  /**
+   * @param mapper the mapper function to apply to this {@code Delta}
+   * @return the new {@code Delta}
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper) {
     return map(mapper, !CoreSettings.INSTANCE().singleThreaded);
   }
 
+  /**
+   * Maps the delta using the given mapper function.
+   *
+   * @param mapper   the mapper function
+   * @param parallel whether or not to run in parallel
+   * @return the mapped delta
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Delta<K> map(@Nonnull final DoubleUnaryOperator mapper, boolean parallel) {
@@ -193,21 +214,33 @@ public class Delta<K> extends DoubleBuffer<K> {
   }
 
   /**
-   * Scale delta.
+   * Scales the delta by a factor.
    *
-   * @param f the f
-   * @return the delta
+   * @param f the factor to scale by
+   * @return the scaled delta
+   * @docgenVersion 9
    */
   @Nonnull
   public Delta<K> scale(final double f) {
     return map(x -> x * f);
   }
 
+  /**
+   * @Override public void set(@Nonnull final double[] data) {
+   * super.set(data);
+   * }
+   * @docgenVersion 9
+   */
   @Override
   public void set(@Nonnull final double[] data) {
     super.set(data);
   }
 
+  /**
+   * Frees this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != deltaCompensation) {
@@ -218,6 +251,10 @@ public class Delta<K> extends DoubleBuffer<K> {
     }
   }
 
+  /**
+   * @return a Delta object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

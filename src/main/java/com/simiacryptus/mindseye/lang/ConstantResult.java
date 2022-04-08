@@ -29,7 +29,9 @@ import java.util.UUID;
 import java.util.function.IntFunction;
 
 /**
- * The type Constant result.
+ * This class represents a result that is always the same.
+ *
+ * @docgenVersion 9
  */
 public final class ConstantResult extends Result {
 
@@ -58,6 +60,11 @@ public final class ConstantResult extends Result {
    */
   public ConstantResult(@Nonnull final TensorList tensorList) {
     super(tensorList, new Accumulator() {
+      /**
+       * Accepts an input.
+       *
+       *   @docgenVersion 9
+       */
       @Override
       public void accept(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList data) {
         if (null != data)
@@ -66,6 +73,11 @@ public final class ConstantResult extends Result {
           buffer.freeRef();
       }
 
+      /**
+       * Frees the memory associated with this object.
+       *
+       *   @docgenVersion 9
+       */
       public @SuppressWarnings("unused")
       void _free() {
         super._free();
@@ -73,16 +85,20 @@ public final class ConstantResult extends Result {
     });
   }
 
+  /**
+   * Returns true if the entity is alive, false otherwise.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public boolean isAlive() {
     return false;
   }
 
   /**
-   * Batch result array result [ ].
+   * Returns an array of Result objects.
    *
-   * @param input the input
-   * @return the result [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public static Result[] batchResultArray(@Nonnull final Tensor[]... input) {
@@ -99,10 +115,9 @@ public final class ConstantResult extends Result {
   }
 
   /**
-   * Single result array result [ ].
+   * Returns an array of results, where each result is from a single input.
    *
-   * @param input the input
-   * @return the result [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[] input) {
@@ -112,10 +127,9 @@ public final class ConstantResult extends Result {
   }
 
   /**
-   * Single result array result [ ].
+   * Returns an array of results, where each result is from a single input.
    *
-   * @param input the input
-   * @return the result [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   public static Result[] singleResultArray(@Nonnull final Tensor[][] input) {
@@ -124,6 +138,11 @@ public final class ConstantResult extends Result {
         .toArray(Result[]::new);
   }
 
+  /**
+   * Adds a reference to the ConstantResult and returns it.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -131,6 +150,11 @@ public final class ConstantResult extends Result {
     return (ConstantResult) super.addRef();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void _free() {
     super._free();

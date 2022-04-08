@@ -36,7 +36,9 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type L 12 normalizer.
+ * The L12Normalizer class.
+ *
+ * @docgenVersion 9
  */
 public abstract class L12Normalizer extends TrainableBase {
   /**
@@ -61,10 +63,9 @@ public abstract class L12Normalizer extends TrainableBase {
   }
 
   /**
-   * To layer layer.
+   * Converts this object to a Layer.
    *
-   * @param id the id
-   * @return the layer
+   * @docgenVersion 9
    */
   @javax.annotation.Nullable
   public Layer toLayer(UUID id) {
@@ -79,10 +80,9 @@ public abstract class L12Normalizer extends TrainableBase {
   }
 
   /**
-   * Gets layers.
+   * Returns a RefCollection of all the layers in the scene.
    *
-   * @param layers the layers
-   * @return the layers
+   * @docgenVersion 9
    */
   public RefCollection<Layer> getLayers(@Nonnull final RefCollection<UUID> layers) {
     RefList<Layer> temp_01_0003 = layers.stream().map(this::toLayer)
@@ -92,6 +92,11 @@ public abstract class L12Normalizer extends TrainableBase {
     return temp_01_0003;
   }
 
+  /**
+   * Returns a PointSample object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
@@ -133,18 +138,35 @@ public abstract class L12Normalizer extends TrainableBase {
     return temp_01_0002;
   }
 
+  /**
+   * Reseeds the random number generator with the given seed.
+   *
+   * @param seed the seed
+   * @return true if the random number generator was reseeded, false otherwise
+   * @docgenVersion 9
+   */
   @Override
   public boolean reseed(final long seed) {
     assert inner != null;
     return inner.reseed(seed);
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != inner)
       inner.freeRef();
   }
 
+  /**
+   * Add a reference to the Normalizer.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -153,18 +175,16 @@ public abstract class L12Normalizer extends TrainableBase {
   }
 
   /**
-   * Gets l 1.
+   * Returns the L1 norm of the vector.
    *
-   * @param layer the layer
-   * @return the l 1
+   * @docgenVersion 9
    */
   protected abstract double getL1(Layer layer);
 
   /**
-   * Gets l 2.
+   * Returns the L2 norm of this vector.
    *
-   * @param layer the layer
-   * @return the l 2
+   * @docgenVersion 9
    */
   protected abstract double getL2(Layer layer);
 

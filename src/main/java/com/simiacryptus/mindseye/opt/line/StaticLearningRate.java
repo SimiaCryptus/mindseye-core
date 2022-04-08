@@ -27,7 +27,10 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Static learning rate.
+ * This class represents a static learning rate, which is a rate that does not change over time.
+ * The minimum rate is 1e-12 and the starting rate is 1e-4.
+ *
+ * @docgenVersion 9
  */
 public class StaticLearningRate implements LineSearchStrategy {
 
@@ -44,19 +47,20 @@ public class StaticLearningRate implements LineSearchStrategy {
   }
 
   /**
-   * Gets minimum rate.
+   * Returns the minimum rate.
    *
-   * @return the minimum rate
+   * @docgenVersion 9
    */
   public double getMinimumRate() {
     return minimumRate;
   }
 
   /**
-   * Sets minimum rate.
+   * Sets the minimum rate and returns this instance.
    *
    * @param minimumRate the minimum rate
-   * @return the minimum rate
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public StaticLearningRate setMinimumRate(final double minimumRate) {
@@ -65,19 +69,20 @@ public class StaticLearningRate implements LineSearchStrategy {
   }
 
   /**
-   * Gets rate.
+   * Returns the rate.
    *
-   * @return the rate
+   * @docgenVersion 9
    */
   public double getRate() {
     return rate;
   }
 
   /**
-   * Sets rate.
+   * Sets the learning rate.
    *
-   * @param rate the rate
-   * @return the rate
+   * @param rate the learning rate
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public StaticLearningRate setRate(final double rate) {
@@ -85,6 +90,11 @@ public class StaticLearningRate implements LineSearchStrategy {
     return this;
   }
 
+  /**
+   * @Nullable
+   * @Override public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {

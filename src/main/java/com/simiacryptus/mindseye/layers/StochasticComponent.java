@@ -25,13 +25,21 @@ import javax.annotation.Nonnull;
 import java.util.Random;
 
 /**
- * The interface Stochastic component.
+ * This is the StochasticComponent interface.
+ * It contains a ThreadLocal variable called "random" which is used to generate random numbers.
+ *
+ * @docgenVersion 9
  */
 public interface StochasticComponent extends Layer {
   /**
    * The constant random.
    */
   ThreadLocal<Random> random = new ThreadLocal<Random>() {
+    /**
+     * Returns a random initial value.
+     *
+     *   @docgenVersion 9
+     */
     @Nonnull
     @Override
     protected Random initialValue() {
@@ -40,19 +48,31 @@ public interface StochasticComponent extends Layer {
   };
 
   /**
-   * Shuffle.
+   * This function shuffles the deck of cards.
    *
-   * @param seed the seed
+   * @docgenVersion 9
    */
   void shuffle(final long seed);
 
   /**
-   * Clear noise.
+   * Clears the noise from the signal.
+   *
+   * @docgenVersion 9
    */
   void clearNoise();
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   void _free();
 
+  /**
+   * Adds a reference to the StochasticComponent.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   StochasticComponent addRef();
 }

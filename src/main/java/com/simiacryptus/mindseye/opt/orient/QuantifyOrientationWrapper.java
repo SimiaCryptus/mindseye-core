@@ -35,7 +35,10 @@ import java.util.UUID;
 import java.util.function.Function;
 
 /**
- * The type Quantify orientation wrapper.
+ * This class wraps a quantified orientation strategy.
+ *
+ * @param inner The orientation strategy to be wrapped. This may be null.
+ * @docgenVersion 9
  */
 public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
@@ -57,10 +60,9 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   /**
-   * Gets id.
+   * Returns the id of the CharSequence.
    *
-   * @param x the x
-   * @return the id
+   * @docgenVersion 9
    */
   @Nonnull
   public CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
@@ -69,6 +71,10 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
     return temp_02_0006;
   }
 
+  /**
+   * @return the LineSearchCursor in its current orientation
+   * @docgenVersion 9
+   */
   @Override
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
                                  @Nonnull final TrainingMonitor monitor) {
@@ -122,18 +128,33 @@ public class QuantifyOrientationWrapper extends OrientationStrategyBase<LineSear
     return cursor;
   }
 
+  /**
+   * Resets the value.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     assert inner != null;
     inner.reset();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != inner)
       inner.freeRef();
   }
 
+  /**
+   * Adds a reference to the QuantifyOrientationWrapper.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

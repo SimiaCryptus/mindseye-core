@@ -28,54 +28,61 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
- * The interface Line search cursor.
+ * This is the LineSearchCursor interface.
+ *
+ * @docgenVersion 9
  */
 public interface LineSearchCursor extends ReferenceCounting {
 
   /**
-   * Gets direction type.
+   * Returns the direction type of this object.
    *
-   * @return the direction type
+   * @docgenVersion 9
    */
   CharSequence getDirectionType();
 
   /**
-   * After step point sample.
+   * Returns the PointSample after taking a step.
    *
-   * @param step the step
-   * @return the point sample
+   * @docgenVersion 9
    */
   default PointSample afterStep(@Nonnull PointSample step) {
     return step;
   }
 
   /**
-   * Position delta set.
+   * Returns the delta set of UUIDs for the positions.
    *
-   * @param alpha the alpha
-   * @return the delta set
+   * @docgenVersion 9
    */
   DeltaSet<UUID> position(double alpha);
 
   /**
-   * Reset.
+   * Resets the object to its default state.
+   *
+   * @docgenVersion 9
    */
   void reset();
 
   /**
-   * Step line search point.
+   * This method steps through the line search process.
    *
-   * @param alpha   the alpha
-   * @param monitor the monitor
-   * @return the line search point
+   * @docgenVersion 9
    */
   @javax.annotation.Nullable
   LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
   /**
-   * Free.
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
    */
   void _free();
 
+  /**
+   * Adds a reference to the LineSearchCursor.
+   *
+   * @docgenVersion 9
+   */
   LineSearchCursor addRef();
 }

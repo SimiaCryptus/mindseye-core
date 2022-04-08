@@ -29,7 +29,11 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Line search point.
+ * This class represents a point on a line search.
+ *
+ * @param derivative the derivative at this point
+ * @param point      the point on the line (may be null)
+ * @docgenVersion 9
  */
 public class LineSearchPoint extends ReferenceCountingBase {
 
@@ -52,9 +56,9 @@ public class LineSearchPoint extends ReferenceCountingBase {
   }
 
   /**
-   * Gets point.
+   * Returns a PointSample.
    *
-   * @return the point
+   * @docgenVersion 9
    */
   @Nullable
   public PointSample getPoint() {
@@ -63,32 +67,37 @@ public class LineSearchPoint extends ReferenceCountingBase {
   }
 
   /**
-   * Gets point mean.
+   * Returns the mean value of all points.
    *
-   * @return the point mean
+   * @docgenVersion 9
    */
   public double getPointMean() {
     return point.getMean();
   }
 
   /**
-   * Gets point rate.
+   * Returns the point rate.
    *
-   * @return the point rate
+   * @docgenVersion 9
    */
   public double getPointRate() {
     return point.rate;
   }
 
   /**
-   * Gets point sum.
+   * Returns the sum of all points in the game.
    *
-   * @return the point sum
+   * @docgenVersion 9
    */
   public double getPointSum() {
     return point.sum;
   }
 
+  /**
+   * Returns a string representation of this object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public String toString() {
@@ -100,12 +109,22 @@ public class LineSearchPoint extends ReferenceCountingBase {
     return sb.toString();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != point)
       point.freeRef();
   }
 
+  /**
+   * Add a reference to the LineSearchPoint.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -114,9 +133,9 @@ public class LineSearchPoint extends ReferenceCountingBase {
   }
 
   /**
-   * Copy point delta delta set.
+   * Returns a copy of the point delta set.
    *
-   * @return the delta set
+   * @docgenVersion 9
    */
   public DeltaSet<UUID> copyPointDelta() {
     return point.delta.copy();

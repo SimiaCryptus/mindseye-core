@@ -31,7 +31,12 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Inner node.
+ * This class represents an inner node in a DAG.
+ *
+ * @param inputNodes the input nodes for this node
+ * @param layer      the layer this node is in
+ * @param parallel   whether this node is run in parallel with its siblings
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public final class InnerNode extends LazyResult {
@@ -75,12 +80,20 @@ public final class InnerNode extends LazyResult {
     }
   }
 
+  /**
+   * @return an array of DAGNodes that are the inputs to this node
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public DAGNode[] getInputs() {
     return RefUtil.addRef(inputNodes);
   }
 
+  /**
+   * @return the layer
+   * @docgenVersion 9
+   */
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
@@ -89,6 +102,12 @@ public final class InnerNode extends LazyResult {
     return (T) layer.addRef();
   }
 
+  /**
+   * Sets the layer for this object.
+   *
+   * @param newLayer the new layer
+   * @docgenVersion 9
+   */
   @Override
   public synchronized void setLayer(@Nonnull final Layer newLayer) {
     assertAlive();
@@ -103,24 +122,30 @@ public final class InnerNode extends LazyResult {
   }
 
   /**
-   * Is parallel boolean.
+   * Returns true if the stream is parallel, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isParallel() {
     return parallel;
   }
 
   /**
-   * Sets parallel.
+   * Sets the parallel flag to the specified value.
    *
-   * @param parallel the parallel
+   * @param parallel the new value of the parallel flag
+   * @docgenVersion 9
    */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
   }
 
 
+  /**
+   * Frees resources used by this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     if (null != layer) {
       layer.freeRef();
@@ -130,6 +155,12 @@ public final class InnerNode extends LazyResult {
     super._free();
   }
 
+  /**
+   * Adds a reference to this node.
+   *
+   * @return the node with the added reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -137,6 +168,11 @@ public final class InnerNode extends LazyResult {
     return (InnerNode) super.addRef();
   }
 
+  /**
+   * @Nullable
+   * @Override public Result eval(@Nullable final GraphEvaluationContext ctx);
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public Result eval(@Nullable final GraphEvaluationContext ctx) {

@@ -31,10 +31,19 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Gradient descent.
+ * This class implements the gradient descent algorithm.
+ *
+ * @docgenVersion 9
  */
 public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
+  /**
+   * @param subject     The subject to orient.
+   * @param measurement The measurement to use.
+   * @param monitor     The training monitor.
+   * @return A new SimpleLineSearchCursor.
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public SimpleLineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
@@ -51,14 +60,28 @@ public class GradientDescent extends OrientationStrategyBase<SimpleLineSearchCur
     return simpleLineSearchCursor;
   }
 
+  /**
+   * Resets the object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
   }
 
+  /**
+   * Frees this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
   }
 
+  /**
+   * @return a new reference to this object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

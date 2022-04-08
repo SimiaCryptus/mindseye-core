@@ -22,47 +22,53 @@ package com.simiacryptus.mindseye.lang;
 import javax.annotation.Nonnull;
 
 /**
- * The interface Data serializer.
+ * DataSerializer is an interface for...
+ *
+ * @docgenVersion 9
  */
 public interface DataSerializer {
 
   /**
-   * Gets element size.
+   * Returns the size of the element.
    *
-   * @return the element size
+   * @docgenVersion 9
    */
   int getElementSize();
 
   /**
-   * Gets header size.
+   * Returns the size of the header.
    *
-   * @return the header size
+   * @return the size of the header
+   * @docgenVersion 9
    */
   default int getHeaderSize() {
     return 0;
   }
 
   /**
-   * Copy.
+   * Copies an array of doubles into an array of bytes.
    *
-   * @param from the from
-   * @param to   the to
+   * @param from the array of doubles to copy
+   * @param to   the array of bytes to copy into
+   * @docgenVersion 9
    */
   void copy(double[] from, byte[] to);
 
   /**
-   * Copy.
+   * Copies an array of bytes to an array of doubles.
    *
-   * @param from the from
-   * @param to   the to
+   * @param from the array of bytes to copy
+   * @param to   the array of doubles to copy to
+   * @docgenVersion 9
    */
   void copy(byte[] from, double[] to);
 
   /**
-   * To bytes byte [ ].
+   * Converts an array of doubles into an array of bytes.
    *
-   * @param from the from
-   * @return the byte [ ]
+   * @param from the array of doubles to convert
+   * @return the resulting array of bytes
+   * @docgenVersion 9
    */
   @Nonnull
   default byte[] toBytes(@Nonnull double[] from) {
@@ -73,10 +79,12 @@ public interface DataSerializer {
   }
 
   /**
-   * Encoded size int.
+   * Returns the encoded size of the given array.
    *
-   * @param from the from
-   * @return the int
+   * @param from the array to get the encoded size of
+   * @return the encoded size of the array
+   * @throws IllegalStateException if the encoded size is too large to fit in an int
+   * @docgenVersion 9
    */
   default int encodedSize(@Nonnull double[] from) {
     long size = (long) from.length * getElementSize() + getHeaderSize();
@@ -86,10 +94,9 @@ public interface DataSerializer {
   }
 
   /**
-   * From bytes double [ ].
-   *
-   * @param from the from
-   * @return the double [ ]
+   * @param from the byte array to convert
+   * @return the double array representation of the byte array
+   * @docgenVersion 9
    */
   @Nonnull
   default double[] fromBytes(@Nonnull byte[] from) {
@@ -100,10 +107,11 @@ public interface DataSerializer {
   }
 
   /**
-   * Decoded size int.
+   * Returns the decoded size of the given byte array.
    *
-   * @param from the from
-   * @return the int
+   * @param from the byte array to decode
+   * @return the decoded size
+   * @docgenVersion 9
    */
   default int decodedSize(@Nonnull byte[] from) {
     return (from.length - getHeaderSize()) / getElementSize();

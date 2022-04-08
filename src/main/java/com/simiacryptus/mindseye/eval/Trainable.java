@@ -29,29 +29,31 @@ import com.simiacryptus.ref.wrappers.RefList;
 import javax.annotation.Nonnull;
 
 /**
- * The interface Trainable.
+ * This is the Trainable interface.
+ *
+ * @docgenVersion 9
  */
 public interface Trainable extends ReferenceCounting {
   /**
-   * Gets layer.
+   * Returns the layer of the object.
    *
-   * @return the layer
+   * @docgenVersion 9
    */
   Layer getLayer();
 
   /**
-   * Sets data.
+   * Sets the data.
    *
-   * @param tensors the tensors
+   * @docgenVersion 9
    */
   default void setData(RefList<Tensor[]> tensors) {
     tensors.freeRef();
   }
 
   /**
-   * Cached cached trainable.
+   * Returns a cached trainable.
    *
-   * @return the cached trainable
+   * @docgenVersion 9
    */
   @Nonnull
   default CachedTrainable<? extends Trainable> cached() {
@@ -59,23 +61,28 @@ public interface Trainable extends ReferenceCounting {
   }
 
   /**
-   * Measure point sample.
+   * Returns a PointSample object.
    *
-   * @param monitor the monitor
-   * @return the point sample
+   * @docgenVersion 9
    */
   PointSample measure(TrainingMonitor monitor);
 
   /**
-   * Reseed boolean.
+   * Reseeds the random number generator with the given seed.
    *
    * @param seed the seed
-   * @return the boolean
+   * @return true if the random number generator was reseeded, false otherwise
+   * @docgenVersion 9
    */
   default boolean reseed(final long seed) {
     return false;
   }
 
+  /**
+   * Adds a reference to the Trainable.
+   *
+   * @docgenVersion 9
+   */
   default Trainable addRef() {
     return this;
   }

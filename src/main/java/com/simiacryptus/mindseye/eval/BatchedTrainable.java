@@ -33,7 +33,10 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 
 /**
- * The type Batched trainable.
+ * This class represents a BatchedTrainable.
+ *
+ * @param batchSize The Batch size.
+ * @docgenVersion 9
  */
 public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> implements DataTrainable {
 
@@ -65,32 +68,37 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
   }
 
   /**
-   * Gets batch size.
+   * Returns the batch size.
    *
-   * @return the batch size
+   * @docgenVersion 9
    */
   public int getBatchSize() {
     return batchSize;
   }
 
   /**
-   * Is verbose boolean.
+   * Returns true if the logger is in verbose mode, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isVerbose() {
     return verbose;
   }
 
   /**
-   * Sets verbose.
+   * Sets the verbose flag to true.
    *
-   * @param verbose the verbose
+   * @docgenVersion 9
    */
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }
 
+  /**
+   * Returns a PointSample object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     @Nonnull final RefList<Tensor[]> tensors = RefArrays.asList(getData());
@@ -141,11 +149,21 @@ public abstract class BatchedTrainable extends TrainableWrapper<DataTrainable> i
     return result;
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Add a reference to the BatchedTrainable.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

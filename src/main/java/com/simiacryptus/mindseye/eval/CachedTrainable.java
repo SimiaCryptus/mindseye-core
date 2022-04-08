@@ -31,9 +31,12 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 
 /**
- * The type Cached trainable.
+ * This class represents a trainable that can be cached.
  *
- * @param <T> the type parameter
+ * @param history     The history of this trainable.
+ * @param historySize The size of the history.
+ * @param verbose     Whether or not this trainable is verbose.
+ * @docgenVersion 9
  */
 public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   private static final Logger log = LoggerFactory.getLogger(CachedTrainable.class);
@@ -52,47 +55,60 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
   }
 
   /**
-   * Gets history size.
+   * Returns the number of elements in the history.
    *
-   * @return the history size
+   * @docgenVersion 9
    */
   public int getHistorySize() {
     return historySize;
   }
 
   /**
-   * Sets history size.
+   * Sets the history size.
    *
-   * @param historySize the history size
+   * @param historySize the new history size
+   * @docgenVersion 9
    */
   public void setHistorySize(int historySize) {
     this.historySize = historySize;
   }
 
   /**
-   * Is verbose boolean.
+   * Returns true if the log is verbose, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isVerbose() {
     return verbose;
   }
 
   /**
-   * Sets verbose.
+   * Sets the verbose flag to the specified value.
    *
-   * @param verbose the verbose
+   * @param verbose the new value of the verbose flag
+   * @docgenVersion 9
    */
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }
 
+  /**
+   * Returns a cached version of this trainable.
+   *
+   * @return a cached version of this trainable
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public CachedTrainable<? extends Trainable> cached() {
     return this.addRef();
   }
 
+  /**
+   * @Nonnull
+   * @Override public PointSample measure(final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public PointSample measure(final TrainingMonitor monitor) {
@@ -118,12 +134,26 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
     return result;
   }
 
+  /**
+   * Reseeds the random number generator with the given seed.
+   *
+   * @param seed the seed to use
+   * @return true if the random number generator was successfully reseeded, false otherwise
+   * @docgenVersion 9
+   */
   @Override
   public boolean reseed(final long seed) {
     history.clear();
     return super.reseed(seed);
   }
 
+  /**
+   * This method suppresses warnings for unused variables.
+   * It frees up memory used by this class and its superclass,
+   * as well as any history associated with this class.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
@@ -131,6 +161,10 @@ public class CachedTrainable<T extends Trainable> extends TrainableWrapper<T> {
       history.freeRef();
   }
 
+  /**
+   * @return a cached trainable object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

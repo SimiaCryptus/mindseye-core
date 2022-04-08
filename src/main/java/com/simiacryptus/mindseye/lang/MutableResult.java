@@ -28,7 +28,9 @@ import javax.annotation.Nullable;
 import java.util.UUID;
 
 /**
- * The type Mutable result.
+ * This class represents a mutable result.
+ *
+ * @docgenVersion 9
  */
 public class MutableResult extends Result {
 
@@ -51,11 +53,22 @@ public class MutableResult extends Result {
     super(new TensorArray(tensors), handler(RefUtil.addRef(tensors), objectId));
   }
 
+  /**
+   * @return true if the thread is alive; false otherwise
+   * @docgenVersion 9
+   */
   @Override
   public boolean isAlive() {
     return true;
   }
 
+  /**
+   * Returns an array of UUIDs for the given array of tensors.
+   *
+   * @param tensors the array of tensors
+   * @return an array of UUIDs
+   * @docgenVersion 9
+   */
   @NotNull
   private static UUID[] ids(@RefIgnore Tensor[] tensors) {
     UUID[] uuids = new UUID[tensors.length];
@@ -65,10 +78,20 @@ public class MutableResult extends Result {
     return uuids;
   }
 
+  /**
+   * This is a private static function that returns a new MutableAccumulator.
+   * The MutableAccumulator takes in an array of tensors and an array of UUIDs.
+   *
+   * @docgenVersion 9
+   */
   private static Result.Accumulator handler(final Tensor[] tensors, UUID[] objectId) {
     return new MutableAccumulator(tensors, objectId);
   }
 
+  /**
+   * @return a new MutableResult with a reference added
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -76,11 +99,23 @@ public class MutableResult extends Result {
     return (MutableResult) super.addRef();
   }
 
+  /**
+   * This method frees the resources used by this object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void _free() {
     super._free();
   }
 
+  /**
+   * This class represents an accumulator for mutable objects.
+   * It contains an array of tensors, which are used to store the objects,
+   * and an array of UUIDs, which are used to identify the objects.
+   *
+   * @docgenVersion 9
+   */
   private static class MutableAccumulator extends Accumulator {
 
     private final Tensor[] tensors;
@@ -97,6 +132,10 @@ public class MutableResult extends Result {
       this.objectId = objectId;
     }
 
+    /**
+     * @Override public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta);
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nonnull DeltaSet<UUID> buffer, @Nonnull TensorList delta) {
       for (int index = 0; index < delta.length(); index++) {
@@ -110,6 +149,11 @@ public class MutableResult extends Result {
       buffer.freeRef();
     }
 
+    /**
+     * Frees any resources used by this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();

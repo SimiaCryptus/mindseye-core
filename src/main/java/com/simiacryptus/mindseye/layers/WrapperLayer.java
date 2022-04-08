@@ -32,7 +32,10 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 /**
- * The type Wrapper layer.
+ * This class represents a WrapperLayer.
+ *
+ * @Nullable indicates that the 'inner' field may be null.
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public class WrapperLayer extends LayerBase {
@@ -75,9 +78,9 @@ public class WrapperLayer extends LayerBase {
   }
 
   /**
-   * Gets inner.
+   * Returns the inner layer.
    *
-   * @return the inner
+   * @docgenVersion 9
    */
   @Nullable
   public final Layer getInner() {
@@ -85,9 +88,9 @@ public class WrapperLayer extends LayerBase {
   }
 
   /**
-   * Sets inner.
+   * Sets the inner value.
    *
-   * @param inner the inner
+   * @docgenVersion 9
    */
   public synchronized void setInner(@Nullable Layer inner) {
     if (null != this.inner)
@@ -95,6 +98,11 @@ public class WrapperLayer extends LayerBase {
     this.inner = inner;
   }
 
+  /**
+   * Returns true if the object is frozen, false otherwise.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public boolean isFrozen() {
     if (null == inner)
@@ -102,6 +110,11 @@ public class WrapperLayer extends LayerBase {
     return inner.isFrozen();
   }
 
+  /**
+   * Sets the frozen state.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void setFrozen(final boolean frozen) {
     if (null == inner)
@@ -109,12 +122,22 @@ public class WrapperLayer extends LayerBase {
     inner.setFrozen(frozen);
   }
 
+  /**
+   * Evaluates the result of the code.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public Result eval(@Nullable final Result... array) {
     return inner.eval(array);
   }
 
+  /**
+   * Returns the JSON object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
@@ -123,12 +146,22 @@ public class WrapperLayer extends LayerBase {
     return json;
   }
 
+  /**
+   * Returns a list of references to double arrays representing the state.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public RefList<double[]> state() {
     return inner.state();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     if (null != inner) {
       inner.freeRef();
@@ -137,6 +170,11 @@ public class WrapperLayer extends LayerBase {
     super._free();
   }
 
+  /**
+   * Adds a reference to the WrapperLayer.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

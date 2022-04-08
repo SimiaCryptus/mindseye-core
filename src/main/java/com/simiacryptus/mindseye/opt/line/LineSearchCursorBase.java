@@ -27,23 +27,55 @@ import javax.annotation.Nonnull;
 import java.util.UUID;
 
 /**
- * The type Line search cursor base.
+ * Base class for a line search cursor.
+ *
+ * @docgenVersion 9
  */
 public abstract class LineSearchCursorBase extends ReferenceCountingBase implements LineSearchCursor {
 
+  /**
+   * Returns the direction type of this object.
+   *
+   * @docgenVersion 9
+   */
   public abstract CharSequence getDirectionType();
 
+  /**
+   * Returns the delta set of UUIDs for the positions.
+   *
+   * @docgenVersion 9
+   */
   public abstract DeltaSet<UUID> position(double alpha);
 
+  /**
+   * Resets the value.
+   *
+   * @docgenVersion 9
+   */
   public abstract void reset();
 
+  /**
+   * This method steps through the line search process.
+   *
+   * @docgenVersion 9
+   */
   @javax.annotation.Nullable
   public abstract LineSearchPoint step(double alpha, TrainingMonitor monitor);
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to this LineSearchCursorBase.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

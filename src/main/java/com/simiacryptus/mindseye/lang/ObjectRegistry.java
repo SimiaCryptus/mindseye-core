@@ -33,7 +33,14 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The type Object registry.
+ * This class is responsible for maintaining a registry of all objects that inherit from
+ * ReferenceCountingBase. This registry is used to keep track of all objects that need to
+ * have their reference counts maintained.
+ * <p>
+ * The registry is implemented as a cache, using a RefMap. A ScheduledExecutorService is used
+ * to periodically clean up the cache.
+ *
+ * @docgenVersion 9
  */
 public final class ObjectRegistry {
   private static final Logger logger = LoggerFactory.getLogger(ObjectRegistry.class);
@@ -63,11 +70,12 @@ public final class ObjectRegistry {
   //  }
 
   /**
-   * Gets living instances.
+   * Get all living instances of the given class.
    *
-   * @param <T> the type parameter
-   * @param k   the k
-   * @return the living instances
+   * @param k   the class to get instances of
+   * @param <T> the type of the class
+   * @return a stream of living instances of the given class
+   * @docgenVersion 9
    */
   @Nonnull
   public static <T extends ReferenceCountingBase> RefStream<T> getLivingInstances(@Nonnull final Class<T> k) {
@@ -79,11 +87,12 @@ public final class ObjectRegistry {
   }
 
   /**
-   * Gets instances.
+   * Returns a stream of instances of the given class.
    *
-   * @param <T> the type parameter
-   * @param k   the k
-   * @return the instances
+   * @param k   the class to get instances of
+   * @param <T> the type of the class
+   * @return a stream of instances of the given class
+   * @docgenVersion 9
    */
   @Nonnull
   public static <T extends ReferenceCountingBase> RefStream<T> getInstances(@Nonnull final Class<T> k) {
@@ -110,9 +119,10 @@ public final class ObjectRegistry {
   }
 
   /**
-   * Register.
+   * Registers an object for reference counting.
    *
-   * @param registeredObjectBase the registered object base
+   * @param registeredObjectBase the object to register
+   * @docgenVersion 9
    */
   public static void register(ReferenceCountingBase registeredObjectBase) {
     ObjectRegistry.ObjectRecords<ReferenceCountingBase> objectRecords = cache.computeIfAbsent(registeredObjectBase.getClass(),
@@ -121,33 +131,69 @@ public final class ObjectRegistry {
     objectRecords.freeRef();
   }
 
+  /**
+   * Returns a stream of the given entries.
+   *
+   * @param entries the entries to stream
+   * @param <T>     the type of the entries
+   * @return a stream of the given entries
+   * @docgenVersion 9
+   */
   private static <T> RefStream<T> stream(RefSet<T> entries) {
     RefStream<T> refStream = entries.stream();
     entries.freeRef();
     return refStream;
   }
 
+  /**
+   * This class represents a collection of objects.
+   * The "dirty" flag indicates whether any of the objects in the collection have been modified.
+   *
+   * @docgenVersion 9
+   */
   private static class ObjectRecords<T extends ReferenceCountingBase>
       extends RefConcurrentLinkedDeque<RefWeakReference<T>> {
     private volatile boolean dirty = false;
 
+    /**
+     * Overrides the add method to set the dirty flag to true
+     *
+     * @param tWeakReference the object to add
+     * @return true if the object was added, false otherwise
+     * @docgenVersion 9
+     */
     @Override
     public boolean add(final @RefAware RefWeakReference<T> tWeakReference) {
       dirty = true;
       return super.add(tWeakReference);
     }
 
+    /**
+     * Overrides the stream method to set the dirty flag to true
+     * before returning the stream from the superclass.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public RefStream<RefWeakReference<T>> stream() {
       dirty = true;
       return super.stream();
     }
 
+    /**
+     * This method is unused.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
     }
 
+    /**
+     * @return an ObjectRecords<T> after adding a reference
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -155,6 +201,11 @@ public final class ObjectRegistry {
       return (ObjectRecords<T>) super.addRef();
     }
 
+    /**
+     * This function is responsible for maintaining the state of the object.
+     *
+     * @docgenVersion 9
+     */
     private void maintain() {
       if (dirty) {
         this.removeIf(ref -> {

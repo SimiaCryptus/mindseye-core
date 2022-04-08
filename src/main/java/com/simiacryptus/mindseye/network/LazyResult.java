@@ -32,7 +32,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The type Lazy result.
+ * This class represents a lazy result.
+ *
+ * @param id The id of the result.
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
@@ -56,11 +59,21 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     this.id = id;
   }
 
+  /**
+   * Returns the UUID of this object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public final UUID getId() {
     return id;
   }
 
+  /**
+   * Returns the CountingResult.
+   *
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public CountingResult get(@Nonnull final GraphEvaluationContext context, Layer consumer) {
@@ -109,11 +122,21 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
     }
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the LazyResult.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -122,10 +145,9 @@ abstract class LazyResult extends ReferenceCountingBase implements DAGNode {
   }
 
   /**
-   * Eval result.
+   * Evaluates the result of the code.
    *
-   * @param t the t
-   * @return the result
+   * @docgenVersion 9
    */
   @Nullable
   public abstract Result eval(GraphEvaluationContext t);

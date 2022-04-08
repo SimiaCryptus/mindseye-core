@@ -27,7 +27,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Step.
+ * This class represents a step in an iteration.
+ *
+ * @param iteration the iteration number
+ * @param point     the point sample for this step
+ * @param time      the current time
+ * @docgenVersion 9
  */
 public class Step extends ReferenceCountingBase {
   /**
@@ -61,6 +66,11 @@ public class Step extends ReferenceCountingBase {
   }
 
 
+  /**
+   * Frees this object and its associated resources.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
@@ -68,6 +78,12 @@ public class Step extends ReferenceCountingBase {
       point.freeRef();
   }
 
+  /**
+   * Adds a reference to this Step.
+   *
+   * @return the Step with the added reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

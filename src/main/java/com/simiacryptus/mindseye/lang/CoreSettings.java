@@ -31,7 +31,9 @@ import javax.annotation.Nullable;
 import static com.simiacryptus.lang.Settings.get;
 
 /**
- * The type Core settings.
+ * This class contains the settings for the Core class.
+ *
+ * @docgenVersion 9
  */
 public class CoreSettings implements Settings {
 
@@ -57,9 +59,10 @@ public class CoreSettings implements Settings {
   }
 
   /**
-   * Instance core settings.
+   * Returns the singleton instance of CoreSettings.
+   * If the instance does not exist, it is created and initialized.
    *
-   * @return the core settings
+   * @docgenVersion 9
    */
   public static CoreSettings INSTANCE() {
     if (null == INSTANCE) {

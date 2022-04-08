@@ -27,9 +27,9 @@ import javax.annotation.Nonnull;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * The type State.
+ * This class represents a state.
  *
- * @param <K> the type parameter
+ * @docgenVersion 9
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class State<K> extends DoubleBuffer<K> {
@@ -57,21 +57,33 @@ public class State<K> extends DoubleBuffer<K> {
 
 
   /**
-   * Are equal boolean.
+   * Returns true if the current object is equal to the specified object,
+   * taking into account a delta value.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean areEqual() {
     return areEqual(getDelta(), target);
   }
 
   /**
-   * Backup.
+   * This method backs up the target array by copying it into the delta array.
+   * It is synchronized to ensure that the backup operation is atomic.
+   *
+   * @docgenVersion 9
    */
   public synchronized void backup() {
     RefSystem.arraycopy(target, 0, getDelta(), 0, target.length);
   }
 
+  /**
+   * @Nonnull
+   * @Override public State<K> copy() {
+   * assertAlive();
+   * return new State(key, target, RecycleBin.DOUBLES.copyOf(delta, length()));
+   * }
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public State<K> copy() {
@@ -79,6 +91,14 @@ public class State<K> extends DoubleBuffer<K> {
     return new State(key, target, RecycleBin.DOUBLES.copyOf(delta, length()));
   }
 
+  /**
+   * Maps the delta of this State using the given mapper function.
+   *
+   * @param mapper   the function to use to map the delta
+   * @param parallel whether or not to run the mapping in parallel
+   * @return a new State with the mapped delta
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public State<K> map(@Nonnull final DoubleUnaryOperator mapper, boolean parallel) {
@@ -86,17 +106,29 @@ public class State<K> extends DoubleBuffer<K> {
   }
 
   /**
-   * Restore.
+   * Restores the target array by copying the delta array into it.
+   * This method is synchronized to prevent concurrent modifications.
+   *
+   * @docgenVersion 9
    */
   public synchronized void restore() {
     RefSystem.arraycopy(getDelta(), 0, target, 0, target.length);
   }
 
+  /**
+   * This method is unused.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * @return the state after adding a reference
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

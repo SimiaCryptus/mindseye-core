@@ -34,7 +34,9 @@ import java.util.UUID;
 import java.util.function.Function;
 
 /**
- * The type Describe orientation wrapper.
+ * This class wraps an OrientationStrategy object, allowing it to be null.
+ *
+ * @docgenVersion 9
  */
 public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSearchCursor> {
 
@@ -56,10 +58,11 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   /**
-   * Gets id.
+   * Get the id of the given DoubleBuffer.
    *
-   * @param x the x
-   * @return the id
+   * @param x The DoubleBuffer to get the id of.
+   * @return The id of the given DoubleBuffer.
+   * @docgenVersion 9
    */
   @Nonnull
   public static CharSequence getId(@Nonnull final DoubleBuffer<UUID> x) {
@@ -69,11 +72,12 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   /**
-   * Render char sequence.
+   * Renders the given weight and direction deltas into a CharSequence.
    *
-   * @param weightDelta the weight delta
-   * @param dirDelta    the dir delta
-   * @return the char sequence
+   * @param weightDelta the weight delta to render
+   * @param dirDelta    the direction delta to render
+   * @return the rendered deltas
+   * @docgenVersion 9
    */
   @Nonnull
   public static CharSequence render(@Nonnull final DoubleBuffer<UUID> weightDelta,
@@ -86,11 +90,12 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
   }
 
   /**
-   * Render char sequence.
+   * Renders the given weights and direction.
    *
-   * @param weights   the weights
-   * @param direction the direction
-   * @return the char sequence
+   * @param weights   the weights to render
+   * @param direction the direction to render
+   * @return the rendered weights and direction
+   * @docgenVersion 9
    */
   public static CharSequence render(@Nonnull final StateSet<UUID> weights, @Nonnull final DeltaSet<UUID> direction) {
     RefMap<CharSequence, RefList<State<UUID>>> temp_27_0010 = weights.stream().collect(RefCollectors.groupingBy(x -> {
@@ -141,6 +146,10 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return temp_27_0007;
   }
 
+  /**
+   * @Override public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement, @Nonnull final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @Override
   public LineSearchCursor orient(@Nullable final Trainable subject, @Nullable final PointSample measurement,
                                  @Nonnull final TrainingMonitor monitor) {
@@ -160,18 +169,34 @@ public class DescribeOrientationWrapper extends OrientationStrategyBase<LineSear
     return cursor;
   }
 
+  /**
+   * Resets the inner object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     assert inner != null;
     inner.reset();
   }
 
+  /**
+   * Frees this object and its inner object, if any.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != inner)
       inner.freeRef();
   }
 
+  /**
+   * Adds a reference to this object.
+   *
+   * @return a reference to this object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

@@ -27,7 +27,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Bisection search.
+ * This class implements the bisection search algorithm.
+ *
+ * @param maxRate     The maximum rate.
+ * @param currentRate The current rate.
+ * @param zeroTol     The tolerance for zero.
+ * @param spanTol     The tolerance for the span.
+ * @docgenVersion 9
  */
 public class BisectionSearch implements LineSearchStrategy {
 
@@ -37,19 +43,20 @@ public class BisectionSearch implements LineSearchStrategy {
   private double spanTol = 1e-3;
 
   /**
-   * Gets current rate.
+   * Returns the current rate.
    *
-   * @return the current rate
+   * @docgenVersion 9
    */
   public double getCurrentRate() {
     return currentRate;
   }
 
   /**
-   * Sets current rate.
+   * Sets the current rate.
    *
    * @param currentRate the current rate
-   * @return the current rate
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public BisectionSearch setCurrentRate(final double currentRate) {
@@ -58,19 +65,20 @@ public class BisectionSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets max rate.
+   * Returns the max rate.
    *
-   * @return the max rate
+   * @docgenVersion 9
    */
   public double getMaxRate() {
     return maxRate;
   }
 
   /**
-   * Sets max rate.
+   * Sets the max rate and returns this instance.
    *
    * @param maxRate the max rate
-   * @return the max rate
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public BisectionSearch setMaxRate(double maxRate) {
@@ -79,19 +87,20 @@ public class BisectionSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets span tol.
+   * Returns the value of the private field 'spanTol'.
    *
-   * @return the span tol
+   * @docgenVersion 9
    */
   public double getSpanTol() {
     return spanTol;
   }
 
   /**
-   * Sets span tol.
+   * Sets the value of the 'spanTol' field and returns the object for chaining.
    *
-   * @param spanTol the span tol
-   * @return the span tol
+   * @param spanTol the new value of the 'spanTol' field
+   * @return the object for chaining
+   * @docgenVersion 9
    */
   @Nonnull
   public BisectionSearch setSpanTol(double spanTol) {
@@ -100,19 +109,20 @@ public class BisectionSearch implements LineSearchStrategy {
   }
 
   /**
-   * Gets zero tol.
+   * Returns the value of the zero tolerance.
    *
-   * @return the zero tol
+   * @docgenVersion 9
    */
   public double getZeroTol() {
     return zeroTol;
   }
 
   /**
-   * Sets zero tol.
+   * Sets the zero tolerance and returns this instance.
    *
-   * @param zeroTol the zero tol
-   * @return the zero tol
+   * @param zeroTol the zero tolerance
+   * @return this instance
+   * @docgenVersion 9
    */
   @Nonnull
   public BisectionSearch setZeroTol(final double zeroTol) {
@@ -120,6 +130,10 @@ public class BisectionSearch implements LineSearchStrategy {
     return this;
   }
 
+  /**
+   * @Override public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @Override
   public PointSample step(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor) {
 
@@ -181,13 +195,12 @@ public class BisectionSearch implements LineSearchStrategy {
   }
 
   /**
-   * Iterate line search point.
-   *
-   * @param cursor  the cursor
-   * @param monitor the monitor
+   * @param cursor  the line search cursor
+   * @param monitor the training monitor
    * @param leftX   the left x
    * @param rightX  the right x
    * @return the line search point
+   * @docgenVersion 9
    */
   @Nullable
   public LineSearchPoint iterate(@Nonnull final LineSearchCursor cursor, @Nonnull final TrainingMonitor monitor,

@@ -26,19 +26,32 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The interface Data trainable.
+ * This is the DataTrainable interface.
+ *
+ * @docgenVersion 9
  */
 public interface DataTrainable extends Trainable {
   /**
-   * Get data tensor [ ] [ ].
-   *
-   * @return the tensor [ ] [ ]
+   * @return the data as a 2D array of Tensors, or null if there is no data
+   * @docgenVersion 9
    */
   @Nullable
   Tensor[][] getData();
 
+  /**
+   * Sets the data for this object.
+   *
+   * @param tensors the data to set
+   * @docgenVersion 9
+   */
   void setData(RefList<Tensor[]> tensors);
 
+  /**
+   * Adds a reference to the DataTrainable.
+   *
+   * @return the DataTrainable
+   * @docgenVersion 9
+   */
   @Nonnull
   DataTrainable addRef();
 }

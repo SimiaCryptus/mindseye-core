@@ -41,7 +41,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * The type Lbfgs.
+ * This class implements the LBFGS algorithm.
+ * <p>
+ * The 'verbose' field indicates whether or not to print debug information during execution.
+ * <p>
+ * The 'history' field is a set of PointSample objects, ordered by mean value (from high to low).
+ * <p>
+ * The 'maxHistory' field indicates the maximum number of PointSample objects to keep in the 'history' set.
+ * <p>
+ * The 'minHistory' field indicates the minimum number of PointSample objects needed in the 'history' set
+ * before the LBFGS algorithm will begin execution.
+ *
+ * @docgenVersion 9
  */
 public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
@@ -54,42 +65,47 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   private int minHistory = 3;
 
   /**
-   * Gets max history.
+   * Returns the maximum history.
    *
-   * @return the max history
+   * @docgenVersion 9
    */
   public int getMaxHistory() {
     return maxHistory;
   }
 
   /**
-   * Sets max history.
+   * Sets the maximum number of history entries.
    *
-   * @param maxHistory the max history
+   * @docgenVersion 9
    */
   public void setMaxHistory(int maxHistory) {
     this.maxHistory = maxHistory;
   }
 
   /**
-   * Gets min history.
+   * Returns the minimum history value.
    *
-   * @return the min history
+   * @docgenVersion 9
    */
   public int getMinHistory() {
     return minHistory;
   }
 
   /**
-   * Sets min history.
+   * Sets the minimum history.
    *
-   * @param minHistory the min history
+   * @docgenVersion 9
    */
   public void setMinHistory(int minHistory) {
     this.minHistory = minHistory;
   }
 
 
+  /**
+   * Returns true if the value represented by this object is finite.
+   *
+   * @docgenVersion 9
+   */
   private static boolean isFinite(@Nonnull final DoubleBufferSet<?, ?> delta) {
     boolean temp_47_0011 = delta.stream().parallel().allMatch(y -> {
       boolean temp_47_0002 = RefArrays.stream(y.getDelta()).allMatch(Double::isFinite);
@@ -101,10 +117,9 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   /**
-   * Add to history.
+   * Adds the current state to the history.
    *
-   * @param measurement the measurement
-   * @param monitor     the monitor
+   * @docgenVersion 9
    */
   public void addToHistory(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor) {
     assert assertAlive();
@@ -142,6 +157,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * @return a new SimpleLineSearchCursor oriented according to the current
+   * position of this cursor
+   * @docgenVersion 9
+   */
   @Override
   public SimpleLineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
                                        @Nonnull final TrainingMonitor monitor) {
@@ -179,16 +199,31 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
   }
 
+  /**
+   * Resets the value.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public synchronized void reset() {
     history.clear();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     history.freeRef();
   }
 
+  /**
+   * Add a reference to the LBFGS object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -197,12 +232,9 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
   }
 
   /**
-   * Lbfgs delta set.
+   * Returns a DeltaSet of UUIDs using the LBFGS algorithm.
    *
-   * @param measurement the measurement
-   * @param monitor     the monitor
-   * @param historyList the history list
-   * @return the delta set
+   * @docgenVersion 9
    */
   @Nullable
   protected DeltaSet<UUID> lbfgs(@Nonnull final PointSample measurement, @Nonnull final TrainingMonitor monitor,
@@ -233,6 +265,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * Deletes all history entries.
+   *
+   * @docgenVersion 9
+   */
   private void truncateHistory(@Nonnull TrainingMonitor monitor, int historySize) {
     while (this.history.size() > historySize) {
       @Nullable final PointSample remove = this.history.pollFirst();
@@ -246,11 +283,21 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * Returns a new SimpleLineSearchCursor.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   private SimpleLineSearchCursor cursor(final Trainable subject, @Nonnull final PointSample measurement,
                                         final String type, final DeltaSet<UUID> result) {
     SimpleLineSearchCursor simpleLineSearchCursor = new SimpleLineSearchCursor(subject, measurement, result) {
 
+      /**
+       * This method steps through the line search process.
+       *
+       *   @docgenVersion 9
+       */
       @Nonnull
       @Override
       public LineSearchPoint step(final double t, @Nonnull final TrainingMonitor monitor) {
@@ -259,6 +306,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
         return measure;
       }
 
+      /**
+       * Frees the memory associated with this object.
+       *
+       *   @docgenVersion 9
+       */
       public @SuppressWarnings("unused")
       void _free() {
         super._free();
@@ -268,6 +320,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     return simpleLineSearchCursor;
   }
 
+  /**
+   * Sets the history.
+   *
+   * @docgenVersion 9
+   */
   private void setHistory(@Nonnull final TrainingMonitor monitor, @Nonnull final RefList<PointSample> history) {
     if (history.size() == this.history.size())
       if (history.stream().filter(x -> !this.history.contains(x)).count() == 0) {
@@ -283,6 +340,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * Returns true if the LBFGS algorithm converged, false otherwise.
+   *
+   * @docgenVersion 9
+   */
   private boolean lbfgs(@Nonnull PointSample measurement, @Nonnull TrainingMonitor monitor,
                         @Nonnull RefList<PointSample> history, @Nonnull DeltaSet<UUID> direction) {
     DeltaSet<UUID> copy = measurement.delta.copy();
@@ -351,6 +413,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * Subtracts the delta set and returns the result.
+   *
+   * @docgenVersion 9
+   */
   @NotNull
   private DeltaSet<UUID> subtractDelta(PointSample a, PointSample b) {
     try {
@@ -361,6 +428,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * Subtracts weights from the DeltaSet and returns the result.
+   *
+   * @docgenVersion 9
+   */
   @NotNull
   private DeltaSet<UUID> subtractWeights(PointSample a, PointSample b) {
     try {
@@ -371,6 +443,11 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
   }
 
+  /**
+   * Copies the value of this object to another object.
+   *
+   * @docgenVersion 9
+   */
   private void copy(@Nonnull DeltaSet<UUID> from, @Nonnull DeltaSet<UUID> to) {
     RefMap<UUID, Delta<UUID>> uuidDeltaRefMap = to.getMap();
     RefSet<Map.Entry<UUID, Delta<UUID>>> entries = uuidDeltaRefMap.entrySet();
@@ -393,6 +470,12 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     from.freeRef();
   }
 
+  /**
+   * This class represents the statistics of a given data set. It contains the magnitude, magnitude gradient,
+   * dot product, and list of angles per layer.
+   *
+   * @docgenVersion 9
+   */
   private class Stats {
     private final double mag;
     private final double magGrad;
@@ -461,41 +544,46 @@ public class LBFGS extends OrientationStrategyBase<SimpleLineSearchCursor> {
     }
 
     /**
-     * Gets angles per layer.
+     * Returns a list of angles, one for each layer.
      *
-     * @return the angles per layer
+     * @docgenVersion 9
      */
     public List<CharSequence> getAnglesPerLayer() {
       return anglesPerLayer;
     }
 
     /**
-     * Gets dot.
+     * Returns the dot product of this vector and another.
      *
-     * @return the dot
+     * @docgenVersion 9
      */
     public double getDot() {
       return dot;
     }
 
     /**
-     * Gets mag.
+     * Returns the magnitude of the vector.
      *
-     * @return the mag
+     * @docgenVersion 9
      */
     public double getMag() {
       return mag;
     }
 
     /**
-     * Gets mag grad.
+     * Returns the magnitude of the gradient.
      *
-     * @return the mag grad
+     * @docgenVersion 9
      */
     public double getMagGrad() {
       return magGrad;
     }
 
+    /**
+     * Returns a string representation of this object.
+     *
+     * @docgenVersion 9
+     */
     @Nonnull
     @Override
     public String toString() {

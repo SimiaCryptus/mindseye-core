@@ -1,5 +1,10 @@
 package com.simiacryptus.mindseye.opt;
 
+/**
+ * This class represents the result of training, including the final value and the termination cause.
+ *
+ * @docgenVersion 9
+ */
 public class TrainingResult {
 
   public enum TerminationCause {

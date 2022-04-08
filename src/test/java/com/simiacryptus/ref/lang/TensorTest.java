@@ -32,15 +32,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * The type Tensor test.
+ * Test shuffle stream.
+ *
+ * @throws Exception the exception
+ * @docgenVersion 9
  */
 public class TensorTest {
   private static final Logger log = LoggerFactory.getLogger(TensorTest.class);
 
   /**
-   * Parse.
+   * Parses the input.
    *
-   * @param str the str
+   * @docgenVersion 9
    */
   public void parse(final String str) {
     final JsonElement json = new GsonBuilder().create().fromJson(str, JsonElement.class);
@@ -51,9 +54,9 @@ public class TensorTest {
   }
 
   /**
-   * Test.
+   * This is a test function that does nothing.
    *
-   * @param t the t
+   * @docgenVersion 9
    */
   public void test(@Nonnull final Tensor t) {
     @Nonnull final JsonElement json = t.getJson(null, Tensor.json_precision);
@@ -62,7 +65,9 @@ public class TensorTest {
   }
 
   /**
-   * Test coord stream.
+   * Tests the CoordStream class.
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")
@@ -93,7 +98,9 @@ public class TensorTest {
   //  }
 
   /**
-   * Test to json.
+   * Tests the toJson method
+   *
+   * @docgenVersion 9
    */
   @Test
   @Tag("UnitTest")

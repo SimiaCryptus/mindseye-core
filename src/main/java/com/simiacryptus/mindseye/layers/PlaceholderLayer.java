@@ -32,9 +32,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The type Placeholder layer.
+ * This class represents a placeholder layer.
+ * The key field may be null.
  *
- * @param <T> the type parameter
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public final class PlaceholderLayer<T> extends LayerBase {
@@ -54,6 +55,11 @@ public final class PlaceholderLayer<T> extends LayerBase {
     setName(getClass().getSimpleName() + "/" + getId());
   }
 
+  /**
+   * Returns the UUID of this object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public UUID getId() {
@@ -63,15 +69,20 @@ public final class PlaceholderLayer<T> extends LayerBase {
   }
 
   /**
-   * Gets key.
+   * Returns the key.
    *
-   * @return the key
+   * @docgenVersion 9
    */
   @Nullable
   public T getKey() {
     return key;
   }
 
+  /**
+   * Evaluates the result of the code.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Result eval(@Nullable final Result... array) {
@@ -80,23 +91,44 @@ public final class PlaceholderLayer<T> extends LayerBase {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns the JSON object.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns a list of references to double arrays representing the state.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public RefList<double[]> state() {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     RefUtil.freeRef(key);
     super._free();
   }
 
+  /**
+   * Add a reference to the PlaceholderLayer.
+   *
+   * @return the PlaceholderLayer
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

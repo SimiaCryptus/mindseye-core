@@ -22,7 +22,9 @@ package com.simiacryptus.mindseye.network;
 import javax.annotation.Nonnull;
 
 /**
- * The type Supervised network.
+ * This is the SupervisedNetwork class.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public abstract class SupervisedNetwork extends DAGNetwork {
@@ -35,11 +37,21 @@ public abstract class SupervisedNetwork extends DAGNetwork {
     super(inputs);
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Add a reference to the SupervisedNetwork.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

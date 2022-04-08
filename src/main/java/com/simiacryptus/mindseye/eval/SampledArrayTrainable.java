@@ -32,7 +32,13 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 /**
- * The type Sampled array trainable.
+ * This class represents a trainable array of samples.
+ *
+ * @param trainingData the data used to train the array
+ * @param minSamples   the minimum number of samples
+ * @param seed         the seed used to generate random numbers
+ * @param trainingSize the size of the training data
+ * @docgenVersion 9
  */
 public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     implements SampledTrainable, TrainableDataMask {
@@ -115,34 +121,50 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   }
 
   /**
-   * Gets min samples.
+   * Returns the minimum number of samples required for this estimator.
    *
-   * @return the min samples
+   * @docgenVersion 9
    */
   public int getMinSamples() {
     return minSamples;
   }
 
   /**
-   * Sets min samples.
+   * Sets the minimum number of samples required for a node to be
+   * considered for splitting.
    *
-   * @param minSamples the min samples
+   * @docgenVersion 9
    */
   public void setMinSamples(int minSamples) {
     this.minSamples = minSamples;
   }
 
+  /**
+   * Returns the number of training examples.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public int getTrainingSize() {
     return Math.max(minSamples, Math.min(trainingData.size(), trainingSize));
   }
 
+  /**
+   * Sets the training size.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void setTrainingSize(final int trainingSize) {
     this.trainingSize = trainingSize;
     refreshSampledData();
   }
 
+  /**
+   * Sets the seed for the random number generator.
+   *
+   * @docgenVersion 9
+   */
   private void setSeed(final int newValue) {
     if (seed == newValue)
       return;
@@ -150,12 +172,25 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     refreshSampledData();
   }
 
+  /**
+   * Returns a SampledCachedTrainable that is a cached version of the
+   * SampledTrainable.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public SampledCachedTrainable<? extends SampledTrainable> cached() {
     return new SampledCachedTrainable<>(this.addRef());
   }
 
+  /**
+   * Reseeds the random number generator with the given seed.
+   *
+   * @param seed the seed
+   * @return true if the random number generator was reseeded, false otherwise
+   * @docgenVersion 9
+   */
   @Override
   public boolean reseed(final long seed) {
     setSeed(Util.R.get().nextInt());
@@ -167,12 +202,22 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
     return true;
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
     trainingData.freeRef();
   }
 
+  /**
+   * Adds a reference to the SampledArrayTrainable.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -181,7 +226,9 @@ public class SampledArrayTrainable extends TrainableWrapper<ArrayTrainable>
   }
 
   /**
-   * Refresh sampled data.
+   * Refreshes the sampled data.
+   *
+   * @docgenVersion 9
    */
   protected void refreshSampledData() {
     assert 0 < trainingData.size();

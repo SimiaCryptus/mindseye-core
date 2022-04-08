@@ -36,7 +36,10 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * The type Pipeline network.
+ * This class represents a pipeline network, which is a directed acyclic graph (DAG) of nodes.
+ * The head node is the starting point of the pipeline and can be null.
+ *
+ * @docgenVersion 9
  */
 @SuppressWarnings("serial")
 public class PipelineNetwork extends DAGNetwork {
@@ -98,6 +101,10 @@ public class PipelineNetwork extends DAGNetwork {
     super(inputs, id, name);
   }
 
+  /**
+   * @return the head layer, or null if there is no head layer
+   * @docgenVersion 9
+   */
   @Nullable
   public Layer headLayer() {
     DAGNode head = getHead();
@@ -107,6 +114,18 @@ public class PipelineNetwork extends DAGNetwork {
     return layer;
   }
 
+  /**
+   * @NotNull
+   * @Override public final DAGNode getHead() {
+   * assertAlive();
+   * if (null == head) {
+   * return getInput(0);
+   * } else {
+   * return head.addRef();
+   * }
+   * }
+   * @docgenVersion 9
+   */
   @NotNull
   @Override
   public final DAGNode getHead() {
@@ -119,9 +138,10 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Sets head.
+   * Sets the head of the DAG.
    *
-   * @param obj the obj
+   * @param obj the new head of the DAG
+   * @docgenVersion 9
    */
   public synchronized void setHead(@Nullable final DAGNode obj) {
     if (obj != head) {
@@ -135,11 +155,12 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * From json pipeline network.
+   * Creates a new {@link PipelineNetwork} from the given JSON object.
    *
-   * @param json the json
-   * @param rs   the rs
-   * @return the pipeline network
+   * @param json the JSON object to create the network from
+   * @param rs   the map of character sequences to byte arrays
+   * @return the newly created network
+   * @docgenVersion 9
    */
   @Nonnull
   @SuppressWarnings("unused")
@@ -148,11 +169,12 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Build pipeline network.
+   * Builds a pipeline network with the given inputs and layers.
    *
-   * @param inputs the inputs
+   * @param inputs the number of inputs
    * @param layers the layers
    * @return the pipeline network
+   * @docgenVersion 9
    */
   @Nonnull
   public static PipelineNetwork build(final int inputs, @Nonnull final Layer... layers) {
@@ -166,11 +188,12 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Combine pipeline network.
+   * Combines the given networks using the specified combiner layer.
    *
-   * @param combiner the combiner
-   * @param networks the networks
-   * @return the pipeline network
+   * @param combiner the layer to use for combining
+   * @param networks the networks to combine
+   * @return the combined network
+   * @docgenVersion 9
    */
   public static PipelineNetwork combine(@Nullable Layer combiner, @Nonnull PipelineNetwork... networks) {
     assert RefArrays.stream(RefUtil.addRef(networks)).allMatch(pipelineNetwork1 -> {
@@ -194,10 +217,11 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Sequence pipeline network.
+   * Sequences the given networks.
    *
-   * @param networks the networks
-   * @return the pipeline network
+   * @param networks the networks to sequence
+   * @return the sequenced network
+   * @docgenVersion 9
    */
   public static PipelineNetwork sequence(@Nonnull PipelineNetwork... networks) {
     assert RefArrays.stream(RefUtil.addRef(networks)).allMatch(pipelineNetwork1 -> {
@@ -231,10 +255,10 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Gets copy.
+   * Returns a copy of the given pipeline network. If the network is null,
+   * returns null.
    *
-   * @param network the network
-   * @return the copy
+   * @docgenVersion 9
    */
   public static PipelineNetwork getCopy(PipelineNetwork network) {
     if (null == network) {
@@ -247,12 +271,24 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
+  /**
+   * Returns a copy of this pipeline network with the specified precision.
+   *
+   * @param precision the precision of the copy
+   * @return the copy of this pipeline network
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public PipelineNetwork copy(final SerialPrecision precision) {
     return (PipelineNetwork) super.copy(precision);
   }
 
+  /**
+   * Returns a copy of this pipeline network.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public PipelineNetwork copy() {
@@ -260,10 +296,11 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Add inner node.
+   * Adds the given node to the head of the list.
    *
-   * @param nextHead the next head
-   * @return the inner node
+   * @param nextHead the node to add
+   * @return the added node
+   * @docgenVersion 9
    */
   @Nonnull
   public InnerNode add(@Nullable final Layer nextHead) {
@@ -272,6 +309,14 @@ public class PipelineNetwork extends DAGNetwork {
     return add(nextHead, getHead());
   }
 
+  /**
+   * Adds the next head to the DAG.
+   *
+   * @param nextHead the next head to add
+   * @param head     the current head of the DAG
+   * @return the new head of the DAG
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public InnerNode add(@Nullable final Layer nextHead, @Nonnull final DAGNode... head) {
@@ -281,6 +326,15 @@ public class PipelineNetwork extends DAGNetwork {
     return node;
   }
 
+  /**
+   * Adds a node with the given label and layer, and makes it the head node.
+   *
+   * @param label the label for the new node
+   * @param layer the layer for the new node
+   * @param head  the head node(s) for the new node
+   * @return the new node
+   * @docgenVersion 9
+   */
   @Nonnull
   @SafeVarargs
   @Override
@@ -292,10 +346,11 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Add all.
+   * Adds all the given layers to the given node.
    *
-   * @param node   the node
-   * @param layers the layers
+   * @param node   the node to add the layers to
+   * @param layers the layers to add
+   * @docgenVersion 9
    */
   public void addAll(DAGNode node, @Nonnull final Layer... layers) {
     for (final Layer l : layers) {
@@ -307,9 +362,10 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Add all.
+   * Adds all the given layers to this layer.
    *
-   * @param layers the layers
+   * @param layers the layers to add
+   * @docgenVersion 9
    */
   public void addAll(@Nullable final Layer... layers) {
     addAll(getHead(), RefUtil.addRef(layers));
@@ -318,16 +374,20 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Const value dag node.
-   *
-   * @param tensor the tensor
-   * @return the dag node
+   * @param tensor the tensor to use as a value, or null to use a default tensor
+   * @return the resulting DAGNode
+   * @docgenVersion 9
    */
   @Nullable
   public DAGNode constValue(@Nullable final Tensor tensor) {
     return add(new ValueLayer(tensor), new DAGNode[]{});
   }
 
+  /**
+   * @param tensor the tensor to use for the value layer
+   * @return the DAGNode for the value layer
+   * @docgenVersion 9
+   */
   @Nullable
   public DAGNode mutableValue(@Nullable final Tensor tensor) {
     ValueLayer valueLayer = new ValueLayer(tensor);
@@ -336,10 +396,9 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Const value wrap dag node.
-   *
-   * @param tensor the tensor
-   * @return the dag node
+   * @param tensor the tensor to wrap
+   * @return the DAGNode representing the given tensor, or null if the tensor is null
+   * @docgenVersion 9
    */
   @Nullable
   public DAGNode constValueWrap(@Nullable final Tensor tensor) {
@@ -358,6 +417,12 @@ public class PipelineNetwork extends DAGNetwork {
     return constValue(tensor);
   }
 
+  /**
+   * Overrides the getJson method to assert that the object is in a consistent state
+   * and to add a "head" property to the JSON object with the value of the headId.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public JsonObject getJson(Map<CharSequence, byte[]> resources, DataSerializer dataSerializer) {
     assertConsistent();
@@ -367,6 +432,13 @@ public class PipelineNetwork extends DAGNetwork {
     return json;
   }
 
+  /**
+   * Adds the given layer to the end of this network and returns the resulting network.
+   *
+   * @param append the layer to add
+   * @return the resulting network
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public PipelineNetwork andThen(@Nonnull Layer append) {
@@ -378,9 +450,10 @@ public class PipelineNetwork extends DAGNetwork {
   }
 
   /**
-   * Copy pipeline pipeline network.
+   * Returns a copy of the pipeline network.
    *
-   * @return the pipeline network
+   * @return a copy of the pipeline network
+   * @docgenVersion 9
    */
   @Nullable
   public final PipelineNetwork copyPipeline() {
@@ -392,6 +465,11 @@ public class PipelineNetwork extends DAGNetwork {
     return pipelineNetwork;
   }
 
+  /**
+   * Frees this object and all of its children.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != head) {
@@ -400,6 +478,12 @@ public class PipelineNetwork extends DAGNetwork {
     }
   }
 
+  /**
+   * Adds a reference to this object.
+   *
+   * @return a reference to this object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

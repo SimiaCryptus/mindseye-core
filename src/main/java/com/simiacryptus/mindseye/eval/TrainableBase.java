@@ -24,15 +24,27 @@ import com.simiacryptus.ref.lang.ReferenceCountingBase;
 import javax.annotation.Nonnull;
 
 /**
- * The type Trainable base.
+ * Base class for trainable models.
+ *
+ * @docgenVersion 9
  */
 public abstract class TrainableBase extends ReferenceCountingBase implements Trainable {
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
   }
 
+  /**
+   * Adds a reference to the TrainableBase.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

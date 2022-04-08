@@ -37,7 +37,12 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 /**
- * The type Momentum strategy.
+ * The MomentumStrategy class represents a strategy for carrying over momentum from one iteration to the next.
+ * The class contains an inner OrientationStrategy object, as well as a DeltaSet object representing the
+ * previous delta. The carryOver variable represents the amount of momentum that is carried over from one
+ * iteration to the next.*
+ *
+ * @docgenVersion 9
  */
 public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCursor> {
 
@@ -68,23 +73,30 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
   }
 
   /**
-   * Gets carry over.
+   * Returns the carry over value.
    *
-   * @return the carry over
+   * @docgenVersion 9
    */
   public double getCarryOver() {
     return carryOver;
   }
 
   /**
-   * Sets carry over.
+   * Sets the carry over value.
    *
-   * @param carryOver the carry over
+   * @param carryOver the new carry over value
+   * @docgenVersion 9
    */
   public void setCarryOver(double carryOver) {
     this.carryOver = carryOver;
   }
 
+  /**
+   * @param subject     The subject to orient.
+   * @param measurement The measurement to use.
+   * @param monitor     The training monitor.
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public SimpleLineSearchCursor orient(@Nullable final Trainable subject, @Nonnull final PointSample measurement,
@@ -114,12 +126,22 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
     return new SimpleLineSearchCursor(subject, measurement, newDelta);
   }
 
+  /**
+   * Resets the inner object.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public void reset() {
     assert inner != null;
     inner.reset();
   }
 
+  /**
+   * Frees this object and all resources associated with it.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     prevDelta.freeRef();
@@ -128,6 +150,10 @@ public class MomentumStrategy extends OrientationStrategyBase<SimpleLineSearchCu
       inner.freeRef();
   }
 
+  /**
+   * @return a reference to this object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")

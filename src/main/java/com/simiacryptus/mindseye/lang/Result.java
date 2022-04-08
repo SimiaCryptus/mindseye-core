@@ -32,7 +32,10 @@ import java.util.function.BiConsumer;
 import java.util.stream.IntStream;
 
 /**
- * The type Result.
+ * This class represents the result of some computation. It contains the data of the computation,
+ * the dimensions of the data, and some other information.
+ *
+ * @docgenVersion 9
  */
 public class Result extends ReferenceCountingBase {
   private static final Result.Accumulator NULL_ACCUMULATOR = new NullAccumulator();
@@ -96,6 +99,11 @@ public class Result extends ReferenceCountingBase {
     this.data = data;
   }
 
+  /**
+   * Returns an array of integers representing the dimensions of the object.
+   *
+   * @docgenVersion 9
+   */
   public static int[] getDimensions(Result result) {
     TensorList data = result.getData();
     result.freeRef();
@@ -105,9 +113,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Gets accumulator.
+   * Returns the Accumulator for this Result.
    *
-   * @return the accumulator
+   * @docgenVersion 9
    */
   public final Result.Accumulator getAccumulator() {
     assertAlive();
@@ -116,9 +124,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Gets data.
+   * Returns the data of the TensorList.
    *
-   * @return the data
+   * @docgenVersion 9
    */
   @NotNull
   public final TensorList getData() {
@@ -128,9 +136,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Gets null accumulator.
+   * Returns an Accumulator instance with all values set to null.
    *
-   * @return the null accumulator
+   * @docgenVersion 9
    */
   public static Result.Accumulator getNullAccumulator() {
     return new NullAccumulator();
@@ -138,9 +146,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Is alive boolean.
+   * Returns true if the entity is alive, false otherwise.
    *
-   * @return the boolean
+   * @docgenVersion 9
    */
   public boolean isAlive() {
     assertAlive();
@@ -148,20 +156,18 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Is null boolean.
+   * Returns true if the value is null, false otherwise.
    *
-   * @param accumulator the accumulator
-   * @return the boolean
+   * @docgenVersion 9
    */
   public static boolean isNull(@RefIgnore Accumulator accumulator) {
     return null == accumulator || accumulator instanceof NullAccumulator;
   }
 
   /**
-   * Gets data.
+   * Returns the data of the TensorList.
    *
-   * @param result the result
-   * @return the data
+   * @docgenVersion 9
    */
   @NotNull
   public static TensorList getData(Result result) {
@@ -171,10 +177,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Any alive boolean.
+   * Returns true if any of the cells in the grid are alive.
    *
-   * @param inObj the in obj
-   * @return the boolean
+   * @docgenVersion 9
    */
   public static boolean anyAlive(Result[] inObj) {
     try {
@@ -189,20 +194,18 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Gets data 0.
+   * Returns the data of the tensor as an array.
    *
-   * @param eval the eval
-   * @return the data 0
+   * @docgenVersion 9
    */
   public static Tensor getData0(Result eval) {
     return TensorList.getData0(getData(eval));
   }
 
   /**
-   * Copy double [ ].
+   * Returns a copy of the underlying array.
    *
-   * @param delta the delta
-   * @return the double [ ]
+   * @docgenVersion 9
    */
   public double[] copy(double[] delta) {
     delta = RefArrays.copyOf(delta, delta.length);
@@ -210,19 +213,18 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Accumulate.
+   * Accumulates the value of 'this' and 'that'
    *
-   * @param buffer the buffer
+   * @docgenVersion 9
    */
   public final void accumulate(@Nullable final DeltaSet<UUID> buffer) {
     accumulate(buffer, 1.0);
   }
 
   /**
-   * Accumulate.
+   * Accumulates the value of 'this' and 'that'
    *
-   * @param buffer the buffer
-   * @param value  the value
+   * @docgenVersion 9
    */
   public final void accumulate(@Nullable final DeltaSet<UUID> buffer, final double value) {
     accumulate(buffer, new TensorArray(IntStream.range(0, dataLength).mapToObj(x -> {
@@ -233,10 +235,9 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * Accumulate.
+   * Accumulates the value of 'this' and 'that'
    *
-   * @param buffer the buffer
-   * @param delta  the delta
+   * @docgenVersion 9
    */
   public final void accumulate(@Nullable DeltaSet<UUID> buffer, @Nullable TensorList delta) {
     assertAlive();
@@ -244,6 +245,11 @@ public class Result extends ReferenceCountingBase {
     accumulator.accept(buffer, delta);
   }
 
+  /**
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
+   */
   public @SuppressWarnings("unused")
   void _free() {
     super._free();
@@ -251,6 +257,11 @@ public class Result extends ReferenceCountingBase {
     data.freeRef();
   }
 
+  /**
+   * Adds a reference to the result.
+   *
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -259,16 +270,28 @@ public class Result extends ReferenceCountingBase {
   }
 
   /**
-   * The type Accumulator.
+   * This is the Accumulator class.
+   *
+   * @docgenVersion 9
    */
   public static abstract class Accumulator extends ReferenceCountingBase
       implements BiConsumer<DeltaSet<UUID>, TensorList> {
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();
     }
 
+    /**
+     * Add a reference to the accumulator.
+     *
+     * @docgenVersion 9
+     */
     @Nonnull
     public @Override
     @SuppressWarnings("unused")
@@ -277,13 +300,28 @@ public class Result extends ReferenceCountingBase {
     }
   }
 
+  /**
+   * This class represents an accumulator that can be used to compute null values.
+   *
+   * @docgenVersion 9
+   */
   private static final class NullAccumulator extends Result.Accumulator {
+    /**
+     * Accepts an input.
+     *
+     * @docgenVersion 9
+     */
     @Override
     public void accept(@Nullable DeltaSet<UUID> deltaSet, @Nullable TensorList tensorList) {
       RefUtil.freeRef(tensorList);
       RefUtil.freeRef(deltaSet);
     }
 
+    /**
+     * Frees the memory associated with this object.
+     *
+     * @docgenVersion 9
+     */
     public @SuppressWarnings("unused")
     void _free() {
       super._free();

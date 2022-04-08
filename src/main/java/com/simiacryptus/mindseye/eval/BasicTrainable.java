@@ -37,7 +37,10 @@ import java.util.DoubleSummaryStatistics;
 import java.util.UUID;
 
 /**
- * The type Basic trainable.
+ * This class represents a trainable object with a nullable network layer and nullable data.
+ * It also has a nullable boolean mask, an input size, and an array of input proxies.
+ *
+ * @docgenVersion 9
  */
 public class BasicTrainable extends ReferenceCountingBase implements DataTrainable, TrainableDataMask {
 
@@ -63,6 +66,11 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     inputSize = 0;
   }
 
+  /**
+   * @return the data
+   * @throws NullPointerException if data is null
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   public Tensor[][] getData() {
@@ -70,6 +78,12 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return data.toArray(new Tensor[][]{});
   }
 
+  /**
+   * Sets the data for this layer.
+   *
+   * @param data The data to set.
+   * @docgenVersion 9
+   */
   public synchronized void setData(@Nonnull final RefList<Tensor[]> data) {
     if (null != this.data)
       this.data.freeRef();
@@ -80,9 +94,9 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   /**
-   * Get input proxies result [ ].
+   * Returns an array of non-null Results.
    *
-   * @return the result [ ]
+   * @docgenVersion 9
    */
   @Nonnull
   protected Result[] getInputProxies() {
@@ -103,31 +117,52 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
         }).toArray(Result[]::new);
   }
 
+  /**
+   * Returns the layer associated with this object, or null if there is no such layer.
+   *
+   * @docgenVersion 9
+   */
   @Override
   public Layer getLayer() {
     return network == null ? null : network.addRef();
   }
 
+  /**
+   * @return the mask or null if none exists
+   * @docgenVersion 9
+   */
   @Nullable
   @Override
   public boolean[] getMask() {
     return mask;
   }
 
+  /**
+   * Sets the mask to the given boolean values.
+   *
+   * @param mask the new mask
+   * @docgenVersion 9
+   */
   @Override
   public void setMask(final boolean... mask) {
     this.mask = mask;
   }
 
   /**
-   * Sets verbosity.
+   * Sets the verbosity of the output.
    *
-   * @param verbose the verbose
+   * @param verbose the new verbosity of the output
+   * @docgenVersion 9
    */
   public void setVerbosity(int verbose) {
     verbosity = verbose;
   }
 
+  /**
+   * @param data
+   * @return
+   * @docgenVersion 9
+   */
   @RefIgnore
   private static int getInputs(@NotNull @RefIgnore RefList<Tensor[]> data) {
     if (null == data) return 0;
@@ -138,6 +173,10 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return length;
   }
 
+  /**
+   * @Override public PointSample measure(@Nullable final TrainingMonitor monitor);
+   * @docgenVersion 9
+   */
   @Override
   public PointSample measure(@Nullable final TrainingMonitor monitor) {
     assert data != null;
@@ -154,14 +193,19 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   /**
-   * Verbosity int.
+   * Returns the verbosity level.
    *
-   * @return the int
+   * @docgenVersion 9
    */
   public int verbosity() {
     return verbosity;
   }
 
+  /**
+   * Frees this object.
+   *
+   * @docgenVersion 9
+   */
   public void _free() {
     super._free();
     if (null != inputProxies) {
@@ -178,6 +222,10 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     }
   }
 
+  /**
+   * @return a new reference to this object
+   * @docgenVersion 9
+   */
   @Nonnull
   public @Override
   @SuppressWarnings("unused")
@@ -186,9 +234,9 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
   }
 
   /**
-   * Eval point sample.
-   *
-   * @return the point sample
+   * @return the result of the evaluation as a PointSample
+   * @throws NullPointerException if the result is null
+   * @docgenVersion 9
    */
   @Nonnull
   protected PointSample eval() {
@@ -211,10 +259,23 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     return normalize(new PointSample(deltaSet, stateSet, sum, 0.0, data.size()));
   }
 
+  /**
+   * Returns true if the given input index should be masked, false otherwise.
+   * A null mask indicates that all inputs should be masked.
+   *
+   * @docgenVersion 9
+   */
   private boolean mask(int inputIndex) {
     return null == mask || inputIndex >= mask.length || !mask[inputIndex];
   }
 
+  /**
+   * Selects the inputIndex'th input from each batch in data.
+   *
+   * @param inputIndex the input index to select
+   * @return an array of Tensors containing the selected inputs
+   * @docgenVersion 9
+   */
   @NotNull
   private Tensor[] select(int inputIndex) {
     return data.stream().map(batchData -> {
@@ -226,6 +287,13 @@ public class BasicTrainable extends ReferenceCountingBase implements DataTrainab
     }).toArray(Tensor[]::new);
   }
 
+  /**
+   * Normalizes the given point sample.
+   *
+   * @param pointSample the point sample to normalize
+   * @return the normalized point sample
+   * @docgenVersion 9
+   */
   @NotNull
   private PointSample normalize(PointSample pointSample) {
     PointSample normalize = pointSample.normalize();

@@ -22,27 +22,33 @@ package com.simiacryptus.mindseye.opt;
 import javax.annotation.Nullable;
 
 /**
- * The type Training monitor.
+ * This class is responsible for monitoring training progress.
+ *
+ * @docgenVersion 9
  */
 public class TrainingMonitor {
   /**
-   * Clear.
+   * Clears the contents of this buffer.
+   *
+   * @docgenVersion 9
    */
   public void clear() {
   }
 
   /**
-   * Log.
+   * Logs the given message.
    *
-   * @param msg the msg
+   * @param msg the message to log
+   * @docgenVersion 9
    */
   public void log(final String msg) {
   }
 
   /**
-   * On step complete.
+   * This method is invoked when a step is completed.
    *
-   * @param currentPoint the current point
+   * @param currentPoint the current point in the step process; may be null
+   * @docgenVersion 9
    */
   public void onStepComplete(@Nullable final Step currentPoint) {
     if (null != currentPoint)
@@ -50,10 +56,11 @@ public class TrainingMonitor {
   }
 
   /**
-   * On step fail boolean.
+   * This method is called when a step fails.
    *
-   * @param currentPoint the current point
-   * @return the boolean
+   * @param currentPoint the current point in the step process
+   * @return false
+   * @docgenVersion 9
    */
   public boolean onStepFail(@Nullable final Step currentPoint) {
     if (null != currentPoint)

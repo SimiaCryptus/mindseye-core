@@ -22,32 +22,47 @@ package com.simiacryptus.mindseye.eval;
 import javax.annotation.Nonnull;
 
 /**
- * The interface Sampled trainable.
+ * This is the SampledTrainable interface.
+ *
+ * @docgenVersion 9
  */
 public interface SampledTrainable extends Trainable {
   /**
-   * Gets training size.
+   * Returns the number of training examples.
    *
-   * @return the training size
+   * @docgenVersion 9
    */
   int getTrainingSize();
 
   /**
-   * Sets training size.
+   * Sets the training size.
    *
-   * @param trainingSize the training size
+   * @param trainingSize the new training size
+   * @docgenVersion 9
    */
   void setTrainingSize(int trainingSize);
 
+  /**
+   * @return a new SampledCachedTrainable object
+   * @docgenVersion 9
+   */
   @Nonnull
   @Override
   SampledCachedTrainable<? extends SampledTrainable> cached();
 
   /**
-   * Free.
+   * Frees the memory associated with this object.
+   *
+   * @docgenVersion 9
    */
   void _free();
 
+  /**
+   * Add a reference to the sampled trainable.
+   *
+   * @return the sampled trainable
+   * @docgenVersion 9
+   */
   @Nonnull
   SampledTrainable addRef();
 }

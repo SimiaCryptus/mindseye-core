@@ -24,13 +24,15 @@ import com.simiacryptus.mindseye.lang.Layer;
 import javax.annotation.Nonnull;
 
 /**
- * The interface Explodable.
+ * This is the Explodable interface.
+ *
+ * @docgenVersion 9
  */
 public interface Explodable {
   /**
-   * Explode layer.
+   * This function explodes a layer.
    *
-   * @return the layer
+   * @docgenVersion 9
    */
   @Nonnull
   Layer explode();
