@@ -392,7 +392,7 @@ public class IterativeTrainer extends ReferenceCountingBase {
         ((DAGNetwork) subjectLayer).clearNoise();
       }
       if (null != subjectLayer) subjectLayer.freeRef();
-      return new TrainingResult(null == currentPoint ? Double.NaN : currentPoint.getMean(), terminationCause);
+      return new TrainingResult(null == currentPoint ? Double.NaN : currentPoint.getMean(), terminationCause, currentIteration.get());
     } catch (Throwable e) {
       monitor.log(RefString.format("Error %s", Util.toString(e)));
       throw Util.throwException(e);

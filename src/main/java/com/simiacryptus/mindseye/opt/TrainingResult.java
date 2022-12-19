@@ -15,9 +15,11 @@ public class TrainingResult {
 
   public final double finalValue;
   public final TerminationCause terminationCause;
+  public final int iteratons;
 
-  public TrainingResult(double finalValue, TerminationCause terminationCause) {
+  public TrainingResult(double finalValue, TerminationCause terminationCause, int iteratons) {
     this.finalValue = finalValue;
     this.terminationCause = terminationCause;
+    this.iteratons = iteratons;
   }
 }
